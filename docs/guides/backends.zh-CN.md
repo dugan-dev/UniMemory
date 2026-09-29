@@ -4,12 +4,12 @@
 
 ## 平台验证状态
 
-| 平台 | Standard | mimalloc | jemalloc | Google TCMalloc |
-| --- | --- | --- | --- | --- |
-| Windows x64 / MSVC | 已验证 | 已验证 | 已验证 | 上游未列支持 |
-| Linux x64 / GCC | 已验证 | 已验证 | 已验证，前缀构建 | Linux/WSL 链接已验证 |
-| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI，前缀构建 | 上游未列支持 |
-| Android / iOS | 尚未设备验证 | 尚未设备验证 | 尚未设备验证 | 上游未列支持 |
+| 平台 | Standard | mimalloc | jemalloc |
+| --- | --- | --- | --- |
+| Windows x64 / MSVC | 已验证 | 已验证 | 已验证 |
+| Linux x64 / GCC | 已验证 | 已验证 | 已验证，前缀构建 |
+| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI，前缀构建 |
+| Android / iOS | 尚未设备验证 | 尚未设备验证 | 尚未设备验证 |
 
 已测版本：mimalloc 3.4.3、jemalloc 5.3.1；更新版本需另行验证。[测试结果](../testing.zh-CN.md)
 
@@ -22,7 +22,6 @@ Global 每个后端共享一个 Memory，Heap 是独立分配组。后端在获�
 | Standard | 默认启用 | C++20，使用进程的标准分配路径 |
 | mimalloc | `UNIMEMORY_WITH_MIMALLOC=ON` | 3.4.3+ 头文件和匹配库 |
 | jemalloc | `UNIMEMORY_WITH_JEMALLOC=ON` | 5.3.1 已验证，显式 `je_` 导出 |
-| Google TCMalloc | 最终程序链接 | Linux，影响 Standard 路径，不是 Backend 枚举 |
 
 ### Windows
 
@@ -60,4 +59,4 @@ jemalloc 必须以 `--with-jemalloc-prefix=je_ --disable-cxx` 构建，默认系
 
 mimalloc DLL 若启用了 CRT 重定向，可在程序启动前设置 `MIMALLOC_DISABLE_REDIRECT=1`，避免接管整个进程。UniMemory 不在运行中修改环境变量。
 
-[能力对照](../allocator-capabilities.zh-CN.md) · [mimalloc](../backends/mimalloc.zh-CN.md) · [jemalloc](../backends/jemalloc.zh-CN.md) · [TCMalloc](../backends/tcmalloc.zh-CN.md)
+[能力对照](../allocator-capabilities.zh-CN.md) · [mimalloc](../backends/mimalloc.zh-CN.md) · [jemalloc](../backends/jemalloc.zh-CN.md)

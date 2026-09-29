@@ -148,33 +148,3 @@ jobs:
             build/all/Testing/Temporary/LastTest.log
             build/consumer/Testing/Temporary/LastTest.log
           retention-days: 14
-
-  tcmalloc-linux:
-    runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      USE_BAZEL_VERSION: 8.4.2
-    steps:
-      - uses: actions/checkout@v5
-      - uses: bazel-contrib/setup-bazel@0.19.0
-        with:
-          bazelisk-cache: true
-          repository-cache: true
-      - name: Build UniMemory
-        run: |
-          cmake -S . -B build/tcmalloc-ci -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
-          cmake --build build/tcmalloc-ci --parallel
-      - name: Link with Google TCMalloc
-        shell: bash
-        run: |
-          git clone --filter=blob:none https://github.com/google/tcmalloc.git build/tcmalloc-source
-          git -C build/tcmalloc-source checkout 1c6a831d649134efac38663f5a269a43f0d02702
-          mkdir -p build/tcmalloc-source/unimemory_check/include
-          cp build/tcmalloc-ci/libUniMemory.a build/tcmalloc-source/unimemory_check/
-          cp -R include/unimem build/tcmalloc-source/unimemory_check/include/
-          cp tests/tcmalloc_linux/BUILD.bazel tests/tcmalloc_linux/smoke.cpp tests/production_tests.cpp build/tcmalloc-source/unimemory_check/
-          cp tests/conformance_tests.cpp tests/memory_tests.cpp tests/unified_memory_tests.cpp tests/interface_usage_tests.cpp benchmarks/delivery_bench.cpp build/tcmalloc-source/unimemory_check/
-          cd build/tcmalloc-source
-          # Keep Bzlmod at the versions declared by this pinned TCMalloc revision.
-          printf '\nsingle_version_override(module_name = "protobuf", version = "34.0")\nsingle_version_override(module_name = "abseil-cpp", version = "20260526.0")\n' >> MODULE.bazel
-          bazel run -c opt //unimemory_check:smoke --jobs=4 --local_ram_resources=HOST_RAM*.65

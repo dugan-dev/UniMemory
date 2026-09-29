@@ -293,7 +293,6 @@ In the chart, Standard = 1; shorter bars are faster. Results apply to the measur
 | macOS: three backends + examples | **1626/1626**, installed consumer passes |
 | ASan / UBSan, Standard and Stack | **681/681** |
 | ThreadSanitizer, Standard and Stack | **678/678** |
-| Linux Standard linked to TCMalloc | **671/671** |
 
 Covers everyday use, boundaries, exceptions and concurrency. [Full test report](docs/testing.md)
 

@@ -293,7 +293,6 @@ Windows x64，MSVC 19.44，Xeon w9-3595X，统计关闭。下表单位为 **纳�
 | macOS：三种 Backend + 示例 | **1626/1626**，安装包使用通过 |
 | ASan / UBSan，Standard 与 Stack | **681/681** |
 | ThreadSanitizer，Standard 与 Stack | **678/678** |
-| Linux Standard 链接 TCMalloc | **671/671** |
 
 覆盖常规使用、边界、异常和并发场景。[完整测试报告](docs/testing.zh-CN.md)
 

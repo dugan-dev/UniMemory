@@ -17,8 +17,6 @@ UniMemory unifies common contracts. Backend capability queries describe optional
 | Reclaim delay | No allocator control | Purge delay | Arena decay defaults | One advisory option |
 | Allocation profiling, traversal, OS reservation hooks | No common interface | Native-specific | Native-specific | Not exposed in 0.0.1 |
 
-Google TCMalloc is a final-program allocator on supported Linux configurations. It can serve the Standard new/delete path, but has no dedicated Backend enum, independent Heap or unified backend diagnostics in UniMemory.
-
 ## Different meanings of arena
 
 | Term | Meaning |
@@ -31,4 +29,4 @@ Google TCMalloc is a final-program allocator on supported Linux configurations. 
 
 PMR unifies storage allocation/free, not every native control or every library's allocation. Using mimalloc does not forbid standard C++ allocation; keep each pointer paired with its correct allocation API. No backend is assumed fastest without a measured workload.
 
-Tested versions: mimalloc **3.4.3**, jemalloc **5.3.1**, pinned TCMalloc revision. Current web manuals can describe newer versions. [Native details](backends/mimalloc.md) · [Build conditions](guides/backends.md) · [Evidence](testing.md)
+Tested versions: mimalloc **3.4.3**, jemalloc **5.3.1**. Current web manuals can describe newer versions. [Native details](backends/mimalloc.md) · [Build conditions](guides/backends.md) · [Evidence](testing.md)

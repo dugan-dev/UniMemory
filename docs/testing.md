@@ -11,7 +11,6 @@
 | macOS / Apple Clang, three backends | **1626/1626** in GitHub CI; installed package builds and runs |
 | Linux Standard / Stack, ASan + UBSan | **681/681**, no sanitizer findings |
 | Linux Standard / Stack, ThreadSanitizer | **678/678**, no race findings; examples disabled |
-| Linux Standard linked to Google TCMalloc | **671/671** adapter tests |
 | Installed package, Windows and Linux | Package lookup, version and application build pass |
 | Independent GitHub clone | README build, Standard **681/681**; static/shared installed packages **2/2** each |
 | Documentation examples | 18 README examples + 2 PMR programs; Linux Standard and three-backend builds, **40/40** runs |

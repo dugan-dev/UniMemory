@@ -11,7 +11,6 @@
 | macOS / Apple Clang，三种 Backend | GitHub CI **1626/1626**；安装包使用程序通过 |
 | Linux Standard / Stack，ASan + UBSan | **681/681**，未发现 Sanitizer 错误 |
 | Linux Standard / Stack，ThreadSanitizer | **678/678**，未发现竞争；关闭示例 |
-| Linux Standard 链接 Google TCMalloc | **671/671** 项适配测试 |
 | Windows、Linux 安装包 | 包查找、版本检查、程序编译运行通过 |
 | 独立 GitHub 克隆 | README 构建、Standard **681/681**；静态/共享安装包使用各 **2/2** |
 | 文档示例 | 18 个 README 示例 + 2 个 PMR 程序；Linux 单后端与三后端构建，**40/40** 次运行通过 |

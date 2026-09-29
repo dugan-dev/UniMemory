@@ -16,7 +16,6 @@ Local WSL ThreadSanitizer uses `setarch x86_64 -R` for the test process and its 
 | --- | --- | --- |
 | [mimalloc](https://github.com/microsoft/mimalloc/blob/v3.4.3/CMakeLists.txt) | 3.4.3; `152fbf2634aeafca3774df791b0a77683035f076` | All four upstream CTest programs; native allocation, fill and stress |
 | [jemalloc](https://github.com/jemalloc/jemalloc/blob/5.3.1/Makefile.in) | 5.3.1; `81034ce1f1373e37dc865038e1bc8eeecf559ce8` | `make check`, `make stress`, `make analyze`; profiling enabled |
-| [Google TCMalloc](https://github.com/google/tcmalloc/blob/1c6a831d649134efac38663f5a269a43f0d02702/tcmalloc/testing/BUILD) | `1c6a831d649134efac38663f5a269a43f0d02702` | `bazel test //tcmalloc/...`; native `tcmalloc_benchmark`; final-program linking |
 | [mimalloc-bench](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86) | `ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86` | All 16 packaged allocation/application programs listed below |
 | [rpmalloc](https://github.com/mjansson/rpmalloc/tree/1.4.5/test) | 1.4.5; `e4393ff85585d91400bcbad2e7266c011075b673` | Native C suite with assertions/statistics/heaps; C++ override suite with upstream library defaults; test-only dependency |
 
@@ -38,14 +37,6 @@ bash tools/validate-packaging.sh "$HOME/unimemory-validation"
 bash tools/validate-benchmark-collection.sh "$HOME/unimemory-validation"
 bash tools/validate-rpmalloc.sh "$HOME/rpmalloc-validation"
 ```
-
-TCMalloc requires Bazel 8.4.2. Run `bash tools/validate-tcmalloc.sh "$HOME/tcmalloc-validation"`. Its dependencies are recorded in [release-validation.yml](../.github/workflows/release-validation.yml). `tests/tcmalloc_linux/BUILD.bazel` runs 240 Backend cases, 240 Stack cases, 64 random traces, factory/object/container/boundary/concurrency checks and a soak test through the linked allocator. It does not introduce a per-instance `Backend::TCMalloc`.
-
-The 671 adapter tests also include 114 interface-use cases: ownership adoption,
-Shared/Weak lifetime, startup configuration, Stack marks, synchronized handoff and
-random ownership transitions with counters on/off.
-
-On this WSL host, the native clock check fails with hardware cycle timing. `UNIMEMORY_VALIDATION_PORTABLE_CLOCK=1` selects Abseil's [supported compile-time clock fallback](https://github.com/abseil/abseil-cpp/blob/20260526.0/absl/base/internal/unscaledcycleclock_config.h); no assertion is changed. WSL's crash collector also blocks intentional death tests; the local validation temporarily bypasses it and restores the original kernel setting. The scripts do not change kernel settings automatically.
 
 ## External workloads
 
@@ -69,7 +60,6 @@ Three shuffled trials per program/backend, fresh processes, four threads where c
 | `sh6bench`, `sh8bench` | Their licensed source files are absent from the upstream repository; not built or counted |
 | Security probes | Intentionally execute use-after-free, double-free or corruption; not valid portable API tests |
 | Extra applications such as Redis, Lean and RocksDB | Additional dependency graphs; outside this validation suite |
-| Fuzzing/manual TCMalloc targets | Bazel's default test selection applies; do not claim every possible configuration or fuzz corpus ran |
 | Android/iOS | Not device-tested in this release |
 | GNU `--wrap=mi_heap_new` | The reset-failure fixture requires static UniMemory; the linker cannot wrap calls inside an existing shared library |
 | Windows `new` replacement | Allocation-failure injection requires static UniMemory; it cannot replace DLL-internal calls |

@@ -4,12 +4,12 @@
 
 ## Platform validation
 
-| Platform | Standard | mimalloc | jemalloc | Google TCMalloc |
-| --- | --- | --- | --- | --- |
-| Windows x64 / MSVC | Verified | Verified | Verified | Outside upstream's listed support |
-| Linux x64 / GCC | Verified | Verified | Verified, prefixed build | Linux/WSL linkage verified |
-| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI, prefixed build | Outside upstream's listed support |
-| Android / iOS | Not device-tested | Not device-tested | Not device-tested | Outside upstream's listed support |
+| Platform | Standard | mimalloc | jemalloc |
+| --- | --- | --- | --- |
+| Windows x64 / MSVC | Verified | Verified | Verified |
+| Linux x64 / GCC | Verified | Verified | Verified, prefixed build |
+| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI, prefixed build |
+| Android / iOS | Not device-tested | Not device-tested | Not device-tested |
 
 This table describes evidence, not a guarantee for all architectures or operating-system versions. [Exact versions and results →](../testing.md)
 
@@ -24,7 +24,6 @@ The backend is fixed for the instance's lifetime. An unavailable backend throws;
 | None / Standard | C++20 | Default | Process global `new/delete` |
 | mimalloc | 3.4.3 | `UNIMEMORY_WITH_MIMALLOC=ON` | v3.4.3+ headers and matching library; newer versions need their own validation |
 | jemalloc | 5.3.1 | `UNIMEMORY_WITH_JEMALLOC=ON` | Matching headers/library exporting `je_` functions |
-| Google TCMalloc | Pinned revision in report | Final executable linkage | Linux; changes process allocation, not Backend enum |
 
 ### Windows with vcpkg
 

@@ -55,7 +55,6 @@ add_library(UniMemory
 )
 add_library(UniMemory::UniMemory ALIAS UniMemory)
 target_link_libraries(UniMemory PRIVATE Threads::Threads)
-include(cmake/UniMemoryTCMalloc.cmake)
 
 target_compile_features(UniMemory PUBLIC cxx_std_20)
 target_include_directories(UniMemory PUBLIC
@@ -317,7 +316,6 @@ write_basic_package_version_file(
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/UniMemoryConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/UniMemoryConfigVersion.cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UniMemoryTCMalloc.cmake"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/UniMemoryJemalloc.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/UniMemory)
 install(EXPORT UniMemoryTargets FILE UniMemoryTargets.cmake
