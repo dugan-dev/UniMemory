@@ -1,14 +1,14 @@
 # 分配耗时
 
-[Performance](../performance.zh-CN.md) · [English](latency.md) · **简体中文**
+[性能](../performance.zh-CN.md) · [English](latency.md) · **简体中文**
 
-**纳秒/完整操作；越低越快。** 每个场景取三进程中位数；进程内预热后重复七次。Global，统计关闭。
+**纳秒/完整操作，越小越快。** 三次进程测量取中位数；使用 Global，统计关闭。
 
-## 1 · Object / Container / Block
+## 1 · 对象、容器与内存块
 
 ### Windows / MSVC
 
-| Workload | Standard | mimalloc | jemalloc |
+| 场景 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
 | make_unique, 64 B | 46.4 | 12.2 | 36.0 |
 | make_shared, 64 B | 63.1 | 23.7 | 56.5 |
@@ -21,7 +21,7 @@
 
 ### Linux / GCC / WSL
 
-| Workload | Standard | mimalloc | jemalloc |
+| 场景 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
 | make_unique, 64 B | 18.8 | 10.6 | 20.0 |
 | make_shared, 64 B | 20.8 | 13.3 | 27.3 |
@@ -38,13 +38,13 @@ Object 包含创建与销毁；vector 包含增长与销毁；resize 包含分�
 
 每行 Standard = 1；越短越快。
 
-## 2 · Native / API / Basic
+## 2 · 原生接口与统计开关
 
-一次分配/释放，16 字节对齐。Native 直接调用后端；API 关闭统计；Basic 开启请求计数。每进程九次 × 200000 操作，三个进程。
+一次分配与释放，16 字节对齐。Native 直接调用后端；API 使用 UniMemory，关闭统计；Basic 开启统计。
 
 ### Windows
 
-| Bytes | Backend | Native | API | Basic |
+| 字节数 | 后端 | Native | API | Basic |
 | --- | --- | --- | --- | --- |
 | 64 | Standard | 42.3 | 44.4 | 72.3 |
 | 64 | mimalloc | 7.1 | 11.2 | 33.5 |
@@ -55,7 +55,7 @@ Object 包含创建与销毁；vector 包含增长与销毁；resize 包含分�
 
 ### Linux / WSL
 
-| Bytes | Backend | Native | API | Basic |
+| 字节数 | 后端 | Native | API | Basic |
 | --- | --- | --- | --- | --- |
 | 64 | Standard | 15.9 | 21.0 | 44.1 |
 | 64 | mimalloc | 9.0 | 12.2 | 34.3 |
@@ -64,13 +64,13 @@ Object 包含创建与销毁；vector 包含增长与销毁；resize 包含分�
 | 4096 | mimalloc | 29.9 | 31.6 | 58.2 |
 | 4096 | jemalloc | 21.0 | 29.5 | 47.9 |
 
-关闭统计没有计数原子更新，仍有对齐检查和后端调用成本。Basic 的原子计数有实际开销。Native Standard 使用 throwing aligned new，API 使用 nothrow aligned new 并转换失败；成功请求的大小及对齐一致。
+关闭统计可减少计数开销；统一 API 仍有额外调用成本。各路径的成功请求大小与对齐一致，失败处理不同；见[测量方法](../benchmarking.zh-CN.md)。
 
 ## 3 · 跨线程释放
 
 一条线程分配，工作线程释放。线程创建在计时前，等待完成计时。
 
-| Platform | Workers | Standard | mimalloc | jemalloc |
+| 平台 | 工作线程 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- | --- |
 | Windows | 2 | 118.7 | 53.8 | 81.5 |
 | Windows | 4 | 101.2 | 49.5 | 100.1 |
@@ -79,11 +79,11 @@ Object 包含创建与销毁；vector 包含增长与销毁；resize 包含分�
 | Linux | 4 | 124.8 | 42.5 | 76.3 |
 | Linux | 8 | 139.3 | 53.5 | 151.4 |
 
-## 4 · Stack
+## 4 · 栈式分配
 
 预先准备 Buffer，一次 mark/allocate/rewind。只写入一个字节，不是等价的 Heap 分配场景。
 
-| Platform | Bytes | ns/cycle |
+| 平台 | 字节数 | 纳秒/轮 |
 | --- | --- | --- |
 | Windows | 64 | 3.49 |
 | Windows | 4096 | 3.58 |
@@ -92,4 +92,4 @@ Object 包含创建与销毁；vector 包含增长与销毁；resize 包含分�
 
 未绑定 CPU；小差异可能是噪声。原始数据保留三进程及进程内最小/中位/最大值，不提供 p95/p99 结论。
 
-[测量方法](../benchmarking.zh-CN.md) · [Raw data](../results/0.0.1/README.md) · [Memory](memory.zh-CN.md)
+[测量方法](../benchmarking.zh-CN.md) · [原始数据](../results/0.0.1/README.md) · [内存](memory.zh-CN.md)

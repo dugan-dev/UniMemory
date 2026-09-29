@@ -4,6 +4,12 @@
 
 UniMemory tests its own contract and runs upstream suites separately. An upstream test exercises the allocator's native API; it does not prove that the UniMemory adapter is correct.
 
+## UniMemory scenarios
+
+The adapter suite includes 240 loop cases per backend and 240 Stack cases, 414 interface-use cases, 352 ownership traces of 1024 steps, 192 allocation traces of 4096 steps and three 250000-step runs. Coverage includes factory startup, object/array cleanup, allocator propagation, adoption, shared/weak ownership, marks, reset failure, native large-block release accounting and synchronized handoff.
+
+Local WSL ThreadSanitizer uses `setarch x86_64 -R` for the test process and its children to avoid an initial mapping error. No system setting is changed. The Standard/Stack sanitizer runs do not instrument native allocator internals.
+
 ## Fixed sources
 
 | Suite | Revision | Execution |

@@ -1,16 +1,17 @@
-# 能力对照：统一到哪里
+# 后端能力对照
 
-[English](allocator-capabilities.md) · **简体中文**
-[文档目录](README.zh-CN.md) / 查阅 · 先看[Backend 选择指南](guides/backends.zh-CN.md)。
+[目录](README.zh-CN.md) · [English](allocator-capabilities.md) · **简体中文**
+
+后端配置见[平台与后端](guides/backends.zh-CN.md)。
 
 UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和可选调优接口**。能力查询会暴露支持状态；不把不同 Backend 的物理行为说成完全相同。
 
-| 能力 | mimalloc | jemalloc | Google TCMalloc | UniMemory 决定 |
+| 能力 | mimalloc | jemalloc | Google TCMalloc | UniMemory 接口 |
 | --- | --- | --- | --- | --- |
 | 基础与对齐分配 | `mi_malloc`、对齐函数 | `mallocx`、`MALLOCX_ALIGN` | 进程 `malloc/new`、对齐形式 | `Memory::allocate/deallocate`；可显式选前两者 |
 | 清零分配/扩容 | `mi_zalloc`、`mi_rezalloc` | `MALLOCX_ZERO` | `calloc`；普通 `realloc` 不清零增长 | `allocate_zeroed`、统一语义的 `reallocate_zeroed` |
 | Object 与 Container | C++ 包装与宏 | 标准分配器 | 全局 `new` 替换 | `create/destroy`、Smart Pointer、`Allocator<T>`、PMR |
-| 已知大小的快速路径 | `mi_free_csize` | `sdallocx` | sized delete 等 | 底层释放保留大小；优化要依据基准 |
+| 已知大小的快速路径 | `mi_free_csize` | `sdallocx` | sized delete 等 | 释放接口保留大小，不承诺专用快速路径 |
 | 独立 Heap | heap、OS arena、subprocess | arena、线程缓存 | 进程级分配器和缓存 | `Memory::heap()` 支持 mimalloc / jemalloc；Standard 不支持 |
 | 统计与遍历 | 原生统计、块遍历；仅映射可靠 Process 页指标 | `mallctl`、profile；可映射 Heap 指标 | `MallocExtension`、采样 | Basic 请求计数 + 可选原生指标；不提供块遍历或画像 |
 | 调参与回收 | 收集、运行时选项 | purge/decay、`mallctl` | 进程释放与缓存限制 | 可选回收延迟；Heap 的 `collect()` 回收闲置资源 |

@@ -7,10 +7,15 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <memory_resource>
 #include <optional>
 #include <span>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace unimem {
 

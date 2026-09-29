@@ -1,69 +1,51 @@
-# 快速开始
+# 构建与安装
 
 [目录](README.zh-CN.md) · [English](getting-started.md) · **简体中文**
 
-## 编译运行
+## 运行示例
 
-需要 C++20 编译器、CMake 3.25+。Standard 无额外分配器依赖。
+按照 [README 构建步骤](../README.zh-CN.md#编译运行)编译，然后运行基本示例：
 
-```sh
-git clone https://github.com/dugan-dev/UniMemory.git
-cd UniMemory
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
-cmake --build --preset release
-ctest --preset release
-```
-
-| 平台 | 示例程序 |
+| 平台 | 程序 |
 | --- | --- |
 | Windows / Visual Studio | `build/UniMemory-release/Release/UniMemoryExample_basic.exe` |
-| Linux / macOS，单配置 | `build/UniMemory-release/UniMemoryExample_basic` |
+| Linux / macOS | `build/UniMemory-release/UniMemoryExample_basic` |
 
-运行输出 `3, 1024 bytes`。Visual Studio 用 preset 选择 Release；它提示 `CMAKE_BUILD_TYPE` 未使用不影响构建。
+输出：`3, 1024 bytes`。[更多示例](../examples/README.md)
 
-## 接入源码
+## 接入项目
 
-把仓库放入项目的 `UniMemory/`：
+选择[使用源码或安装包](../README.zh-CN.md#cmake-接入)。链接 `UniMemory::UniMemory` 后，目标自动提供头文件路径和 C++20 设置。代码中包含 `<unimem/memory.h>` 即可。
 
-```cmake
-cmake_minimum_required(VERSION 3.25)
-project(MyApp LANGUAGES CXX)
-add_subdirectory(UniMemory)
-add_executable(app main.cpp)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
-```
+## 安装库
 
-以 [basic.cpp](../examples/basic.cpp) 作为 `main.cpp`。子项目默认不构建 UniMemory 测试或示例；目标自动传递 C++20 和头文件目录。
-
-## 安装并使用
+编译后，在 UniMemory 仓库目录执行：
 
 ```sh
 cmake --install build/UniMemory-release --config Release --prefix build/installed
-cmake -S tests/consumer -B build/consumer -DCMAKE_PREFIX_PATH="<absolute-path-to-build/installed>"
-cmake --build build/consumer --config Release
-ctest --test-dir build/consumer -C Release --output-on-failure
 ```
 
-将占位符换成安装目录的绝对路径。自己的项目使用：
+在自己的项目目录中，将 CMake 指向该安装目录：
 
-```cmake
-find_package(UniMemory 0.0.1 CONFIG REQUIRED)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
+```sh
+cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
+cmake --build build --config Release
 ```
 
-启用原生 Backend 后，配置消费者也需能找到对应依赖；动态库另需部署运行库。[Backend 配置 →](guides/backends.zh-CN.md)
+将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#使用安装包)。
 
-## 构建开关
+## 构建选项
 
 | 选项 | 默认 | 用途 |
 | --- | --- | --- |
-| `UNIMEMORY_BUILD_TESTS` | 独立项目 ON，子项目 OFF | 本库测试 |
-| `BUILD_TESTING` | 独立项目 ON | OFF 也关闭本库测试 |
-| `UNIMEMORY_BUILD_EXAMPLES` | OFF | 三个可运行示例 |
-| `UNIMEMORY_BUILD_BENCHMARKS` | OFF | 性能基准 |
-| `BUILD_SHARED_LIBS` | 未由上层设置时 OFF | 动态库 |
-| `UNIMEMORY_WITH_MIMALLOC` / `UNIMEMORY_WITH_JEMALLOC` | OFF | 可选 Backend |
+| `BUILD_SHARED_LIBS` | 未由上层设置时 OFF | 构建动态库 |
+| `UNIMEMORY_WITH_MIMALLOC` / `UNIMEMORY_WITH_JEMALLOC` | OFF | 启用可选后端 |
+| `UNIMEMORY_BUILD_EXAMPLES` | OFF | 构建可运行示例 |
 
-只构建库：`cmake -S . -B build/library -DBUILD_TESTING=OFF`。
+只构建库时设置 `-DBUILD_TESTING=OFF`。
 
-下一步：[Object](guides/objects.zh-CN.md) → [Container](guides/containers.zh-CN.md) → [Block](guides/raw-memory.zh-CN.md)
+## 部署程序
+
+CMake 还需能找到已启用的原生后端依赖。使用动态库时，将 UniMemory 和所需后端库随程序部署。见[后端配置](guides/backends.zh-CN.md#动态库部署)。
+
+[对象所有权](guides/objects.zh-CN.md) · [标准容器](guides/containers.zh-CN.md) · [原始内存](guides/raw-memory.zh-CN.md)

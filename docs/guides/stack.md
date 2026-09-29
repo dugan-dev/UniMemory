@@ -2,23 +2,11 @@
 
 [Index](../README.md) · **English** · [简体中文](stack.zh-CN.md)
 
-## Borrow a fixed Buffer
+Examples: [Quick Start](../../README.md#stack).
 
-```cpp
-#include <unimem/memory.h>
+## Buffer lifetime
 
-alignas(std::max_align_t) std::byte buffer[4096];
-unimem::Memory scratch = unimem::Memory::stack(buffer);
-unimem::Memory::Mark checkpoint = scratch.mark();
-{
-    unimem::OwnedBlock block = scratch.make_block(128, 64);
-}
-scratch.rewind(checkpoint);
-```
-
-Stack means checkpoint-based allocation, not an OS-stack allocation inside the factory.
-The Buffer is borrowed, writable, fixed-capacity and single-threaded. It must outlive Memory.
-All common Object, Owner, Container and PMR methods are available.
+`Memory::stack(buffer)` allocates from an existing buffer and supports all common Memory APIs. The buffer must be writable, fixed-capacity and outlive Memory. Use one thread only. This is not the thread call stack.
 
 ## Reuse storage
 
@@ -36,8 +24,7 @@ Destroy affected Owners and Containers before rewind/reset. These operations do 
 run Object destructors. Foreign or stale marks throw `invalid_argument`.
 Marks must not outlive Memory. Do not create active overlapping Buffer allocators.
 
-Rewinding an inner Mark also invalidates outer Marks. This interface uses a single
-checkpoint generation, so it does not support nested saved-Marks unwinding.
+Rewinding an inner Mark also invalidates outer Marks. Saved Marks cannot be unwound one level at a time.
 
 ## Resize and failure
 

@@ -2,43 +2,42 @@
 
 [UniMemory](../README.zh-CN.md) · [English](performance.md) · **简体中文**
 
-分别比较耗时、内存和独立原生程序。所有结论只适用于测量的负载和配置。
+按使用场景比较耗时与内存占用；结果仅适用于所测配置。
 
-| Topic | 内容 |
+| 主题 | 内容 |
 | --- | --- |
-| [1 · Time](performance/latency.zh-CN.md) | Object, Container, resize, handoff, Native/API/Basic |
-| [2 · Memory](performance/memory.zh-CN.md) | RSS, retention, size rounding, Heap collect, type sizes |
-| [3 · Native programs](performance/applications.zh-CN.md) | 独立程序耗时与峰值内存；不包含 UniMemory 封装 |
+| [1 · 耗时](performance/latency.zh-CN.md) | 对象、容器、扩容、跨线程与统计开关 |
+| [2 · 内存](performance/memory.zh-CN.md) | 进程占用、释放后保留、Heap 回收与类型大小 |
+| [3 · 原生程序](performance/applications.zh-CN.md) | 独立程序耗时与峰值内存；不包含 UniMemory 封装 |
 
 ## 环境
 
-| Item | Configuration |
+| 项目 | 配置 |
 | --- | --- |
-| Version / measured date (UTC) | 0.0.1 / 2026-09-28 |
+| 版本 / 测量日期（UTC） | 0.0.1 / 2026-09-28 |
 | CPU | Xeon w9-3595X, 120 logical CPUs |
 | Windows | x64, MSVC 19.44, Release, no LTO |
 | Linux | Ubuntu 24.04 / WSL2, GCC 13.3, Release, no LTO |
 | Backend | mimalloc 3.4.3; jemalloc 5.3.1 |
-| Isolation | mimalloc override/CRT redirect off; Unix jemalloc je_ + --disable-cxx |
-| Statistics | Disabled unless labeled Basic |
+| 统计 | 默认关闭，Basic 表示开启 |
 
 ## 覆盖范围
 
-| Probe | Scope |
+| 测量 | 范围 |
 | --- | --- |
-| Native / API / Basic | 2 OS × 3 Backends × 3 paths × 5 sizes × 3 process trials |
-| API sweep | 1001 scenarios / OS, 17 workloads, 3 process trials, 7 repetitions |
-| Mixed-size memory | 54 process trials, 270 phase snapshots, content/alignment/count checks |
-| Native programs | 16 programs × 3 native allocators × 3 trials |
+| 分配与释放 | 原生接口、统计关闭、统计开启；5 种大小 |
+| API 场景 | 每平台 1001 项，覆盖 17 种负载 |
+| 内存占用 | 混合大小、不同生命周期，270 个阶段快照 |
+| 原生程序 | 16 个程序 × 3 个后端 × 3 次运行 |
 
 ## 解读
 
 | 观察 | 含义 |
 | --- | --- |
-| API 有小量成本 | 对齐检查与运行时后端调用不是免费操作 |
-| Basic 增加耗时 | 原子计数需要执行；关闭时不更新 |
-| 更快未必更省内存 | 缓存与回收策略决定不同负载的取舍 |
+| API 与原生接口 | 统一接口有额外调用成本 |
+| 统计开关 | 开启统计需要计数；关闭不计数 |
+| 后端选择 | 分配速度与内存保留各有取舍 |
 
 未绑定 CPU；小差异可能是噪声。未验证 p95/p99、NUMA、长期碎片、macOS 或移动设备性能。
 
-[Method](benchmarking.zh-CN.md) · [Raw data](results/0.0.1/README.md) · [Tests](testing.zh-CN.md)
+[方法](benchmarking.zh-CN.md) · [原始数据](results/0.0.1/README.md) · [测试](testing.zh-CN.md)

@@ -14,9 +14,7 @@ Namespace: `unimem`. Include `<unimem/memory.h>` for the allocation API.
 | `Memory::stack(span<byte>)` | `Memory`; fixed borrowed Buffer, single-threaded |
 | `Memory::stack(void*, size_t)` | Pointer/size form of the same Buffer strategy |
 
-Constructors are private. Memory is non-copyable, non-movable and non-polymorphic.
-Factories return directly constructed values. Destroy affected Owners before Heap
-destruction/reset or Stack rewind/reset; bulk release does not invoke destructors.
+Memory cannot be copied or moved; store global instances by pointer or reference. See [lifetime requirements](compatibility.md#lifetime) for Heap/Stack release order.
 
 ## 2 · Configuration and capabilities
 
@@ -61,20 +59,14 @@ uninitialized. Stack deallocation does not reclaim individual Buffer storage.
 | `create_array<T>(count)` / `destroy_array(ptr, count)` | Value-initialized Array; original count |
 | `make_unique<T>(args...)` | `Unique<T>` |
 | `make_unique_array<T>(count)` | `UniqueArray<T>` |
-| `make_shared<T>(args...)` | `std::shared_ptr<T>` using `std::allocate_shared` |
+| `make_shared<T>(args...)` | `std::shared_ptr<T>` |
+| `make_shared<T[]>(count)` | `std::shared_ptr<T[]>`, shared array |
 | `adopt_unique(ptr)` | `Unique<T>`; existing Object from this Memory, exact original type |
 | `adopt_unique_array(ptr, count)` | `UniqueArray<T>`; also original Array count |
 | `allocator<T>()` | `Allocator<T>` |
 | `resource()` | `std::pmr::memory_resource*` |
 
-Object helpers require nothrow destructors and roll back partial construction.
-Stack retains Buffer consumption after construction failure. Default Unique owners
-are empty; nonempty unbound deleters or nonempty zero-count Array deleters terminate.
-Allocator/Resource equality uses Memory identity. Adapters and remaining weak-pointer
-control blocks must not outlive their Memory.
-
-Basic snapshots support concurrent monitoring. Backend diagnostic snapshots
-require paused activity and thread cleanup in their Memory/Process scope.
+Object destructors must not throw. See [ownership and adoption](guides/objects.md) and [container resource selection](guides/containers.md).
 
 ## 5 · Heap and Stack controls
 
@@ -96,7 +88,7 @@ or native metrics. Unsupported mode-specific operations throw `logic_error`.
 | --- | --- |
 | Allocation/capacity failure | `bad_alloc`; resize preserves old storage |
 | Invalid alignment, enum, Buffer or Mark | `invalid_argument` where validated |
-| Typed size or Mark-generation overflow | `length_error` |
+| Element-count or mark-counter overflow | `length_error` |
 | Unavailable Backend / unsupported Heap / native control failure | `runtime_error` |
 | Unsupported operation / late Global mode change / moved-from Block resize | `logic_error` |
 | Invalid pointers, mismatched frees, premature reset/destruction | Caller contract violation; not necessarily detected |

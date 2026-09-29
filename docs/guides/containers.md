@@ -2,55 +2,54 @@
 
 [Index](../README.md) · **English** · [简体中文](containers.zh-CN.md)
 
-## Supply an allocator explicitly
+Examples: [Quick Start](../../README.md#container).
 
-```cpp
-#include <unimem/memory.h>
-#include <memory_resource>
-#include <vector>
+## Adapter choice
 
-unimem::Memory& memory = unimem::Memory::global();
-std::vector<int, unimem::Allocator<int>> values(memory.allocator<int>());
-std::pmr::vector<int> numbers(memory.resource());
-values.push_back(1);
-numbers.push_back(2);
-```
+| Method | Use with |
+| --- | --- |
+| `allocator<T>()` | Standard allocator-aware containers |
+| `resource()` | PMR containers and resources |
 
-| Adapter | Use when | Allocation path |
-| --- | --- | --- |
-| `Allocator<T>` | The API accepts a standard allocator type | Direct Memory call |
-| `resource()` | The API accepts `std::pmr::memory_resource*` | Standard PMR virtual call, then Memory |
-
-The standard library already provides `std::pmr::vector`, `string`, `map` and other aliases. Plain containers and libraries without allocator injection are unaffected.
-
-## Temporary containers
-
-```cpp
-unimem::Memory& memory = unimem::Memory::global();
-std::pmr::monotonic_buffer_resource pool(memory.resource());
-std::pmr::vector<int> temporary(&pool);
-```
-
-```mermaid
-flowchart LR
-    A[Container] --> B[Standard PMR pool]
-    B --> C[Memory resource]
-    C --> D[Backend]
-```
-
-Destroy `temporary` before `pool`; keep the referenced Memory alive. The pool has its own reclamation and threading rules.
+Containers and third-party libraries without allocator injection retain their own allocator. Adapters compare equal only when bound to the same Memory.
 
 ## Copy, move and nested types
 
 | Situation | Rule |
 | --- | --- |
 | Ordinary container copy | The allocator adapter retains its Memory |
-| PMR copy construction | The standard container normally chooses the default PMR resource; supply the destination resource explicitly |
+| PMR copy construction | Normally selects the default PMR resource; explicitly supply the destination resource to retain the selected Memory |
 | Swap | Allocators/resources must compare equal when the standard container requires it |
-| Unequal allocator move assignment | May allocate and move elements; it need not steal storage |
+| Unequal allocator move assignment | May allocate and move elements rather than take over storage |
 | `vector<std::string, Allocator<...>>` | Only vector storage is adapted; ordinary strings keep their own allocator |
-| `pmr::vector<pmr::string>` | Standard allocator-aware construction can propagate the PMR resource to strings |
+| `pmr::vector<pmr::string>` | Standard allocator-aware construction can propagate the resource into strings |
 
-Keep every referenced Memory alive. Passing C++ containers across dynamic libraries also requires compatible compiler, standard-library and runtime ABIs.
+## Compose a temporary resource
 
-Next: [Scratch storage](stack.md) · [Compatibility](../compatibility.md)
+```cpp
+#include <unimem/memory.h>
+
+int main() {
+    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
+
+    // Place a standard PMR resource above UniMemory
+    std::pmr::monotonic_buffer_resource pool(memory.resource());
+    std::pmr::vector<int> temporary(&pool);
+    temporary.push_back(42);
+
+    // Choose the destination resource explicitly when copying
+    std::pmr::vector<int> copy(temporary, &pool);
+    return copy.front() == 42 ? 0 : 1;
+}
+```
+
+```mermaid
+flowchart LR
+    A[Container] --> B[Standard PMR resource]
+    B --> C[Memory resource]
+    C --> D[Backend]
+```
+
+Destroy containers before the PMR resource, and the resource before Heap/Stack Memory. The resource has its own reclamation and threading rules. Passing C++ containers across dynamic libraries also requires compatible compiler, standard-library and runtime ABIs.
+
+[Lifetime and threads](../compatibility.md) · [Stack rules](stack.md) · [API](../api-reference.md)

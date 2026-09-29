@@ -1,73 +1,45 @@
-# Object / Array
+# 对象与所有权
 
 [目录](../README.zh-CN.md) · [English](objects.md) · **简体中文**
 
-创建 C++ Object，自动调用构造与析构函数。日常使用优先选择 Smart Pointer。
+示例见[快速开始](../../README.zh-CN.md#对象)。
 
-## 1 · 自动管理
+## 构造与清理
 
-```cpp
-#include <unimem/memory.h>
+| 情况 | 约定 |
+| --- | --- |
+| 对象构造 | 参数直接转发给构造函数 |
+| 数组构造 | 每个元素通过 `T()` 值初始化 |
+| `create_array()` 构造函数抛异常 | 逆序析构已完成的元素，再释放存储空间 |
+| 析构函数 | 对象辅助接口要求析构函数不抛异常 |
+| 手动销毁 | 使用同一个 Memory、原始具体类型和原数组数量 |
+| 原始存储 | `allocate_objects<T>()` 不构造对象 |
 
-struct Point {
-    float x;
-    float y;
-};
+保留分配起始指针。以 Derived 创建的对象不能交给 `destroy(Base*)`，即使 Base 有虚析构函数。普通 `new`/`delete` 不能与这些接口混用。原始 `reallocate()` 不调用对象的移动构造函数。
 
-unimem::Memory& memory = unimem::Memory::global();
-unimem::Unique<Point> point = memory.make_unique<Point>(1.0f, 2.0f);
-unimem::UniqueArray<Point> points = memory.make_unique_array<Point>(8);
-std::shared_ptr<Point> shared = memory.make_shared<Point>(1.0f, 2.0f);
+## 接管与多态
+
+| 操作 | 规则 |
+| --- | --- |
+| `adopt_unique()` / `adopt_unique_array()` | 仅接管同一个 Memory 创建的对象，或匹配的智能指针通过 `release()` 交出的对象 |
+| 接管 | 转移清理责任，不分配、不构造 |
+| 空 Unique | 合法，持有对象前先赋予已绑定的所有者 |
+| 非空但未绑定的 Deleter | 终止程序，因为没有可用于清理的 Memory |
+| 数组 `reset(new_pointer)` | 保留旧元素数量，数量变化时重新接管并赋值 |
+| 共享所有权的多态 | 将 `make_shared<Derived>()` 转成 `shared_ptr<Base>`，仍按具体类型清理 |
+| 独占所有权的多态 | 保留 `Unique<Derived>`，`Base*` 仅作为非拥有的访问指针 |
+
+## 生命周期
+
+```mermaid
+flowchart LR
+    A[Memory] --> B[对象与智能指针]
+    B --> C[销毁所有者与弱引用]
+    C --> D[重置或销毁 Heap / Stack]
 ```
 
-| 接口 | 返回类型 | 何时销毁 |
-| --- | --- | --- |
-| `make_unique<T>(args...)` | `Unique<T>` | 唯一 Owner 销毁时 |
-| `make_unique_array<T>(count)` | `UniqueArray<T>` | 唯一 Owner 销毁时，自动记住数量 |
-| `make_shared<T>(args...)` | `std::shared_ptr<T>` | 最后一个 Shared Owner 销毁时 |
+所有者保留 Memory 引用。必须先销毁它们，再销毁 Heap/Stack，或通过 reset、rewind 使存储失效。残留的 `weak_ptr` 也会保留共享指针控制块。
 
-单个 Object 无须传数量 `1`；Array 必须指定数量，元素按 `T()` 初始化。
+Stack 中构造失败会析构已完成的对象，但不回退缓冲区用量。所有受影响的所有者销毁后才能 rewind。
 
-## 2 · 手动管理
-
-```cpp
-Point* point = memory.create<Point>(1.0f, 2.0f);
-memory.destroy(point);
-
-Point* points = memory.create_array<Point>(8);
-memory.destroy_array(points, 8);
-```
-
-由**创建它的同一个 `Memory`** 销毁，保持创建时的具体类型、分配起始指针，Array 传回原数量。
-`create<Derived>()` 的结果不能改用 `Base*` 调用 `destroy()`，即使 Base 有虚析构。
-构造失败会清理已构造的元素；Stack 仍保留 Buffer 占用，需要在清理其他受影响 Owner 后回退或 reset。析构函数必须不抛异常。
-
-## 接管已有 Object
-
-```cpp
-Point* raw = memory.create<Point>(1.0f, 2.0f);
-unimem::Unique<Point> owner = memory.adopt_unique(raw);
-unimem::UniqueArray<Point> array = memory.adopt_unique_array(memory.create_array<Point>(8), 8);
-```
-
-接管不分配、不构造 Object；仅用于同一 Memory 的 `create` 或匹配 Owner 的 `release` 结果，不接管普通 `new`。
-默认 Unique 是空 Owner；赋值一个接管 Owner 后，Deleter 就绑定了 Memory。
-非空 Owner 使用未绑定的 Deleter 会确定性终止。Array 的 `reset(new_pointer)` 沿用旧数量；数量变化时赋值新的接管 Owner。
-多态共享所有权可用 `std::shared_ptr<Base> owner = memory.make_shared<Derived>();`；Unique 保留 `Unique<Derived>`，Base 指针仅作观察。
-
-## 3 · 只分配存储
-
-| 接口 | 分配内存 | 构造 Object |
-| --- | :---: | :---: |
-| `allocate_objects<T>(count = 1)` | ✓ | — |
-| `create<T>(args...)` | ✓ | ✓ |
-
-`allocate_objects` 配对 `deallocate_objects(ptr, count = 1)`。仅在自行管理 placement new 和析构时使用。
-
-## 使用规则
-
-- `Memory` 必须比 Object、Smart Pointer 和相关 `weak_ptr` 活得更久。
-- `make_unique` 的指针不能交给普通 `delete`。
-- `reallocate` 只移动字节，不能用来移动需要构造与析构的 Object。
-
-下一步：[Container](containers.zh-CN.md) → [Block](raw-memory.zh-CN.md)
+[容器约定](containers.zh-CN.md) · [生命周期与线程](../compatibility.zh-CN.md) · [API](../api-reference.zh-CN.md)

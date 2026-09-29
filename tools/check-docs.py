@@ -1,4 +1,4 @@
-"""Check text format, delivery links and English source/examples with Python stdlib."""
+"""Check text format, delivery links and source/example language with Python stdlib."""
 from pathlib import Path
 import re
 import subprocess
@@ -56,6 +56,12 @@ def check_publication_content(path, root, errors):
             errors.append(f"{path.relative_to(root)}: publication check found {label}")
 
 
+def without_cpp_comments(code):
+    tokens = r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*|/\*.*?\*/'
+    return re.sub(tokens, lambda match: "" if match.group().startswith(("//", "/*"))
+                  else match.group(), code, flags=re.DOTALL)
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
     names = subprocess.check_output(
@@ -83,7 +89,10 @@ def main():
                     errors.append(f"{path.relative_to(root)}: missing heading {target}")
         for language, block in re.findall(r"```([^\n]*)\n(.*?)```", content, re.DOTALL):
             if language.strip() in {"cpp", "c++", "c", "cmake", "sh", "bash", "powershell", "python", "json"}:
-                if re.search(r"[\u3400-\u9fff]", block):
+                checked = block
+                if path.name.endswith(".zh-CN.md") and language.strip() in {"cpp", "c++", "c"}:
+                    checked = without_cpp_comments(block)
+                if re.search(r"[\u3400-\u9fff]", checked):
                     errors.append(f"{path.relative_to(root)}: non-English code example")
     suffixes = {".h", ".inl", ".cpp", ".cmake", ".in", ".py", ".ps1", ".sh", ".json", ".yml", ".yaml", ".bazel"}
     sources = [path for path in paths if path.suffix in suffixes or path.name == "CMakeLists.txt"]

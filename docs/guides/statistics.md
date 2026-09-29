@@ -2,6 +2,8 @@
 
 [Index](../README.md) · **English** · [简体中文](statistics.zh-CN.md)
 
+Examples: [Quick Start](../../README.md#initialization-and-statistics).
+
 ## Choose a query
 
 | Query | Scope | Content |
@@ -10,24 +12,16 @@
 | `backend_statistics()` | Backend or independent Heap | Available native metrics |
 | Stack `used()` | This Buffer | Consumed bytes, including padding and retained storage |
 
-## Enable request counters
+## Counter configuration
 
-```cpp
-unimem::Memory::configure_global(unimem::Backend::Mimalloc,
-    unimem::StatisticsMode::Basic);
-unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Mimalloc);
-unimem::Memory heap = unimem::Memory::heap(unimem::Backend::Mimalloc,
-    unimem::StatisticsMode::Basic);
-```
+Default: Disabled. Enable Basic before the first `global()` call, or pass it when creating a Heap. Later mode changes throw `logic_error`; repeating the same mode is allowed.
 
-Configure before the first Global lookup. Changing mode after initialization throws `logic_error`; identical repeats are allowed. Default: Disabled.
-
-Global aggregates requests from all its users. Heap has independent counters; reset starts a new epoch. Direct native calls are excluded. Disabled adds no statistics atomics; Basic updates atomics on successful operations. Concurrent fields may reflect different instants.
+Counters cover successful requests through this Memory, excluding direct native calls. Heap reset clears its counters. Enabling statistics adds counting overhead.
 
 | Field | Meaning |
 | --- | --- |
 | `allocations` / `deallocations` / `reallocations` | Successful operation counts |
-| `live_bytes` | Requested bytes not yet logically released |
+| `live_bytes` | Requested bytes not yet released |
 | `peak_live_bytes` | Peak live requested bytes |
 
 ## Backend details
@@ -42,24 +36,17 @@ Query the instance's `memory.capabilities().detailed_statistics` before using na
 | jemalloc Global | Process | Allocated, resident; requires `config.stats` |
 | jemalloc Heap | Memory | Allocated, resident; requires `config.stats` |
 
-`BackendStatisticsScope::Process` denotes the native Backend's aggregate scope; `Memory` covers this independent Heap. mimalloc's aggregate covers the calling thread's current native subprocess, normally main; separately managed native subprocesses are excluded. Unavailable fields are empty optionals. Process RSS differs from requested bytes; do not add metrics with different scopes. Native snapshots may synchronize and belong outside allocation hot paths.
+| `scope` | Meaning |
+| --- | --- |
+| `Memory` | This independent Heap |
+| `Process` | The backend's native aggregate scope, which may include direct native allocations |
 
-For this diagnostic query, pause the relevant allocation, release and thread
-cleanup: this Heap for Memory scope, or this Backend for Process scope, including
-native calls outside UniMemory. The unified interface does not guarantee a safe
-concurrent native snapshot. Use Basic `statistics()` for concurrent monitoring.
+mimalloc excludes other separately managed native subprocesses. Unavailable fields are empty, not zero. Requested bytes, native metrics and process RSS measure different things and must not be added together.
 
-mimalloc 3.4.3's malloc counters depend on build settings and do not consistently
-track current live bytes; Heap page metrics are recorded at subprocess scope.
-These unavailable metrics return empty optionals, never a fabricated zero.
-Use Basic counters for requested bytes. [Verified mapping](../backends/mimalloc.md)
+## When to query
 
-mimalloc 3.4.3 copies its native statistics without a lock covering the whole
-snapshot ([source](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L536)).
-This conservative shared contract does not imply that jemalloc's native statistics
-lack synchronization.
+- Use Basic `statistics()` for concurrent monitoring; fields may reflect different instants.
+- Query native statistics during diagnostics, rather than on every allocation.
+- Before a native query, pause allocation, release and thread cleanup in the relevant Memory/Process scope, including direct native calls.
 
-```cpp
-std::optional<unimem::MemoryStatistics> requests = memory.statistics();
-std::optional<unimem::BackendStatistics> details = memory.backend_statistics();
-```
+[Backend metric notes](../allocator-capabilities.md) · [Lifetime and threads](../compatibility.md)

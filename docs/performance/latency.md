@@ -2,7 +2,7 @@
 
 [Performance](../performance.md) · **English** · [简体中文](latency.zh-CN.md)
 
-**Nanoseconds per complete operation; lower is faster.** Median of three process medians; each process warms up and repeats seven times. Global allocation, counters off.
+**Nanoseconds per complete operation; lower is faster.** Median of three process trials; Global allocation, counters off.
 
 ## 1 · Object / Container / Block
 
@@ -40,7 +40,7 @@ Standard = 1 within each workload; shorter is faster.
 
 ## 2 · Native / API / Basic
 
-One allocation/free pair, alignment 16. Native calls the backend directly; API disables counters; Basic enables request counters. Nine × 200000 operations per process, three process trials.
+One allocation/free pair, alignment 16. Native calls the backend directly; API uses UniMemory with counters off; Basic enables counters.
 
 ### Windows
 
@@ -64,7 +64,7 @@ One allocation/free pair, alignment 16. Native calls the backend directly; API d
 | 4096 | mimalloc | 29.9 | 31.6 | 58.2 |
 | 4096 | jemalloc | 21.0 | 29.5 | 47.9 |
 
-Disabled adds no counter atomics, but alignment validation and backend dispatch still cost time. Basic atomics add work. Native Standard uses throwing aligned new; API uses nothrow aligned new and translates failure. Successful size/alignment match.
+Disabling counters avoids counting overhead; the unified API still adds call overhead. Successful requests match in size/alignment; failure handling differs. See the [measurement method](../benchmarking.md).
 
 ## 3 · Cross-thread free
 

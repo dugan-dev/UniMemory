@@ -1,24 +1,12 @@
-# Stack 分配
+# 栈式分配
 
-[索引](../README.zh-CN.md) · [English](stack.md) · **简体中文**
+[目录](../README.zh-CN.md) · [English](stack.md) · **简体中文**
 
-## 借用固定 Buffer
+示例见[快速开始](../../README.zh-CN.md#栈)。
 
-```cpp
-#include <unimem/memory.h>
+## 缓冲区生命周期
 
-alignas(std::max_align_t) std::byte buffer[4096];
-unimem::Memory scratch = unimem::Memory::stack(buffer);
-unimem::Memory::Mark checkpoint = scratch.mark();
-{
-    unimem::OwnedBlock block = scratch.make_block(128, 64);
-}
-scratch.rewind(checkpoint);
-```
-
-Stack 表示标记回退的分配策略，工厂不在内部创建 OS 栈数组。
-Buffer 可写、固定容量、单线程使用，由调用方管理，必须比 Memory 活得更久。
-Object、Owner、Container、PMR 都使用同一套 Memory 方法。
+`Memory::stack(buffer)` 在现有缓冲区中分配，支持全部通用 Memory 接口。缓冲区须可写、固定容量、比 Memory 存活更久，仅限单线程。它不是线程的调用栈。
 
 ## 回收空间
 
@@ -35,7 +23,7 @@ Object、Owner、Container、PMR 都使用同一套 Memory 方法。
 回退、reset 前先销毁受影响的 Owner 和 Container；回退不执行 Object 析构。
 其他实例或失效的标记抛 `invalid_argument`。Mark 不能超过 Memory 生命周期；不要同时管理重叠 Buffer。
 
-回退内层 Mark 后，外层 Mark 也失效。本接口采用单代标记，不支持保存多层 Mark 后逐层回退。
+回退内层 Mark 后，外层 Mark 也失效，不能继续用旧标记逐层回退。
 
 ## 重分配与失败
 
@@ -49,4 +37,4 @@ Object、Owner、Container、PMR 都使用同一套 Memory 方法。
 
 Stack 没有 Backend 或原生统计。`used()` 表示 Buffer 占用，包含填充和单块释放后保留的空间。
 
-下一步：[Container](containers.zh-CN.md) · [接口](../api-reference.zh-CN.md)
+[标准容器](containers.zh-CN.md) · [API](../api-reference.zh-CN.md)

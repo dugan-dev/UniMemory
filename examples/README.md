@@ -11,7 +11,14 @@
 ```sh
 cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
-ctest --preset release -R UniMemory.example
 ```
 
-The Heap example runs each enabled optional backend. With Standard only, it skips unsupported Heaps. Examples are optional and are not installed with the library.
+Run an executable from the repository root:
+
+| Program | Windows / Visual Studio | Linux / macOS |
+| --- | --- | --- |
+| Basic | `build/UniMemory-release/Release/UniMemoryExample_basic.exe` | `build/UniMemory-release/UniMemoryExample_basic` |
+| Heap | `build/UniMemory-release/Release/UniMemoryExample_heap.exe` | `build/UniMemory-release/UniMemoryExample_heap` |
+| Stack | `build/UniMemory-release/Release/UniMemoryExample_scratch.exe` | `build/UniMemory-release/UniMemoryExample_scratch` |
+
+Heap runs each enabled optional backend and skips unsupported Heaps. Examples are optional and are not installed with the library.

@@ -1,6 +1,6 @@
 # 生命周期与兼容性
 
-[索引](README.zh-CN.md) · [English](compatibility.md) · **简体中文**
+[目录](README.zh-CN.md) · [English](compatibility.md) · **简体中文**
 
 ## 生命周期
 
@@ -43,7 +43,7 @@ reset、rewind 只回收存储，不调用 Object 析构。旧指针、仍存活
 Global 唯一性属于同一份链接的 UniMemory。多个动态库分别静态链接时，可能各有实例；需要共享实例及计数，统一链接一份共享库。
 跨动态库的 C++ Object、Container 还要求兼容的编译器、标准库及 Runtime ABI。
 
-使用 Memory、Owner、Allocator 或 PMR Resource 期间，库必须保持加载；卸载库不会转移其所有权。
+使用 Memory、智能指针、Allocator 或 PMR 资源期间，库必须保持加载。
 
 ## 标准库行为
 
@@ -52,8 +52,7 @@ Global 唯一性属于同一份链接的 UniMemory。多个动态库分别静态
 原生 `std::make_shared` 同样如此，与 C++20 的逆序要求不符（[LWG 3005](https://cplusplus.github.io/LWG/issue3005)）。
 已构造元素仍全部析构，存储按对应 Memory 类型释放。
 
-UniMemory 的 `create_array`、`make_unique_array` 在所有已测 Backend 上均逆序回滚，测试严格检查。
-Shared Array 异常测试明确记录 libstdc++ 13 的行为；尚未核实 GCC 问题编号及修复版本。
+需要确定的逆序回滚时，使用 `create_array` 或 `make_unique_array`。尚未核实此标准库问题的修复版本。
 
 ## 版本
 

@@ -1,63 +1,55 @@
-# Container
+# 容器与 PMR
 
 [目录](../README.zh-CN.md) · [English](containers.md) · **简体中文**
 
-让标准 Container 从指定 `Memory` 获取内存。两条路径按项目接口选择。
+示例见[快速开始](../../README.zh-CN.md#标准容器)。
 
-## 1 · PMR
+## 适配方式
+
+| 方法 | 使用对象 |
+| --- | --- |
+| `allocator<T>()` | 接受标准分配器的容器 |
+| `resource()` | PMR 容器和内存资源 |
+
+未传入分配器的容器和第三方库仍使用原分配器。适配器只有绑定同一 Memory 才相等。
+
+## 复制、移动与嵌套类型
+
+| 情况 | 规则 |
+| --- | --- |
+| 普通容器复制 | 分配器适配器保留原 Memory |
+| PMR 复制构造 | 通常使用默认 PMR 资源，显式传入目标资源才能保留选定的 Memory |
+| 交换 | 标准容器要求时，两边的分配器或资源必须相等 |
+| 不同分配器之间的移动赋值 | 可能重新分配并逐个移动元素，而非直接接管存储 |
+| `vector<std::string, Allocator<...>>` | 仅适配 vector 存储，普通 string 仍使用自己的分配器 |
+| `pmr::vector<pmr::string>` | 标准的分配器感知构造可将资源传播给内部 string |
+
+## 组合临时内存资源
 
 ```cpp
 #include <unimem/memory.h>
-#include <vector>
 
-unimem::Memory& memory = unimem::Memory::global();
-std::pmr::vector<int> values(memory.resource());
-values.push_back(42);
-```
+int main() {
+    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
 
-PMR 是标准库的运行时 Allocator 接口。`resource()` 返回 `std::pmr::memory_resource*`；标准库已有 `std::pmr::vector`、`std::pmr::string` 等类型。
+    // 在 UniMemory 之上组合标准 PMR 资源
+    std::pmr::monotonic_buffer_resource pool(memory.resource());
+    std::pmr::vector<int> temporary(&pool);
+    temporary.push_back(42);
 
-## 2 · 普通 std Container
-
-```cpp
-std::vector<int, unimem::Allocator<int>> values(memory.allocator<int>());
-values.push_back(42);
-```
-
-| 路径 | 接口 | 特点 |
-| --- | --- | --- |
-| PMR | `resource()` | 可在运行时传递 Resource |
-| 普通 std | `allocator<T>()` | Allocator 是 Container 类型的一部分，无 PMR 虚调用 |
-
-只创建 `Memory` 不会改变已有 Container；必须显式传入 Allocator 或 Resource。
-
-## 3 · 临时 Container
-
-```cpp
-std::pmr::monotonic_buffer_resource pool(memory.resource());
-std::pmr::vector<int> temporary(&pool);
+    // 复制时显式选择目标资源
+    std::pmr::vector<int> copy(temporary, &pool);
+    return copy.front() == 42 ? 0 : 1;
+}
 ```
 
 ```mermaid
 flowchart LR
-    C[Container] --> P[PMR Resource]
-    P --> M[Memory]
-    M --> B[Backend]
+    A[容器] --> B[标准 PMR 资源]
+    B --> C[Memory 资源]
+    C --> D[后端]
 ```
 
-先销毁 `temporary`，再销毁 `pool`；引用的 Memory 保持有效。PMR Resource 自行决定空间复用、回收和线程规则。
+先销毁容器，再销毁 PMR 资源，最后销毁 Heap/Stack Memory。资源有自己的回收和线程约定。跨动态库传递 C++ 容器还要求编译器、标准库和运行时 ABI 兼容。
 
-## 使用规则
-
-| 场景 | 注意 |
-| --- | --- |
-| PMR 复制构造 | 通常使用默认 Resource；需指定目标 Resource 时显式传入 |
-| 普通 Container 复制 | 保留适配器引用的 Memory |
-| 不同 Allocator 的移动赋值 | 可能重新分配并移动元素 |
-| Container 交换 | 必须满足标准对 Allocator 相等性的要求 |
-| `vector<std::string>` | vector 使用指定 Allocator；string 仍使用自己的分配路径 |
-| `pmr::vector<pmr::string>` | Resource 可通过标准 Allocator 规则传播到 string |
-
-`Memory` 必须比所有相关 Container 活得更久。跨动态库使用还需保持编译器、标准库和运行库 ABI 一致。
-
-下一步：[Block](raw-memory.zh-CN.md) → [Backend](backends.zh-CN.md)
+[生命周期与线程](../compatibility.zh-CN.md) · [Stack 约定](stack.zh-CN.md) · [API](../api-reference.zh-CN.md)

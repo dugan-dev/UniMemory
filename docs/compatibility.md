@@ -43,8 +43,7 @@ Reset/rewind reclaim storage without running Object destructors. Stale pointers,
 
 Global identity is per linked copy of UniMemory. Separate static copies in dynamic libraries can have separate instances; use one shared library for shared identity and counters. Cross-library C++ Objects and Containers require compatible compiler, standard library and runtime ABIs.
 
-Keep the library loaded while its Memory instances, Owners, Allocators or PMR
-resources are in use. Unloading a library does not transfer their ownership.
+Keep the library loaded while its Memory instances, owners, Allocators or PMR resources are in use.
 
 ## Standard library behavior
 
@@ -56,10 +55,7 @@ deviation from the C++20 reverse-order requirement
 ([LWG 3005](https://cplusplus.github.io/LWG/issue3005)). All constructed elements
 are destroyed and storage is released according to the Memory kind.
 
-UniMemory's `create_array` and `make_unique_array` perform reverse-order rollback
-on every tested backend. The tests check this strictly; the shared-array exception
-test records the libstdc++ 13 behavior explicitly. No GCC bug number or fix version
-has been verified.
+Use `create_array` or `make_unique_array` when reverse-order rollback is required. A fixed standard-library version has not been verified.
 
 ## Version
 

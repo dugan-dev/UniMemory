@@ -1,7 +1,6 @@
 # jemalloc：原生能力清单
 
-[English](jemalloc.md) · **简体中文**
-[文档目录](../README.zh-CN.md) / [能力对照](../allocator-capabilities.zh-CN.md) / jemalloc
+[目录](../README.zh-CN.md) · [English](jemalloc.md) · **简体中文**
 
 UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 使用共享路径，`Memory::heap(Backend::Jemalloc)` 创建独立 arena。业务代码始终通过统一接口访问。
 
@@ -11,7 +10,7 @@ UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 
 | --- | --- | --- |
 | 基础分配 | `malloc`、`calloc`、`realloc`、`free`、`aligned_alloc` | 是否替换进程路径由构建/链接决定；UniMemory 使用显式前缀调用 |
 | 扩展分配与调整 | `je_mallocx`、`je_rallocx`、`je_xallocx`、`MALLOCX_ALIGN`、`MALLOCX_ZERO` | 对齐、清零、arena/tcache 标志；通用字节接口覆盖常用语义，原地 `xallocx` 保留原生 |
-| 大小与高效释放 | `je_sallocx`、`je_dallocx`、`je_sdallocx`、`je_nallocx` | UniMemory 底层保留大小；当前使用 `dallocx`，待基准支持再优化 |
+| 大小与高效释放 | `je_sallocx`、`je_dallocx`、`je_sdallocx`、`je_nallocx` | 统一释放接口保留大小；当前使用 `dallocx` |
 | Memory::heap() | `arenas.create`、`MALLOCX_ARENA`、`arena.<i>.destroy` | `Memory::heap()` 使用独立 arena；支持整体 reset、collect 和 owns；先销毁 C++ 所有者 |
 | 线程缓存 | `tcache.create`、`tcache.flush`、`MALLOCX_TCACHE` | 影响性能与内存占用；公共接口不直接管理 |
 | Extent hooks | `arena.<i>.extent_hooks` | OS 内存管理回调需覆盖 arena 寿命；不作为简单字节适配层 |
@@ -19,4 +18,4 @@ UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 
 | 统计与画像 | `je_malloc_stats_print`、`stats.*`、`epoch`、`prof.*` | `backend_statistics()` 查询可用指标；画像不在当前公共接口 |
 | 回收 | `arena.<i>.purge/decay` | `heap.collect()` 映射 purge，保留有效分配，不保证 RSS 降低 |
 
-业务代码只使用 `<unimem/memory.h>`。详细统计是否可用取决于 jemalloc 的统计编译选项；通过 `capabilities()` 查询。内部 `mallctl` 快照可能同步 Backend 状态，不应放在分配热路径。具体实现条件以[官方手册](https://jemalloc.net/jemalloc.3.html)和实际使用版本为准。
+业务代码只使用 `<unimem/memory.h>`。详细统计是否可用取决于 jemalloc 的统计编译选项；通过 `capabilities()` 查询。原生统计用于诊断，不建议每次分配都查询。支持条件以[官方手册](https://jemalloc.net/jemalloc.3.html)和实际使用版本为准。

@@ -1,10 +1,10 @@
 # 原生程序
 
-[Performance](../performance.zh-CN.md) · [English](applications.md) · **简体中文**
+[性能](../performance.zh-CN.md) · [English](applications.md) · **简体中文**
 
 来自 mimalloc-bench 的独立 Linux 程序，进程级替换分配器。**比较 Native Backend，不测 UniMemory 封装成本。**
 
-[Pinned benchmark collection](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86)
+[固定版本的基准集合](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86)
 
 每个程序运行三次，取中位数。这里的系统分配器是 glibc。
 
@@ -42,4 +42,4 @@
 
 耗时使用单调时钟，包含进程启动；峰值 RSS 来自 GNU time 的系统计量，受平台记账限制，与内存报告的驻留页快照不同。
 
-[Raw data](../results/0.0.1/README.md) · [复现](../benchmarking.zh-CN.md)
+[原始数据](../results/0.0.1/README.md) · [复现](../benchmarking.zh-CN.md)

@@ -2,48 +2,45 @@
 
 [Index](../README.md) · **English** · [简体中文](raw-memory.zh-CN.md)
 
-## Own a byte block
+Examples: [Quick Start](../../README.md#basic-usage).
 
-```cpp
-unimem::Memory& memory = unimem::Memory::global();
-unimem::OwnedBlock block = memory.make_block(4096, 64);
-block.resize(8192);
-void* data = block.data();
-```
+## Pairing and alignment
 
-`OwnedBlock` remembers size and alignment, moves ownership and frees automatically. `resize()` preserves the old block on failure. Growth is uninitialized; byte ownership does not run object destructors.
+| Item | Contract |
+| --- | --- |
+| Memory | Release through the same Memory used to allocate |
+| Size | Supply the current requested byte count after any resize |
+| Alignment | Supply the original alignment; nonzero power of two |
+| Default alignment | `alignof(std::max_align_t)`, sufficient for fundamental alignment |
+| Over-aligned object | Use `alignof(T)`; object helpers do this automatically |
+| Request size | Need not be a multiple of alignment |
 
-## Pair raw operations
-
-```cpp
-void* bytes = memory.allocate_zeroed(64, 32);
-bytes = memory.reallocate_zeroed(bytes, 64, 128, 32);
-memory.deallocate(bytes, 128, 32);
-```
+## Resize and ownership
 
 | Operation | Guarantee |
 | --- | --- |
-| `allocate(bytes, alignment)` | Raw storage; default alignment is `alignof(std::max_align_t)` |
-| `allocate_zeroed(...)` | All requested bytes are zero |
-| `reallocate(ptr, old, next, alignment)` | Preserves `min(old, next)` bytes; failure preserves the old block |
-| `reallocate_zeroed(...)` | Additionally zeroes newly requested bytes |
-| `deallocate(ptr, bytes, alignment)` | Use the original Memory, current request size and original alignment |
+| Resize | Preserve `min(old_bytes, new_bytes)` bytes; the pointer may change |
+| Failed resize | Keep the old pointer and contents valid |
+| Zeroed growth | Clear only newly requested bytes; preserve existing bytes |
+| OwnedBlock | Remember size and alignment; move ownership; release automatically |
+| OwnedBlock growth | Newly added bytes are uninitialized |
+| Byte ownership | Does not invoke C++ object destructors |
 
-Alignment is a nonzero power of two. The default covers fundamental alignment; over-aligned types need `alignof(T)`, which object helpers supply automatically. Size need not be a multiple of alignment.
+Discard cached `data()` pointers after successful resizing or ownership replacement. Use object helpers for constructed C++ objects.
 
-## Zero and failures
+## Zero and errors
 
 | Input or event | Result |
 | --- | --- |
 | `allocate(0)` | `nullptr` |
 | `reallocate(nullptr, ..., next)` | Allocation |
-| Resize to zero | Free and return `nullptr` |
+| Resize to zero | Logical release and `nullptr` |
 | `deallocate(nullptr, ...)` | No operation |
 | Invalid alignment | `std::invalid_argument` |
 | Allocation failure | `std::bad_alloc` |
 | Typed count overflow | `std::length_error` |
 | Resize a moved-from OwnedBlock | `std::logic_error` |
 
-Invalid pointer lifetimes and mismatched frees violate the contract; they are not guaranteed to be detected. Container adapters give zero-sized requests a small, pairable allocation. Use object helpers for C++ objects.
+Stack retains occupied buffer space after individual releases. Container adapters give zero-sized requests a small, pairable allocation. Invalid pointers and mismatched frees violate the contract; detection is not guaranteed.
 
-Next: [Objects](objects.md) · [API reference](../api-reference.md)
+[Stack behavior](stack.md) · [Ownership](objects.md) · [API](../api-reference.md)

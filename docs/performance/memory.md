@@ -8,7 +8,7 @@ Requested bytes are storage the application still needs. Resident memory is phys
 
 ## 1 · Mixed sizes and lifetimes
 
-16384 Blocks, ten sizes from 17–8193 B, eight refill/free cycles. Initial requests: 25.18 MiB; 1024 survivors request 1.61 MiB; final live requests are zero. Pages are touched; alignment, contents and counts are checked.
+16384 Blocks, ten sizes from 17–8193 B, eight refill/free cycles. Initial requests: 25.18 MiB; 1024 survivors request 1.61 MiB; final live requests are zero. All requested pages are touched.
 
 Snapshots follow the operations without an intentional wait or collection. This checks immediate memory retention after a burst of allocations, not long-term memory usage.
 
@@ -79,7 +79,7 @@ collect() reclaims eligible idle resources; it does not destroy live Objects or 
 | OwnedBlock | 32 |
 | Allocator<T> | 8 |
 
-Memory embeds Stack state and its PMR resource; Stack setup requires no separate state allocation. The Global registry persists. Basic counters and native Heaps have additional state excluded from this table. Sizes depend on ABI.
+Stack setup requires no separate state allocation. This table excludes Global shared state, Basic counters and native allocator metadata. Sizes depend on ABI.
 
 Linux uses smaps_rollup RSS; Windows uses the working set. OS peak-memory counters differ from phase RSS snapshots.
 

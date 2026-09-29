@@ -1,64 +1,46 @@
-# Block
+# 原始内存与对齐
 
 [目录](../README.zh-CN.md) · [English](raw-memory.md) · **简体中文**
 
-Block 是一次分配得到的字节存储。它不负责 C++ Object 的构造与析构。
+示例见[快速开始](../../README.zh-CN.md#基本用法)。
 
-## 1 · 自动释放
+## 配对与对齐
 
-```cpp
-#include <unimem/memory.h>
-
-unimem::Memory& memory = unimem::Memory::global();
-unimem::OwnedBlock block = memory.make_block(4096, 64);
-block.resize(8192);
-void* data = block.data();
-```
-
-`OwnedBlock` 保存大小与 Alignment，只能移动。销毁时自动释放；扩容失败保留旧 Block，新增加的字节不保证清零。
-
-| 方法 | 用途 |
+| 项目 | 约定 |
 | --- | --- |
-| `data()` | 获取指针 |
-| `size()` | 请求的字节数 |
-| `alignment()` | 分配时指定的 Alignment |
-| `resize(bytes)` | 改变大小，保留旧内容的有效范围 |
+| Memory | 使用分配时的同一个 Memory 释放 |
+| 大小 | 调整大小后，使用当前请求的字节数 |
+| 对齐 | 使用原对齐值，必须是非零的二次幂 |
+| 默认对齐 | `alignof(std::max_align_t)`，满足基本对齐要求 |
+| 超对齐对象 | 使用 `alignof(T)`，对象辅助接口会自动设置 |
+| 请求大小 | 不必是对齐值的整数倍 |
 
-## 2 · Alignment
+## 调整大小与所有权
 
-| 写法 | 保证 |
+| 操作 | 保证 |
 | --- | --- |
-| `allocate(100)` | 默认按 `alignof(std::max_align_t)` 对齐 |
-| `allocate(100, 64)` | 起始地址为 64 的倍数 |
-| `create<T>()` | 自动使用 `alignof(T)` |
+| 调整大小 | 保留 `min(old_bytes, new_bytes)` 字节，指针可能变化 |
+| 调整失败 | 原指针和内容保持有效 |
+| 清零扩容 | 只清零新增请求字节，保留原内容 |
+| OwnedBlock | 记录大小与对齐，支持移动所有权，自动释放 |
+| OwnedBlock 扩容 | 新增字节未初始化 |
+| 字节所有权 | 不调用 C++ 对象析构函数 |
 
-Alignment 是地址对齐要求，必须为有效的 2 的幂。默认满足普通基本类型；需要更大 Alignment 的类型使用 Object API 或显式指定。
+调整大小或替换所有权成功后，丢弃之前保存的 `data()` 指针。已经构造的 C++ 对象应使用对象辅助接口。
 
-## 3 · 手动分配
+## 零大小与错误
 
-```cpp
-void* bytes = memory.allocate_zeroed(64, 32);
-bytes = memory.reallocate_zeroed(bytes, 64, 128, 32);
-memory.deallocate(bytes, 128, 32);
-```
-
-| 接口 | 作用 |
+| 输入或情况 | 结果 |
 | --- | --- |
-| `allocate(bytes, alignment)` | 分配，不初始化 |
-| `allocate_zeroed(bytes, alignment)` | 分配，请求范围清零 |
-| `reallocate(ptr, old, next, alignment)` | 改大小，保留旧内容的有效范围 |
-| `reallocate_zeroed(ptr, old, next, alignment)` | 同上，新增请求范围清零 |
-| `deallocate(ptr, bytes, alignment)` | 释放，传回原大小与 Alignment |
-
-由**同一个 `Memory`** 释放。重分配后使用返回指针；失败时旧 Block 仍有效。零字节分配返回 `nullptr`，重分配到零会释放并返回 `nullptr`。Container 的零元素分配可能返回可配对释放的非空指针。
-
-## 错误处理
-
-| 情况 | 结果 |
-| --- | --- |
+| `allocate(0)` | `nullptr` |
+| `reallocate(nullptr, ..., next)` | 分配内存 |
+| 调整为零 | 逻辑释放，返回 `nullptr` |
+| `deallocate(nullptr, ...)` | 不执行操作 |
+| 无效对齐 | `std::invalid_argument` |
 | 分配失败 | `std::bad_alloc` |
-| 非法 Alignment | `std::invalid_argument` |
 | 类型化数量溢出 | `std::length_error` |
-| 错误 Memory、大小、Alignment，或混用 Native 指针 | 违反约定，不保证检测 |
+| 调整已移走所有权的 OwnedBlock | `std::logic_error` |
 
-下一步：[Heap](heap.zh-CN.md) · [API](../api-reference.zh-CN.md)
+Stack 单独释放后仍保留已占用的缓冲区空间。容器适配器为零大小请求提供可配对释放的小块内存。无效指针和错误配对违反约定，不保证能够检测。
+
+[Stack 行为](stack.zh-CN.md) · [所有权](objects.zh-CN.md) · [API](../api-reference.zh-CN.md)

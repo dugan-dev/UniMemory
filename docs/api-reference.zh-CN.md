@@ -1,6 +1,6 @@
 # 接口参考
 
-[索引](README.zh-CN.md) · [English](api-reference.md) · **简体中文**
+[目录](README.zh-CN.md) · [English](api-reference.md) · **简体中文**
 
 命名空间：`unimem`。包含 `<unimem/memory.h>` 即可使用分配接口。
 
@@ -14,8 +14,7 @@
 | `Memory::stack(span<byte>)` | `Memory`，固定 Buffer，单线程借用 |
 | `Memory::stack(void*, size_t)` | 同一策略的指针与大小形式 |
 
-构造函数隐藏；Memory 无虚函数，禁止复制和移动；工厂直接构造结果。
-Heap 销毁/reset、Stack rewind/reset 前先销毁受影响的 Owner；整体释放不调用 Object 析构。
+Memory 不可复制或移动；全局实例以指针或引用保存。Heap/Stack 的释放顺序见[生命周期](compatibility.zh-CN.md#生命周期)。
 
 ## 2 · 配置与能力查询
 
@@ -56,20 +55,16 @@ Stack 单块释放不收回 Buffer 空间。
 | `allocate_objects<T>(count = 1)` / `deallocate_objects(ptr, count = 1)` | 类型化原始存储，不构造 Object |
 | `create<T>(args...)` / `destroy(ptr)` | 构造、销毁 Object；保持原具体类型 |
 | `create_array<T>(count)` / `destroy_array(ptr, count)` | 值初始化 Array，释放需要原数量 |
-| `make_unique<T>()` | `Unique<T>` |
-| `make_unique_array<T>()` | `UniqueArray<T>` |
-| `make_shared<T>()` | 标准 `shared_ptr<T>` |
+| `make_unique<T>(args...)` | `Unique<T>` |
+| `make_unique_array<T>(count)` | `UniqueArray<T>` |
+| `make_shared<T>(args...)` | `std::shared_ptr<T>` |
+| `make_shared<T[]>(count)` | `std::shared_ptr<T[]>`，共享数组 |
 | `adopt_unique(ptr)` | 接管同一 Memory 的已有 Object，保持原具体类型 |
 | `adopt_unique_array(ptr, count)` | 接管已有 Array，另需原数量 |
 | `allocator<T>()` | 标准 `Allocator<T>` |
 | `resource()` | `std::pmr::memory_resource*` |
 
-Object 析构必须 noexcept，构造失败会析构已构造元素；Stack 仍保留 Buffer 占用。
-默认 Unique 是空 Owner；非空 Owner 使用未绑定的 Deleter，或非空 Array 的数量为零时，会确定性终止。
-适配器按 Memory 地址判断相等。
-Owner、Allocator、PMR 以及 weak_ptr 控制块不能超过 Memory 生命周期。
-
-Basic 快照可用于并发监控；Backend 诊断快照要求暂停相应 Memory/Process 范围内的活动和线程清理。
+对象析构不得抛异常。所有权与接管规则见[对象指南](guides/objects.zh-CN.md)，资源选择见[容器指南](guides/containers.zh-CN.md)。
 
 ## 5 · Heap 与 Stack 管理
 
@@ -91,7 +86,7 @@ Basic 快照可用于并发监控；Backend 诊断快照要求暂停相应 Memor
 | --- | --- |
 | 分配或容量不足 | `bad_alloc`；重分配保留原块 |
 | 无效对齐、枚举、Buffer、Mark | 已验证处抛 `invalid_argument` |
-| 类型化大小或 Mark 代数溢出 | `length_error` |
+| 数量或标记计数溢出 | `length_error` |
 | Backend 未启用、Heap 不支持、原生控制失败 | `runtime_error` |
 | 模式操作不支持、Global 已初始化后改模式、移动后 Block 扩容 | `logic_error` |
 | 无效指针、释放不配对、提前 reset/销毁 | 违反调用契约，不保证检测 |

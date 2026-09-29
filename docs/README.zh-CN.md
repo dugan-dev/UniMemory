@@ -2,51 +2,48 @@
 
 [UniMemory](../README.zh-CN.md) · [English](README.md) · **简体中文**
 
-文档涵盖基础分配、可选功能、API 约定与验证结果。
+[快速开始](../README.zh-CN.md#快速开始)展示常用 API；下列主题说明配置、用法与使用约定。
 
 ```mermaid
 flowchart LR
-    A[Start] --> B[Object / Container / Block]
-    B --> C[Optional features]
-    C --> D[API / Benchmarks / Tests]
+    A[接入项目] --> B[分配与对象]
+    B --> C[容器与所有权]
+    C --> D[堆 / 栈 / 统计]
 ```
 
-## 1 · 开始
+## 1 · 开始使用
 
-| 主题 | 用途 |
+| 主题 | 内容 |
 | --- | --- |
-| [编译与安装](getting-started.zh-CN.md) | 构建库，接入项目 |
-| [API 概览](api-reference.zh-CN.md) | Global、Heap、Stack 的创建方式 |
+| [构建与安装](getting-started.zh-CN.md) | CMake 接入与部署 |
+| [平台与后端](guides/backends.zh-CN.md) | 平台支持、启用可选后端 |
+| [可运行示例](../examples/README.md) | 完整程序 |
 
 ## 2 · 日常使用
 
-| 主题 | 用途 |
+| 主题 | 内容 |
 | --- | --- |
-| [Object / Array](guides/objects.zh-CN.md) | 创建、销毁、Smart Pointer |
-| [Container](guides/containers.zh-CN.md) | std Container 与 PMR |
-| [Block](guides/raw-memory.zh-CN.md) | 对齐、扩容、自动释放 |
+| [原始内存](guides/raw-memory.zh-CN.md) | 分配、释放、对齐与扩容 |
+| [对象与数组](guides/objects.zh-CN.md) | 构造、销毁与智能指针 |
+| [内存块](guides/raw-memory.zh-CN.md#调整大小与所有权) | 自动释放、调整大小 |
+| [标准容器](guides/containers.zh-CN.md) | Allocator、PMR 与嵌套容器 |
 
-## 3 · 按需使用
+## 3 · 内存管理
 
-| 主题 | 用途 |
+| 主题 | 内容 |
 | --- | --- |
-| [Backend](guides/backends.zh-CN.md) | 配置、平台、依赖 |
-| [Heap](guides/heap.zh-CN.md) | 独立管理一组分配 |
-| [Stack](guides/stack.zh-CN.md) | 固定 Buffer 内的临时分配 |
-| [Statistics](guides/statistics.zh-CN.md) | 请求计数与 Backend 详情 |
-| [Runtime options](guides/runtime-options.zh-CN.md) | 控制闲置内存回收延迟 |
+| [堆](guides/heap.zh-CN.md) | 独立管理、整体释放 |
+| [栈](guides/stack.zh-CN.md) | 固定缓冲区、标记与回退 |
+| [统计](guides/statistics.zh-CN.md) | 用量、峰值与统计范围 |
+| [运行时选项](guides/runtime-options.zh-CN.md) | 闲置内存回收延迟 |
 
 ## 4 · 查阅
 
-| 主题 | 用途 |
+| 主题 | 内容 |
 | --- | --- |
-| [API](api-reference.zh-CN.md) | 函数与约束 |
-| [Compatibility](compatibility.zh-CN.md) | 生命周期、线程、配对规则 |
-| [Performance](performance.zh-CN.md) | 耗时、内存、原生程序对比 |
-| [Tests](testing.zh-CN.md) | 测试范围与结果 |
+| [API](api-reference.zh-CN.md) | 函数、参数与返回值 |
+| [生命周期与线程](compatibility.zh-CN.md) | 所有权、并发与动态库 |
+| [性能对比](performance.zh-CN.md) | 耗时与内存占用 |
+| [测试结果](testing.zh-CN.md) | 验证平台与覆盖范围 |
 
-## 更多资料
-
-[Examples](../examples/README.md) · [Benchmark method](benchmarking.zh-CN.md) · [Raw data](results/0.0.1/README.md) · [Upstream tests](upstream-validation.md)
-
-[Capability comparison](allocator-capabilities.zh-CN.md) · [mimalloc](backends/mimalloc.zh-CN.md) · [jemalloc](backends/jemalloc.zh-CN.md) · [TCMalloc](backends/tcmalloc.zh-CN.md)
+[后端能力对照](allocator-capabilities.zh-CN.md) · [测量方法](benchmarking.zh-CN.md) · [原始数据](results/0.0.1/README.md) · [上游验证](upstream-validation.md)

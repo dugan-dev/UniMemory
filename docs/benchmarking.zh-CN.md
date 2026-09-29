@@ -1,6 +1,6 @@
 # 性能基准
 
-[索引](README.zh-CN.md) · [English](benchmarking.md) · **简体中文** · [结果](performance.zh-CN.md)
+[目录](README.zh-CN.md) · [English](benchmarking.md) · **简体中文** · [结果](performance.zh-CN.md)
 
 按实际负载测量。[mimalloc-bench](https://github.com/daanx/mimalloc-bench)提供应用与合成场景；它是基准集合，不是行业认证或统一评分标准。
 
@@ -49,7 +49,7 @@ Global 的统计模式在首次获取前固定，因此 Disabled、Basic 分别�
 
 原生统计场景计时包含能力不支持时返回空值。先查询实例能力；返回空值的调用不等价于获取完整原生指标。
 
-## 4 · Backend 隔离
+## 4 · 后端隔离
 
 mimalloc 使用 `MI_OVERRIDE=OFF`，Windows 同时 `MI_WIN_REDIRECT=OFF`。Windows 子进程还设置并核对 `MIMALLOC_DISABLE_REDIRECT=1`。
 

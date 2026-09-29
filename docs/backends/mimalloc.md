@@ -39,3 +39,5 @@ thread's current native subprocess, normally main, rather than all native
 subprocesses ([query implementation](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L566)).
 
 Sources: [official topics](https://microsoft.github.io/mimalloc/topics.html), [pinned header](https://github.com/microsoft/mimalloc/blob/v3.4.3/include/mimalloc.h), [statistics definitions](https://github.com/microsoft/mimalloc/blob/v3.4.3/include/mimalloc-stats.h). The website may describe newer releases; the pinned sources define the tested symbols.
+
+Diagnostic snapshots require paused allocation, release and thread cleanup in the native scope. mimalloc 3.4.3 copies statistics without a lock covering the whole snapshot ([source](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L536)); this conservative unified rule does not describe jemalloc's synchronization.

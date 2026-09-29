@@ -1,11 +1,10 @@
 # Google TCMalloc：进程级接入
 
-[English](tcmalloc.md) · **简体中文**
-[文档目录](../README.zh-CN.md) / [能力对照](../allocator-capabilities.zh-CN.md) / Google TCMalloc
+[目录](../README.zh-CN.md) · [English](tcmalloc.md) · **简体中文**
 
 Google TCMalloc 由**最终可执行程序链接**到进程分配路径。它不是可逐个 `Memory` Object 选择的 Backend；`Backend::Standard` 使用当时进程的标准 `new` 路径。不要与 gperftools 的另一套 tcmalloc 实现混为一谈。
 
-**证据范围：**2026-09-23 核对了[基础 API](https://google.github.io/tcmalloc/reference.html)、[架构](https://google.github.io/tcmalloc/design.html)、[平台](https://google.github.io/tcmalloc/platforms.html)、[统计](https://google.github.io/tcmalloc/stats.html)和 [`malloc_extension.h` 固定修订 `1c6a831d649134efac38663f5a269a43f0d02702`](https://github.com/google/tcmalloc/blob/1c6a831d649134efac38663f5a269a43f0d02702/tcmalloc/malloc_extension.h)。本机 Linux/WSL 构建该修订，运行上游完整默认测试选择及 UniMemory 的 557 项链接测试。[结果与环境限制](../testing.zh-CN.md)
+**证据范围：**2026-09-23 核对了[基础 API](https://google.github.io/tcmalloc/reference.html)、[架构](https://google.github.io/tcmalloc/design.html)、[平台](https://google.github.io/tcmalloc/platforms.html)、[统计](https://google.github.io/tcmalloc/stats.html)和 [`malloc_extension.h` 固定修订 `1c6a831d649134efac38663f5a269a43f0d02702`](https://github.com/google/tcmalloc/blob/1c6a831d649134efac38663f5a269a43f0d02702/tcmalloc/malloc_extension.h)。本机 Linux/WSL 构建该修订，运行上游完整默认测试选择及 UniMemory 的 671 项链接测试。[结果与环境限制](../testing.zh-CN.md)
 
 | 功能族 | 代表入口 | 作用范围与取舍 |
 | --- | --- | --- |

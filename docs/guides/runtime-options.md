@@ -2,15 +2,9 @@
 
 [Index](../README.md) · **English** · [简体中文](runtime-options.zh-CN.md)
 
-The current option controls the backend's advisory unused-page release delay. It does not destroy live objects or impose an RSS deadline.
+Examples: [Quick Start](../../README.md#runtime-options).
 
-```cpp
-using namespace unimem;
-Backend backend = Backend::Mimalloc;
-if (supports(backend, RuntimeOption::UnusedPageReleaseDelayMs)) {
-    set_runtime_option(backend, RuntimeOption::UnusedPageReleaseDelayMs, 20);
-}
-```
+`UnusedPageReleaseDelayMs` adjusts how long unused memory may wait before returning to the OS. Allocators may cache freed storage for reuse. Check `supports()` first.
 
 | Value | Request |
 | --- | --- |
@@ -21,4 +15,4 @@ if (supports(backend, RuntimeOption::UnusedPageReleaseDelayMs)) {
 
 Set options before creating workers and independent Heaps. They affect backend-wide policy/defaults, not one Memory. jemalloc applies the delay to defaults for newly created arenas; existing regions may be unaffected.
 
-Unsupported capability returns `false`; a backend rejection throws `std::runtime_error`. Tuning trades throughput, retention and latency. Measure your workload before changing defaults.
+With a valid value, an unsupported capability returns `false`; a backend rejection throws `std::runtime_error`. This never frees live objects or guarantees a deadline for reducing RSS. More frequent reclamation may reduce retained memory and increase allocation time; measure your workload.

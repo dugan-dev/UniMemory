@@ -1,6 +1,6 @@
 # 内存占用
 
-[Performance](../performance.zh-CN.md) · [English](memory.md) · **简体中文**
+[性能](../performance.zh-CN.md) · [English](memory.md) · **简体中文**
 
 **进程常驻内存相对基线的增量，MiB。** 每种情况运行三个独立进程，取中位数；统计关闭。
 
@@ -8,21 +8,21 @@
 
 ## 1 · 混合尺寸与生命周期
 
-16384 个 Block，十种 17–8193 B 尺寸，八轮分配/释放。初始请求 25.18 MiB；保留 1024 个 Block 时请求 1.61 MiB；最后请求为零。检查对齐、内容、计数，并写入请求页。
+16384 个 Block，十种 17–8193 B 尺寸，八轮分配/释放。初始请求 25.18 MiB；保留 1024 个 Block 时请求 1.61 MiB；最后请求为零，已写入全部请求页。
 
 操作结束后立即取样，不额外等待，也不主动回收。此项检查大量分配后立即保留多少内存，不代表长期内存占用。
 
 ```mermaid
 flowchart LR
-    A[Fill 16384 Blocks] --> B[Keep 1024]
-    B --> C[Refill and free: 8 cycles]
-    C --> D[Keep 1024]
-    D --> E[Free all]
+    A[分配 16384 个 Block] --> B[保留 1024 个]
+    B --> C[重新分配并释放，八轮]
+    C --> D[保留 1024 个]
+    D --> E[全部释放]
 ```
 
 ### Windows
 
-| Backend | Path | Fill | Keep 1024 | Free all |
+| 后端 | 路径 | 全部分配 | 保留 1024 个 | 全部释放 |
 | --- | --- | --- | --- | --- |
 | Standard | Native | 27.87 | 25.93 | 1.45 |
 | Standard | UniMemory | 27.86 | 25.92 | 1.45 |
@@ -33,7 +33,7 @@ flowchart LR
 
 ### Linux / WSL
 
-| Backend | Path | Fill | Keep 1024 | Free all |
+| 后端 | 路径 | 全部分配 | 保留 1024 个 | 全部释放 |
 | --- | --- | --- | --- | --- |
 | Standard | Native | 25.59 | 26.37 | 26.37 |
 | Standard | UniMemory | 25.59 | 26.37 | 26.37 |
@@ -56,7 +56,7 @@ flowchart LR
 
 16384 × 4096 B，共 64 MiB，全部写入。逐块释放后，仅独立 Heap 调用 collect()。
 
-| Platform | Backend | Kind | Live | Free | Collect |
+| 平台 | 后端 | 模式 | 分配后 | 释放后 | collect 后 |
 | --- | --- | --- | --- | --- | --- |
 | Windows | Standard | Global | 69.61 | 0.29 | — |
 | Windows | mimalloc | Global | 64.31 | 64.32 | — |
@@ -73,14 +73,14 @@ collect() 回收符合后端策略的闲置资源，不销毁在用 Object，也
 
 ## 4 · 库自身的存储
 
-| Type | x64 bytes |
+| 类型 | x64 字节数 |
 | --- | --- |
 | Memory | 80 |
 | OwnedBlock | 32 |
 | Allocator<T> | 8 |
 
-Memory 内置 Stack 状态及 PMR Resource，创建 Stack 不再分配管理状态。Global 注册表长期保留；Basic 有单独计数状态，原生 Heap 也有自身元数据。表格不包含这些额外状态。对象大小依赖 ABI。
+Stack 创建不额外分配管理状态。表格仅含类型本身，不含 Global 共享状态、Basic 计数和后端管理空间；大小取决于 ABI。
 
 Linux 使用 smaps_rollup RSS，Windows 使用工作集。OS 峰值计数与阶段 RSS 快照不同。
 
-[Method](../benchmarking.zh-CN.md) · [Raw data](../results/0.0.1/README.md) · [Native programs](applications.zh-CN.md)
+[方法](../benchmarking.zh-CN.md) · [原始数据](../results/0.0.1/README.md) · [原生程序](applications.zh-CN.md)
