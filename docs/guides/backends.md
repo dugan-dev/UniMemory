@@ -53,7 +53,7 @@ Build mimalloc with `MI_OVERRIDE=OFF`; on Windows also use `MI_WIN_REDIRECT=OFF`
 | --- | --- | --- | --- | --- |
 | Windows x64 / MSVC | Final local tests | Final local tests | Final local tests | Outside upstream's listed support |
 | Linux x64 / GCC | Final local tests | Final local tests | Final local prefixed build | Final local WSL linkage and suite |
-| macOS | Not verified | Not verified | Not verified | Outside upstream's listed support |
+| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI, prefixed build | Outside upstream's listed support |
 | Android / iOS | Not device-tested | Not device-tested | Not device-tested | Outside upstream's listed support |
 
 This table describes evidence, not a guarantee for all architectures or operating-system versions. [Exact versions and results →](../testing.md)

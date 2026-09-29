@@ -8,6 +8,7 @@
 | --- | --- |
 | Windows x64 / MSVC，三种 Backend | Release **1626/1626**，Debug **1626/1626** |
 | Linux x64 / GCC / WSL，三种 Backend | **1627/1627** |
+| macOS / Apple Clang，三种 Backend | GitHub CI **1626/1626**；安装包使用程序通过 |
 | Linux Standard / Stack，ASan + UBSan | **681/681**，未发现 Sanitizer 错误 |
 | Linux Standard / Stack，ThreadSanitizer | **678/678**，未发现竞争；关闭示例 |
 | Linux Standard 链接 Google TCMalloc | **671/671** 项适配测试 |
@@ -50,9 +51,16 @@ ctest --preset release
 
 [上游测试与复现](upstream-validation.md) · [性能报告](performance.zh-CN.md)
 
-当前构建未验证 macOS 和 Android/iOS。测试结果仅代表已检查的配置及负载。
+Android/iOS 尚未设备验证。测试结果仅代表已检查的配置及负载。
 
 WSL 的 ThreadSanitizer 使用 `setarch x86_64 -R`，仅为测试进程及子进程关闭地址随机化，避免启动映射错误；
 未修改系统配置。此次 Standard/Stack 检查不包含原生分配器内部的 Sanitizer 插桩。
 
-上述结果来自本地验证。仓库工作流提供可复现的 CI 配置。
+## 自动化测试
+
+| 工作流 | 检查内容 |
+| --- | --- |
+| [Build](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) | Windows/Linux/macOS、Release/Debug、静态/共享库、可选 Backend、安装包使用、Linux TCMalloc 链接 |
+| [Release validation](https://github.com/dugan-dev/UniMemory/actions/workflows/release-validation.yml) | Address/Undefined/Thread Sanitizer、分配器原生测试、压力测试和基准 |
+
+Build 在推送和 Pull Request 时运行。Release validation 在相关源码变更时运行，也可从 Actions 手动启动。测试失败会停止对应任务；日志保存在 Artifact 中。

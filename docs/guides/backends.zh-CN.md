@@ -59,7 +59,7 @@ mimalloc 当前最低要求 3.4.3，更新版本需另行验证。可选依赖�
 | --- | --- | --- | --- | --- |
 | Windows x64/MSVC | 已验证 | 3.4.3 已验证 | 5.3.1 已验证 | 上游未列支持 |
 | Linux | 最终本地验证 | 3.4.3 最终本地验证 | 5.3.1 `je_` 前缀，最终本地验证 | 本地 Linux/WSL 已验证；最新 CI 尚未完成 |
-| macOS | 未验证 | 未验证 | 未验证 | 上游未列支持 |
+| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI，前缀构建 | 上游未列支持 |
 | Android / iOS | 尚未设备验证 | 未承诺 | 未承诺 | 上游未列支持 |
 
 上表描述**本仓库的验证范围**，不是对其他平台性能或可构建性的推断。详情与官方来源见[能力对照](../allocator-capabilities.zh-CN.md)。

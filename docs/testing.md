@@ -8,6 +8,7 @@
 | --- | --- |
 | Windows x64 / MSVC, three backends | Release **1626/1626**, Debug **1626/1626** |
 | Linux x64 / GCC / WSL, three backends | **1627/1627** |
+| macOS / Apple Clang, three backends | **1626/1626** in GitHub CI; installed consumer passes |
 | Linux Standard / Stack, ASan + UBSan | **681/681**, no sanitizer findings |
 | Linux Standard / Stack, ThreadSanitizer | **678/678**, no race findings; examples disabled |
 | Linux Standard linked to Google TCMalloc | **671/671** adapter tests |
@@ -15,7 +16,7 @@
 | Independent GitHub clone | README build, Standard **681/681**; static/shared installed consumers **2/2** each |
 | Documentation examples | 31 fragments compile; Standard paths run |
 
-Backend versions: mimalloc 3.4.3 and jemalloc 5.3.1. These are local results for the unified Memory interface.
+Backend versions: mimalloc 3.4.3 and jemalloc 5.3.1. Results cover the unified Memory interface on the listed configurations.
 
 ## Coverage
 
@@ -52,10 +53,17 @@ Standard is enabled by default; optional backends need their build options and d
 
 [Upstream suites and reproduction](upstream-validation.md) · [Performance](performance.md)
 
-macOS and Android/iOS are not verified for this build. Test results describe the checked configurations and workloads.
+Android/iOS are not device-verified. Test results describe the checked configurations and workloads.
 
 For local WSL ThreadSanitizer, `setarch x86_64 -R` disables address randomization
 only for the test process and its children to avoid the host's initial mapping error.
 No system setting was changed. Native allocator internals are not instrumented by this Standard/Stack run.
 
-The results above are local checks. The checked-in workflows provide reproducible CI configurations.
+## Automated tests
+
+| Workflow | Checks |
+| --- | --- |
+| [Build](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) | Windows/Linux/macOS, Release/Debug, static/shared libraries, optional backends, installed consumers, Linux TCMalloc linkage |
+| [Release validation](https://github.com/dugan-dev/UniMemory/actions/workflows/release-validation.yml) | Address/undefined/thread sanitizers, native allocator suites, stress tests and benchmarks |
+
+Build checks run on pushes and pull requests. Release validation runs on relevant source changes or manually from Actions. Failed tests stop their job; logs are retained as artifacts.

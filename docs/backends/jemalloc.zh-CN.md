@@ -5,7 +5,7 @@
 
 UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 使用共享路径，`Memory::heap(Backend::Jemalloc)` 创建独立 arena。业务代码始终通过统一接口访问。
 
-**版本与条件：**[官方手册](https://jemalloc.net/jemalloc.3.html)描述 **5.4.0**；本仓库验证 **5.3.1** 及 `je_mallocx`/`je_dallocx`。启用需要 `UNIMEMORY_WITH_JEMALLOC=ON` 及匹配库；Linux/macOS 使用 `--with-jemalloc-prefix=je_ --disable-cxx` 构建。前缀不会关闭全局 C++ `new/delete` 替换，Unix 配置会拒绝导出这些替换的库。关闭原生替换不影响 UniMemory 创建 Object。Windows、Linux 已验证；macOS、Android/iOS 未验证。5.4.0 新符号不能假定存在于 5.3.1。[验证范围](../testing.zh-CN.md)
+**版本与条件：**[官方手册](https://jemalloc.net/jemalloc.3.html)描述 **5.4.0**；本仓库验证 **5.3.1** 及 `je_mallocx`/`je_dallocx`。启用需要 `UNIMEMORY_WITH_JEMALLOC=ON` 及匹配库；Linux/macOS 使用 `--with-jemalloc-prefix=je_ --disable-cxx` 构建。前缀不会关闭全局 C++ `new/delete` 替换，Unix 配置会拒绝导出这些替换的库。关闭原生替换不影响 UniMemory 创建 Object。Windows、Linux 已验证；macOS 已通过 GitHub CI；Android/iOS 尚未设备验证。5.4.0 新符号不能假定存在于 5.3.1。[验证范围](../testing.zh-CN.md)
 
 | 功能族 | 代表入口 | 作用范围与取舍 |
 | --- | --- | --- |

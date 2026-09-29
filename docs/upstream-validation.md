@@ -20,6 +20,8 @@ Unix explicit jemalloc uses `--with-jemalloc-prefix=je_ --disable-cxx`. This pre
 
 Native suite results are separate from the current UniMemory adapter results. Rerun the scripts for your platform and dependency configuration.
 
+The jemalloc 5.3.1 profiling suite uses the upstream [extent-test fix](https://github.com/jemalloc/jemalloc/pull/2954), pinned to `1b022c0da70c0d9d259e9beab6fb7db91ae79567` with SHA-256 verification. The test handles permitted profiling-related `xallocx` growth refusal and adds a page-aligned case to retain commit/merge checks. Only the test is backported; allocator implementation and installed libraries remain 5.3.1. `tools/patch-jemalloc-tests.py` applies the fix before validation.
+
 ## Reproduce
 
 Linux, with CMake, a C/C++ compiler, Make, Git, Python 3, curl and GNU time installed:

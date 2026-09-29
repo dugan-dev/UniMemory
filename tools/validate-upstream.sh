@@ -21,6 +21,7 @@ with tarfile.open(root / 'jemalloc.tar.bz2') as archive:
     archive.extractall(root, filter='data')
 PY
 fi
+python3 "$root/tools/patch-jemalloc-tests.py" "$work/jemalloc-5.3.1"
 (
   cd "$work/jemalloc-5.3.1"
   ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-prof --prefix="$work/prefix" > "$work/je-config.log"

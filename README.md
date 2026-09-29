@@ -101,7 +101,7 @@ Optional backends are enabled at build time; `capabilities()` reports supported 
 | --- | --- |
 | Windows x64 / MSVC | Three backends, checked locally |
 | Linux x64 / GCC / WSL | Three backends, installed package, local benchmarks |
-| macOS | Not verified for this build |
+| macOS / Apple Clang | Three backends and installed package, GitHub CI |
 | Android / iOS | Not device-validated |
 
 Google TCMalloc can be linked into the final Linux program; it is not a `Backend` enum value. [Build conditions](docs/guides/backends.md)
@@ -133,6 +133,7 @@ Backend performance depends on workload, platform and configuration. [Performanc
 | --- | --- |
 | Windows: three backends + examples | **1626/1626** in Release and Debug |
 | Linux: three backends + examples | **1627/1627**, installed consumer passes |
+| macOS: three backends + examples | **1626/1626**, installed consumer passes |
 | ASan / UBSan, Standard and Stack | **681/681** |
 | ThreadSanitizer, Standard and Stack | **678/678** |
 | Linux Standard linked to TCMalloc | **671/671** |
@@ -140,7 +141,7 @@ Backend performance depends on workload, platform and configuration. [Performanc
 | Unified correctness tests | **240 loop cases/backend + 240 Stack cases**, plus random, exception, concurrency and stress tests |
 | Backend test suites | Reproduction scripts: mimalloc, jemalloc, test-only rpmalloc, TCMalloc |
 
-Results cover the tested builds; macOS and mobile devices remain unverified. [Test coverage and results](docs/testing.md)
+Results cover the tested builds; mobile devices remain unverified. [Test coverage and CI](docs/testing.md)
 
 ## Documentation
 

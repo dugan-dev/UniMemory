@@ -101,7 +101,7 @@ unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Mimalloc);
 | --- | --- |
 | Windows x64 / MSVC | 三种 Backend，本地验证 |
 | Linux x64 / GCC / WSL | 三种 Backend、安装包、本地性能测试 |
-| macOS | 当前构建未验证 |
+| macOS / Apple Clang | 三种 Backend 和安装包，GitHub CI |
 | Android / iOS | 尚未设备验证 |
 
 Google TCMalloc 支持 Linux 最终程序链接；不是 `Backend` 枚举值。[平台与构建条件](docs/guides/backends.zh-CN.md)
@@ -133,6 +133,7 @@ Backend 的性能取决于负载、平台与配置。[性能报告](docs/perform
 | --- | --- |
 | Windows：三种 Backend + 示例 | Release、Debug 各 **1626/1626** |
 | Linux：三种 Backend + 示例 | **1627/1627**，安装包使用通过 |
+| macOS：三种 Backend + 示例 | **1626/1626**，安装包使用通过 |
 | ASan / UBSan，Standard 与 Stack | **681/681** |
 | ThreadSanitizer，Standard 与 Stack | **678/678** |
 | Linux Standard 链接 TCMalloc | **671/671** |
@@ -140,7 +141,7 @@ Backend 的性能取决于负载、平台与配置。[性能报告](docs/perform
 | 统一正确性测试 | 每种 Backend **240 个循环场景**，另有 **240 个 Stack 场景**，另有随机、异常、并发、压力测试 |
 | Backend 自带测试 | 提供 mimalloc、jemalloc、测试专用 rpmalloc、TCMalloc 的复现脚本 |
 
-表中为已验证构建的结果；macOS 和移动设备未验证。[测试范围与结果](docs/testing.zh-CN.md)
+表中为已验证构建的结果；移动设备未验证。[测试范围与 CI](docs/testing.zh-CN.md)
 
 ## 文档
 
