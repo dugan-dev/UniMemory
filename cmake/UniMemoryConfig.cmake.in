@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+include(CMakeFindDependencyMacro)
+find_dependency(Threads)
+if(@UNIMEMORY_WITH_MIMALLOC@)
+    find_dependency(mimalloc CONFIG)
+endif()
+if(@UNIMEMORY_WITH_JEMALLOC@)
+    include("${CMAKE_CURRENT_LIST_DIR}/UniMemoryJemalloc.cmake")
+endif()
+include("${CMAKE_CURRENT_LIST_DIR}/UniMemoryTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/UniMemoryTCMalloc.cmake")
+check_required_components(UniMemory)

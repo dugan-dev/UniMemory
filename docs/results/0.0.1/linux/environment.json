@@ -1,0 +1,42 @@
+{
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "trials": 3,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 120,
+  "executable_sha256": "b3a15859aaf0939f08b9c1d02c0a02ef0023d1b24827585fcdc447e484360ebf",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "standard_new_provider": "libstdc++.so.6",
+    "resident_measurement": "smaps_rollup Rss",
+    "mimalloc_version": 30403,
+    "mimalloc_redirected": false,
+    "jemalloc_header_version": "5.3.1-0-g81034ce1f1373e37dc865038e1bc8eeecf559ce8"
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-09-28T16:39:14.041797+00:00",
+  "benchmark_source_sha256": "f00dda5a18b5bb47c1b26a0bde48cb579b83bf99f548c04cf051da44191d69ea",
+  "source_hash_line_endings": "LF",
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE"
+}

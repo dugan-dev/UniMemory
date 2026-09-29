@@ -1,0 +1,180 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  standard:
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        configuration: [Release, Debug]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check documentation
+        run: python tools/check-docs.py
+      - name: Configure
+        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BUILD_EXAMPLES=ON
+      - name: Build
+        run: cmake --build build/ci --config ${{ matrix.configuration }} --parallel 4
+      - name: Test
+        run: ctest --test-dir build/ci -C ${{ matrix.configuration }} --parallel 4 --output-on-failure --no-tests=error
+      - name: Install
+        run: cmake --install build/ci --config ${{ matrix.configuration }} --prefix build/installed
+      - name: Test installed package
+        shell: bash
+        run: |
+          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_PREFIX_PATH="$PWD/build/installed"
+          cmake --build build/consumer --config ${{ matrix.configuration }} --parallel 4
+          ctest --test-dir build/consumer -C ${{ matrix.configuration }} --output-on-failure --no-tests=error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: standard-${{ matrix.os }}-${{ matrix.configuration }}
+          path: |
+            build/ci/Testing/Temporary/LastTest.log
+            build/consumer/Testing/Temporary/LastTest.log
+          retention-days: 14
+
+  shared:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build and test shared library
+        shell: bash
+        run: |
+          cmake -S . -B build/shared -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
+          cmake --build build/shared --config Release --parallel 4
+          ctest --test-dir build/shared -C Release --parallel 4 --output-on-failure --no-tests=error
+          cmake --install build/shared --config Release --prefix build/installed
+      - name: Test installed shared library
+        shell: pwsh
+        run: |
+          $env:PATH = "$PWD/build/installed/bin$([IO.Path]::PathSeparator)$env:PATH"
+          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/installed"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build/consumer --config Release --parallel 4
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir build/consumer -C Release --output-on-failure --no-tests=error
+
+  optional-backends:
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            backend: mimalloc
+            option: UNIMEMORY_WITH_MIMALLOC
+          - os: windows-latest
+            backend: jemalloc
+            option: UNIMEMORY_WITH_JEMALLOC
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Obtain vcpkg
+        shell: bash
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+      - name: Configure
+        shell: bash
+        run: cmake -S . -B build/optional -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=build/vcpkg/scripts/buildsystems/vcpkg.cmake -D${{ matrix.option }}=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
+      - name: Build
+        run: cmake --build build/optional --config Release --parallel 4
+      - name: Test
+        run: ctest --test-dir build/optional -C Release -j 4 --output-on-failure --no-tests=error
+
+  native-backends:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build pinned mimalloc
+        shell: bash
+        run: |
+          git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
+          cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_OVERRIDE=OFF -DMI_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
+          cmake --build build/mi --parallel 4
+          cmake --install build/mi
+      - name: Build pinned prefixed jemalloc
+        shell: bash
+        run: |
+          curl -L --fail https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
+          tar -xf build/jemalloc.tar.bz2 -C build
+          cd build/jemalloc-5.3.1
+          ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$GITHUB_WORKSPACE/build/prefix"
+          make -j4
+          make install
+      - name: Test all three backends and installed package
+        shell: bash
+        run: |
+          cmake -S . -B build/all -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
+          cmake --build build/all --parallel 4
+          ctest --test-dir build/all --parallel 4 --output-on-failure --no-tests=error
+          cmake --install build/all --prefix build/installed
+          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/installed;$PWD/build/prefix"
+          cmake --build build/consumer --parallel 4
+          ctest --test-dir build/consumer --output-on-failure --no-tests=error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-backends-${{ matrix.os }}
+          path: |
+            build/all/Testing/Temporary/LastTest.log
+            build/consumer/Testing/Temporary/LastTest.log
+          retention-days: 14
+
+  tcmalloc-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      USE_BAZEL_VERSION: 8.4.2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          repository-cache: true
+      - name: Build UniMemory
+        run: |
+          cmake -S . -B build/tcmalloc-ci -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build build/tcmalloc-ci --parallel
+      - name: Link with Google TCMalloc
+        shell: bash
+        run: |
+          git clone --filter=blob:none https://github.com/google/tcmalloc.git build/tcmalloc-source
+          git -C build/tcmalloc-source checkout 1c6a831d649134efac38663f5a269a43f0d02702
+          mkdir -p build/tcmalloc-source/unimemory_check/include
+          cp build/tcmalloc-ci/libUniMemory.a build/tcmalloc-source/unimemory_check/
+          cp -R include/unimem build/tcmalloc-source/unimemory_check/include/
+          cp tests/tcmalloc_linux/BUILD.bazel tests/tcmalloc_linux/smoke.cpp tests/production_tests.cpp build/tcmalloc-source/unimemory_check/
+          cp tests/conformance_tests.cpp tests/memory_tests.cpp tests/unified_memory_tests.cpp tests/interface_usage_tests.cpp benchmarks/delivery_bench.cpp build/tcmalloc-source/unimemory_check/
+          cd build/tcmalloc-source
+          # Keep Bzlmod at the versions declared by this pinned TCMalloc revision.
+          printf '\nsingle_version_override(module_name = "protobuf", version = "34.0")\nsingle_version_override(module_name = "abseil-cpp", version = "20260526.0")\n' >> MODULE.bazel
+          bazel run -c opt //unimemory_check:smoke --jobs=4 --local_ram_resources=HOST_RAM*.65

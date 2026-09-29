@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "logical_cpus": 120,
+  "trials": 3,
+  "scenarios_per_trial": 1001,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-09-28T16:39:13.918949+00:00",
+  "executable_sha256": "fc17d41cb495dec1bc2538d715955f983b45082caf29a5f5e679c540ccf5f80e",
+  "benchmark_source_sha256": "df71015ff30e73a272c8f6ff0ef47e8062645530671635f02d564eef5633c7eb",
+  "source_hash_line_endings": "LF"
+}

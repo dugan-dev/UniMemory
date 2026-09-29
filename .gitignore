@@ -1,0 +1,11 @@
+/build/
+/out/
+/logs/
+/artifacts/
+/evaluation/results/
+/vcpkg_installed/
+/.vs/
+CMakeUserPresets.json
+/.codebuddy/
+__pycache__/
+*.py[cod]

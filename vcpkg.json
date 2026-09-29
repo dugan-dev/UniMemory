@@ -1,0 +1,17 @@
+{
+  "name": "unimemory",
+  "version-string": "0.0.1",
+  "license": "MIT",
+  "builtin-baseline": "2f1d605400c8727cc00c15797aba796c88ccd523",
+  "dependencies": [],
+  "features": {
+    "mimalloc": {
+      "description": "Enable the optional mimalloc v3 backend",
+      "dependencies": ["mimalloc"]
+    },
+    "jemalloc": {
+      "description": "Enable the optional jemalloc backend",
+      "dependencies": ["jemalloc"]
+    }
+  }
+}

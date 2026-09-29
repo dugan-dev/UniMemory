@@ -1,0 +1,190 @@
+# Copied next to a CMake-built libUniMemory.a inside Google's TCMalloc tree.
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
+cc_library(
+    name = "unimemory",
+    hdrs = glob(["include/unimem/*.h", "include/unimem/detail/*.inl"]),
+    srcs = ["libUniMemory.a"],
+    includes = ["include"],
+)
+
+cc_binary(
+    name = "smoke",
+    srcs = ["smoke.cpp"],
+    deps = [":unimemory"],
+    copts = ["-std=c++20"],
+    malloc = "//tcmalloc",
+)
+
+cc_library(
+    name = "production_main",
+    srcs = ["production_tests.cpp"],
+    deps = [":unimemory"],
+    copts = ["-std=c++20"],
+    alwayslink = True,
+)
+
+[
+    cc_test(
+        name = "production_" + mode,
+        deps = [":production_main"],
+        malloc = "//tcmalloc",
+        copts = ["-std=c++20"],
+        args = ["standard", mode],
+    )
+    for mode in ["soak", "objects", "containers", "boundaries", "handoff", "stack"]
+]
+
+[
+    cc_test(
+        name = "trace_" + str(seed),
+        deps = [":production_main"],
+        malloc = "//tcmalloc",
+        copts = ["-std=c++20"],
+        args = ["standard", "trace", str(seed)],
+    )
+    for seed in range(64)
+]
+
+cc_library(
+    name = "conformance_main",
+    srcs = ["conformance_tests.cpp"],
+    deps = [":unimemory"],
+    copts = ["-std=c++20"],
+    alwayslink = True,
+)
+
+[
+    cc_test(
+        name = "case_" + str(index),
+        deps = [":conformance_main"],
+        malloc = "//tcmalloc",
+        args = ["matrix", "standard", str(index)],
+    )
+    for index in range(240)
+]
+
+[
+    cc_test(
+        name = "conformance_" + mode,
+        deps = [":conformance_main"],
+        malloc = "//tcmalloc",
+        args = [mode, "standard"],
+    )
+    for mode in ["smoke", "boundary", "stress"]
+]
+
+cc_test(
+    name = "memory",
+    srcs = ["memory_tests.cpp"],
+    deps = [":unimemory"],
+    malloc = "//tcmalloc",
+    copts = ["-std=c++20"],
+)
+
+cc_library(
+    name = "unified_main",
+    srcs = ["unified_memory_tests.cpp"],
+    deps = [":unimemory"],
+    copts = ["-std=c++20"],
+    alwayslink = True,
+)
+
+[
+    cc_test(
+        name = "stack_" + str(index),
+        deps = [":unified_main"],
+        malloc = "//tcmalloc",
+        args = ["stack", str(index)],
+    )
+    for index in range(240)
+]
+
+cc_test(
+    name = "stack_boundary",
+    deps = [":unified_main"],
+    malloc = "//tcmalloc",
+    args = ["stack", "boundary"],
+)
+
+[
+    cc_test(
+        name = "global_" + mode,
+        deps = [":unified_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", mode],
+    )
+    for mode in ["disabled", "basic"]
+]
+
+cc_binary(
+    name = "delivery_benchmark",
+    srcs = ["delivery_bench.cpp"],
+    deps = [":unimemory"],
+    malloc = "//tcmalloc",
+    copts = ["-std=c++20"],
+    linkopts = ["-ldl"],
+)
+
+cc_library(
+    name = "usage_main",
+    srcs = ["interface_usage_tests.cpp"],
+    deps = [":unimemory"],
+    copts = ["-std=c++20"],
+    alwayslink = True,
+)
+
+[
+    cc_test(
+        name = "usage_" + statistics + "_" + mode,
+        deps = [":usage_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", "global", mode, "0", "1024", statistics],
+    )
+    for statistics in ["disabled", "basic"]
+    for mode in ["owners", "objects", "allocators", "handoff"]
+]
+
+[
+    cc_test(
+        name = "owner_trace_" + statistics + "_" + str(seed),
+        deps = [":usage_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", "global", "trace", str(seed), "1024", statistics],
+    )
+    for statistics in ["disabled", "basic"]
+    for seed in range(32)
+]
+
+[
+    cc_test(
+        name = "global_config_" + statistics + "_" + str(seed),
+        deps = [":usage_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", "global", "global-config", str(seed), "1024", statistics],
+    )
+    for statistics in ["disabled", "basic"]
+    for seed in range(3)
+]
+
+[
+    cc_test(
+        name = "stack_usage_" + mode,
+        deps = [":usage_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", "stack", mode, "0", "1024", "disabled"],
+    )
+    for mode in ["owners", "objects", "allocators", "marks"]
+]
+
+[
+    cc_test(
+        name = "stack_owner_trace_" + str(seed),
+        deps = [":usage_main"],
+        malloc = "//tcmalloc",
+        args = ["standard", "stack", "trace", str(seed), "1024", "disabled"],
+    )
+    for seed in range(32)
+]

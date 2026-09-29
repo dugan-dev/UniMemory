@@ -1,0 +1,15 @@
+# Google TCMalloc replaces process C/C++ allocation at executable link time.
+# allocator_target is the application's Google TCMalloc CMake target.
+function(unimemory_link_tcmalloc executable allocator_target)
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        message(FATAL_ERROR "Google TCMalloc is offered here only for Linux")
+    endif()
+    if(NOT TARGET "${executable}" OR NOT TARGET "${allocator_target}")
+        message(FATAL_ERROR "Both arguments must name existing CMake targets")
+    endif()
+    get_target_property(_unimemory_target_type "${executable}" TYPE)
+    if(NOT _unimemory_target_type STREQUAL "EXECUTABLE")
+        message(FATAL_ERROR "TCMalloc must be linked to the final executable")
+    endif()
+    target_link_libraries("${executable}" PRIVATE UniMemory::UniMemory "${allocator_target}")
+endfunction()

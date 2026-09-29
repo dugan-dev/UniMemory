@@ -1,0 +1,205 @@
+#include "backend.h"
+
+#include <unimem/memory.h>
+
+#include <climits>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <limits>
+#include <new>
+#include <stdexcept>
+#include <type_traits>
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4068)
+#endif
+#define JEMALLOC_NO_RENAME
+#include <jemalloc/jemalloc.h>
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+namespace unimem::detail {
+namespace {
+
+struct ArenaContext { unsigned index; };
+
+int arena_flags(void* context) noexcept {
+    return MALLOCX_ARENA(static_cast<ArenaContext*>(context)->index) |
+           MALLOCX_TCACHE_NONE;
+}
+
+int flags_for(void* context, std::size_t alignment) noexcept {
+    return MALLOCX_ALIGN(alignment) |
+           (context == nullptr ? 0 : arena_flags(context));
+}
+
+void* allocate(void* context, std::size_t bytes,
+               std::size_t alignment) noexcept {
+    return alignment > static_cast<std::size_t>(INT_MAX)
+        ? nullptr : je_mallocx(bytes, flags_for(context, alignment));
+}
+
+void* allocate_zeroed(void* context, std::size_t bytes,
+                      std::size_t alignment) noexcept {
+    return alignment > static_cast<std::size_t>(INT_MAX)
+        ? nullptr : je_mallocx(bytes, flags_for(context, alignment) | MALLOCX_ZERO);
+}
+
+void* reallocate(void* context, void* pointer, std::size_t,
+                 std::size_t bytes, std::size_t alignment) noexcept {
+    return alignment > static_cast<std::size_t>(INT_MAX)
+        ? nullptr : je_rallocx(pointer, bytes, flags_for(context, alignment));
+}
+
+void deallocate(void* context, void* pointer, std::size_t,
+                std::size_t) noexcept {
+    je_dallocx(pointer, context == nullptr ? 0 : MALLOCX_TCACHE_NONE);
+}
+
+void destroy(void*) noexcept {}
+
+bool read_size(const char* name, std::size_t& value) noexcept {
+    std::size_t length = sizeof(value);
+    return je_mallctl(name, &value, &length, nullptr, 0) == 0 &&
+           length == sizeof(value);
+}
+
+bool read_arena_size(unsigned index, const char* suffix,
+                     std::size_t& value) noexcept {
+    char name[96];
+    const auto count = std::snprintf(name, sizeof(name),
+                                     "stats.arenas.%u.%s", index, suffix);
+    return count > 0 && static_cast<std::size_t>(count) < sizeof(name) &&
+           read_size(name, value);
+}
+
+bool statistics(void* context, BackendStatistics& result) {
+    bool enabled = false;
+    std::size_t enabled_size = sizeof(enabled);
+    if (je_mallctl("config.stats", &enabled, &enabled_size, nullptr, 0) != 0 ||
+        !enabled) { return false; }
+    std::uint64_t epoch = 1;
+    if (je_mallctl("epoch", nullptr, nullptr, &epoch, sizeof(epoch)) != 0) {
+        return false;
+    }
+    std::size_t value = 0;
+    if (context == nullptr) {
+        result.scope = BackendStatisticsScope::Process;
+        if (!read_size("stats.allocated", value)) { return false; }
+        result.allocated_bytes = value;
+        if (read_size("stats.resident", value)) { result.resident_bytes = value; }
+    } else {
+        result.scope = BackendStatisticsScope::Memory;
+        const auto index = static_cast<ArenaContext*>(context)->index;
+        std::size_t small = 0;
+        std::size_t large = 0;
+        if (!read_arena_size(index, "small.allocated", small) ||
+            !read_arena_size(index, "large.allocated", large)) { return false; }
+        if (large > std::numeric_limits<std::size_t>::max() - small) { return false; }
+        result.allocated_bytes = small + large;
+        if (read_arena_size(index, "resident", value)) {
+            result.resident_bytes = value;
+        }
+    }
+    return true;
+}
+
+void destroy_arena(void* context) noexcept {
+    auto* arena = static_cast<ArenaContext*>(context);
+    char name[64];
+    const auto count = std::snprintf(name, sizeof(name),
+                                     "arena.%u.destroy", arena->index);
+    if (count > 0 && static_cast<std::size_t>(count) < sizeof(name)) {
+        (void)je_mallctl(name, nullptr, nullptr, nullptr, 0);
+    }
+    delete arena;
+}
+
+void arena_command(void* context, const char* command) {
+    char name[64];
+    const auto count = std::snprintf(name, sizeof(name), "arena.%u.%s",
+        static_cast<ArenaContext*>(context)->index, command);
+    if (count <= 0 || static_cast<std::size_t>(count) >= sizeof(name) ||
+        je_mallctl(name, nullptr, nullptr, nullptr, 0) != 0) {
+        throw std::runtime_error("UniMemory: jemalloc arena command failed");
+    }
+}
+
+void* reset(void* context) {
+    arena_command(context, "reset");
+    return context;
+}
+
+void collect(void* context) { arena_command(context, "purge"); }
+
+bool owns(void* context, const void* pointer) {
+    unsigned index = 0;
+    std::size_t length = sizeof(index);
+    void* allocation = const_cast<void*>(pointer);
+    if (je_mallctl("arenas.lookup", &index, &length,
+                   &allocation, sizeof(allocation)) != 0 || length != sizeof(index)) {
+        throw std::runtime_error("UniMemory: jemalloc allocation lookup failed");
+    }
+    return index == static_cast<ArenaContext*>(context)->index;
+}
+
+const BackendOps ops{allocate, allocate_zeroed, reallocate, deallocate,
+                     destroy, statistics};
+const BackendOps arena_ops{allocate, allocate_zeroed, reallocate, deallocate,
+                           destroy_arena, statistics, reset, collect, owns};
+
+}
+
+BackendHandle jemalloc_backend(bool dedicated) {
+    if (!dedicated) { return {&ops, nullptr}; }
+    auto* arena = new ArenaContext{};
+    std::size_t length = sizeof(arena->index);
+    if (je_mallctl("arenas.create", &arena->index, &length, nullptr, 0) != 0 ||
+        length != sizeof(arena->index)) {
+        delete arena;
+        throw std::bad_alloc();
+    }
+    constexpr unsigned max_index = (1u << (sizeof(int) * CHAR_BIT - 21)) - 2u;
+    if (arena->index > max_index) {
+        destroy_arena(arena);
+        throw std::runtime_error("UniMemory: jemalloc arena index exceeds flag range");
+    }
+    return {&arena_ops, arena};
+}
+
+bool jemalloc_statistics_available() noexcept {
+    bool enabled = false;
+    std::size_t length = sizeof(enabled);
+    return je_mallctl("config.stats", &enabled, &length, nullptr, 0) == 0 &&
+           enabled;
+}
+
+bool set_jemalloc_release_delay(std::int64_t value) noexcept {
+    using SignedSize = std::make_signed_t<std::size_t>;
+    if (value > static_cast<std::int64_t>(std::numeric_limits<SignedSize>::max())) {
+        return false;
+    }
+    auto next = static_cast<SignedSize>(value);
+    SignedSize old_dirty = 0;
+    SignedSize old_muzzy = 0;
+    std::size_t length = sizeof(SignedSize);
+    if (je_mallctl("arenas.dirty_decay_ms", &old_dirty, &length,
+                   nullptr, 0) != 0 || length != sizeof(SignedSize)) { return false; }
+    length = sizeof(SignedSize);
+    if (je_mallctl("arenas.muzzy_decay_ms", &old_muzzy, &length,
+                   nullptr, 0) != 0 || length != sizeof(SignedSize)) { return false; }
+    if (je_mallctl("arenas.dirty_decay_ms", nullptr, nullptr,
+                   &next, sizeof(next)) != 0) { return false; }
+    if (je_mallctl("arenas.muzzy_decay_ms", nullptr, nullptr,
+                   &next, sizeof(next)) != 0) {
+        (void)je_mallctl("arenas.dirty_decay_ms", nullptr, nullptr,
+                         &old_dirty, sizeof(old_dirty));
+        return false;
+    }
+    return true;
+}
+
+}

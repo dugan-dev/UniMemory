@@ -1,0 +1,145 @@
+name: release-validation
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - 'benchmarks/**'
+      - 'tools/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/release-validation.yml'
+jobs:
+  rpmalloc-upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run test-only rpmalloc suites
+        run: bash tools/validate-rpmalloc.sh "$PWD/build/rpmalloc-validation"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rpmalloc-upstream
+          path: |
+            build/rpmalloc-validation/*.log
+            build/rpmalloc-validation/environment.json
+  sanitizers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, thread]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure
+        run: cmake -S . -B build/sanitize -DCMAKE_BUILD_TYPE=Debug -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }}
+      - name: Build
+        run: cmake --build build/sanitize --parallel 4
+      - name: Test
+        env:
+          ASAN_OPTIONS: allocator_may_return_null=1
+          TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
+        run: ctest --test-dir build/sanitize --output-on-failure --parallel 2
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sanitizer-${{ matrix.sanitizer }}
+          path: build/sanitize/Testing/Temporary/LastTest.log
+  native-unix:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Native mimalloc tests
+        shell: bash
+        run: |
+          git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
+          cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_BUILD_TESTS=ON -DMI_OVERRIDE=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
+          cmake --build build/mi --parallel 4
+          ctest --test-dir build/mi --output-on-failure
+          cmake --install build/mi
+      - name: Native jemalloc tests and stress
+        shell: bash
+        run: |
+          curl -L --fail https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
+          tar -xf build/jemalloc.tar.bz2 -C build
+          cd build/jemalloc-5.3.1
+          ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-prof --prefix="$GITHUB_WORKSPACE/build/prefix"
+          make -j4
+          make check -j4 > ../jemalloc-check.log 2>&1
+          make stress > ../jemalloc-stress.log 2>&1
+          make analyze > ../jemalloc-analyze.log 2>&1
+          make install
+      - name: UniMemory with both explicit backends
+        shell: bash
+        run: |
+          cmake -S . -B build/all -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON
+          cmake --build build/all --parallel 4
+          ctest --test-dir build/all --output-on-failure --parallel 4
+          cmake --install build/all --prefix build/installed
+          cmake -S tests/consumer -B build/consumer -DCMAKE_PREFIX_PATH="$PWD/build/installed;$PWD/build/prefix"
+          cmake --build build/consumer --parallel 4
+          ctest --test-dir build/consumer --output-on-failure
+          build/all/UniMemoryBenchmark --full > build/benchmark.csv
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-${{ matrix.os }}
+          path: |
+            build/*-*.log
+            build/mi/Testing/Temporary/LastTest.log
+            build/all/Testing/Temporary/LastTest.log
+            build/benchmark.csv
+  tcmalloc-upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      USE_BAZEL_VERSION: 8.4.2
+    steps:
+      - uses: actions/checkout@v5
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          bazelisk-cache: true
+          repository-cache: true
+      - name: Test native TCMalloc and UniMemory
+        shell: bash
+        run: |
+          cmake -S . -B build/tc-lib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+          cmake --build build/tc-lib --parallel 4
+          git clone --filter=blob:none https://github.com/google/tcmalloc.git build/tcmalloc
+          git -C build/tcmalloc checkout 1c6a831d649134efac38663f5a269a43f0d02702
+          mkdir -p build/tcmalloc/unimemory_check/include
+          cp build/tc-lib/libUniMemory.a build/tcmalloc/unimemory_check/
+          cp -R include/unimem build/tcmalloc/unimemory_check/include/
+          cp tests/tcmalloc_linux/BUILD.bazel tests/tcmalloc_linux/smoke.cpp tests/production_tests.cpp build/tcmalloc/unimemory_check/
+          cp tests/conformance_tests.cpp tests/memory_tests.cpp tests/unified_memory_tests.cpp tests/interface_usage_tests.cpp benchmarks/delivery_bench.cpp build/tcmalloc/unimemory_check/
+          cd build/tcmalloc
+          printf '\nsingle_version_override(module_name = "protobuf", version = "34.0")\nsingle_version_override(module_name = "abseil-cpp", version = "20260526.0")\n' >> MODULE.bazel
+          bazel test -c opt //tcmalloc/... //unimemory_check:all --build_tests_only --jobs=4 --local_ram_resources=HOST_RAM*.65 --test_timeout=600 --test_output=errors > ../tcmalloc-tests.log 2>&1
+          bazel run -c opt //unimemory_check:smoke
+          bazel run -c opt //tcmalloc/testing:tcmalloc_benchmark -- --benchmark_min_time=0.01s --benchmark_repetitions=3 --benchmark_out="$GITHUB_WORKSPACE/build/tcmalloc-benchmark.json" --benchmark_out_format=json > ../tcmalloc-benchmark.log 2>&1
+          bazel build -c opt //unimemory_check:delivery_benchmark
+          binary_dir=$(bazel info -c opt bazel-bin)
+          python3 "$GITHUB_WORKSPACE/tools/run-benchmarks.py" "$binary_dir/unimemory_check/delivery_benchmark" "$GITHUB_WORKSPACE/build/tcmalloc-delivery" --backends standard
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tcmalloc-upstream
+          path: |
+            build/tcmalloc-*.log
+            build/tcmalloc-benchmark.json
+            build/tcmalloc-delivery/*

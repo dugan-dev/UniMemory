@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "logical_cpus": 120,
+  "trials": 3,
+  "scenarios_per_trial": 1001,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-09-28T16:36:16.019770+00:00",
+  "executable_sha256": "091959f9d6ef03d9f3a35e8ba6c7a3ae23637d05ca2479dc0350471220256686",
+  "benchmark_source_sha256": "df71015ff30e73a272c8f6ff0ef47e8062645530671635f02d564eef5633c7eb",
+  "source_hash_line_endings": "LF"
+}

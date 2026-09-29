@@ -1,0 +1,124 @@
+{
+  "source": "https://github.com/daanx/mimalloc-bench",
+  "revision": "ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "threads": 4,
+  "trials": 3,
+  "commands": {
+    "cfrac": [
+      "17545186520507317056371138836327483792789528"
+    ],
+    "espresso": [
+      "espresso/largest.espresso"
+    ],
+    "barnes": [],
+    "larson": [
+      "5",
+      "8",
+      "1000",
+      "5000",
+      "100",
+      "4141",
+      "4"
+    ],
+    "larson-sized": [
+      "5",
+      "8",
+      "1000",
+      "5000",
+      "100",
+      "4141",
+      "4"
+    ],
+    "alloc-test": [
+      "4"
+    ],
+    "cache-scratch": [
+      "4",
+      "1000",
+      "1",
+      "2000000",
+      "4"
+    ],
+    "cache-thrash": [
+      "4",
+      "1000",
+      "1",
+      "2000000",
+      "4"
+    ],
+    "xmalloc-test": [
+      "-w",
+      "4",
+      "-t",
+      "5",
+      "-s",
+      "64"
+    ],
+    "malloc-large-old": [],
+    "malloc-large": [],
+    "mstress": [
+      "4",
+      "50",
+      "25"
+    ],
+    "mleak": [
+      "1"
+    ],
+    "rptest": [
+      "4",
+      "0",
+      "1",
+      "2",
+      "500",
+      "1000",
+      "100",
+      "8",
+      "16000"
+    ],
+    "glibc-simple": [],
+    "glibc-thread": [
+      "4"
+    ]
+  },
+  "interface": "native malloc/new through LD_PRELOAD",
+  "elapsed_clock": "Python perf_counter_ns (monotonic, includes process startup)",
+  "excluded": {
+    "sh6bench/sh8bench": "Licensed sources not distributed in the collection.",
+    "security": "Intentional undefined behavior; not valid allocation workloads.",
+    "externally downloaded applications": "Require additional dependencies outside this suite."
+  },
+  "libraries": {
+    "standard": null,
+    "mimalloc": "libmimalloc.so.3.4",
+    "jemalloc": "libjemalloc.so.2"
+  },
+  "unimemory_version": "0.0.1",
+  "native_versions": {
+    "mimalloc": "3.4.3",
+    "jemalloc": "5.3.1"
+  },
+  "measured_at_utc": "2026-09-28T15:02:51.061168+00:00",
+  "executable_sha256": {
+    "cfrac": "0c12de7f609d0b9962a96f6ccd78fe49a239bff892b576d8f61f6e5f70e370db",
+    "espresso": "61bb11b041b488e992c9dd9bafa2ea13a04f33a79958f7bfd70f2f855c251af3",
+    "barnes": "ebb9240d46451b7893186c4f5d27bc87f83ad3631c53c2f2c3c61fefa1ba4d0a",
+    "larson": "d56a1a0ad79064085c506d719aa2e0a9c6df871b1ffea26eba9547a44fe4bb39",
+    "larson-sized": "9685c7aa974a24f94270d103f571efdfd4930e843de7f0479d71cfc4f811e943",
+    "alloc-test": "613e1437d0a0d1ec7d529aa4ee8f8ab32d85c23d0b49b2118c23dc8bf88b26d3",
+    "cache-scratch": "8de3400949f0cfaaa5f0d85b727c4b4e607eda82b45c97c81a88c2464e668c8d",
+    "cache-thrash": "e9c5e4dfe977fea2989bfb331392f4819c7df43a3b413cecdae05bb8a14804cc",
+    "xmalloc-test": "4079a9b6fc2b4f776c5f27aef144d5c131211316385cbf8d378a2c3add53edc8",
+    "malloc-large-old": "db5aef680493d0f789d739302ebdfba6d6eccbc302fb6a42b050b0b1bf50c2b3",
+    "malloc-large": "fb47e6ea9dd7f5e84e0a77ae29c6d9b4c227db7ec757cb448fb4216fde121021",
+    "mstress": "9da8d268eeff77684cd9307e12bfc8e819b1e0aa5f62a3da0f8e8637270ed035",
+    "mleak": "e4f7e6b31fa00192cb3631467d49f85bcab8b4f8bf6a0de30842c4bdcfc53a26",
+    "rptest": "5b98c05067376d299236821786abb723493b26de0518763cc18c3b3309e01a51",
+    "glibc-simple": "d93e362f45beedb4c82feea4d6f921189a0abb03fdd69a70dc810df426ddba47",
+    "glibc-thread": "2e651c8dab44bce78666b1e65ec084f99a1ebe8cdfe843d69e1ac6e39672b7b7"
+  },
+  "allocator_sha256": {
+    "mimalloc": "f3dee96f73feae54cdc93eeeaf596717538ff11e5a2dbd1e4695bf8d4926d8f9",
+    "jemalloc": "92db341d02402b729434312229241b4e2db0e67eb80cea93297e3785f515ab31"
+  }
+}
