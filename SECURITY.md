@@ -1,7 +1,9 @@
 # Security reports
 
-Avoid posting credentials, private application data or unpublished exploit details in public issues. Use a private channel agreed with the repository maintainer; when GitHub's private vulnerability reporting is enabled, use the repository Security tab's reporting form.
+GitHub private vulnerability reporting is enabled. Use [Report a vulnerability](https://github.com/dugan-dev/UniMemory/security/advisories/new) to contact the maintainer privately. Do not post credentials, private application data or unpublished exploit details in public issues or pull requests. If the form is unavailable, request a private contact route in an issue without disclosing the vulnerability.
 
 Include the affected revision, compiler/platform, backend, build options, smallest reproducer and impact. Distinguish a demonstrated memory error from a standards-contract or integration finding. Sanitizers and test success do not establish correctness for arbitrary input.
 
-Memory instances, owners and containers must obey the [lifetime contract](docs/compatibility.md). Destroy users before reset/rewind/destruction, pair allocation with its original size/alignment and context, and synchronize reclamation. Never use the library's test fixtures as production credentials or configuration.
+The version string 0.0.1 does not distinguish the historical stable release from later repair snapshots. Include the full commit or source snapshot identifier and dependency versions. Published tags and assets are immutable; no long-term support, backport schedule or response-time guarantee is promised. Coordinate publication of technical details and fixes through the private report.
+
+Memory instances, owners and containers must obey the [lifetime contract](docs/compatibility.md). Destroy users before reset/rewind/destruction, pair allocation with its original size/alignment and context, and synchronize reclamation.

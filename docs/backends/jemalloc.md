@@ -20,4 +20,10 @@ Detailed statistics depend on the native statistics build. Query capabilities; e
 
 An installed package retains its jemalloc dependency. If discovery or symbol validation fails, `find_package(UniMemory CONFIG QUIET)` returns `UniMemory_FOUND=FALSE` with `UniMemory_NOT_FOUND_MESSAGE` and does not import UniMemory or jemalloc targets. `find_package(... REQUIRED)` and explicitly enabling the source backend still fail configuration. Windows keeps distinct release/debug libraries, with Release as the fallback when no debug library is available.
 
-Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public header](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc.h.in), [validation](../upstream-validation.md). Platform evidence: [test results](../testing.md).
+## Initialization
+
+Global/Heap creation, capability queries and runtime-option changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and runtime-option changes report failure by exception; noexcept capability lookup reports no detailed statistics. `available()` describes compiled support, not a successful initialization probe.
+
+The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Cold-start evidence](../review-2026-10-08.md#concurrent-jemalloc-initialization)
+
+Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public declarations](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc_protos.h.in), [validation](../upstream-validation.md). Platform evidence: [test results](../testing.md).

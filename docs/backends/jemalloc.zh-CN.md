@@ -21,3 +21,9 @@ UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 
 业务代码只使用 `<unimem/memory.h>`。详细统计是否可用取决于 jemalloc 的统计编译选项；通过 `capabilities()` 查询。原生统计用于诊断，不建议每次分配都查询。支持条件以[官方手册](https://jemalloc.net/jemalloc.3.html)和实际使用版本为准。
 
 安装包仍依赖 jemalloc。查找或符号验证失败时，`find_package(UniMemory CONFIG QUIET)` 返回 `UniMemory_FOUND=FALSE`，通过 `UniMemory_NOT_FOUND_MESSAGE` 提供原因，不导入 UniMemory 或 jemalloc 目标。`find_package(... REQUIRED)` 和源码中显式启用该后端仍会使配置失败。Windows 分别使用 release/debug 库；缺少 debug 库时回退到 Release。
+
+## 初始化
+
+Global/Heap 创建、能力查询和运行选项修改共用首次初始化保护。在并发 UniMemory 操作进入 jemalloc 前，先完成一次原生版本查询。初始化失败允许后续重试：工厂及运行选项修改通过异常报告失败；noexcept 能力查询报告无详细统计。`available()` 表示编译支持，不代表初始化探测成功。
+
+保护范围是一份已链接的 UniMemory。直接调用 `je_*` 或多份独立封装共享同一原生 DLL 时，仍需自行协调启动。它不代替对象读写同步，也不改变 Heap 回收的独占要求。[冷启动证据](../review-2026-10-08.md#concurrent-jemalloc-initialization)

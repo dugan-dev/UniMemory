@@ -22,6 +22,8 @@ and all five [release validation jobs](https://github.com/dugan-dev/UniMemory/ac
 passed, including macOS, ASan and ThreadSanitizer. The earlier numerical results
 below remain historical. [Review findings and contracts](review-2026-10-08.md)
 
+The subsequent documentation revision `08d97f0` also passed all 13 [build jobs](https://github.com/dugan-dev/UniMemory/actions/runs/37873043811). Each linked run verifies its recorded revision; it is not a guarantee for every later main-branch commit or the earlier `v0.0.1` release.
+
 ## Historical 0.0.1 verification: 2026-09-28
 
 | Build | Result |

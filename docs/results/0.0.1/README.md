@@ -2,7 +2,7 @@
 
 [Documentation](../../README.md) · [Performance](../../performance.md) · [Tests](../../testing.md)
 
-Version **0.0.1**. CSVs retain every process trial; reports show medians. SHA-256 hashes identify the measured benchmark sources and executables. Text source hashes use LF line endings.
+Historical measurements from **2026-09-28**, labeled version **0.0.1**. These files have not been regenerated for the October repairs. CSVs retain every process trial; reports show medians. SHA-256 hashes identify the measured benchmark sources and executables. Text source hashes use LF line endings.
 
 | Folder / file | Content |
 | --- | --- |

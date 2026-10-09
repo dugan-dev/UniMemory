@@ -2,6 +2,7 @@ name: build
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -47,6 +48,26 @@ jobs:
             build/ci/Testing/Temporary/LastTest.log
             build/consumer/Testing/Temporary/LastTest.log
           retention-days: 14
+
+  acceptance:
+    name: build acceptance
+    needs: [standard, shared, optional-backends, native-backends]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every build configuration
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          results = json.loads(os.environ['RESULTS'])
+          failed = [name for name, job in results.items() if job['result'] != 'success']
+          if failed:
+              raise SystemExit('Required build jobs did not pass: ' + ', '.join(failed))
+          print('All required build configurations passed.')
+          PY
 
   shared:
     runs-on: ${{ matrix.os }}
