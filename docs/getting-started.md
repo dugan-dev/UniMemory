@@ -2,9 +2,15 @@
 
 [Index](README.md) · **English** · [简体中文](getting-started.zh-CN.md)
 
+## Choose a source snapshot
+
+The [repair snapshot](https://github.com/dugan-dev/UniMemory/releases/tag/snapshot-2026-10-09) contains the October fixes and is a prerelease source distribution with library version 0.0.1. The original `v0.0.1` tag and assets remain unchanged. Use the same revision for headers, library and validation evidence; the version string alone does not identify these repairs.
+
+Extract the source archive and run the following commands from the directory containing `CMakeLists.txt`. A Standard build and the documentation checker work without Git metadata. Optional allocators still need their own dependencies; the archive does not bundle them.
+
 ## Run an example
 
-Follow the [README build steps](../README.md#build-and-test), then run the basic example:
+Follow the [README build steps](../README.md#building), then run the basic example:
 
 | Platform | Executable |
 | --- | --- |
@@ -33,6 +39,8 @@ cmake --build build --config Release
 ```
 
 Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#cmake-integration).
+
+The README's `release` preset uses `build/UniMemory-release`. If you choose another directory with `cmake -B`, use it consistently for running examples and installation.
 
 ## Build options
 

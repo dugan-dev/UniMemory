@@ -4,6 +4,8 @@
 
 Compare time and memory by usage scenario. Results apply to the measured configurations.
 
+These are historical measurements from **2026-09-28**, not new measurements of the October repairs. The source and executable hashes in the raw data identify the measured builds even though the library version remains 0.0.1.
+
 | Topic | Measures |
 | --- | --- |
 | [1 · Time](performance/latency.md) | Objects, containers, resize, cross-thread use and statistics |
@@ -39,5 +41,7 @@ Compare time and memory by usage scenario. Results apply to the measured configu
 | Backend choice | Allocation speed and memory retention involve tradeoffs |
 
 CPU affinity is unpinned; small differences may be noise. No p95/p99, NUMA, long-running fragmentation, macOS or mobile performance claim is made.
+
+There is no repository-wide latency or memory regression budget. Before evaluating a performance change, state the workload, baseline revision, native comparison, compiler/backend settings, acceptable variation and time/memory limits. Rerun that workload and retain raw trials. API fixtures and native benchmark programs do not establish production adoption or prove an optimal backend for an application.
 
 [Method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Tests](testing.md)

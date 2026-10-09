@@ -34,6 +34,18 @@ cmake --build build/backends --config Release
 
 仓库 manifest 固定依赖版本。新建 x64 构建默认使用 `x64-windows-unimemory`，关闭 mimalloc CRT 重定向；显式指定的 triplet 保持原配置。下载可选依赖需要网络。
 
+若复用现有 vcpkg 安装且不改变包集合，在新的构建目录中指定安装根目录和实际 triplet：
+
+```powershell
+cmake -S . -B build/backends-existing `
+    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+    "-DVCPKG_INSTALLED_DIR=<installed-root>" "-DVCPKG_TARGET_TRIPLET=<installed-triplet>" `
+    -DVCPKG_MANIFEST_MODE=OFF -DVCPKG_MANIFEST_INSTALL=OFF `
+    -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON
+```
+
+安装根目录包含各 triplet 子目录，不是 triplet 目录本身。两个后端包必须已经存在，且使用兼容的显式调用构建。不要让不同 manifest 共用同一安装根目录执行安装：vcpkg 可能删除该 manifest 不需要的包。Classic 模式复用所提供的包，不会追溯应用本仓库 manifest 的版本固定。
+
 ### Linux / macOS
 
 先安装匹配后端，将占位符换成安装目录：

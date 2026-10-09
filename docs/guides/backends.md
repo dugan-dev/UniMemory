@@ -36,6 +36,18 @@ cmake --build build/backends --config Release
 
 The manifest pins dependencies. Fresh Windows x64 builds default to `x64-windows-unimemory`, which disables mimalloc CRT redirection. Explicit user triplets remain untouched. Installing features needs network access; the Standard path does not.
 
+To reuse an existing vcpkg installation without changing its package set, select its installed root and exact triplet in a fresh build directory:
+
+```powershell
+cmake -S . -B build/backends-existing `
+    "-DCMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+    "-DVCPKG_INSTALLED_DIR=<installed-root>" "-DVCPKG_TARGET_TRIPLET=<installed-triplet>" `
+    -DVCPKG_MANIFEST_MODE=OFF -DVCPKG_MANIFEST_INSTALL=OFF `
+    -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON
+```
+
+The root contains triplet directories; it is not the triplet directory itself. Both backend packages must already exist with compatible explicit-only builds. Do not run a different manifest against a shared installed root: vcpkg can remove packages that manifest does not require. Classic mode reuses the supplied packages; it does not apply this repository's manifest pins retroactively.
+
 ### Linux / macOS with installed allocators
 
 ```sh

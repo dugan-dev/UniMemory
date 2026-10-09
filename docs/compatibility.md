@@ -60,3 +60,9 @@ Use `create_array` or `make_unique_array` when reverse-order rollback is require
 ## Version
 
 Version **0.0.1** uses C++20. 0.x does not promise a stable ABI; distribute matching headers and libraries, and rebuild consumers when their layout changes.
+
+No long-term support or backport schedule is currently promised. Pin a source revision and validate upgrades with your compiler, standard library, runtime and backend configuration. CMake version acceptance does not establish ABI compatibility between different revisions carrying the same 0.0.1 version. [Source snapshots and installation](getting-started.md#choose-a-source-snapshot)
+
+## Backend extension
+
+`Backend` is the closed set `Standard`, `Mimalloc`, and `Jemalloc`. Selection uses compiled integrations; there is no runtime registration or allocator plugin ABI. A new backend requires a reviewed source change, an explicit dependency decision, capability mappings and contract/package tests. `std::pmr::memory_resource` lets consumers select storage through the existing interface; it does not register another UniMemory backend.
