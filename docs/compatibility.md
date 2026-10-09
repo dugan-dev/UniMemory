@@ -61,7 +61,7 @@ Use `create_array` or `make_unique_array` when reverse-order rollback is require
 
 Version **0.0.1** uses C++20. 0.x does not promise a stable ABI; distribute matching headers and libraries, and rebuild consumers when their layout changes.
 
-No long-term support or backport schedule is currently promised. Pin a source revision and validate upgrades with your compiler, standard library, runtime and backend configuration. CMake version acceptance does not establish ABI compatibility between different revisions carrying the same 0.0.1 version. [Source snapshots and installation](getting-started.md#choose-a-source-snapshot)
+No long-term support or backport schedule is currently promised. Pin a source revision and validate upgrades with your compiler, standard library, runtime and backend configuration. CMake version acceptance does not establish ABI compatibility between different revisions carrying the same 0.0.1 version. [Source snapshots and installation](getting-started.md#get-the-source)
 
 ## Backend extension
 

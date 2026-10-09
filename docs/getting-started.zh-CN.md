@@ -2,15 +2,19 @@
 
 [目录](README.zh-CN.md) · [English](getting-started.md) · **简体中文**
 
-## 选择源码快照
+## 获取源码
 
-[修复快照](https://github.com/dugan-dev/UniMemory/releases/tag/snapshot-2026-10-09)包含十月修复，以预发布源码包分发，库版本仍为 0.0.1。原 `v0.0.1` 标签和附件保持不变。头文件、库和验收证据应来自同一修订，不能仅凭版本号判断是否包含这些修复。
+下载 [main 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)，或克隆仓库：
 
-解压源码包后，在包含 `CMakeLists.txt` 的目录执行以下命令。Standard 构建和文档检查不需要 Git 元数据；可选分配器仍需单独提供依赖，源码包不捆绑这些依赖。
+```sh
+git clone https://github.com/dugan-dev/UniMemory.git
+```
+
+在包含 `CMakeLists.txt` 的源码目录执行构建命令。库版本由 `CMakeLists.txt` 声明；头文件和库须来自同一修订。
 
 ## 运行示例
 
-按照 [README 构建步骤](../README.zh-CN.md#编译运行)编译，然后运行基本示例：
+按照 [README 构建步骤](../README.zh-CN.md#构建与安装)编译，然后运行基本示例：
 
 | 平台 | 程序 |
 | --- | --- |
@@ -21,7 +25,7 @@
 
 ## 接入项目
 
-选择[使用源码或安装包](../README.zh-CN.md#cmake-接入)。链接 `UniMemory::UniMemory` 后，目标自动提供头文件路径和 C++20 设置。代码中包含 `<unimem/memory.h>` 即可。
+按照[项目集成示例](../README.zh-CN.md#项目集成)。链接 `UniMemory::UniMemory` 后，目标自动提供头文件路径和 C++20 设置。代码中包含 `<unimem/memory.h>` 即可。
 
 ## 安装库
 
@@ -38,7 +42,7 @@ cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
 cmake --build build --config Release
 ```
 
-将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#cmake-接入)。
+将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#项目集成)。
 
 README 的 `release` 预设使用 `build/UniMemory-release`。若通过 `cmake -B` 指定其他目录，运行示例及安装时也应使用该目录。
 

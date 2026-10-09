@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/dugan-dev/UniMemory)](https://github.com/dugan-dev/UniMemory/releases/latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
 现代 C++20 内存分配库，为 Standard、mimalloc 和 jemalloc 提供统一接口。
 
@@ -11,9 +11,9 @@
 
 - [特点](#特点)
 - [快速开始](#快速开始)
-- [平台](#平台) · [后端](#后端)
-- [性能](#性能) · [测试](#测试)
-- [CMake 接入](#cmake-接入) · [编译运行](#编译运行)
+- [平台](#平台) · [功能](#功能)
+- [性能](#性能)
+- [构建与安装](#构建与安装) · [项目集成](#项目集成)
 - [文档](#文档) · [许可证](#许可证)
 
 </details>
@@ -28,13 +28,9 @@
 - **🎯 对齐内存**：自定义对齐、清零分配与 Buffer 扩容。
 - **🗂️ 独立堆与栈式分配**：独立管理分配组，支持固定缓冲区的临时分配。
 - **📊 可选统计**：分配请求计数，以及可用的后端原生指标。
-- **🌐 跨平台**：Windows、Linux、macOS 构建已通过 CI 验证。
+- **🌐 跨平台**：支持 Windows、Linux、macOS。
 
 ## 快速开始
-
-Memory 必须比其所有者、容器及弱引用控制块存活更久；Stack 缓冲区必须比 Memory 存活更久。reset/rewind 前先销毁受影响对象，回收存储不会调用析构函数。Global/Heap 的分配与释放可并发，回收须独占访问，Stack 仅限单线程。[生命周期与兼容性](docs/compatibility.zh-CN.md)
-
-各示例独立运行。简短片段沿用“基本用法”的 `memory`，需要时使用“对象”中的 `Point` 定义；头文件放在文件作用域。“初始化与统计”中，每个后端都须先调用 `configure_global()`，再首次调用 `global()`。
 
 ### 基本用法
 
@@ -91,8 +87,6 @@ memory.deallocate_objects(storage);
 Point* array = memory.create_array<Point>(8);
 memory.destroy_array(array, 8);
 ```
-
-类型化分配建立数组存储，不构造其中的元素。[C++20 生命周期契约](docs/typed-storage-lifetime.md)
 
 ### 内存块
 
@@ -162,7 +156,7 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 const unimem::Backend backend = unimem::Backend::Mimalloc;
 
 // 支持时创建堆
-if (unimem::capabilities(backend).heap) {
+if (unimem::available(backend) && unimem::capabilities(backend).heap) {
     unimem::Memory heap = unimem::Memory::heap(backend);
 
     // 检查归属并释放
@@ -170,10 +164,10 @@ if (unimem::capabilities(backend).heap) {
     bool owned = heap.owns(bytes);
     heap.deallocate(bytes, 1024);
 
-    // 回收闲置内存
+    // 回收时暂停该堆上的其他操作
     heap.collect();
 
-    // 整体释放，原指针失效
+    // 先销毁已创建的对象；reset 只回收存储，原指针失效
     void* batch = heap.allocate(1024);
     heap.reset();
 }
@@ -182,7 +176,7 @@ if (unimem::capabilities(backend).heap) {
 ### 栈
 
 ```cpp
-// 缓冲区需比 Memory 存活更久，仅限单线程
+// 先声明缓冲区，再创建 scratch；仅供当前线程使用
 alignas(std::max_align_t) std::byte buffer[4096];
 unimem::Memory scratch = unimem::Memory::stack(buffer);
 
@@ -190,7 +184,7 @@ unimem::Memory scratch = unimem::Memory::stack(buffer);
 unimem::Memory::Mark checkpoint = scratch.mark();
 void* bytes = scratch.allocate(128);
 
-// 回退：检查点之后的分配和所有旧标记失效
+// 若创建了对象，先 destroy；rewind 只回收存储，旧指针和标记失效
 scratch.rewind(checkpoint);
 
 std::size_t used = scratch.used();
@@ -261,31 +255,31 @@ if (unimem::supports(backend, option)) {
 
 ## 平台
 
-| 平台 | 编译器 | 可用后端 |
-| --- | --- | --- |
-| Windows x64 | MSVC | Standard、mimalloc、jemalloc |
-| Linux x64 | GCC | Standard、mimalloc、jemalloc |
-| macOS | Apple Clang | Standard、mimalloc、jemalloc |
-| Android / iOS | — | 尚未设备验证 |
+| 平台 | Standard | mimalloc | jemalloc | 编译器 |
+| --- | :---: | :---: | :---: | --- |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC |
+| Linux x64 | ✔ | ✔ | ✔ | GCC |
+| macOS | ✔ | ✔ | ✔ | Apple Clang |
+| Android / iOS | — | — | — | 尚未设备验证 |
 
-[平台与构建要求](docs/guides/backends.zh-CN.md)
+✔ 已支持；— 尚未设备验证。[平台说明](docs/guides/backends.zh-CN.md)
 
-## 后端
+## 功能
 
-| 能力 | Standard | mimalloc | jemalloc |
+| 功能 | Standard | mimalloc | jemalloc |
 | --- | :---: | :---: | :---: |
-| 对象、容器、内存块 | ✓ | ✓ | ✓ |
-| 分配统计 | ✓ | ✓ | ✓ |
-| 独立堆 | — | ✓ | ✓ |
+| 对象、容器、内存块 | ✔ | ✔ | ✔ |
+| 分配统计 | ✔ | ✔ | ✔ |
+| 独立堆 | — | ✔ | ✔ |
 | 原生统计范围 | — | 进程 | 进程 / 独立堆，取决于构建 |
-| 闲置内存释放延迟 | — | ✓ | ✓ |
+| 闲置内存释放延迟 | — | ✔ | ✔ |
 | 额外依赖 | 无 | 可选 | 可选 |
 
-构建时启用可选后端，运行时用 `available()` 和 `capabilities()` 查询编译支持与能力。普通 `new` 和未适配的容器仍使用原分配器。独立前缀中的共享后端需配置适当的运行时库搜索路径。[配置指南](docs/guides/backends.zh-CN.md) · [jemalloc 初始化](docs/backends/jemalloc.zh-CN.md#初始化)
+Standard 无需额外依赖；mimalloc、jemalloc 按需启用。[配置指南](docs/guides/backends.zh-CN.md)
 
 ## 性能
 
-以下为 **2026-09-28 的历史测量**：Windows x64，MSVC 19.44，Xeon w9-3595X，统计关闭。下表单位为 **纳秒，越小越快**。这些数值未针对十月修复重新测量。
+Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越小越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -296,61 +290,34 @@ if (unimem::supports(backend, option)) {
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-图中 Standard 的耗时记为 1，条形越短越快；结果仅适用于所测场景。[完整报告](docs/performance.zh-CN.md)
+图中 Standard = 1，条形越短越快。[完整测量报告](docs/performance.zh-CN.md)
 
-## 测试
+## 构建与安装
 
-修复验证日期为 **2026-10-08 至 2026-10-09**；下表计数对应实际测试配置。
-
-| 验证 | 结果 |
-| --- | --- |
-| Windows：三种 Backend + 示例 | Release、Debug 各 **1666/1666** |
-| Linux：三种 Backend + 示例 | **1667/1667**，安装消费者 **7/7** |
-| macOS：三种 Backend + 示例 | [GitHub CI 通过](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097) |
-| ASan / UBSan，Standard 与 Stack | **715/715**，启用泄漏检测 |
-| ThreadSanitizer，Standard 与 Stack | [发布验证通过](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066) |
-
-共享库配置在 Windows 通过 **1664/1664**、Linux 通过 **1666/1666**；六项本地配置的安装消费者均通过 **7/7**。覆盖常规使用、类型化存储、独立公共头文件、包查找、边界、异常和并发场景。各 CI 链接只验证其记录的修订。[完整测试报告](docs/testing.zh-CN.md)
-
----
-
-## CMake 接入
-
-### 使用源码
-
-```cmake
-add_subdirectory(UniMemory)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
-```
-
-目标自动提供头文件路径和 C++20 设置。[安装指南](docs/getting-started.zh-CN.md)
-
-### 使用安装包
-
-```cmake
-find_package(UniMemory 0.0.1 CONFIG REQUIRED)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
-```
-
-以 `find_package(UniMemory QUIET CONFIG)` 可选查找时，若缺少已编译后端的依赖，则返回 `UniMemory_FOUND=FALSE`。编译器、标准库和运行时配置须一致。0.x 不承诺稳定 ABI，应使用匹配的头文件与库，并在布局变化后重编译消费者。[兼容性](docs/compatibility.zh-CN.md)
-
-## 编译运行
-
-需要 **C++20**、**CMake 3.25+** 和 C++ 编译器。
-
-[2026-10-09 修复源码快照](https://github.com/dugan-dev/UniMemory/releases/tag/snapshot-2026-10-09)包含已验证修复，库版本仍为 **0.0.1**；此前的 [v0.0.1 发布](https://github.com/dugan-dev/UniMemory/releases/tag/v0.0.1)保留为历史快照。除版本号外，还应记录源码修订；源码包解压后可直接执行下方 CMake 命令，无需克隆。
+需要 **C++20** 和 **CMake 3.25+**。下载[源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)，解压后在源码目录执行：
 
 ```sh
-git clone https://github.com/dugan-dev/UniMemory.git
-cd UniMemory
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
-ctest --preset release
+cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-Standard 无需外部分配器；可选后端需要相应既有依赖。`release` 预设使用 `build/UniMemory-release`，并为多配置生成器选择 Release。发布前运行 `python tools/check-docs.py`。
+库安装至 `build/installed`。[构建选项](docs/getting-started.zh-CN.md#构建选项)
 
----
+## 项目集成
+
+在项目的 `CMakeLists.txt` 中链接 UniMemory：
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+
+find_package(UniMemory 0.0.1 CONFIG REQUIRED)
+add_executable(app main.cpp)
+target_link_libraries(app PRIVATE UniMemory::UniMemory)
+```
+
+配置项目时，用 `-DCMAKE_PREFIX_PATH=<安装目录的绝对路径>` 指定安装位置。源码集成可用 `add_subdirectory(UniMemory)` 替代 `find_package(...)`。[集成指南](docs/getting-started.zh-CN.md)
 
 ## 文档
 
@@ -358,7 +325,6 @@ Standard 无需外部分配器；可选后端需要相应既有依赖。`release
 - **日常使用：** [对象与数组](docs/guides/objects.zh-CN.md) · [标准容器](docs/guides/containers.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
 - **内存管理：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md) · [统计](docs/guides/statistics.zh-CN.md)
 - **参考：** [API](docs/api-reference.zh-CN.md) · [后端配置](docs/guides/backends.zh-CN.md) · [完整目录](docs/README.zh-CN.md)
-- **维护：** [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [私密漏洞报告](https://github.com/dugan-dev/UniMemory/security/advisories/new)
 
 ## 许可证
 
