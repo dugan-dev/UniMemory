@@ -1,0 +1,15 @@
+if(NOT DEFINED PROGRAM OR NOT DEFINED MODE)
+    message(FATAL_ERROR "PROGRAM and MODE are required")
+endif()
+if(NOT DEFINED REPEAT)
+    set(REPEAT 64)
+endif()
+foreach(attempt RANGE 1 ${REPEAT})
+    # A fresh process preserves cold allocator initialization on every attempt.
+    execute_process(COMMAND "${PROGRAM}" "${MODE}"
+        RESULT_VARIABLE result OUTPUT_VARIABLE output ERROR_VARIABLE error TIMEOUT 5)
+    if(NOT "${result}" STREQUAL "0")
+        message(FATAL_ERROR "${MODE} cold start ${attempt}/${REPEAT}: ${result}\n${output}${error}")
+    endif()
+endforeach()
+message(STATUS "${MODE}: ${REPEAT} cold starts passed")

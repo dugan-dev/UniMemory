@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](heap.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#heap).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Scope and lifetime
 

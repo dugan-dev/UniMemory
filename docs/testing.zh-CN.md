@@ -2,7 +2,23 @@
 
 [目录](README.zh-CN.md) · [English](testing.md) · **简体中文**
 
-## 0.0.1 验证
+## 2026-10-08 至 2026-10-09 审查修复验收
+
+| 配置 | 通过 / 注册项 | 安装消费者 |
+| --- | --- | --- |
+| Windows / MSVC，静态，三后端，Release | **1666/1666** | **7/7** |
+| Windows / MSVC，静态，三后端，Debug | **1666/1666** | **7/7** |
+| Windows / MSVC，共享，三后端，Release | **1664/1664** | **7/7** |
+| Linux / GCC，静态，三后端，Release | **1667/1667** | **7/7** |
+| Linux / GCC，共享，三后端，Release | **1666/1666** | **7/7** |
+| Linux / Clang，Standard，ASan + UBSan + 泄漏检测 | **715/715** | **7/7** |
+
+全部零失败。数量包含参数化、包发现、头文件顺序和压力测试，重复配置不算新增功能。
+共享库中依赖 executable-level allocation interception 的测试数量不同。
+本次修订尚未在 macOS 或 ThreadSanitizer 验证，下表为历史结果。
+[审查结论与接口约束](review-2026-10-08.md)
+
+## 2026-09-28 的 0.0.1 历史验证
 
 | 构建 | 结果 |
 | --- | --- |

@@ -26,3 +26,6 @@ template<class T> using Unique = std::unique_ptr<T, Deleter<T>>;
 template<class T> using UniqueArray = std::unique_ptr<T[], ArrayDeleter<T>>;
 
 }
+
+// Complete Memory and the deleter templates after declaring the owner aliases.
+#include <unimem/memory.h>

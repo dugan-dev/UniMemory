@@ -4,7 +4,7 @@
 
 ## Run an example
 
-Follow the [README build steps](../README.md#building), then run the basic example:
+Follow the [README build steps](../README.md#build-and-test), then run the basic example:
 
 | Platform | Executable |
 | --- | --- |
@@ -32,7 +32,7 @@ cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
 cmake --build build --config Release
 ```
 
-Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#using-an-installed-package).
+Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#cmake-integration).
 
 ## Build options
 

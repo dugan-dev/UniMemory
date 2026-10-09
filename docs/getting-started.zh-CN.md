@@ -4,7 +4,7 @@
 
 ## 运行示例
 
-按照 [README 构建步骤](../README.zh-CN.md#编译运行)编译，然后运行基本示例：
+按照 [README 构建步骤](../README.zh-CN.md#编译与测试)编译，然后运行基本示例：
 
 | 平台 | 程序 |
 | --- | --- |
@@ -32,7 +32,7 @@ cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
 cmake --build build --config Release
 ```
 
-将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#使用安装包)。
+将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#cmake-接入)。
 
 ## 构建选项
 

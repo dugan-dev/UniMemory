@@ -10,6 +10,31 @@
 
 namespace unimem {
 
+namespace detail {
+
+struct TypedStorage {
+    static void* operator new(std::size_t bytes, std::align_val_t alignment, Memory& memory) {
+        return memory.allocate(bytes, static_cast<std::size_t>(alignment));
+    }
+};
+
+template<class T>
+T* allocate_array_storage(Memory& memory, std::size_t count) {
+    static_assert(std::is_object_v<T> && !std::is_array_v<T>);
+    if (count > std::numeric_limits<std::size_t>::max() / sizeof(T)) {
+        throw std::length_error("UniMemory: allocation size overflow");
+    }
+    if (count == 0) { return nullptr; }
+    // C++20 [intro.object]/13 applies to explicit operator-new calls, including
+    // on reused Stack storage. The implicit array exists before its elements
+    // are constructed; array-to-pointer conversion supplies their storage.
+    void* storage = TypedStorage::operator new(count * sizeof(T),
+                                               std::align_val_t{alignof(T)}, memory);
+    return *static_cast<T(*)[]>(storage);
+}
+
+}
+
 inline Memory Memory::stack(std::span<std::byte> buffer) {
     return stack(buffer.data(), buffer.size());
 }
@@ -24,11 +49,7 @@ inline std::optional<Backend> Memory::backend() const noexcept {
 
 template<class T>
 T* Memory::allocate_objects(std::size_t count) {
-    static_assert(std::is_object_v<T> && !std::is_array_v<T>);
-    if (count > std::numeric_limits<std::size_t>::max() / sizeof(T)) {
-        throw std::length_error("UniMemory: allocation size overflow");
-    }
-    return static_cast<T*>(allocate(count * sizeof(T), alignof(T)));
+    return detail::allocate_array_storage<T>(*this, count);
 }
 
 template<class T>
@@ -179,12 +200,9 @@ inline bool Memory::Resource::do_is_equal(const std::pmr::memory_resource& other
 
 template<class T>
 T* Allocator<T>::allocate(std::size_t count) {
-    static_assert(std::is_object_v<T> && !std::is_array_v<T>);
-    if (count > std::numeric_limits<std::size_t>::max() / sizeof(T)) {
-        throw std::length_error("UniMemory: allocation size overflow");
-    }
-    return static_cast<T*>(memory_->allocate(count == 0 ? 1 : count * sizeof(T),
-                                            alignof(T)));
+    // A zero-count adapter allocation remains pairable without creating an array.
+    if (count == 0) { return static_cast<T*>(memory_->allocate(1, alignof(T))); }
+    return detail::allocate_array_storage<T>(*memory_, count);
 }
 
 template<class T>

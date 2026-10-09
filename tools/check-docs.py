@@ -1,5 +1,6 @@
 """Check text format, delivery links and source/example language with Python stdlib."""
 from pathlib import Path
+import os
 import re
 import subprocess
 import sys
@@ -62,11 +63,38 @@ def without_cpp_comments(code):
                   else match.group(), code, flags=re.DOTALL)
 
 
+def source_files(root):
+    try:
+        repository = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"], cwd=root,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        if Path(repository.stdout.decode("utf-8").strip()).resolve() != root:
+            raise OSError("Source directory is not the Git repository root")
+        inventory = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return inventory.stdout.decode("utf-8").split("\0")
+    except (OSError, subprocess.CalledProcessError):
+        # Also support source archives and Git worktrees mounted from another OS.
+        paths = []
+        generated = {".git", ".vs", ".codebuddy", "__pycache__", "vcpkg_installed"}
+        for directory, children, names in os.walk(root):
+            children[:] = [name for name in children if name not in generated and
+                           not (Path(directory) == root and
+                                name in {"build", "out", "logs", "artifacts"}) and
+                           not (Path(directory) == root / "evaluation" and name == "results")]
+            for name in names:
+                if name in generated:
+                    continue
+                if name == "CMakeUserPresets.json" or name.endswith((".pyc", ".pyo", ".pyd")):
+                    continue
+                paths.append((Path(directory) / name).relative_to(root).as_posix())
+        return paths
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
-    names = subprocess.check_output(
-        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-        cwd=root).decode("utf-8").split("\0")
+    names = source_files(root)
     paths = [root / name for name in set(names) if name and (root / name).is_file()]
     errors = []
     text_paths = [path for path in paths if path.suffix not in {".png", ".zip"}]

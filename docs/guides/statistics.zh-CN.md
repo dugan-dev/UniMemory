@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](statistics.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#初始化与统计)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 选择查询
 

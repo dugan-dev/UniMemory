@@ -19,3 +19,5 @@ UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 
 | 回收 | `arena.<i>.purge/decay` | `heap.collect()` 映射 purge，保留有效分配，不保证 RSS 降低 |
 
 业务代码只使用 `<unimem/memory.h>`。详细统计是否可用取决于 jemalloc 的统计编译选项；通过 `capabilities()` 查询。原生统计用于诊断，不建议每次分配都查询。支持条件以[官方手册](https://jemalloc.net/jemalloc.3.html)和实际使用版本为准。
+
+安装包仍依赖 jemalloc。查找或符号验证失败时，`find_package(UniMemory CONFIG QUIET)` 返回 `UniMemory_FOUND=FALSE`，通过 `UniMemory_NOT_FOUND_MESSAGE` 提供原因，不导入 UniMemory 或 jemalloc 目标。`find_package(... REQUIRED)` 和源码中显式启用该后端仍会使配置失败。Windows 分别使用 release/debug 库；缺少 debug 库时回退到 Release。

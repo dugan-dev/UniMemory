@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](statistics.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#initialization-and-statistics).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Choose a query
 

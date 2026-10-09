@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](heap.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#堆)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 范围与生命周期
 

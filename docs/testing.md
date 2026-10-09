@@ -2,7 +2,24 @@
 
 [Documentation](README.md) · **English** · [简体中文](testing.zh-CN.md)
 
-## 0.0.1 verification
+## Review verification: 2026-10-08 to 2026-10-09
+
+| Configuration | Passed / registered | Installed consumers |
+| --- | --- | --- |
+| Windows / MSVC, static, three backends, Release | **1666/1666** | **7/7** |
+| Windows / MSVC, static, three backends, Debug | **1666/1666** | **7/7** |
+| Windows / MSVC, shared, three backends, Release | **1664/1664** | **7/7** |
+| Linux / GCC, static, three backends, Release | **1667/1667** | **7/7** |
+| Linux / GCC, shared, three backends, Release | **1666/1666** | **7/7** |
+| Linux / Clang, Standard, ASan + UBSan + leak detection | **715/715** | **7/7** |
+
+All rows have zero failures. Totals include parameterized cases, package discovery,
+header order and stress tests; repeated configurations are not additional unique
+features. Executable-level allocation interception differs in shared builds.
+The current revision has not yet been verified on macOS or ThreadSanitizer;
+their earlier results below are historical. [Review findings and contracts](review-2026-10-08.md)
+
+## Historical 0.0.1 verification: 2026-09-28
 
 | Build | Result |
 | --- | --- |

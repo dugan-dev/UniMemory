@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](objects.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#object).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Construction and cleanup
 
@@ -13,7 +13,7 @@ Examples: [Quick Start](../../README.md#object).
 | `create_array()` constructor throws | Destroy completed elements in reverse order, then release storage |
 | Destructor | Object helpers require a non-throwing destructor |
 | Manual destruction | Use the same Memory, exact concrete type and original array count |
-| Raw storage | `allocate_objects<T>()` does not construct objects |
+| Typed storage | `allocate_objects<T>()` supplies array storage without calling element constructors or initializing their values |
 
 Keep the allocation-start pointer. An object created as Derived must not be passed to `destroy(Base*)`, even with a virtual destructor. Ordinary `new`/`delete` are not interchangeable with these helpers. Raw `reallocate()` does not move-construct objects.
 
@@ -41,5 +41,7 @@ flowchart LR
 Owners retain a Memory reference. Destroy them before their Heap/Stack Memory, and before reset or rewind invalidates their storage. Remaining `weak_ptr` objects also retain a shared-pointer control block.
 
 On Stack, a failed constructor destroys completed objects but retains consumed buffer space. Rewind only after all affected owners are gone.
+
+Typed allocation and `Allocator<T>::allocate()` establish array storage under C++20, including after Stack reuse. Construct nontrivial elements before accessing them, for example with `std::construct_at`. [Lifetime rationale and verification limits](../typed-storage-lifetime.md).
 
 [Container contracts](containers.md) · [Lifetime and threads](../compatibility.md) · [API](../api-reference.md)

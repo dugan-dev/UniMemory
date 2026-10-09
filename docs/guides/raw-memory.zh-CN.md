@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](raw-memory.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#基本用法)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 配对与对齐
 

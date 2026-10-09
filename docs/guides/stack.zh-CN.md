@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](stack.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#栈)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 缓冲区生命周期
 

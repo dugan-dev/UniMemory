@@ -18,4 +18,6 @@ Tested: **5.3.1** with explicit `je_` exports. Enable `UNIMEMORY_WITH_JEMALLOC`;
 
 Detailed statistics depend on the native statistics build. Query capabilities; every returned metric remains optional. Native snapshots may synchronize. Ordinary Memory uses the default shared `je_` path; only Memory::heap() creates an explicit region.
 
+An installed package retains its jemalloc dependency. If discovery or symbol validation fails, `find_package(UniMemory CONFIG QUIET)` returns `UniMemory_FOUND=FALSE` with `UniMemory_NOT_FOUND_MESSAGE` and does not import UniMemory or jemalloc targets. `find_package(... REQUIRED)` and explicitly enabling the source backend still fail configuration. Windows keeps distinct release/debug libraries, with Release as the fallback when no debug library is available.
+
 Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public header](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc.h.in), [validation](../upstream-validation.md). Platform evidence: [test results](../testing.md).

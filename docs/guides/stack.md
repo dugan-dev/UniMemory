@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](stack.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#stack).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Buffer lifetime
 

@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](objects.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#对象)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 构造与清理
 
@@ -13,7 +13,7 @@
 | `create_array()` 构造函数抛异常 | 逆序析构已完成的元素，再释放存储空间 |
 | 析构函数 | 对象辅助接口要求析构函数不抛异常 |
 | 手动销毁 | 使用同一个 Memory、原始具体类型和原数组数量 |
-| 原始存储 | `allocate_objects<T>()` 不构造对象 |
+| 类型化存储 | `allocate_objects<T>()` 提供数组存储，不调用元素构造函数，也不初始化元素值 |
 
 保留分配起始指针。以 Derived 创建的对象不能交给 `destroy(Base*)`，即使 Base 有虚析构函数。普通 `new`/`delete` 不能与这些接口混用。原始 `reallocate()` 不调用对象的移动构造函数。
 
@@ -41,5 +41,7 @@ flowchart LR
 所有者保留 Memory 引用。必须先销毁它们，再销毁 Heap/Stack，或通过 reset、rewind 使存储失效。残留的 `weak_ptr` 也会保留共享指针控制块。
 
 Stack 中构造失败会析构已完成的对象，但不回退缓冲区用量。所有受影响的所有者销毁后才能 rewind。
+
+类型化分配和 `Allocator<T>::allocate()` 按 C++20 建立数组存储，包括复用 Stack 空间的情况。访问非平凡元素前，应使用 `std::construct_at` 等方式构造它们。[生命周期依据与验证边界](../typed-storage-lifetime.md)。
 
 [容器约定](containers.zh-CN.md) · [生命周期与线程](../compatibility.zh-CN.md) · [API](../api-reference.zh-CN.md)

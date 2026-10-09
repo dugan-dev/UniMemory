@@ -1,5 +1,6 @@
 #include <unimem/memory.h>
 #include <unimem/version.h>
+#include "standalone_types.h"
 
 static_assert(UNIMEMORY_VERSION_MAJOR == 0);
 static_assert(UNIMEMORY_VERSION_MINOR == 0);
@@ -11,6 +12,11 @@ struct Point { int x; int y; };
 
 bool header_memory() {
     unimem::Memory& memory = unimem::Memory::global();
+    if (!standalone_allocator(memory)) { return false; }
+    auto* object = memory.create<StandaloneObject>(17);
+    auto* array = memory.create_array<StandaloneArrayElement>(3);
+    array[2].value = 23;
+    if (!standalone_smart_ptr(memory, object, array)) { return false; }
     Point* point = memory.create<Point>(3, 4);
     bool valid = point->x == 3 && point->y == 4;
     memory.destroy(point);

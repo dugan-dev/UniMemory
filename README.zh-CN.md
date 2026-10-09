@@ -2,341 +2,92 @@
 
 [![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/dugan-dev/UniMemory)](https://github.com/dugan-dev/UniMemory/releases/latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
-现代 C++20 内存分配库，为 Standard、mimalloc 和 jemalloc 提供统一接口。
+C++20 统一内存库：通过同一接口使用 Standard、mimalloc、jemalloc，管理对象、标准容器和字节缓冲区。
 
 [English](README.md) · **简体中文**
 
-<details>
-<summary>目录</summary>
-
-- [特点](#特点)
-- [快速开始](#快速开始)
-- [平台](#平台) · [后端](#后端)
-- [性能](#性能) · [测试](#测试)
-- [CMake 接入](#cmake-接入) · [编译运行](#编译运行)
-- [文档](#文档) · [许可证](#许可证)
-
-</details>
-
 ## 特点
 
-- **🚀 现代 C++20**：类型化构造，与标准库集成。
-- **🔄 统一后端**：一套 API 使用 Standard、mimalloc 和 jemalloc。
-- **🧱 对象与数组**：创建、销毁对象和数组，构造失败时清理资源。
-- **🔒 智能指针**：创建独占、共享智能指针，支持接管已有对象。
-- **📦 标准容器**：通过 Allocator 和 PMR 接入标准库容器。
-- **🎯 对齐内存**：自定义对齐、清零分配与 Buffer 扩容。
-- **🗂️ 独立堆与栈式分配**：独立管理分配组，支持固定缓冲区的临时分配。
-- **📊 可选统计**：分配请求计数，以及可用的后端原生指标。
-- **🌐 跨平台**：Windows、Linux、macOS 构建已通过 CI 验证。
+- 对象/数组构造、异常清理、独占与共享所有权。
+- Allocator 和 PMR 标准容器适配。
+- Global 分配、独立 Heap、固定缓冲区 Stack。
+- 对齐、拥有型 Buffer、重分配与可选统计。
+- 复用成熟显式后端，不替换全局 `new`/`delete`。
 
 ## 快速开始
 
-### 基本用法
-
 ```cpp
 #include <unimem/memory.h>
+#include <vector>
+
+struct Point { float x, y; };
 
 int main() {
-    // 获取全局分配器，后端可选 Standard、Mimalloc、Jemalloc
-    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
-
-    // 普通分配与释放
-    void* bytes = memory.allocate(1024);
-    memory.deallocate(bytes, 1024);
-
-    // 清零分配与释放
-    void* zeroed = memory.allocate_zeroed(1024);
-    memory.deallocate(zeroed, 1024);
-
-    // 对齐分配与释放
-    void* aligned = memory.allocate(1024, 64);
-    memory.deallocate(aligned, 1024, 64);
-
-    // 重分配，按新大小释放
-    void* resized = memory.allocate(1024);
-    resized = memory.reallocate(resized, 1024, 2048);
-    memory.deallocate(resized, 2048);
-
-    // 扩容并清零新增字节
-    void* grown = memory.allocate_zeroed(2048);
-    grown = memory.reallocate_zeroed(grown, 2048, 4096);
-    memory.deallocate(grown, 4096);
-
-    return 0;
+    auto& memory = unimem::Memory::global();
+    auto point = memory.make_unique<Point>(1.0f, 2.0f);
+    std::vector<int, unimem::Allocator<int>> values(memory.allocator<int>());
+    values.push_back(20);
+    auto bytes = memory.make_block(1024, 64);
+    return point->x == 1.0f && values[0] == 20 && bytes.size() == 1024 ? 0 : 1;
 }
 ```
 
-### 对象
-
-```cpp
-struct Point {
-    float x;
-    float y;
-};
-
-// 创建与销毁对象
-Point* point = memory.create<Point>(1.0f, 2.0f);
-memory.destroy(point);
-
-// 按类型分配存储空间，不构造对象
-Point* storage = memory.allocate_objects<Point>();
-memory.deallocate_objects(storage);
-
-// 创建与销毁数组
-Point* array = memory.create_array<Point>(8);
-memory.destroy_array(array, 8);
-```
-
-### 内存块
-
-```cpp
-// 创建自动管理的内存块，按 64 字节对齐
-unimem::OwnedBlock block = memory.make_block(1024, 64);
-
-// 获取数据、大小与对齐
-void* data = block.data();
-std::size_t bytes = block.size();
-std::size_t alignment = block.alignment();
-
-// 调整大小，数据指针可能变化
-block.resize(2048);
-
-// 转移所有权
-unimem::OwnedBlock moved = std::move(block);
-```
-
-### 标准容器
-
-```cpp
-// 使用标准分配器
-std::vector<Point, unimem::Allocator<Point>> positions(memory.allocator<Point>());
-positions.emplace_back(1.0f, 2.0f);
-
-std::list<Point, unimem::Allocator<Point>> path(memory.allocator<Point>());
-
-// 使用标准 PMR 容器
-std::pmr::vector<Point> points(memory.resource());
-points.emplace_back(3.0f, 4.0f);
-points.resize(8);
-
-std::pmr::string text("Hello", memory.resource());
-std::pmr::unordered_map<int, Point> lookup(memory.resource());
-```
-
-### 智能指针
-
-```cpp
-// 创建独占智能指针
-unimem::Unique<Point> owner = memory.make_unique<Point>(1.0f, 2.0f);
-
-// 创建共享智能指针
-std::shared_ptr<Point> shared = memory.make_shared<Point>(3.0f, 4.0f);
-
-// 接管同一个 Memory 创建的对象
-Point* point = memory.create<Point>(5.0f, 6.0f);
-unimem::Unique<Point> adopted = memory.adopt_unique(point);
-
-// 兼容标准弱指针
-std::weak_ptr<Point> weak = shared;
-
-// 创建智能数组指针
-unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
-```
-
-### 堆
-
-```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
-
-// 支持时创建堆
-if (unimem::capabilities(backend).heap) {
-    unimem::Memory heap = unimem::Memory::heap(backend);
-
-    // 检查归属并释放
-    void* bytes = heap.allocate(1024);
-    bool owned = heap.owns(bytes);
-    heap.deallocate(bytes, 1024);
-
-    // 回收闲置内存
-    heap.collect();
-
-    // 整体释放，原指针失效
-    void* batch = heap.allocate(1024);
-    heap.reset();
-}
-```
-
-### 栈
-
-```cpp
-// 缓冲区需比 Memory 存活更久，仅限单线程
-alignas(std::max_align_t) std::byte buffer[4096];
-unimem::Memory scratch = unimem::Memory::stack(buffer);
-
-// 标记并分配
-unimem::Memory::Mark checkpoint = scratch.mark();
-void* bytes = scratch.allocate(128);
-
-// 回退，原指针与旧标记失效
-scratch.rewind(checkpoint);
-
-std::size_t used = scratch.used();
-std::size_t capacity = scratch.capacity();
-
-// 重置缓冲区
-scratch.reset();
-```
-
-### 初始化与统计
-
-```cpp
-const unimem::Backend backends[] = {
-    unimem::Backend::Standard,
-    unimem::Backend::Mimalloc,
-    unimem::Backend::Jemalloc
-};
-
-// 保存可用的 Memory
-std::vector<unimem::Memory*> memories;
-
-for (unimem::Backend backend : backends) {
-    // 跳过未启用的后端
-    if (!unimem::available(backend)) {
-        continue;
-    }
-
-    // 首次获取前启用统计
-    unimem::Memory::configure_global(backend, unimem::StatisticsMode::Basic);
-    memories.push_back(&unimem::Memory::global(backend));
-}
-
-// 使用保存的 Memory，并查询统计
-for (unimem::Memory* memory : memories) {
-    unimem::OwnedBlock block = memory->make_block(1024);
-
-    // 查询请求次数与字节数
-    std::optional<unimem::MemoryStatistics> stats = memory->statistics();
-    if (stats) {
-        std::uint64_t live = stats->live_bytes;
-        std::uint64_t peak = stats->peak_live_bytes;
-        std::uint64_t calls = stats->allocations;
-    }
-
-    // 原生统计字段可能不可用
-    std::optional<unimem::BackendStatistics> details = memory->backend_statistics();
-    if (details && details->committed_bytes) {
-        std::uint64_t committed = *details->committed_bytes;
-        unimem::BackendStatisticsScope scope = details->scope;
-    }
-}
-```
-
-### 运行时选项
-
-```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
-const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
-
-// 正常分配前设置后端级选项
-if (unimem::supports(backend, option)) {
-    // 将闲置页释放延迟设为 1000 毫秒
-    bool configured = unimem::set_runtime_option(backend, option, 1000);
-}
-```
-
-## 平台
-
-| 平台 | 编译器 | 可用后端 |
-| --- | --- | --- |
-| Windows x64 | MSVC | Standard、mimalloc、jemalloc |
-| Linux x64 | GCC | Standard、mimalloc、jemalloc |
-| macOS | Apple Clang | Standard、mimalloc、jemalloc |
-| Android / iOS | — | 尚未设备验证 |
-
-[平台与构建要求](docs/guides/backends.zh-CN.md)
-
-## 后端
-
-| 能力 | Standard | mimalloc | jemalloc |
-| --- | :---: | :---: | :---: |
-| 对象、容器、内存块 | ✓ | ✓ | ✓ |
-| 分配统计 | ✓ | ✓ | ✓ |
-| 独立堆 | — | ✓ | ✓ |
-| 原生统计范围 | — | 进程 | 进程 / 独立堆，取决于构建 |
-| 闲置内存释放延迟 | — | ✓ | ✓ |
-| 额外依赖 | 无 | 可选 | 可选 |
-
-构建时启用可选后端，运行时用 `available()` 和 `capabilities()` 查询支持情况。普通 `new` 和未适配的容器仍使用原分配器。[配置指南](docs/guides/backends.zh-CN.md)
-
-## 性能
-
-Windows x64，MSVC 19.44，Xeon w9-3595X，统计关闭。下表单位为 **纳秒，越小越快**。
-
-| 操作 | Standard | mimalloc | jemalloc |
-| --- | ---: | ---: | ---: |
-| 创建并销毁对象，64 B | 46.4 | 12.2 | 36.0 |
-| vector 增长并销毁，32 个整数 | 590.3 | 237.4 | 488.5 |
-| 分配、扩容、释放，4 → 8 KiB | 168.5 | 139.8 | 149.4 |
-| 单线程分配，8 个线程释放 | 105.4 | 59.8 | 166.6 |
-
-![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
-
-图中 Standard 的耗时记为 1，条形越短越快；结果仅适用于所测场景。[完整报告](docs/performance.zh-CN.md)
-
-## 测试
-
-| 验证 | 结果 |
-| --- | --- |
-| Windows：三种 Backend + 示例 | Release、Debug 各 **1626/1626** |
-| Linux：三种 Backend + 示例 | **1627/1627**，安装包使用通过 |
-| macOS：三种 Backend + 示例 | **1626/1626**，安装包使用通过 |
-| ASan / UBSan，Standard 与 Stack | **681/681** |
-| ThreadSanitizer，Standard 与 Stack | **678/678** |
-
-覆盖常规使用、边界、异常和并发场景。[完整测试报告](docs/testing.zh-CN.md)
-
----
+Memory 必须活过其对象、容器和 weak_ptr 控制块；Stack 缓冲区必须活过 Memory。先销毁受影响对象，再 reset/rewind，这些操作不会调用对象析构函数。Global/Heap 允许并发分配与释放；回收须独占，Stack 为单线程。见[生命周期与兼容性](docs/compatibility.zh-CN.md)。
 
 ## CMake 接入
 
-### 使用源码
+源码接入：
 
 ```cmake
 add_subdirectory(UniMemory)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-目标自动提供头文件路径和 C++20 设置。[安装指南](docs/getting-started.zh-CN.md)
-
-### 使用安装包
+安装包接入：
 
 ```cmake
 find_package(UniMemory 0.0.1 CONFIG REQUIRED)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-## 编译运行
+目标提供头文件和 C++20 配置。可选 `find_package(UniMemory QUIET CONFIG)` 在编译所需后端依赖缺失时返回 `UniMemory_FOUND=FALSE`。保持编译器和运行库配置兼容。0.x 要求头文件与库匹配，并重新编译消费者；已发布标签保留历史快照，main 可以包含后续修订。
 
-需要 **C++20**、**CMake 3.25+** 和 C++ 编译器。
+## 后端与平台
+
+| 能力 | Standard | mimalloc | jemalloc |
+|---|:---:|:---:|:---:|
+| 对象、容器、块 | 支持 | 支持 | 支持 |
+| 请求统计 | 支持 | 支持 | 支持 |
+| 独立 Heap | 不支持 | 支持 | 支持 |
+| 附加依赖 | 无 | 可选 | 可选 |
+
+Standard 始终可用。构建时启用 `UNIMEMORY_WITH_MIMALLOC` / `UNIMEMORY_WITH_JEMALLOC`，运行时用 `available()`、`capabilities()` 检查。CI 配置 Windows、Linux、macOS；具体修订的验证范围以测试记录为准。私有前缀共享后端需要正确配置动态库搜索路径。[后端配置](docs/guides/backends.zh-CN.md)
+
+## 编译与测试
+
+需要 CMake 3.25+、C++20 和兼容编译器。
 
 ```sh
-git clone https://github.com/dugan-dev/UniMemory.git
-cd UniMemory
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
-cmake --build --preset release
-ctest --preset release
+cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --build build/release --parallel 4
+ctest --test-dir build/release --output-on-failure
+cmake --install build/release --prefix build/installed
 ```
 
----
+Visual Studio 增加 `--config Release` / `-C Release`。发布前运行 `python tools/check-docs.py`。测试覆盖独立头文件、类型化存储复用、可选包发现、生命周期、边界、异常、并发及安装消费者。[测试记录](docs/testing.zh-CN.md) · [C++20 存储论证](docs/typed-storage-lifetime.md)
+
+## 性能
+
+统一接口、所有权和启用的计数器都有实际成本。速度与内存取决于负载、后端和平台，不宣称普遍最快或内存最低。已有测量和复现数据保留在[性能报告](docs/performance.zh-CN.md)。
 
 ## 文档
 
-- **开始使用：** [构建与安装](docs/getting-started.zh-CN.md) · [可运行示例](examples/README.md)
-- **日常使用：** [对象与数组](docs/guides/objects.zh-CN.md) · [标准容器](docs/guides/containers.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
-- **内存管理：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md) · [统计](docs/guides/statistics.zh-CN.md)
-- **参考：** [API](docs/api-reference.zh-CN.md) · [后端配置](docs/guides/backends.zh-CN.md) · [完整目录](docs/README.zh-CN.md)
+- [构建与安装](docs/getting-started.zh-CN.md) · [可运行示例](examples/README.md)
+- [对象与数组](docs/guides/objects.zh-CN.md) · [容器](docs/guides/containers.zh-CN.md) · [字节缓冲区](docs/guides/raw-memory.zh-CN.md)
+- [Heap](docs/guides/heap.zh-CN.md) · [Stack](docs/guides/stack.zh-CN.md) · [统计](docs/guides/statistics.zh-CN.md)
+- [API 参考](docs/api-reference.zh-CN.md) · [完整文档](docs/README.zh-CN.md)
+- [贡献流程](CONTRIBUTING.md) · [安全报告](SECURITY.md)
 
 ## 许可证
 
-[MIT](LICENSE)。可选分配器遵循各自的许可证。
+[MIT](LICENSE)，可选分配器保留各自许可证。

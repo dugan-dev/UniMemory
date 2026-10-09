@@ -67,7 +67,9 @@ set_target_properties(UniMemory PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON
     DEBUG_POSTFIX d
     EXPORT_NAME UniMemory
+    UNIMEMORY_VERSION "${PROJECT_VERSION}"
 )
+set_property(TARGET UniMemory APPEND PROPERTY EXPORT_PROPERTIES UNIMEMORY_VERSION)
 if(BUILD_SHARED_LIBS AND CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
    NOT DEFINED CMAKE_INSTALL_RPATH)
     # A private installation can deploy allocator libraries next to UniMemory.
@@ -100,6 +102,9 @@ endif()
 
 if(UNIMEMORY_WITH_JEMALLOC)
     include(cmake/UniMemoryJemalloc.cmake)
+    if(NOT UNIMEMORY_JEMALLOC_FOUND)
+        message(FATAL_ERROR "${UNIMEMORY_JEMALLOC_NOT_FOUND_MESSAGE}")
+    endif()
     include(CheckCXXSourceCompiles)
     set(CMAKE_REQUIRED_INCLUDES "${UNIMEMORY_JEMALLOC_INCLUDE_DIR}")
     set(CMAKE_REQUIRED_LIBRARIES "${UNIMEMORY_JEMALLOC_RELEASE_LIBRARY}")
@@ -124,11 +129,52 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
         tests/headers/memory.cpp
         tests/headers/owned_block.cpp
         tests/headers/allocator.cpp
-        tests/headers/smart_ptr.cpp)
+        tests/headers/smart_ptr.cpp
+        tests/headers/standalone_allocator.cpp
+        tests/headers/standalone_smart_ptr.cpp)
     add_executable(UniMemoryHeaderTests tests/headers/main.cpp ${_unimemory_header_tests})
     target_link_libraries(UniMemoryHeaderTests PRIVATE UniMemory::UniMemory)
+    set_target_properties(UniMemoryHeaderTests PROPERTIES CXX_EXTENSIONS OFF)
     add_test(NAME UniMemory.headers COMMAND UniMemoryHeaderTests)
+    foreach(order RANGE 0 5)
+        add_executable(UniMemoryHeaderOrder${order} tests/headers/include_order.cpp)
+        target_compile_definitions(UniMemoryHeaderOrder${order} PRIVATE UNIMEMORY_HEADER_ORDER=${order})
+        target_link_libraries(UniMemoryHeaderOrder${order} PRIVATE UniMemory::UniMemory)
+        set_target_properties(UniMemoryHeaderOrder${order} PROPERTIES CXX_EXTENSIONS OFF)
+        add_test(NAME UniMemory.headers.order_${order} COMMAND UniMemoryHeaderOrder${order})
+    endforeach()
     unset(_unimemory_header_tests)
+    add_executable(UniMemoryJemallocNmFixture tests/jemalloc_nm_fixture.cpp)
+    target_compile_features(UniMemoryJemallocNmFixture PRIVATE cxx_std_20)
+    set_target_properties(UniMemoryJemallocNmFixture PROPERTIES CXX_EXTENSIONS OFF)
+    foreach(scenario IN ITEMS missing_include missing_library missing_nm nm_error nm_unavailable
+            release_replaces_new debug_replaces_new valid debug_fallback retry)
+        set(_unimemory_lookup_modes optional required)
+        if(scenario STREQUAL "retry")
+            set(_unimemory_lookup_modes optional)
+        elseif(NOT scenario MATCHES "^(valid|debug_fallback)$")
+            list(APPEND _unimemory_lookup_modes source)
+        endif()
+        foreach(mode IN LISTS _unimemory_lookup_modes)
+            add_test(NAME "UniMemory.package.${scenario}_${mode}" COMMAND "${CMAKE_COMMAND}"
+                "-DUNIMEMORY_SOURCE=${CMAKE_CURRENT_SOURCE_DIR}"
+                "-DTEST_BINARY=${CMAKE_CURRENT_BINARY_DIR}/package-tests/${scenario}-${mode}"
+                "-DTEST_GENERATOR=${CMAKE_GENERATOR}" "-DTEST_PLATFORM=${CMAKE_GENERATOR_PLATFORM}"
+                "-DSCENARIO=${scenario}" "-DLOOKUP_MODE=${mode}"
+                "-DNM_FIXTURE=$<TARGET_FILE:UniMemoryJemallocNmFixture>"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/package/run.cmake")
+        endforeach()
+    endforeach()
+    unset(_unimemory_lookup_modes)
+    add_executable(UniMemoryTypedStorage tests/typed_storage_tests.cpp)
+    target_link_libraries(UniMemoryTypedStorage PRIVATE UniMemory::UniMemory)
+    set_target_properties(UniMemoryTypedStorage PROPERTIES CXX_EXTENSIONS OFF)
+    if(MSVC)
+        target_compile_options(UniMemoryTypedStorage PRIVATE /W4 /permissive-)
+    else()
+        target_compile_options(UniMemoryTypedStorage PRIVATE -Wall -Wextra -Wpedantic -pedantic-errors)
+    endif()
+    add_test(NAME UniMemory.typed_storage COMMAND UniMemoryTypedStorage)
     add_executable(UniMemoryTests tests/memory_tests.cpp)
     target_link_libraries(UniMemoryTests PRIVATE UniMemory::UniMemory Threads::Threads)
     target_compile_features(UniMemoryTests PRIVATE cxx_std_20)
@@ -156,6 +202,18 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
     endif()
     if(UNIMEMORY_WITH_JEMALLOC)
         target_compile_definitions(UniMemoryTests PRIVATE UNIMEMORY_TEST_JEMALLOC)
+        add_executable(UniMemoryJemallocInitialization tests/jemalloc_initialization.cpp)
+        target_link_libraries(UniMemoryJemallocInitialization PRIVATE UniMemory::UniMemory Threads::Threads)
+        set_target_properties(UniMemoryJemallocInitialization PROPERTIES CXX_EXTENSIONS OFF)
+        foreach(mode IN ITEMS shared global heap capabilities option mixed)
+            add_test(NAME "UniMemory.jemalloc.initialization_${mode}" COMMAND "${CMAKE_COMMAND}"
+                "-DPROGRAM=$<TARGET_FILE:UniMemoryJemallocInitialization>" "-DMODE=${mode}"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/jemalloc_initialization.cmake")
+            set_tests_properties("UniMemory.jemalloc.initialization_${mode}" PROPERTIES TIMEOUT 60)
+        endforeach()
+        add_test(NAME UniMemory.jemalloc.initialization_lifecycle
+            COMMAND UniMemoryJemallocInitialization mixed 16 16)
+        set_tests_properties(UniMemory.jemalloc.initialization_lifecycle PROPERTIES TIMEOUT 60)
     endif()
     add_test(NAME UniMemory.memory COMMAND UniMemoryTests)
     add_executable(UniMemoryUnifiedTests tests/unified_memory_tests.cpp)

@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](raw-memory.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#basic-usage).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Pairing and alignment
 

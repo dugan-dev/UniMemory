@@ -37,3 +37,6 @@ private:
 };
 
 }
+
+// Complete Memory and the adapter templates after declaring Allocator.
+#include <unimem/memory.h>

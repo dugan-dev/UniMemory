@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](containers.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#标准容器)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 ## 适配方式
 

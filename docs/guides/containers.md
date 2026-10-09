@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](containers.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#container).
+Examples: [Quick Start](../../README.md#quick-start).
 
 ## Adapter choice
 

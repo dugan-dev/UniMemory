@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+#include <mutex>
 #include <new>
 #include <stdexcept>
 #include <type_traits>
@@ -25,6 +26,26 @@ namespace unimem::detail {
 namespace {
 
 struct ArenaContext { unsigned index; };
+
+bool initialize() noexcept {
+    // Windows jemalloc can race its process-wide TSD bootstrap when the first
+    // calls come from different workers. Finish it before exposing the backend.
+    static std::once_flag initialized;
+    try {
+        std::call_once(initialized, [] {
+            const char* version = nullptr;
+            std::size_t length = sizeof(version);
+            if (je_mallctl("version", &version, &length, nullptr, 0) != 0 ||
+                length != sizeof(version) || version == nullptr) {
+                throw std::runtime_error("UniMemory: jemalloc initialization failed");
+            }
+        });
+        return true;
+    } catch (...) {
+        // A failed call_once remains retryable, including after allocation failure.
+        return false;
+    }
+}
 
 int arena_flags(void* context) noexcept {
     return MALLOCX_ARENA(static_cast<ArenaContext*>(context)->index) |
@@ -154,6 +175,9 @@ const BackendOps arena_ops{allocate, allocate_zeroed, reallocate, deallocate,
 }
 
 BackendHandle jemalloc_backend(bool dedicated) {
+    if (!initialize()) {
+        throw std::runtime_error("UniMemory: jemalloc initialization failed");
+    }
     if (!dedicated) { return {&ops, nullptr}; }
     auto* arena = new ArenaContext{};
     std::size_t length = sizeof(arena->index);
@@ -171,6 +195,7 @@ BackendHandle jemalloc_backend(bool dedicated) {
 }
 
 bool jemalloc_statistics_available() noexcept {
+    if (!initialize()) { return false; }
     bool enabled = false;
     std::size_t length = sizeof(enabled);
     return je_mallctl("config.stats", &enabled, &length, nullptr, 0) == 0 &&
@@ -178,6 +203,7 @@ bool jemalloc_statistics_available() noexcept {
 }
 
 bool set_jemalloc_release_delay(std::int64_t value) noexcept {
+    if (!initialize()) { return false; }
     using SignedSize = std::make_signed_t<std::size_t>;
     if (value > static_cast<std::int64_t>(std::numeric_limits<SignedSize>::max())) {
         return false;

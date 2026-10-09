@@ -2,7 +2,7 @@
 
 [目录](../README.zh-CN.md) · [English](runtime-options.md) · **简体中文**
 
-示例见[快速开始](../../README.zh-CN.md#运行时选项)。
+示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
 `UnusedPageReleaseDelayMs` 调整闲置内存归还系统的等待时间。分配器可能缓存已释放空间以供复用。先用 `supports()` 查询支持情况。
 

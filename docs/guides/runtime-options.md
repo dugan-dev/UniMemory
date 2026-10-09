@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](runtime-options.zh-CN.md)
 
-Examples: [Quick Start](../../README.md#runtime-options).
+Examples: [Quick Start](../../README.md#quick-start).
 
 `UnusedPageReleaseDelayMs` adjusts how long unused memory may wait before returning to the OS. Allocators may cache freed storage for reuse. Check `supports()` first.
 
