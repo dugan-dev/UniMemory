@@ -15,7 +15,10 @@
 
 全部零失败。数量包含参数化、包发现、头文件顺序和压力测试，重复配置不算新增功能。
 共享库中依赖 executable-level allocation interception 的测试数量不同。
-本次修订尚未在 macOS 或 ThreadSanitizer 验证，下表为历史结果。
+GitHub 于 2026-10-09 验证修复提交 `65c4a46`：全部 13 项
+[跨平台构建任务](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097)和全部 5 项
+[发布验收任务](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066)通过，包含 macOS、ASan 和 ThreadSanitizer。
+下表的旧数值仍为历史结果。
 [审查结论与接口约束](review-2026-10-08.md)
 
 ## 2026-09-28 的 0.0.1 历史验证

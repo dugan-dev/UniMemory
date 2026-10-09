@@ -16,8 +16,11 @@
 All rows have zero failures. Totals include parameterized cases, package discovery,
 header order and stress tests; repeated configurations are not additional unique
 features. Executable-level allocation interception differs in shared builds.
-The current revision has not yet been verified on macOS or ThreadSanitizer;
-their earlier results below are historical. [Review findings and contracts](review-2026-10-08.md)
+GitHub verified repair commit `65c4a46` on 2026-10-09: all 13
+[cross-platform build jobs](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097)
+and all five [release validation jobs](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066)
+passed, including macOS, ASan and ThreadSanitizer. The earlier numerical results
+below remain historical. [Review findings and contracts](review-2026-10-08.md)
 
 ## Historical 0.0.1 verification: 2026-09-28
 
