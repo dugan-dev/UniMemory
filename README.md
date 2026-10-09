@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/dugan-dev/UniMemory)](https://github.com/dugan-dev/UniMemory/releases/latest) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
 
 A modern C++20 library for unified memory allocation across Standard, mimalloc and jemalloc.
 
@@ -11,9 +11,9 @@ A modern C++20 library for unified memory allocation across Standard, mimalloc a
 
 - [Features](#features)
 - [Quick Start](#quick-start)
-- [Platforms](#platforms) · [Backends](#backends)
-- [Performance](#performance) · [Tests](#tests)
-- [CMake Integration](#cmake-integration) · [Building](#building)
+- [Platforms](#platforms) · [Capabilities](#capabilities)
+- [Performance](#performance)
+- [Build and Install](#build-and-install) · [Integration](#integration)
 - [Documentation](#documentation) · [License](#license)
 
 </details>
@@ -28,13 +28,9 @@ A modern C++20 library for unified memory allocation across Standard, mimalloc a
 - **🎯 Aligned memory**: Custom alignment, zero initialization and byte-buffer resizing.
 - **🗂️ Heap and Stack**: Independent allocation groups and temporary fixed-buffer storage.
 - **📊 Optional statistics**: Request counters and available native backend metrics.
-- **🌐 Cross-platform**: Windows, Linux and macOS builds verified in CI.
+- **🌐 Cross-platform**: Supports Windows, Linux and macOS.
 
 ## Quick Start
-
-The Memory context must outlive its owners, containers and weak control blocks; a Stack buffer must outlive its Memory. Destroy affected objects before reset/rewind: reclamation does not run destructors. Global/Heap allocation and free can run concurrently; reclamation requires exclusive access and Stack is single-threaded. [Lifetime and compatibility](docs/compatibility.md)
-
-Run each example separately. The shorter snippets use `memory` from Basic Usage and, where needed, the `Point` definition from Object; put their includes at file scope. In Initialization and Statistics, `configure_global()` must precede the first `global()` call for each backend.
 
 ### Basic Usage
 
@@ -91,8 +87,6 @@ memory.deallocate_objects(storage);
 Point* array = memory.create_array<Point>(8);
 memory.destroy_array(array, 8);
 ```
-
-Typed storage establishes the array storage without constructing its elements. [C++20 lifetime contract](docs/typed-storage-lifetime.md)
 
 ### Block
 
@@ -162,7 +156,7 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 const unimem::Backend backend = unimem::Backend::Mimalloc;
 
 // Create a Heap when supported
-if (unimem::capabilities(backend).heap) {
+if (unimem::available(backend) && unimem::capabilities(backend).heap) {
     unimem::Memory heap = unimem::Memory::heap(backend);
 
     // Check membership and free
@@ -170,10 +164,10 @@ if (unimem::capabilities(backend).heap) {
     bool owned = heap.owns(bytes);
     heap.deallocate(bytes, 1024);
 
-    // Reclaim unused memory
+    // Pause other operations on this heap while reclaiming memory
     heap.collect();
 
-    // Release all blocks, old pointers expire
+    // Destroy constructed objects first; reset reclaims storage and invalidates pointers
     void* batch = heap.allocate(1024);
     heap.reset();
 }
@@ -182,7 +176,7 @@ if (unimem::capabilities(backend).heap) {
 ### Stack
 
 ```cpp
-// Buffer must outlive Memory, one thread only
+// Declare the buffer before scratch; use it on this thread only
 alignas(std::max_align_t) std::byte buffer[4096];
 unimem::Memory scratch = unimem::Memory::stack(buffer);
 
@@ -190,7 +184,7 @@ unimem::Memory scratch = unimem::Memory::stack(buffer);
 unimem::Memory::Mark checkpoint = scratch.mark();
 void* bytes = scratch.allocate(128);
 
-// Rewind: allocations after the checkpoint and all old marks expire
+// Destroy constructed objects first; rewind reclaims storage and invalidates later pointers and old marks
 scratch.rewind(checkpoint);
 
 std::size_t used = scratch.used();
@@ -261,31 +255,31 @@ if (unimem::supports(backend, option)) {
 
 ## Platforms
 
-| Platform | Compiler | Available backends |
-| --- | --- | --- |
-| Windows x64 | MSVC | Standard, mimalloc, jemalloc |
-| Linux x64 | GCC | Standard, mimalloc, jemalloc |
-| macOS | Apple Clang | Standard, mimalloc, jemalloc |
-| Android / iOS | — | Not device-validated |
+| Platform | Standard | mimalloc | jemalloc | Compiler |
+| --- | :---: | :---: | :---: | --- |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC |
+| Linux x64 | ✔ | ✔ | ✔ | GCC |
+| macOS | ✔ | ✔ | ✔ | Apple Clang |
+| Android / iOS | — | — | — | Not device-validated |
 
-[Platform and build requirements](docs/guides/backends.md)
+✔ Supported; — awaiting device validation. [Platform details](docs/guides/backends.md)
 
-## Backends
+## Capabilities
 
 | Capability | Standard | mimalloc | jemalloc |
 | --- | :---: | :---: | :---: |
-| Objects, containers, blocks | ✓ | ✓ | ✓ |
-| Allocation counters | ✓ | ✓ | ✓ |
-| Independent Heap | — | ✓ | ✓ |
+| Objects, containers, blocks | ✔ | ✔ | ✔ |
+| Allocation counters | ✔ | ✔ | ✔ |
+| Independent Heap | — | ✔ | ✔ |
 | Native statistics scope | — | Process | Process / Heap, build-dependent |
-| Unused memory release delay | — | ✓ | ✓ |
+| Unused memory release delay | — | ✔ | ✔ |
 | Extra dependency | None | Optional | Optional |
 
-Enable optional backends at build time; use `available()` and `capabilities()` to check compiled support and capabilities. Ordinary `new` and unadapted containers keep their existing allocator. Private-prefix shared backends require an appropriate runtime library search path. [Configuration guide](docs/guides/backends.md) · [jemalloc initialization](docs/backends/jemalloc.md#initialization)
+Standard needs no extra dependency; enable mimalloc or jemalloc as needed. [Configuration guide](docs/guides/backends.md)
 
 ## Performance
 
-Historical measurements from **2026-09-28**: Windows x64, MSVC 19.44, Xeon w9-3595X; statistics off. **Nanoseconds per operation; lower is faster.** These values were not remeasured for the October repairs.
+Windows x64 · MSVC 19.44 · statistics off · 2026-09-28. **ns/operation; lower is faster.**
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -296,61 +290,34 @@ Historical measurements from **2026-09-28**: Windows x64, MSVC 19.44, Xeon w9-35
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-In the chart, Standard = 1; shorter bars are faster. Results apply to the measured workloads. [Full report](docs/performance.md)
+Standard = 1 in the chart; shorter bars are faster. [Full measurement report](docs/performance.md)
 
-## Tests
+## Build and Install
 
-Repair verification from **2026-10-08 to 2026-10-09**; counts below identify the configurations actually tested.
-
-| Validation | Result |
-| --- | --- |
-| Windows: three backends + examples | **1666/1666** in Release and Debug |
-| Linux: three backends + examples | **1667/1667**, installed consumers **7/7** |
-| macOS: three backends + examples | [GitHub CI passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097) |
-| ASan / UBSan, Standard and Stack | **715/715**, leak detection enabled |
-| ThreadSanitizer, Standard and Stack | [Release validation passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066) |
-
-Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](docs/testing.md)
-
----
-
-## CMake Integration
-
-### Using source
-
-```cmake
-add_subdirectory(UniMemory)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
-```
-
-The target provides include paths and C++20 settings. [Installation guide](docs/getting-started.md)
-
-### Using an installed package
-
-```cmake
-find_package(UniMemory 0.0.1 CONFIG REQUIRED)
-target_link_libraries(app PRIVATE UniMemory::UniMemory)
-```
-
-Optional lookup with `find_package(UniMemory QUIET CONFIG)` reports `UniMemory_FOUND=FALSE` when a compiled backend dependency is unavailable. Match compiler, standard library and runtime configurations. Version 0.x does not promise a stable ABI: distribute matching headers/libraries and rebuild consumers after layout changes. [Compatibility](docs/compatibility.md)
-
-## Building
-
-Requires **C++20**, **CMake 3.25+** and a C++ compiler.
-
-The [2026-10-09 repair source snapshot](https://github.com/dugan-dev/UniMemory/releases/tag/snapshot-2026-10-09) contains the verified repairs and retains library version **0.0.1**. The earlier [v0.0.1 release](https://github.com/dugan-dev/UniMemory/releases/tag/v0.0.1) remains a historical snapshot. Record the source revision as well as the version; an extracted source archive can run the CMake commands below without cloning.
+Requires **C++20** and **CMake 3.25+**. Download the [source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip), then run from the extracted source directory:
 
 ```sh
-git clone https://github.com/dugan-dev/UniMemory.git
-cd UniMemory
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
-ctest --preset release
+cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-Standard needs no external allocator. Optional backends require their existing dependencies. The `release` preset uses `build/UniMemory-release` and selects Release for multi-configuration generators. Run `python tools/check-docs.py` before publishing.
+The library is installed to `build/installed`. [Build options](docs/getting-started.md#build-options)
 
----
+## Integration
+
+Link UniMemory in your project's `CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+
+find_package(UniMemory 0.0.1 CONFIG REQUIRED)
+add_executable(app main.cpp)
+target_link_libraries(app PRIVATE UniMemory::UniMemory)
+```
+
+Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, replace `find_package(...)` with `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
 
 ## Documentation
 
@@ -358,7 +325,6 @@ Standard needs no external allocator. Optional backends require their existing d
 - **Everyday use:** [Object / Array](docs/guides/objects.md) · [Container](docs/guides/containers.md) · [Block](docs/guides/raw-memory.md)
 - **Memory management:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
 - **Reference:** [API](docs/api-reference.md) · [Backend setup](docs/guides/backends.md) · [Full index](docs/README.md)
-- **Maintenance:** [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Private vulnerability reports](https://github.com/dugan-dev/UniMemory/security/advisories/new)
 
 ## License
 

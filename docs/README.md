@@ -47,3 +47,27 @@ flowchart LR
 | [Test results](testing.md) | Verified platforms and coverage |
 
 [Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Upstream validation](upstream-validation.md)
+
+## 5 · Validation and maintenance
+
+Repair verification from **2026-10-08 to 2026-10-09**; counts identify the configurations actually tested.
+
+| Validation | Recorded result |
+| --- | --- |
+| Windows: three backends + examples | **1666/1666** in Release and Debug |
+| Linux: three backends + examples | **1667/1667**, installed consumers **7/7** |
+| macOS: three backends + examples | [GitHub CI passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097) |
+| ASan / UBSan, Standard and Stack | **715/715**, leak detection enabled |
+| ThreadSanitizer, Standard and Stack | [Release validation passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066) |
+
+Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](testing.md)
+
+The repository keeps `main` and distributes its [source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip) without tags or Releases. The library version remains **0.0.1**; identify deliveries by their source revision and use matching headers and libraries. Homepage performance data was measured on **2026-09-28**, before the October repairs.
+
+[Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Repair review](review-2026-10-08.md)
+
+Before publishing documentation, run:
+
+```sh
+python tools/check-docs.py
+```

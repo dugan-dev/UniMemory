@@ -2,15 +2,19 @@
 
 [Index](README.md) · **English** · [简体中文](getting-started.zh-CN.md)
 
-## Choose a source snapshot
+## Get the source
 
-The [repair snapshot](https://github.com/dugan-dev/UniMemory/releases/tag/snapshot-2026-10-09) contains the October fixes and is a prerelease source distribution with library version 0.0.1. The original `v0.0.1` tag and assets remain unchanged. Use the same revision for headers, library and validation evidence; the version string alone does not identify these repairs.
+Download the [main source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip), or clone the repository:
 
-Extract the source archive and run the following commands from the directory containing `CMakeLists.txt`. A Standard build and the documentation checker work without Git metadata. Optional allocators still need their own dependencies; the archive does not bundle them.
+```sh
+git clone https://github.com/dugan-dev/UniMemory.git
+```
+
+Run the build commands from the directory containing `CMakeLists.txt`. The library version is declared there; use headers and libraries from the same revision.
 
 ## Run an example
 
-Follow the [README build steps](../README.md#building), then run the basic example:
+Follow the [README build steps](../README.md#build-and-install), then run the basic example:
 
 | Platform | Executable |
 | --- | --- |
@@ -21,7 +25,7 @@ Expected output: `3, 1024 bytes`. [More examples](../examples/README.md)
 
 ## Add UniMemory to a project
 
-Choose [source or installed-package integration](../README.md#cmake-integration). Linking `UniMemory::UniMemory` provides include paths and C++20 settings. Include `<unimem/memory.h>` in your code.
+Follow the [project integration example](../README.md#integration). Linking `UniMemory::UniMemory` provides include paths and C++20 settings. Include `<unimem/memory.h>` in your code.
 
 ## Install the library
 
@@ -38,7 +42,7 @@ cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
 cmake --build build --config Release
 ```
 
-Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#cmake-integration).
+Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#integration).
 
 The README's `release` preset uses `build/UniMemory-release`. If you choose another directory with `cmake -B`, use it consistently for running examples and installation.
 
