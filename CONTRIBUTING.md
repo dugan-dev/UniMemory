@@ -1,5 +1,8 @@
 # Contributing
 
+Open a pull request for a feature branch. CI runs on every pull request and on
+pushes to main, so one change cannot produce conflicting duplicate merge gates.
+
 Keep C++20, existing dependency pins and explicit allocator backends. Discuss new dependencies, backend additions and API changes before implementation. Do not replace global `new`/`delete`, commit credentials, local configuration or build output.
 
 Open an issue with the revision, compiler/platform, backend, smallest reproducer and expected behavior. For a fix, add a regression that fails on the old implementation, explain the root cause, and submit a pull request. Language-contract findings need primary standard evidence in addition to runtime tests.
