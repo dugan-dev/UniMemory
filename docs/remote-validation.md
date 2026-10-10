@@ -74,9 +74,13 @@ requires matching recorded CPU/compiler/protocol; raw samples remain in artifact
 SVGs are generated without plotting-library dependencies and stored under
 `docs/images/performance/<platform-architecture>/`. Summaries and measurements
 are stored under `docs/results/current/<platform-architecture>/`; historical
-results remain untouched. README references the Linux throughput/memory pair.
+results remain untouched. README preserves the original workload figure and adds
+the Linux throughput/memory pair. Chinese pages use Chinese SVG variants, including
+titles, axes, legends and captions; both languages use identical measurements.
 Per-platform latency, statistics cost, retention and workload charts provide
-more detail. Source revision and remote-run provenance accompany every report.
+more detail, embedded by dimension and platform directly in the report page.
+Source revision and remote-run provenance accompany every report. Publication only
+updates generated reports and measurements; it cannot replace README content.
 
 Only trusted successful push runs can publish. A scoped bot branch opens a PR.
 Before approving its real PR workflows, the publisher verifies repository, bot

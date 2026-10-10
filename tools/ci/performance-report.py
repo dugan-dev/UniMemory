@@ -2,6 +2,7 @@
 import argparse
 import csv
 from collections import defaultdict
+from functools import lru_cache
 import html
 import itertools
 import json
@@ -13,6 +14,9 @@ BACKENDS = ("standard", "mimalloc", "jemalloc")
 PATHS = ("native", "disabled", "basic")
 THREADS = (1, 2, 4, 8, 16)
 COLORS = {"standard": "#64748b", "mimalloc": "#0284c7", "jemalloc": "#d97706"}
+LANGUAGES = ("en", "zh-CN")
+CHARTS = ("throughput", "memory", "latency", "statistics", "retention", "workloads")
+LOCALE_DIRECTORY = Path(__file__).resolve().parent / "locales"
 API_SCENARIOS = (("raw", "64", "16"), ("zeroed", "64", "16"), ("reallocate", "64", "16"),
                  ("object", "64", "1"), ("shared_object", "64", "1"), ("std_vector", "256", "8"))
 
@@ -46,6 +50,11 @@ def sweep_scenarios():
 def read(path):
     with path.open(newline="", encoding="utf-8") as file:
         return list(csv.DictReader(file))
+
+
+def write_text(path, content):
+    with path.open("w", encoding="utf-8", newline="\n") as file:
+        file.write(content)
 
 
 def validate(directory):
@@ -126,15 +135,29 @@ def validate(directory):
     return manifest
 
 
-def chart(title, ylabel, xs, series, caption, bars=False):
+@lru_cache(maxsize=1)
+def chinese_catalog():
+    return json.loads((LOCALE_DIRECTORY / "zh-CN.json").read_text(encoding="utf-8"))
+
+
+def localized(text, language):
+    if language == "en":
+        return text
+    if language != "zh-CN":
+        raise ValueError("Unsupported chart language")
+    return chinese_catalog()[text]
+
+
+def chart(title, ylabel, xs, series, caption, bars=False, xlabel="", language="en"):
     width, height = 1100, 560
     left, top, plot_width, plot_height = 92, 92, 760, 350
     maximum = max(value for _, _, values in series for value in values) * 1.12
     if maximum <= 0:
         raise ValueError("Chart requires positive measurements")
-    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img">',
+    title, ylabel = localized(title, language), localized(ylabel, language)
+    parts = [f'<svg xmlns="http://www.w3.org/2000/svg" xml:lang="{language}" viewBox="0 0 {width} {height}" role="img">',
              f'<title>{html.escape(title)}</title>', '<rect width="1100" height="560" fill="#ffffff"/>',
-             '<g font-family="system-ui,Segoe UI,sans-serif" fill="#0f172a">',
+             '<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">',
              f'<text x="92" y="40" font-size="25" font-weight="650">{html.escape(title)}</text>',
              f'<text x="92" y="66" font-size="14" fill="#475569">{html.escape(ylabel)}</text>']
     if bars:
@@ -150,7 +173,8 @@ def chart(title, ylabel, xs, series, caption, bars=False):
                       f'<text x="80" y="{y+5}" text-anchor="end" font-size="13">{maximum*tick/5:.2g}</text>'])
     for index, value in enumerate(xs):
         x = left + plot_width * (index + .5) / len(xs)
-        parts.append(f'<text x="{x}" y="465" text-anchor="middle" font-size="14">{html.escape(str(value))}</text>')
+        label = localized(value, language) if isinstance(value, str) else str(value)
+        parts.append(f'<text x="{x}" y="465" text-anchor="middle" font-size="14">{html.escape(label)}</text>')
     for number, (backend, path, values) in enumerate(series):
         color = COLORS[backend]
         fill = f'url(#{backend}-basic)' if path == "basic" else color
@@ -169,14 +193,17 @@ def chart(title, ylabel, xs, series, caption, bars=False):
         if not bars:
             dash = ' stroke-dasharray="7 5"' if path == "native" else ''
             parts.append(f'<polyline points="{" ".join(points)}" fill="none" stroke="{color}" stroke-width="2.5"{dash}/>')
-        label = f"{backend} / {'Native' if path == 'native' else 'API + stats' if path == 'basic' else 'UniMemory'}"
+        label = f"{'Standard' if backend == 'standard' else backend} / {localized('Native' if path == 'native' else 'API + stats' if path == 'basic' else 'UniMemory', language)}"
         if bars:
             parts.append(f'<rect data-path="{path}" x="880" y="{110+number*34}" width="28" height="8" fill="{fill}" opacity="{opacity}"/>')
         else:
             parts.append(f'<path d="M880,{115+number*34}h28" stroke="{color}" stroke-width="3"'+ (' stroke-dasharray="7 5"' if path == 'native' else '') + '/>')
         parts.append(f'<text x="880" y="{133+number*34}" font-size="12">{label}</text>')
+    if xlabel:
+        parts.append(f'<text x="472" y="487" text-anchor="middle" font-size="13">{html.escape(localized(xlabel, language))}</text>')
+    footer = localized("Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.", language)
     parts.extend([f'<text x="92" y="505" font-size="13" fill="#475569">{html.escape(caption[:145])}</text>',
-                  '<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>', '</g></svg>'])
+                  f'<text x="92" y="528" font-size="12" fill="#64748b">{html.escape(footer)}</text>', '</g></svg>'])
     return "\n".join(parts) + "\n"
 
 
@@ -187,45 +214,61 @@ def aggregate(rows, key, metric):
     return {key: statistics.median(values) for key, values in groups.items()}
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=Path)
-    parser.add_argument("output", type=Path)
-    parser.add_argument("--label", required=True)
-    args = parser.parse_args()
-    manifest = validate(args.input)
-    args.output.mkdir(parents=True, exist_ok=True)
-    rows = read(args.input / "scaling.csv")
+def render_charts(directory, output, label, manifest, language):
+    def caption(template):
+        return localized(template, language).format(platform=label, cpus=manifest["logical_cpus"], revision=manifest["source_revision"][:12])
+
+    def write(name, title, ylabel, xs, series, description, xlabel, bars=False):
+        suffix = "" if language == "en" else ".zh-CN"
+        content = chart(title, ylabel, xs, series, caption(description), bars=bars, xlabel=xlabel, language=language)
+        write_text(output / f"{name}{suffix}.svg", content)
+
+    rows = read(directory / "scaling.csv")
     series = [(backend, path) for backend in BACKENDS for path in ("native", "disabled")]
-    caption = f"{args.label} · {manifest['logical_cpus']} logical CPUs · {manifest['source_revision'][:12]} · 64 B cross-thread workload"
+    scaling_caption = "{platform} · {cpus} logical CPUs · {revision} · 64 B cross-thread workload"
     filtered = [row for row in rows if row["workload"] == "handoff" and int(row["bytes"]) == 64]
     for file, metric, title, ylabel, factor in (
         ("throughput", "operations_per_second", "Cross-thread throughput", "Million allocation/free pairs per second · higher is better", 1e6),
         ("memory", "peak_rss", "Peak resident memory", "MiB · lower is better", 1024**2),
     ):
         values = aggregate(filtered, lambda row: (row["backend"], row["path"], int(row["threads"])), metric)
-        content = chart(title, ylabel, THREADS, [(backend, path, [values[backend, path, threads]/factor for threads in THREADS]) for backend, path in series], caption)
-        (args.output / f"{file}.svg").write_text(content, encoding="utf-8")
-    tail_values = aggregate(read(args.input / "tails.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "allocate_p99_ns")
+        write(file, title, ylabel, THREADS, [(backend, path, [values[backend, path, threads]/factor for threads in THREADS]) for backend, path in series], scaling_caption, "Threads")
+    tail_values = aggregate(read(directory / "tails.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "allocate_p99_ns")
     sizes = (16, 64, 256, 4096, 65536)
-    (args.output / "latency.svg").write_text(chart("Individual allocation p99", "Nanoseconds · includes measured clock overhead · lower is better", sizes,
+    write("latency", "Individual allocation p99", "Nanoseconds · includes measured clock overhead · lower is better", sizes,
         [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend, path in series],
-        f"{args.label} · {manifest['source_revision'][:12]} · individual operation samples, not batch averages", bars=True), encoding="utf-8")
-    (args.output / "statistics.svg").write_text(chart("Statistics cost · allocation p99", "Nanoseconds · lower is better", sizes,
+        "{platform} · {revision} · individual operation samples, not batch averages", "Request size (B)", bars=True)
+    write("statistics", "Statistics cost · allocation p99", "Nanoseconds · lower is better", sizes,
         [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend in BACKENDS for path in PATHS],
-        f"{args.label} · {manifest['source_revision'][:12]} · Native, API, and API + statistics", bars=True), encoding="utf-8")
+        "{platform} · {revision} · Native, API, and API + statistics", "Request size (B)", bars=True)
     phases = ("dense", "sparse", "churn_dense", "churn_sparse", "freed")
-    memory = aggregate(read(args.input / "pressure.csv"), lambda row: (row["backend"], row["path"], row["phase"]), "rss")
-    (args.output / "retention.svg").write_text(chart("Mixed-lifetime memory retention", "Resident MiB · not a fragmentation or leak rate", phases,
+    memory = aggregate(read(directory / "pressure.csv"), lambda row: (row["backend"], row["path"], row["phase"]), "rss")
+    write("retention", "Mixed-lifetime memory retention", "Resident MiB · not a fragmentation or leak rate", phases,
         [(backend, path, [memory[backend, path, phase]/1024**2 for phase in phases]) for backend, path in series],
-        f"{args.label} · 16,384 slots; eight refill/free cycles; final phase has zero live requests"), encoding="utf-8")
+        "{platform} · {revision} · 16,384 slots; eight refill/free cycles; final phase has zero live requests", "Memory phase")
     workloads = tuple(item[0] for item in API_SCENARIOS)
-    sweep = [row for row in read(args.input / "full.csv") if (row["workload"], row["bytes"], row["alignment"]) in API_SCENARIOS and row["threads"] == "1" and
+    sweep = [row for row in read(directory / "full.csv") if (row["workload"], row["bytes"], row["alignment"]) in API_SCENARIOS and row["threads"] == "1" and
              row["statistics"] == "disabled" and row["heap"] == "no"]
     workload_values = aggregate(sweep, lambda row: (row["backend"], row["workload"]), "median_ns_per_operation")
-    (args.output / "workloads.svg").write_text(chart("API workloads · normalized time", "Relative to UniMemory Standard = 1 · lower is better", workloads,
+    write("workloads", "API workloads · normalized time", "Relative to UniMemory Standard = 1 · lower is better", workloads,
         [(backend, "disabled", [workload_values[backend, workload]/workload_values["standard", workload] for workload in workloads]) for backend in BACKENDS],
-        f"{args.label} · API only, statistics disabled · workload operations differ; compare within each group", bars=True), encoding="utf-8")
+        "{platform} · {revision} · API only, statistics disabled · workload operations differ; compare within each group", "Workload", bars=True)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", type=Path)
+    parser.add_argument("output", type=Path)
+    parser.add_argument("--label", required=True)
+    parser.add_argument("--charts-only", action="store_true", help="Regenerate charts from existing data without rewriting analysis or baseline signals")
+    args = parser.parse_args()
+    manifest = validate(args.input)
+    args.output.mkdir(parents=True, exist_ok=True)
+    for language in LANGUAGES:
+        render_charts(args.input, args.output, args.label, manifest, language)
+    if args.charts_only:
+        return
+    sizes = (16, 64, 256, 4096, 65536)
     latency = aggregate(read(args.input / "latency.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "median_ns")
     analysis = [f"# Performance · {args.label}\n", f"Source: `{manifest['source_revision']}` · [remote run]({manifest['run_url']})\n",
                 "Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.\n",
@@ -253,12 +296,12 @@ def main():
             analysis.append("\nBaseline comparison withheld: recorded hardware, compiler or measurement protocol differs.\n")
     else:
         analysis.append("\nFirst recorded baseline; no regression comparison is available yet.\n")
-    (args.output / "README.md").write_text("\n".join(analysis).rstrip() + "\n", encoding="utf-8")
+    write_text(args.output / "README.md", "\n".join(analysis).rstrip() + "\n")
     summary = {"source_revision": manifest["source_revision"], "run_url": manifest["run_url"],
                "scope": args.label, "logical_cpus": manifest["logical_cpus"],
                "oversubscribed_threads": [threads for threads in THREADS if threads > manifest["logical_cpus"]],
                "performance_gate": manifest["performance_gate"], "tail_method": manifest["tail_method"]}
-    (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    write_text(args.output / "summary.json", json.dumps(summary, indent=2) + "\n")
 
 
 if __name__ == "__main__":

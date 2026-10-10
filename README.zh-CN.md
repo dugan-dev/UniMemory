@@ -288,11 +288,19 @@ Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越�
 | 分配、扩容、释放，4 → 8 KiB | 168.5 | 139.8 | 149.4 |
 | 单线程分配，8 个线程释放 | 105.4 | 59.8 | 166.6 |
 
-![Cross-thread throughput](docs/images/performance/linux-x64/throughput.svg)
+![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-![Peak resident memory](docs/images/performance/linux-x64/memory.svg)
+图中 Standard = 1，条形越短越快。
 
-当前图表展示吞吐量（越高越好）与峰值驻留内存（越低越好）。[完整测量报告](docs/performance.zh-CN.md)
+### 当前对比
+
+原生接口与 UniMemory 封装：吞吐量越高越好，峰值内存越低越好。
+
+![跨线程吞吐量](docs/images/performance/linux-x64/throughput.zh-CN.svg)
+
+![峰值驻留内存](docs/images/performance/linux-x64/memory.zh-CN.svg)
+
+[完整性能报告](docs/performance.zh-CN.md)：直接查看三平台的延迟、统计开销、内存保留和常用操作对比。
 
 ## 构建与安装
 

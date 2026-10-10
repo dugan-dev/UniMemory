@@ -17,7 +17,8 @@ class PublicationTests(unittest.TestCase):
         self.pr = {"state": "open", "changed_files": 2, "user": {"login": "github-actions[bot]"},
                    "head": {"ref": self.branch, "sha": self.head, "repo": {"full_name": self.repository}},
                    "base": {"ref": "dev", "sha": self.base, "repo": {"full_name": self.repository}}}
-        self.files = [{"filename": "docs/images/performance/linux-x64/throughput.svg"}, {"filename": "README.md"}]
+        self.files = [{"filename": "docs/images/performance/linux-x64/throughput.svg"},
+                      {"filename": "docs/results/current/linux-x64/environment.json"}]
 
     def validate(self, pr=None, files=None):
         publisher.validate_results_pr(pr or self.pr, self.files if files is None else files,
@@ -37,7 +38,9 @@ class PublicationTests(unittest.TestCase):
                     self.validate(pr=pr)
 
     def test_code_changes_and_empty_scope_rejected(self):
-        for files in ([], self.files + [{"filename": "src/memory.cpp"}], [{"filename": "README.md.secret"}]):
+        for files in ([], self.files[:1] + [{"filename": "src/memory.cpp"}],
+                      self.files[:1] + [{"filename": "README.md"}],
+                      self.files[:1] + [{"filename": "README.zh-CN.md"}]):
             with self.subTest(files=files), self.assertRaises(RuntimeError):
                 self.validate(files=files)
 

@@ -4,7 +4,6 @@ import importlib.util
 import json
 import os
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import time
@@ -12,6 +11,7 @@ import time
 WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
 REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
                    "diagnostics acceptance", "performance acceptance"}
+GENERATED_PATHS = ("docs/images/performance/", "docs/results/current/")
 
 
 def validate_results_pr(pr, files, repository, branch, base, revision, head):
@@ -20,8 +20,7 @@ def validate_results_pr(pr, files, repository, branch, base, revision, head):
             pr["head"]["ref"] != branch or pr["head"]["sha"] != head or
             pr["base"]["ref"] != base or pr["base"]["sha"] != revision):
         raise RuntimeError("Results PR identity or source revision changed")
-    if len(files) != pr["changed_files"] or not files or any(item["filename"] not in ("README.md", "README.zh-CN.md") and
-                        not item["filename"].startswith(("docs/images/performance/", "docs/results/current/"))
+    if len(files) != pr["changed_files"] or not files or any(not item["filename"].startswith(GENERATED_PATHS)
                         for item in files):
         raise RuntimeError("Results PR contains changes outside generated paths")
 
@@ -79,14 +78,7 @@ def main():
         destination.mkdir(parents=True, exist_ok=True)
         for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv", "sweep-environment.json"):
             shutil.copyfile(data / name, destination / name)
-    for name in ("README.md", "README.zh-CN.md"):
-        path = root / name
-        text = path.read_text(encoding="utf-8")
-        old = re.compile(r'!\[[^\]]*\]\(' + re.escape('docs/images/workload-comparison.png') + r'\)')
-        images = '![Cross-thread throughput](docs/images/performance/linux-x64/throughput.svg)\n\n![Peak resident memory](docs/images/performance/linux-x64/memory.svg)'
-        if old.search(text):
-            path.write_text(old.sub(lambda match: images, text), encoding="utf-8")
-    allowed = ("docs/images/performance/", "docs/results/current/", "README.md", "README.zh-CN.md")
+    allowed = GENERATED_PATHS
     changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
     if any(line and not line[3:].startswith(allowed) for line in changed):
         raise RuntimeError("Publication attempted changes outside generated paths")

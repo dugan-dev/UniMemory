@@ -288,11 +288,19 @@ Windows x64 · MSVC 19.44 · statistics off · 2026-09-28. **ns/operation; lower
 | Allocate, resize and free, 4 → 8 KiB | 168.5 | 139.8 | 149.4 |
 | Allocate on one thread, free on eight | 105.4 | 59.8 | 166.6 |
 
+![Windows and Linux workload comparison](docs/images/workload-comparison.png)
+
+Standard = 1 in the chart; shorter bars are faster.
+
+### Current comparisons
+
+Native allocation versus UniMemory: higher throughput and lower peak memory are better.
+
 ![Cross-thread throughput](docs/images/performance/linux-x64/throughput.svg)
 
 ![Peak resident memory](docs/images/performance/linux-x64/memory.svg)
 
-Current charts show throughput (higher is better) and peak resident memory (lower is better). [Full measurement report](docs/performance.md)
+[Full performance report](docs/performance.md): view three-platform latency, statistics cost, memory retention and common operations directly.
 
 ## Build and Install
 

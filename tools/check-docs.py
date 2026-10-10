@@ -126,7 +126,8 @@ def main():
     sources = [path for path in paths if path.suffix in suffixes or path.name == "CMakeLists.txt"]
     for path in sources:
         content = path.read_text(encoding="utf-8")
-        if re.search(r"[\u3400-\u9fff]", content):
+        translation = path.relative_to(root).as_posix() == "tools/ci/locales/zh-CN.json"
+        if not translation and re.search(r"[\u3400-\u9fff]", content):
             errors.append(f"{path.relative_to(root)}: non-English source/configuration text")
         if path.suffix == ".py":
             try:

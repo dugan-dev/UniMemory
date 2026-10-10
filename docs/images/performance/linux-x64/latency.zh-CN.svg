@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en" viewBox="0 0 1100 560" role="img">
-<title>Individual allocation p99</title>
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>单次分配 P99 延迟</title>
 <rect width="1100" height="560" fill="#ffffff"/>
 <g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
-<text x="92" y="40" font-size="25" font-weight="650">Individual allocation p99</text>
-<text x="92" y="66" font-size="14" fill="#475569">Nanoseconds · includes measured clock overhead · lower is better</text>
+<text x="92" y="40" font-size="25" font-weight="650">单次分配 P99 延迟</text>
+<text x="92" y="66" font-size="14" fill="#475569">延迟（纳秒）· 包含时钟开销 · 越低越好</text>
 <defs>
 <pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
 <pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
@@ -32,43 +32,43 @@
 <rect data-path="native" x="568.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
 <rect data-path="native" x="720.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
 <rect data-path="native" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.45"/>
-<text x="880" y="133" font-size="12">Standard / Native</text>
+<text x="880" y="133" font-size="12">Standard / 原生接口</text>
 <rect data-path="disabled" x="131.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="283.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="435.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="587.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="739.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#64748b" opacity="0.9"/>
-<text x="880" y="167" font-size="12">Standard / UniMemory</text>
+<text x="880" y="167" font-size="12">Standard / UniMemory 封装</text>
 <rect data-path="native" x="150.52" y="399.77027027027026" width="15.959999999999999" height="42.22972972972974" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="302.52" y="391.3243243243243" width="15.959999999999999" height="50.67567567567568" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="454.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="606.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="758.52" y="382.8783783783784" width="15.959999999999999" height="59.121621621621614" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="880" y="178" width="28" height="8" fill="#0284c7" opacity="0.45"/>
-<text x="880" y="201" font-size="12">mimalloc / Native</text>
+<text x="880" y="201" font-size="12">mimalloc / 原生接口</text>
 <rect data-path="disabled" x="169.52" y="399.77027027027026" width="15.959999999999999" height="42.22972972972974" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="321.52" y="365.9864864864865" width="15.959999999999999" height="76.01351351351349" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="473.52" y="373.5878378378378" width="15.959999999999999" height="68.41216216216219" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="625.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="777.52" y="365.9864864864865" width="15.959999999999999" height="76.01351351351349" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="212" width="28" height="8" fill="#0284c7" opacity="0.9"/>
-<text x="880" y="235" font-size="12">mimalloc / UniMemory</text>
+<text x="880" y="235" font-size="12">mimalloc / UniMemory 封装</text>
 <rect data-path="native" x="188.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="340.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="492.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="644.52" y="391.3243243243243" width="15.959999999999999" height="50.67567567567568" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="796.52" y="129.50000000000003" width="15.959999999999999" height="312.5" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="880" y="246" width="28" height="8" fill="#d97706" opacity="0.45"/>
-<text x="880" y="269" font-size="12">jemalloc / Native</text>
+<text x="880" y="269" font-size="12">jemalloc / 原生接口</text>
 <rect data-path="disabled" x="207.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="359.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="511.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="663.52" y="382.8783783783784" width="15.959999999999999" height="59.121621621621614" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="815.52" y="238.45270270270274" width="15.959999999999999" height="203.54729729729726" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="280" width="28" height="8" fill="#d97706" opacity="0.9"/>
-<text x="880" y="303" font-size="12">jemalloc / UniMemory</text>
-<text x="472" y="487" text-anchor="middle" font-size="13">Request size (B)</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64 · ca4919fe8a5c · individual operation samples, not batch averages</text>
-<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+<text x="880" y="303" font-size="12">jemalloc / UniMemory 封装</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">分配大小（字节）</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64 · ca4919fe8a5c · 逐操作采样，不是批量平均值</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

@@ -146,9 +146,53 @@ class ReportTests(unittest.TestCase):
                     self.assertTrue(content.endswith(b"\n"), path.name)
                     self.assertFalse(content.endswith(b"\n\n"), path.name)
                     self.assertNotIn(b"\r", content, path.name)
-                self.assertEqual(len(list(output.glob("*.svg"))), 6)
+                self.assertEqual(len(list(output.glob("*.svg"))), 12)
                 for path in output.glob("*.svg"):
                     ET.parse(path)
+                for name in report.CHARTS:
+                    english = ET.parse(output / f"{name}.svg").getroot()
+                    chinese = ET.parse(output / f"{name}.zh-CN.svg").getroot()
+                    self.assertEqual(chinese.get("{http://www.w3.org/XML/1998/namespace}lang"), "zh-CN")
+                    shapes = {"path", "polyline", "circle", "rect"}
+                    geometry = lambda tree: [(node.tag, node.attrib) for node in tree.iter()
+                                             if node.tag.rsplit("}", 1)[-1] in shapes]
+                    self.assertEqual(geometry(english), geometry(chinese), name)
+
+    def test_chinese_chart_has_localized_title_axes_and_legend(self):
+        title = "Cross-thread throughput"
+        content = report.chart(title, "Million allocation/free pairs per second · higher is better",
+                               [1, 2], [("standard", "native", [1, 2])], "source", xlabel="Threads", language="zh-CN")
+        tree = ET.fromstring(content)
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        self.assertEqual(tree.find("svg:title", namespace).text, report.localized(title, "zh-CN"))
+        text = " ".join(node.text or "" for node in tree.findall(".//svg:text", namespace))
+        self.assertIn(report.localized("Threads", "zh-CN"), text)
+        self.assertIn(report.localized("Native", "zh-CN"), text)
+        self.assertNotIn("higher is better", text)
+
+    def test_charts_only_preserves_existing_analysis_and_summary(self):
+        manifest = json.loads((self.directory / "environment.json").read_text())
+        manifest["logical_cpus"] = 4
+        (self.directory / "environment.json").write_text(json.dumps(manifest))
+        output = self.directory / "charts"
+        output.mkdir()
+        existing = {"README.md": b"Existing baseline signals.\n", "summary.json": b'{"source":"original"}\n'}
+        for name, content in existing.items():
+            (output / name).write_bytes(content)
+        with mock.patch("sys.argv", ["report", str(self.directory), str(output), "--label", "test", "--charts-only"]):
+            report.main()
+        for name, content in existing.items():
+            self.assertEqual((output / name).read_bytes(), content)
+        self.assertEqual(len(list(output.glob("*.svg"))), 12)
+
+    def test_report_pages_embed_all_platform_dimensions(self):
+        for language, suffix in (("en", ""), ("zh-CN", ".zh-CN")):
+            path = ROOT / "docs" / f"performance{suffix}.md"
+            content = path.read_text(encoding="utf-8")
+            for platform, chart in itertools.product(("linux-x64", "windows-x64", "macos-arm64"), report.CHARTS):
+                self.assertRegex(content, r'!\[[^\]]+\]\(images/performance/' + platform + '/' + chart + suffix + r'\.svg\)')
+        for name in ("README.md", "README.zh-CN.md"):
+            self.assertIn("docs/images/workload-comparison.png", (ROOT / name).read_text(encoding="utf-8"))
 
     def test_statistics_columns_have_distinct_styles_and_matching_legend(self):
         document = report.chart("Statistics", "ns", [64],
