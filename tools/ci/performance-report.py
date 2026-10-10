@@ -17,6 +17,32 @@ API_SCENARIOS = (("raw", "64", "16"), ("zeroed", "64", "16"), ("reallocate", "64
                  ("object", "64", "1"), ("shared_object", "64", "1"), ("std_vector", "256", "8"))
 
 
+def sweep_scenarios():
+    """Pinned full-sweep contract, independent of measurements and their manifest."""
+    expected = set()
+    for backend in BACKENDS:
+        heaps = ("no",) if backend == "standard" else ("no", "yes")
+        for heap, tracking in itertools.product(heaps, ("disabled", "basic")):
+            for workload, size, alignment in itertools.product(
+                    ("raw", "zeroed", "reallocate", "reallocate_zeroed", "batch", "mixed_lifetime", "owned_block"),
+                    (64,256,4096,65536), (16,64,256)):
+                expected.add((backend, workload, str(size), str(alignment), "1", tracking, heap))
+            for workload, size in itertools.product(("typed_raw", "array"), (64,256,4096,65536)):
+                expected.add((backend, workload, str(size), "1", "1", tracking, heap))
+            for workload in ("create_destroy", "object", "shared_object"):
+                expected.add((backend, workload, "64", "1", "1", tracking, heap))
+            for workload in ("std_vector", "pmr_vector"):
+                expected.add((backend, workload, "256", "8", "1", tracking, heap))
+        for heap, threads in itertools.product(heaps, (2,4,8)):
+            expected.add((backend, "cross_thread", "64", "16", str(threads), "disabled", heap))
+        if backend != "standard":
+            for heap in heaps:
+                expected.add((backend, "detailed_statistics", "0", "0", "1", "disabled", heap))
+    for size, alignment in itertools.product((64,256,4096,65536), (16,64,256)):
+        expected.add(("fixed_buffer", "stack_mark_rewind", str(size), str(alignment), "1", "disabled", "no"))
+    return expected
+
+
 def read(path):
     with path.open(newline="", encoding="utf-8") as file:
         return list(csv.DictReader(file))
@@ -76,7 +102,7 @@ def validate(directory):
         if trial not in trials or not math.isfinite(float(row["median_ns_per_operation"])) or float(row["median_ns_per_operation"]) <= 0:
             raise ValueError("Invalid full-sweep measurement")
         trials[trial].append(tuple(row[field] for field in scenario_fields))
-    expected = set(trials[1])
+    expected = sweep_scenarios()
     for keys in trials.values():
         if len(keys) != len(expected) or set(keys) != expected or len(keys) != sweep_manifest["scenarios_per_trial"]:
             raise ValueError("Incomplete full sweep")

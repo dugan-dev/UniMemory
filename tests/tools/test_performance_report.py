@@ -45,10 +45,10 @@ class ReportTests(unittest.TestCase):
         for name, rows in (("latency", latency), ("pressure", pressure), ("footprint", footprint), ("heap", heap)):
             measurement.write_rows(self.directory / f"{name}.csv", rows)
         full = [{"trial": t, "backend": b, "workload": w, "bytes": size, "alignment": alignment,
-                 "threads": 1, "statistics": "disabled", "heap": "no", "median_ns_per_operation": 1}
-                for t,b,(w,size,alignment) in itertools.product(range(1,4), report.BACKENDS, report.API_SCENARIOS)]
+                 "threads": threads, "statistics": tracking, "heap": heap, "median_ns_per_operation": 1}
+                for t in range(1,4) for b,w,size,alignment,threads,tracking,heap in report.sweep_scenarios()]
         measurement.write_rows(self.directory / "full.csv", full)
-        (self.directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": 18}))
+        (self.directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": 1001}))
 
     def test_complete_matrix(self):
         self.assertEqual(report.validate(self.directory)["trials"], 3)
@@ -99,6 +99,14 @@ class ReportTests(unittest.TestCase):
     def test_missing_full_sweep_workload_rejected(self):
         rows = report.read(self.directory / "full.csv")
         measurement.write_rows(self.directory / "full.csv", rows[:-1])
+        with self.assertRaisesRegex(ValueError, "full sweep"):
+            report.validate(self.directory)
+
+    def test_same_missing_scenario_all_trials_cannot_self_certify(self):
+        rows = report.read(self.directory / "full.csv")
+        rows = [row for row in rows if row["workload"] != "stack_mark_rewind"]
+        measurement.write_rows(self.directory / "full.csv", rows)
+        (self.directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": 989}))
         with self.assertRaisesRegex(ValueError, "full sweep"):
             report.validate(self.directory)
 

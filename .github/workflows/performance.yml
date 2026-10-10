@@ -45,6 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: python3 -m unittest discover -s tests/tools -v
+      - run: python3 tools/ci/validate-published.py
   measure:
     needs: [changes, report-tests]
     if: needs.changes.outputs.measure == 'true'
