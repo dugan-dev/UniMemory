@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" role="img">
+<title>Peak resident memory</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">Peak resident memory</text>
+<text x="92" y="66" font-size="14" fill="#475569">MiB · lower is better</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">1.6</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">3.2</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">4.8</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">6.4</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">8.1</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">1</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">2</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
+<circle cx="168.0" cy="254.16032608695656" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="253.82065217391306" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="247.36684782608697" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="226.47690217391306" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="207.79483695652175" r="3.5" fill="#64748b"/>
+<polyline points="168.0,254.16032608695656 320.0,253.82065217391306 472.0,247.36684782608697 624.0,226.47690217391306 776.0,207.79483695652175" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">standard / Native</text>
+<circle cx="168.0" cy="254.66983695652175" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="252.46195652173913" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="245.49864130434784" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="229.8736413043478" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="204.0584239130435" r="3.5" fill="#64748b"/>
+<polyline points="168.0,254.66983695652175 320.0,252.46195652173913 472.0,245.49864130434784 624.0,229.8736413043478 776.0,204.0584239130435" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
+<text x="880" y="167" font-size="12">standard / UniMemory</text>
+<circle cx="168.0" cy="248.21603260869568" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="245.49864130434784" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="241.4225543478261" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="230.72282608695656" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="205.24728260869568" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,248.21603260869568 320.0,245.49864130434784 472.0,241.4225543478261 624.0,230.72282608695656 776.0,205.24728260869568" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,183h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="201" font-size="12">mimalloc / Native</text>
+<circle cx="168.0" cy="248.21603260869568" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="245.49864130434784" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="240.5733695652174" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="230.04347826086956" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="206.26630434782612" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,248.21603260869568 320.0,245.49864130434784 472.0,240.5733695652174 624.0,230.04347826086956 776.0,206.26630434782612" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<path d="M880,217h28" stroke="#0284c7" stroke-width="3"/>
+<text x="880" y="235" font-size="12">mimalloc / UniMemory</text>
+<circle cx="168.0" cy="235.13858695652175" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="230.2133152173913" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="217.30570652173915" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="190.30163043478265" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="139.18070652173915" r="3.5" fill="#d97706"/>
+<polyline points="168.0,235.13858695652175 320.0,230.2133152173913 472.0,217.30570652173915 624.0,190.30163043478265 776.0,139.18070652173915" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,251h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="269" font-size="12">jemalloc / Native</text>
+<circle cx="168.0" cy="225.45788043478262" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="220.19293478260872" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="206.60597826086956" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="180.28125" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#d97706"/>
+<polyline points="168.0,225.45788043478262 320.0,220.19293478260872 472.0,206.60597826086956 624.0,180.28125 776.0,129.50000000000003" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<path d="M880,285h28" stroke="#d97706" stroke-width="3"/>
+<text x="880" y="303" font-size="12">jemalloc / UniMemory</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64 · 4 logical CPUs · 6738c7779f30 · 64 B cross-thread workload</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

@@ -1,0 +1,82 @@
+{
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "trials": 3,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 4,
+  "executable_sha256": "458e67670dd5d708d42d7be0a2729dc7dbfc23c0794095fef2466a0799fb4fbe",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "standard_new_provider": "libstdc++.so.6",
+    "resident_measurement": "smaps_rollup Rss",
+    "mimalloc_version": 30403,
+    "mimalloc_redirected": false,
+    "jemalloc_header_version": "5.3.1-0-g81034ce1f1373e37dc865038e1bc8eeecf559ce8"
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-10T04:52:46.630461+00:00",
+  "benchmark_source_sha256": "d96a8e10dfedefe56ef7ca16c29e63c49a7dcebaf6eaeef1a51f350a2627c821",
+  "source_hash_line_endings": "LF",
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "schema": 1,
+  "source_revision": "6738c7779f3042aaf7e300e55acafdf578946cb0",
+  "run_id": "38025334938",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38025334938",
+  "architecture": "x86_64",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "GNU",
+    "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
+  },
+  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "measurement_protocol": "native-api-scaling-tails-v2",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "standard",
+    "mimalloc",
+    "jemalloc"
+  ],
+  "paths": [
+    "native",
+    "disabled",
+    "basic"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
+  "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
+  "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
+  "benchmark_sha256": "d96a8e10dfedefe56ef7ca16c29e63c49a7dcebaf6eaeef1a51f350a2627c821"
+}

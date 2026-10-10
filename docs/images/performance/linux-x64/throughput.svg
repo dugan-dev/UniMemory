@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" role="img">
+<title>Cross-thread throughput</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">Cross-thread throughput</text>
+<text x="92" y="66" font-size="14" fill="#475569">Million allocation/free pairs per second · higher is better</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">7.1</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">14</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">21</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">28</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">35</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">1</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">2</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
+<circle cx="168.0" cy="201.34933210005988" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="221.99748963385082" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="141.896417699586" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="152.55359512941456" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="148.2614233538492" r="3.5" fill="#64748b"/>
+<polyline points="168.0,201.34933210005988 320.0,221.99748963385082 472.0,141.896417699586 624.0,152.55359512941456 776.0,148.2614233538492" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">standard / Native</text>
+<circle cx="168.0" cy="212.01541855802037" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="238.0980832522942" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="239.22161068893317" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="213.88928414177155" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="224.64149120500747" r="3.5" fill="#64748b"/>
+<polyline points="168.0,212.01541855802037 320.0,238.0980832522942 472.0,239.22161068893317 624.0,213.88928414177155 776.0,224.64149120500747" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
+<text x="880" y="167" font-size="12">standard / UniMemory</text>
+<circle cx="168.0" cy="225.5343738022307" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="129.50000000000006" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="284.25872767991484" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="249.89759606704024" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="193.6855881225629" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,225.5343738022307 320.0,129.50000000000006 472.0,284.25872767991484 624.0,249.89759606704024 776.0,193.6855881225629" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,183h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="201" font-size="12">mimalloc / Native</text>
+<circle cx="168.0" cy="165.01237602592408" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="196.5354872327688" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="161.74177280948777" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="198.51032180201528" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="219.6078903104618" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,165.01237602592408 320.0,196.5354872327688 472.0,161.74177280948777 624.0,198.51032180201528 776.0,219.6078903104618" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<path d="M880,217h28" stroke="#0284c7" stroke-width="3"/>
+<text x="880" y="235" font-size="12">mimalloc / UniMemory</text>
+<circle cx="168.0" cy="256.39821692731186" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="182.39092023529338" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="238.7999166906881" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="180.89618329315695" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="212.13123592373557" r="3.5" fill="#d97706"/>
+<polyline points="168.0,256.39821692731186 320.0,182.39092023529338 472.0,238.7999166906881 624.0,180.89618329315695 776.0,212.13123592373557" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,251h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="269" font-size="12">jemalloc / Native</text>
+<circle cx="168.0" cy="281.66422070949125" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="261.48131242259046" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="227.51316793953583" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="300.0247377974032" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="276.83354767795095" r="3.5" fill="#d97706"/>
+<polyline points="168.0,281.66422070949125 320.0,261.48131242259046 472.0,227.51316793953583 624.0,300.0247377974032 776.0,276.83354767795095" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<path d="M880,285h28" stroke="#d97706" stroke-width="3"/>
+<text x="880" y="303" font-size="12">jemalloc / UniMemory</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64 · 4 logical CPUs · 6738c7779f30 · 64 B cross-thread workload</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

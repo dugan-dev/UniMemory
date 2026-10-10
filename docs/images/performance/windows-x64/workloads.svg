@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 560" role="img">
+<title>API workloads · normalized time</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">API workloads · normalized time</text>
+<text x="92" y="66" font-size="14" fill="#475569">Relative to UniMemory Standard = 1 · lower is better</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">0.25</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">0.49</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">0.74</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">0.98</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">1.2</text>
+<text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">raw</text>
+<text x="282.0" y="465" text-anchor="middle" font-size="14">zeroed</text>
+<text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">reallocate</text>
+<text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
+<text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
+<text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
+<rect data-path="disabled" x="119.36" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="246.0266666666667" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="372.6933333333334" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="499.35999999999996" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="626.0266666666666" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="752.6933333333333" y="156.74629574908187" width="21.28" height="285.25370425091813" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
+<text x="880" y="133" font-size="12">standard / UniMemory</text>
+<rect data-path="disabled" x="144.69333333333333" y="370.0007004784109" width="21.28" height="71.99929952158908" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="271.36" y="244.3879310688295" width="21.28" height="197.6120689311705" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="398.0266666666667" y="354.78494237831904" width="21.28" height="87.21505762168096" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="524.6933333333333" y="368.62709442009105" width="21.28" height="73.37290557990895" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="651.36" y="356.3109572867748" width="21.28" height="85.6890427132252" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="778.0266666666666" y="341.68987194245085" width="21.28" height="100.31012805754915" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#0284c7" opacity="0.9"/>
+<text x="880" y="167" font-size="12">mimalloc / UniMemory</text>
+<rect data-path="disabled" x="170.0266666666667" y="200.15124428804597" width="21.28" height="241.84875571195403" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="296.6933333333333" y="222.49284925217458" width="21.28" height="219.50715074782542" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="423.36" y="129.50000000000003" width="21.28" height="312.5" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="550.0266666666666" y="217.51514630472917" width="21.28" height="224.48485369527083" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="676.6933333333334" y="202.63574900050688" width="21.28" height="239.36425099949312" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="803.36" y="195.58711061088565" width="21.28" height="246.41288938911435" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="178" width="28" height="8" fill="#d97706" opacity="0.9"/>
+<text x="880" y="201" font-size="12">jemalloc / UniMemory</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64 · API only, statistics disabled · workload operations differ; compare within each group</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>
