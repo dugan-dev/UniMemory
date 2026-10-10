@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import time
@@ -46,10 +47,10 @@ def main():
     for name in ("README.md", "README.zh-CN.md"):
         path = root / name
         text = path.read_text(encoding="utf-8")
-        old = '![Windows and Linux workload comparison](docs/images/workload-comparison.png)' if name == 'README.md' else '![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)'
+        old = re.compile(r'!\[[^\]]*\]\(' + re.escape('docs/images/workload-comparison.png') + r'\)')
         images = '![Cross-thread throughput](docs/images/performance/linux-x64/throughput.svg)\n\n![Peak resident memory](docs/images/performance/linux-x64/memory.svg)'
-        if old in text:
-            path.write_text(text.replace(old, images), encoding="utf-8")
+        if old.search(text):
+            path.write_text(old.sub(lambda match: images, text), encoding="utf-8")
     allowed = ("docs/images/performance/", "docs/results/current/", "README.md", "README.zh-CN.md")
     changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
     if any(line and not line[3:].startswith(allowed) for line in changed):
