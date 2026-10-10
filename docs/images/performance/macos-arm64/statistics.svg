@@ -12,83 +12,83 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">37</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">56</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">75</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">1.1e+02</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">1.1e+02</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">1.7e+02</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">1.5e+02</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">2.2e+02</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">1.9e+02</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">2.8e+02</text>
 <text x="168.0" y="465" text-anchor="middle" font-size="14">16</text>
 <text x="320.0" y="465" text-anchor="middle" font-size="14">64</text>
 <text x="472.0" y="465" text-anchor="middle" font-size="14">256</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">4096</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">65536</text>
-<rect data-path="native" x="106.92363636363636" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#64748b" opacity="0.45"/>
-<rect data-path="native" x="258.9236363636364" y="286.68562874251495" width="11.607272727272727" height="155.31437125748505" fill="#64748b" opacity="0.45"/>
-<rect data-path="native" x="410.9236363636364" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#64748b" opacity="0.45"/>
-<rect data-path="native" x="562.9236363636364" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#64748b" opacity="0.45"/>
-<rect data-path="native" x="714.9236363636364" y="208.09281437125753" width="11.607272727272727" height="233.90718562874247" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="106.92363636363636" y="389.5" width="11.607272727272727" height="52.5" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="258.9236363636364" y="389.5" width="11.607272727272727" height="52.5" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="410.9236363636364" y="337.0" width="11.607272727272727" height="105.0" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="562.9236363636364" y="285.75" width="11.607272727272727" height="156.25" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="714.9236363636364" y="233.25" width="11.607272727272727" height="208.75" fill="#64748b" opacity="0.45"/>
 <rect data-path="native" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.45"/>
 <text x="880" y="133" font-size="12">standard / Native</text>
-<rect data-path="disabled" x="120.74181818181819" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="272.7418181818182" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="424.7418181818182" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="576.7418181818182" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="728.7418181818182" y="129.50000000000003" width="11.607272727272727" height="312.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="120.74181818181819" y="389.5" width="11.607272727272727" height="52.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="272.7418181818182" y="337.0" width="11.607272727272727" height="105.0" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="424.7418181818182" y="389.5" width="11.607272727272727" height="52.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="576.7418181818182" y="285.75" width="11.607272727272727" height="156.25" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="728.7418181818182" y="129.5" width="11.607272727272727" height="312.5" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#64748b" opacity="0.9"/>
 <text x="880" y="167" font-size="12">standard / UniMemory</text>
-<rect data-path="basic" x="134.56" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="url(#standard-basic)" opacity="0.9"/>
-<rect data-path="basic" x="286.56" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="url(#standard-basic)" opacity="0.9"/>
-<rect data-path="basic" x="438.56" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="url(#standard-basic)" opacity="0.9"/>
-<rect data-path="basic" x="590.5600000000001" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="url(#standard-basic)" opacity="0.9"/>
-<rect data-path="basic" x="742.5600000000001" y="208.09281437125753" width="11.607272727272727" height="233.90718562874247" fill="url(#standard-basic)" opacity="0.9"/>
+<rect data-path="basic" x="134.56" y="337.0" width="11.607272727272727" height="105.0" fill="url(#standard-basic)" opacity="0.9"/>
+<rect data-path="basic" x="286.56" y="337.0" width="11.607272727272727" height="105.0" fill="url(#standard-basic)" opacity="0.9"/>
+<rect data-path="basic" x="438.56" y="337.0" width="11.607272727272727" height="105.0" fill="url(#standard-basic)" opacity="0.9"/>
+<rect data-path="basic" x="590.5600000000001" y="337.0" width="11.607272727272727" height="105.0" fill="url(#standard-basic)" opacity="0.9"/>
+<rect data-path="basic" x="742.5600000000001" y="233.25" width="11.607272727272727" height="208.75" fill="url(#standard-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="178" width="28" height="8" fill="url(#standard-basic)" opacity="0.9"/>
 <text x="880" y="201" font-size="12">standard / API + stats</text>
-<rect data-path="native" x="148.37818181818182" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="300.3781818181818" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="452.3781818181818" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="604.3781818181818" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="756.3781818181818" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="148.37818181818182" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="300.3781818181818" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="452.3781818181818" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="604.3781818181818" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="756.3781818181818" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="880" y="212" width="28" height="8" fill="#0284c7" opacity="0.45"/>
 <text x="880" y="235" font-size="12">mimalloc / Native</text>
-<rect data-path="disabled" x="162.19636363636363" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="314.1963636363636" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="466.1963636363636" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="618.1963636363637" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="770.1963636363637" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="162.19636363636363" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="314.1963636363636" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="466.1963636363636" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="618.1963636363637" y="389.5" width="11.607272727272727" height="52.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="770.1963636363637" y="338.25" width="11.607272727272727" height="103.75" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="246" width="28" height="8" fill="#0284c7" opacity="0.9"/>
 <text x="880" y="269" font-size="12">mimalloc / UniMemory</text>
-<rect data-path="basic" x="176.01454545454544" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="328.01454545454544" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="480.01454545454544" y="286.68562874251495" width="11.607272727272727" height="155.31437125748505" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="632.0145454545456" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="784.0145454545456" y="286.68562874251495" width="11.607272727272727" height="155.31437125748505" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="176.01454545454544" y="389.5" width="11.607272727272727" height="52.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="328.01454545454544" y="389.5" width="11.607272727272727" height="52.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="480.01454545454544" y="338.25" width="11.607272727272727" height="103.75" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="632.0145454545456" y="389.5" width="11.607272727272727" height="52.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="784.0145454545456" y="389.5" width="11.607272727272727" height="52.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="280" width="28" height="8" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <text x="880" y="303" font-size="12">mimalloc / API + stats</text>
-<rect data-path="native" x="189.83272727272725" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#d97706" opacity="0.45"/>
-<rect data-path="native" x="341.83272727272725" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#d97706" opacity="0.45"/>
-<rect data-path="native" x="493.83272727272725" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#d97706" opacity="0.45"/>
-<rect data-path="native" x="645.8327272727273" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#d97706" opacity="0.45"/>
-<rect data-path="native" x="797.8327272727273" y="129.50000000000003" width="11.607272727272727" height="312.5" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="189.83272727272725" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="341.83272727272725" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="493.83272727272725" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="645.8327272727273" y="337.0" width="11.607272727272727" height="105.0" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="797.8327272727273" y="233.25" width="11.607272727272727" height="208.75" fill="#d97706" opacity="0.45"/>
 <rect data-path="native" x="880" y="314" width="28" height="8" fill="#d97706" opacity="0.45"/>
 <text x="880" y="337" font-size="12">jemalloc / Native</text>
-<rect data-path="disabled" x="203.65090909090907" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="355.65090909090907" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="507.6509090909091" y="286.68562874251495" width="11.607272727272727" height="155.31437125748505" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="659.6509090909092" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="811.6509090909092" y="208.09281437125753" width="11.607272727272727" height="233.90718562874247" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="203.65090909090907" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="355.65090909090907" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="507.6509090909091" y="389.5" width="11.607272727272727" height="52.5" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="659.6509090909092" y="337.0" width="11.607272727272727" height="105.0" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="811.6509090909092" y="233.25" width="11.607272727272727" height="208.75" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="348" width="28" height="8" fill="#d97706" opacity="0.9"/>
 <text x="880" y="371" font-size="12">jemalloc / UniMemory</text>
-<rect data-path="basic" x="217.4690909090909" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="369.4690909090909" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="521.4690909090909" y="363.4071856287425" width="11.607272727272727" height="78.59281437125748" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="673.4690909090909" y="284.81437125748505" width="11.607272727272727" height="157.18562874251495" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="825.4690909090909" y="208.09281437125753" width="11.607272727272727" height="233.90718562874247" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="217.4690909090909" y="337.0" width="11.607272727272727" height="105.0" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="369.4690909090909" y="338.25" width="11.607272727272727" height="103.75" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="521.4690909090909" y="337.0" width="11.607272727272727" height="105.0" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="673.4690909090909" y="337.0" width="11.607272727272727" height="105.0" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="825.4690909090909" y="233.25" width="11.607272727272727" height="208.75" fill="url(#jemalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="382" width="28" height="8" fill="url(#jemalloc-basic)" opacity="0.9"/>
 <text x="880" y="405" font-size="12">jemalloc / API + stats</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64 · 6738c7779f30 · Native, API, and API + statistics</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64 · ca4919fe8a5c · Native, API, and API + statistics</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>
