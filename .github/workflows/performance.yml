@@ -75,7 +75,7 @@ jobs:
         run: |
           flags=()
           if [ "$RUNNER_OS" = Windows ]; then flags+=(-DCMAKE_TOOLCHAIN_FILE="$PWD/build/vcpkg/scripts/buildsystems/vcpkg.cmake"); fi
-          cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON "${flags[@]}"
+          python3 tools/ci/configure.py -- cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON "${flags[@]}"
           cmake --build build/performance --config Release --parallel 4
           ctest --test-dir build/performance -C Release --parallel 4 --output-on-failure --no-tests=error
       - name: Measure matched Native and UniMemory workloads
@@ -98,7 +98,10 @@ jobs:
         if: failure()
         with:
           name: performance-failure-${{ matrix.label }}
-          path: build/performance/Testing/Temporary/LastTest.log
+          path: |
+            build/performance/Testing/Temporary/LastTest.log
+            build/configure.log
+            build/performance/vcpkg-manifest-install.log
   external:
     needs: changes
     if: needs.changes.outputs.measure == 'true'
