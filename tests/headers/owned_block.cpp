@@ -9,6 +9,8 @@ bool header_owned_block() {
     static_cast<std::byte*>(block.data())[0] = std::byte{42};
     unimem::OwnedBlock moved = std::move(block);
     moved.resize(65);
+    // OwnedBlock explicitly guarantees an empty source after a move.
+    // NOLINTNEXTLINE(bugprone-use-after-move,clang-analyzer-cplusplus.Move)
     bool valid = block.data() == nullptr && block.size() == 0 &&
                  moved.size() == 65 && moved.alignment() == 64 &&
                  reinterpret_cast<std::uintptr_t>(moved.data()) % 64 == 0 &&

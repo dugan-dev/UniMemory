@@ -450,7 +450,7 @@ UNIMEMORY_FORCE_INLINE void OwnedBlock::resize(std::size_t new_bytes) {
 }
 
 UNIMEMORY_FORCE_INLINE void OwnedBlock::clear() noexcept {
-    // compiled_owner_invariant_v1: private legal states bind every nonempty block.
+    // Private legal states bind every nonempty block to its Memory.
     if (pointer_ != nullptr) {
 #if UNIMEMORY_CHECKS
         if (memory_ == nullptr) {

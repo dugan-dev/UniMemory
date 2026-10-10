@@ -56,12 +56,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
           cmake -S . -B build/portable -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_EXAMPLES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           python3 tools/ci/toolchain-manifest.py build/portable --compiler '${{ matrix.tool.compiler }}' --arch '${{ matrix.tool.arch }}'
           cmake --build build/portable --parallel 4
           ctest --test-dir build/portable --parallel 4 --output-on-failure --no-tests=error
-          cmake --install build/portable --prefix build/installed
-          cmake -S tests/consumer -B build/consumer -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_PREFIX_PATH="$PWD/build/installed"
+          cmake --install build/portable --prefix "$workspace/build/installed"
+          cmake -S tests/consumer -B build/consumer -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_PREFIX_PATH="$workspace/build/installed"
           cmake --build build/consumer --parallel 4
           ctest --test-dir build/consumer --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4

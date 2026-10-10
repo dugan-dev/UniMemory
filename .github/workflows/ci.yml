@@ -46,14 +46,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          flags=()
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          flags=(-DCMAKE_PREFIX_PATH="$workspace/build/prefix")
           if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
-            flags+=(-DCMAKE_TOOLCHAIN_FILE="$PWD/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$PWD/cmake/triplets")
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$workspace/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$workspace/cmake/triplets")
           fi
           for configuration in Debug Release; do
             directory="build/ci-$configuration"
-            installed="$PWD/build/installed-$configuration"
-            cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE="$configuration" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_EXAMPLES=ON -DCMAKE_PREFIX_PATH="$PWD/build/prefix" "${flags[@]}"
+            installed="$workspace/build/installed-$configuration"
+            cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE="$configuration" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_EXAMPLES=ON "${flags[@]}"
             cmake --build "$directory" --config "$configuration" --parallel 4
             if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
               sdk="$PWD/$directory/vcpkg_installed/x64-windows-unimemory"
@@ -61,7 +63,7 @@ jobs:
             fi
             ctest --test-dir "$directory" -C "$configuration" --parallel 4 --output-on-failure --no-tests=error
             cmake --install "$directory" --config "$configuration" --prefix "$installed"
-            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$installed;$PWD/build/prefix;$PWD/$directory/vcpkg_installed/x64-windows-unimemory" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO
+            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$installed;$workspace/build/prefix;$workspace/$directory/vcpkg_installed/x64-windows-unimemory" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO
             cmake --build "build/consumer-$configuration" --config "$configuration" --parallel 4
             if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
               sdk="$PWD/$directory/vcpkg_installed/x64-windows-unimemory"
@@ -100,13 +102,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
           for configuration in Debug Release; do
             directory="build/checks-$configuration"
             cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE="$configuration" -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_CHECKS=${{ matrix.checks }}
             cmake --build "$directory" --config "$configuration" --parallel 4
             ctest --test-dir "$directory" -C "$configuration" --parallel 4 --output-on-failure --no-tests=error
-            cmake --install "$directory" --config "$configuration" --prefix "$PWD/build/installed-$configuration"
-            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$PWD/build/installed-$configuration" -DUNIMEMORY_CHECKS=${{ matrix.checks }}
+            cmake --install "$directory" --config "$configuration" --prefix "$workspace/build/installed-$configuration"
+            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$workspace/build/installed-$configuration" -DUNIMEMORY_CHECKS=${{ matrix.checks }}
             cmake --build "build/consumer-$configuration" --config "$configuration" --parallel 4
             ctest --test-dir "build/consumer-$configuration" -C "$configuration" --output-on-failure --no-tests=error
           done

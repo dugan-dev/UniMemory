@@ -79,11 +79,13 @@ jobs:
       - name: Compile and verify benchmark build
         shell: bash
         run: |
-          flags=()
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          flags=(-DCMAKE_PREFIX_PATH="$workspace/build/prefix")
           if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
-            flags+=(-DCMAKE_TOOLCHAIN_FILE="$PWD/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$PWD/cmake/triplets")
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$workspace/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$workspace/cmake/triplets")
           fi
-          python3 tools/ci/configure.py -- cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}"
+          python3 tools/ci/configure.py -- cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}"
           cmake --build build/performance --config Release --parallel 4
           if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then export PATH="$PWD/build/performance/vcpkg_installed/x64-windows-unimemory/bin:$PATH"; fi
           ctest --test-dir build/performance -C Release --parallel 4 --output-on-failure --no-tests=error

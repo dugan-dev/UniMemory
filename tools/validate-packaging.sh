@@ -15,11 +15,19 @@ for profile in static-mimalloc shared-mimalloc shared-jemalloc; do
     directory="$work/$profile-$statistics"
     installed="$work/$profile-$statistics-installed"
     consumer="$work/$profile-$statistics-consumer"
-    cmake -S "$root" -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DCMAKE_PREFIX_PATH="$prefix" > "$work/$profile-$statistics-config.log"
+    # Windows CMake needs native paths inside semicolon-separated lists;
+    # MSYS converts a single path but cannot safely convert the whole list.
+    cmake_prefix="$prefix"
+    cmake_installed="$installed"
+    if command -v cygpath >/dev/null 2>&1; then
+      cmake_prefix=$(cygpath -m "$prefix")
+      cmake_installed=$(cygpath -m "$installed")
+    fi
+    cmake -S "$root" -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DCMAKE_PREFIX_PATH="$cmake_prefix" > "$work/$profile-$statistics-config.log"
     cmake --build "$directory" --parallel 4 > "$work/$profile-$statistics-build.log"
     ctest --test-dir "$directory" --parallel 4 --output-on-failure --no-tests=error > "$work/$profile-$statistics-test.log"
-    cmake --install "$directory" --prefix "$installed" > "$work/$profile-$statistics-install.log"
-    cmake -S "$root/tests/consumer" -B "$consumer" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$installed;$prefix" -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO > "$work/$profile-$statistics-consumer-config.log"
+    cmake --install "$directory" --prefix "$cmake_installed" > "$work/$profile-$statistics-install.log"
+    cmake -S "$root/tests/consumer" -B "$consumer" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$cmake_installed;$cmake_prefix" -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO > "$work/$profile-$statistics-consumer-config.log"
     cmake --build "$consumer" --parallel 4 > "$work/$profile-$statistics-consumer-build.log"
     ctest --test-dir "$consumer" --output-on-failure --no-tests=error > "$work/$profile-$statistics-consumer-test.log"
     tail -8 "$work/$profile-$statistics-test.log"
