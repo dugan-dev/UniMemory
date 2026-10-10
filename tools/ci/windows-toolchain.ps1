@@ -3,8 +3,14 @@ param([ValidateSet('msvc', 'clang-cl', 'mingw')][string]$Compiler,
 $ErrorActionPreference = 'Stop'
 if ($Compiler -eq 'mingw') {
     if ($Architecture -ne 'x64') { throw 'MinGW ARM64 is not an advertised configuration' }
-    $taskBin = 'C:\msys64\ucrt64\bin'
-    if (-not (Test-Path "$taskBin\g++.exe")) { throw 'Runner is missing MinGW-w64 UCRT GCC' }
+    $taskCandidates = @('C:\msys64\ucrt64\bin', 'C:\msys64\mingw64\bin', 'C:\mingw64\bin',
+        'C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin')
+    $taskExisting = Get-Command g++.exe -ErrorAction SilentlyContinue
+    if ($taskExisting) { $taskCandidates += [IO.Path]::GetDirectoryName($taskExisting.Source) }
+    $taskBin = $taskCandidates | Where-Object { Test-Path "$_\g++.exe" } | Select-Object -First 1
+    if (-not $taskBin) { throw 'Runner is missing MinGW-w64 GCC' }
+    $taskTarget = & "$taskBin\g++.exe" -dumpmachine
+    if ($taskTarget -notmatch '^x86_64-.*mingw') { throw "Unexpected GCC target: $taskTarget" }
     $taskBin | Out-File $env:GITHUB_PATH -Append -Encoding utf8
     "CC=$taskBin\gcc.exe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
     "CXX=$taskBin\g++.exe" | Out-File $env:GITHUB_ENV -Append -Encoding utf8

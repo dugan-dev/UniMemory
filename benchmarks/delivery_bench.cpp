@@ -1,6 +1,8 @@
 #include <unimem/memory.h>
 #include <algorithm>
+#include <atomic>
 #include <array>
+#include <barrier>
 #include <chrono>
 #include <cstring>
 #include <fstream>
@@ -8,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <thread>
 #include <vector>
 #ifdef _WIN32
 #include <windows.h>
@@ -155,6 +158,84 @@ std::uint64_t peak_rss() {
     return static_cast<std::uint64_t>(usage.ru_maxrss) * 1024;
 #endif
 #endif
+}
+
+template<class A> void tails(A& allocator, const std::string& backend,
+                            const std::string& path, std::size_t bytes) {
+    constexpr std::size_t count = 8192;
+    std::vector<double> allocation(count), release(count), overhead(count);
+    for (unsigned warmup = 0; warmup < 1024; ++warmup) {
+        auto* pointer = allocator.allocate(bytes);
+        if (!pointer) { throw std::bad_alloc(); }
+        allocator.deallocate(pointer, bytes);
+    }
+    for (std::size_t index = 0; index < count; ++index) {
+        const auto empty_start = Clock::now();
+        const auto empty_end = Clock::now();
+        overhead[index] = std::chrono::duration<double, std::nano>(empty_end - empty_start).count();
+        const auto start = Clock::now();
+        auto* pointer = allocator.allocate(bytes);
+        const auto allocated = Clock::now();
+        if (!pointer) { throw std::bad_alloc(); }
+        static_cast<volatile unsigned char*>(pointer)[0] = static_cast<unsigned char>(index);
+        observed = reinterpret_cast<std::uintptr_t>(pointer);
+        const auto free_start = Clock::now();
+        allocator.deallocate(pointer, bytes);
+        const auto freed = Clock::now();
+        allocation[index] = std::chrono::duration<double, std::nano>(allocated - start).count();
+        release[index] = std::chrono::duration<double, std::nano>(freed - free_start).count();
+    }
+    // Raw operation samples are retained separately by the remote runner.
+    std::cout << "backend,path,bytes,sample,allocate_ns,free_ns,clock_ns\n";
+    for (std::size_t index = 0; index < count; ++index) {
+        std::cout << backend << ',' << path << ',' << bytes << ',' << index << ','
+                  << allocation[index] << ',' << release[index] << ',' << overhead[index] << '\n';
+    }
+}
+
+template<class A> void scaling(A& allocator, const std::string& backend,
+                              const std::string& path, std::size_t bytes,
+                              unsigned threads, bool handoff) {
+    if (threads == 0 || threads > 16) { throw std::invalid_argument("threads must be 1..16"); }
+    constexpr unsigned batch = 32, rounds = 128;
+    std::vector<std::array<void*, batch>> pointers(threads);
+    std::vector<std::thread> workers;
+    std::barrier phase(static_cast<std::ptrdiff_t>(threads));
+    std::barrier start(static_cast<std::ptrdiff_t>(threads + 1));
+    std::atomic<bool> failed{false};
+    for (unsigned id = 0; id < threads; ++id) {
+        workers.emplace_back([&, id] {
+            start.arrive_and_wait();
+            for (unsigned round = 0; round < rounds; ++round) {
+                for (auto& pointer : pointers[id]) {
+                    try {
+                        pointer = allocator.allocate(bytes);
+                        if (!pointer) { throw std::bad_alloc(); }
+                        std::memset(pointer, static_cast<int>(id + 1), bytes);
+                    } catch (...) { pointer = nullptr; failed.store(true); }
+                }
+                phase.arrive_and_wait();
+                const auto owner = handoff ? (id + 1) % threads : id;
+                for (auto pointer : pointers[owner]) {
+                    if (!pointer) { continue; }
+                    const auto* data = static_cast<const unsigned char*>(pointer);
+                    if (data[0] != owner + 1 || data[bytes - 1] != owner + 1) { failed.store(true); }
+                    allocator.deallocate(pointer, bytes);
+                }
+                phase.arrive_and_wait();
+            }
+        });
+    }
+    const auto before_rss = rss();
+    const auto begin = Clock::now();
+    start.arrive_and_wait();
+    for (auto& worker : workers) { worker.join(); }
+    const auto seconds = std::chrono::duration<double>(Clock::now() - begin).count();
+    if (failed.load()) { throw std::runtime_error("scaling allocation or content failure"); }
+    std::cout << "backend,path,workload,bytes,threads,operations,seconds,operations_per_second,baseline_rss,final_rss,peak_rss\n"
+              << backend << ',' << path << ',' << (handoff ? "handoff" : "same_thread") << ','
+              << bytes << ',' << threads << ',' << threads * batch * rounds << ',' << seconds << ','
+              << (threads * batch * rounds / seconds) << ',' << before_rss << ',' << rss() << ',' << peak_rss() << '\n';
 }
 
 template<class A> void latency(A& allocator, const std::string& backend,
@@ -355,6 +436,9 @@ int main(int argc, char** argv) {
     try {
         if (argc < 4) { throw std::invalid_argument("backend workload path [bytes/heap] required"); }
         const std::string name = argv[1], workload = argv[2], path = argv[3];
+        if (path != "native" && path != "disabled" && path != "basic") {
+            throw std::invalid_argument("path must be native, disabled or basic");
+        }
         Backend backend;
         if (name == "standard") { backend = Backend::Standard; }
         else if (name == "mimalloc") { backend = Backend::Mimalloc; }
@@ -365,11 +449,18 @@ int main(int argc, char** argv) {
         if (workload == "environment") { environment(); }
         else if (workload == "footprint") { footprint(backend, name, mode, argc > 4 && std::string(argv[4]) == "heap"); }
         else if (workload == "heap") { heap_operations(backend, name); }
-        else if (workload == "latency" || workload == "pressure") {
+        else if (workload == "latency" || workload == "pressure" || workload == "tails" ||
+                 workload == "scaling" || workload == "handoff") {
             const auto bytes = argc > 4 ? std::stoull(argv[4]) : 64;
             if (bytes == 0) { throw std::invalid_argument("nonzero benchmark size required"); }
             const auto measure = [&](auto& allocator) {
                 if (workload == "pressure") { pressure(allocator, backend, name, path); }
+                else if (workload == "tails") { tails(allocator, name, path, bytes); }
+                else if (workload == "scaling" || workload == "handoff") {
+                    scaling(allocator, name, path, bytes,
+                            argc > 5 ? static_cast<unsigned>(std::stoul(argv[5])) : 1,
+                            workload == "handoff");
+                }
                 else { latency(allocator, name, path, bytes); }
             };
             if (path != "native") { Unified allocator(backend, mode); measure(allocator); }

@@ -1,0 +1,100 @@
+name: performance
+on:
+  push:
+    branches: [main, dev]
+    paths: ['src/**', 'include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg.json', '.github/workflows/**']
+  pull_request:
+    paths: ['src/**', 'include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg.json', '.github/workflows/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  report-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m unittest discover -s tests/tools -v
+  measure:
+    needs: report-tests
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, label: linux-x64}
+          - {os: macos-15, label: macos-arm64}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build pinned explicit backends
+        run: bash tools/ci/build-backends.sh
+      - name: Compile and verify benchmark build
+        run: |
+          cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON
+          cmake --build build/performance --parallel 4
+          ctest --test-dir build/performance --parallel 4 --output-on-failure --no-tests=error
+      - name: Measure matched Native and UniMemory workloads
+        run: |
+          python3 tools/ci/performance.py build/performance/UniMemoryDeliveryBenchmark build/results
+          python3 tools/ci/performance-report.py build/results build/charts --label '${{ matrix.label }}'
+          build/performance/UniMemoryBenchmark --full > build/results/full.csv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-${{ matrix.label }}
+          path: |
+            build/results/
+            build/charts/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: performance-failure-${{ matrix.label }}
+          path: build/performance/Testing/Temporary/LastTest.log
+  external:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+      - run: bash tools/ci/build-backends.sh
+      - name: Existing 16 native application benchmarks
+        run: bash tools/validate-benchmark-collection.sh "$PWD/build"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-application-comparison
+          path: build/collection-results/
+  acceptance:
+    name: performance acceptance
+    needs: [report-tests, measure, external]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          assert all(job['result'] == 'success' for job in json.loads(os.environ['RESULTS']).values()), 'Incomplete performance validation'
+          PY
+  publish:
+    needs: acceptance
+    timeout-minutes: 45
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: performance-*
+          path: build/downloads
+      - name: Open generated-results PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/ci/publish-performance.py build/downloads '${{ github.ref_name }}'

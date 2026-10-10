@@ -317,14 +317,19 @@ void objects(Memory& first, Memory& second) {
           "shared array rollback lifetime balance");
     const bool reverse = Construction::order[0] == 3 && Construction::order[1] == 2 &&
                          Construction::order[2] == 1;
-#if defined(__GLIBCXX__) && defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
-    // LWG3005 requires reverse order. libstdc++ 13's exception cleanup instead
-    // calls forward _Destroy; the standalone STL reproduction confirms 1,2,3.
+#if defined(__GLIBCXX__) && defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE >= 13 && _GLIBCXX_RELEASE <= 14
+    // Check the known libstdc++ exception-cleanup limitation against a fresh
+    // standalone STL call. Never accept a UniMemory-only rollback difference.
     const bool reproduced_forward = Construction::order[0] == 1 && Construction::order[1] == 2 &&
                                     Construction::order[2] == 3;
-    check(reverse || reproduced_forward, "shared array rollback order outside libstdc++ 13 compatibility");
+    check(reverse || reproduced_forward, "shared array rollback order outside known compatibility");
     if (reproduced_forward) {
-        std::cerr << "libstdc++ 13 compatibility: shared array constructor rollback destroys "
+        Construction::start(4);
+        throws<std::runtime_error>([] { auto p = std::allocate_shared<Construction[]>(std::allocator<Construction>(), 6); });
+        check(Construction::alive == 0 && Construction::destruction_count == 3 &&
+              Construction::order[0] == 1 && Construction::order[1] == 2 && Construction::order[2] == 3,
+              "UniMemory differs from standalone libstdc++ rollback");
+        std::cerr << "libstdc++ " << _GLIBCXX_RELEASE << " compatibility: shared array constructor rollback destroys "
                      "elements in forward order (1,2,3); C++20 requires reverse order (3,2,1).\n";
     }
 #else
