@@ -16,7 +16,7 @@
 - Every contrast names its changed factor and matching contract. No omnibus performance score.
 - Use at least five randomized process trials, common calibrated operations, approximately 100 ms or more per hot sample, and record min/max plus paired deltas.
 - Keep allocations observable, propagate failures, validate allocation alignment/content and counter balance. Thread sinks must be independent.
-- Exclude worker startup/join from hot-loop timing; label CPU oversubscription and unsupported affinity.
+- Use earliest worker loop start to latest finish for aggregate throughput. Exclude launch/warmup/join; include staggered scheduling during execution and label oversubscription. A synthetic staggered-window regression checks this calculation.
 - Never infer nanosecond overhead by subtracting clock quantiles. Tail samples are diagnostic observations, not safety gates.
 - RSS includes allocator/OS state. Dedicated heaps require the corresponding native dedicated policy baseline.
 - Synthetic statistics variants have diagnostic semantics and cannot silently replace Basic's contract.

@@ -3,6 +3,7 @@
 #include <unimem/memory.h>
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -14,6 +15,7 @@
 #include <mutex>
 #include <new>
 #include <ostream>
+#include <span>
 #include <stdexcept>
 #include <string_view>
 #include <thread>
@@ -99,6 +101,8 @@ struct Snapshot {
 
 struct alignas(padding) WorkerResult {
     double seconds = 0;
+    Clock::time_point started;
+    Clock::time_point finished;
     std::uint64_t checksum = 0;
     Snapshot counters;
     std::exception_ptr error;
@@ -108,6 +112,35 @@ static_assert(sizeof(WorkerResult) % padding == 0);
 
 void require(bool condition, const char* message) {
     if (!condition) { throw std::runtime_error(message); }
+}
+
+Clock::duration elapsed_span(std::span<const WorkerResult> workers) {
+    require(!workers.empty(), "empty statistics timing window");
+    auto first=workers.front().started;
+    auto last=workers.front().finished;
+    for (const auto& worker:workers) {
+        require(worker.finished>=worker.started, "reversed statistics timing window");
+        first=std::min(first,worker.started);
+        last=std::max(last,worker.finished);
+    }
+    return last-first;
+}
+
+void verify_elapsed_span() {
+    using namespace std::chrono_literals;
+    std::array<WorkerResult,2> windows{};
+    windows[0].started=Clock::time_point{};
+    windows[0].finished=Clock::time_point{}+10ms;
+    windows[1].started=Clock::time_point{}+100ms;
+    windows[1].finished=Clock::time_point{}+110ms;
+    // max(individual duration)=10ms would incorrectly turn serial work into
+    // parallel throughput. The actual two-worker span is 110ms.
+    require(elapsed_span(windows)==110ms,"staggered statistics timer regression");
+    windows[1].started=Clock::time_point{}+5ms;
+    windows[1].finished=Clock::time_point{}+15ms;
+    require(elapsed_span(windows)==15ms,"overlapping statistics timer regression");
+    require(elapsed_span(std::span<const WorkerResult>(windows).first(1))==10ms,
+            "single-worker statistics timer regression");
 }
 
 void validate_full(const Snapshot& counters, std::uint64_t operations,
@@ -423,6 +456,8 @@ Measurement measure(const Allocator& allocator, CounterFactory& factory,
                         }
                         const auto end = Clock::now();
                         results[index].seconds = std::chrono::duration<double>(end - begin).count();
+                        results[index].started=begin;
+                        results[index].finished=end;
                         results[index].checksum = checksum;
                         results[index].counters = counters.snapshot();
                     }
@@ -469,9 +504,10 @@ Measurement measure(const Allocator& allocator, CounterFactory& factory,
     Measurement result;
     for (const auto& worker : results) {
         if (worker.error) { std::rethrow_exception(worker.error); }
-        result.seconds = std::max(result.seconds, worker.seconds);
+        require(worker.seconds>0,"statistics worker duration is zero");
         result.checksum += worker.checksum;
     }
+    result.seconds=std::chrono::duration<double>(elapsed_span(results)).count();
     require(result.seconds > 0, "statistics diagnostic timer resolution too coarse");
     require(result.checksum == expected_checksum(iterations, thread_count),
             "statistics diagnostic content checksum mismatch");
@@ -560,6 +596,7 @@ void run_backend(std::ostream& output, const std::string& backend_name,
 void run_statistics(std::ostream& output, const std::string& backend,
                     const std::string& variant, std::size_t iterations,
                     std::size_t threads) {
+    verify_elapsed_span();
     if (iterations == 0 ||
         (threads != 1 && threads != 2 && threads != 4 && threads != 8 && threads != 16)) {
         throw std::invalid_argument("statistics diagnostic requires positive iterations and 1/2/4/8/16 threads");

@@ -248,7 +248,7 @@ def main():
                   target_seconds=args.target_seconds,source_revision=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
                   executables={name:dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest()) for name,path in executables.items()},
                   cases_randomized=True,process_isolated=True,paired_order_alternated=True,
-                  stats_timing='maximum worker loop duration, excluding start gate and worker join',
+                  stats_timing='earliest worker loop start to latest loop finish; launch, warmup and join excluded; staggered scheduling included',
                   caveats=['Synthetic counters change snapshot semantics','Mac CPU affinity unsupported',
                            'Oversubscribed threads include scheduling effects','Aligned vs unaligned changes guarantees',
                            'Signed paired deltas are contextual and not additive'])
