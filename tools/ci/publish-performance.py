@@ -96,12 +96,13 @@ def main():
     run("git", "commit", "-m", f"Update performance results for {revision[:12]}")
     run("git", "push", f"--force-with-lease=refs/heads/{branch}:{lease}", "origin", f"HEAD:refs/heads/{branch}")
     existing = json.loads(run("gh", "pr", "list", "--head", branch, "--base", args.base, "--json", "number"))
+    body = f"Generated from trusted source {revision}. All measurements and report validation passed. Raw individual samples remain in workflow artifacts for 14 days.\n\nRun: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n"
+    body_file = root / "build/publication-body.txt"
+    body_file.write_text(body, encoding="utf-8")
     if existing:
         number = str(existing[0]["number"])
+        run("gh", "pr", "edit", number, "--body-file", str(body_file))
     else:
-        body = f"Generated from trusted source {revision}. All measurements and report validation passed. Raw individual samples remain in workflow artifacts.\n\nRun: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n"
-        body_file = root / "build/publication-body.txt"
-        body_file.write_text(body, encoding="utf-8")
         url = run("gh", "pr", "create", "--base", args.base, "--head", branch, "--title", "Update measured performance charts", "--body-file", str(body_file))
         number = url.rsplit("/", 1)[-1]
     # Dispatch checks do not satisfy PR protection. Approve only real PR runs
