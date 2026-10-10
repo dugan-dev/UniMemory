@@ -3,6 +3,7 @@
 #include "hotpath.h"
 
 #include <climits>
+#include <bit>
 #include <new>
 
 #ifdef UNIMEMORY_BENCH_MIMALLOC
@@ -61,6 +62,27 @@ DIAGNOSTIC_NOINLINE void shim_jemalloc_free(void*, void* pointer, std::size_t, s
     je_dallocx(pointer, 0);
 #else
     (void)pointer;
+#endif
+}
+DIAGNOSTIC_NOINLINE void* shim_jemalloc_allocate_bits(void*, std::size_t bytes, std::size_t alignment) noexcept {
+#ifdef UNIMEMORY_BENCH_JEMALLOC
+    if (alignment > static_cast<std::size_t>(INT_MAX)) { return nullptr; }
+    // ffs(a)-1 and countr_zero(a) agree for nonzero values. Preserve the
+    // macro's zero result too, although the public API rejects alignment zero.
+    const int lg=alignment==0 ? -1 : static_cast<int>(std::countr_zero(alignment));
+    return je_mallocx(bytes,MALLOCX_LG_ALIGN(lg));
+#else
+    (void)bytes; (void)alignment; return nullptr;
+#endif
+}
+void verify_jemalloc_bit_flags() {
+#ifdef UNIMEMORY_BENCH_JEMALLOC
+    for (unsigned shift=0;shift<31;++shift) {
+        const std::size_t alignment=std::size_t{1}<<shift;
+        if (MALLOCX_ALIGN(alignment)!=MALLOCX_LG_ALIGN(static_cast<int>(std::countr_zero(alignment)))) {
+            throw std::runtime_error("jemalloc alignment flag equivalence failed");
+        }
+    }
 #endif
 }
 const unimem::detail::BackendOps& shim_ops(unimem::Backend backend) {

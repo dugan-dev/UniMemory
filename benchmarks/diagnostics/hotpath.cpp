@@ -141,6 +141,18 @@ struct HandlePolicy {
     }
 };
 
+struct BitsAdapter {
+    BitsAdapter() { verify_jemalloc_bit_flags(); }
+    void* allocate(std::size_t bytes,std::size_t alignment) {
+        void* pointer=shim_jemalloc_allocate_bits(nullptr,bytes,alignment);
+        if (!pointer) { throw std::bad_alloc(); }
+        return pointer;
+    }
+    void deallocate(void* pointer,std::size_t bytes,std::size_t alignment) noexcept {
+        shim_jemalloc_free(nullptr,pointer,bytes,alignment);
+    }
+};
+
 template<bool Lookup>
 struct Actual {
     Backend backend;
@@ -226,6 +238,10 @@ void selected(std::ostream& out, const std::string& backend, const std::string& 
         else { throw std::invalid_argument("throwing native is Standard only"); }
     }
     else if (variant == "adapter_direct") { kernel(out, backend, variant, DirectAdapter<B>{}, iterations, bytes, touch); }
+    else if (variant == "adapter_cpp20_bits") {
+        if constexpr (B==Backend::Jemalloc) { kernel(out,backend,variant,BitsAdapter{},iterations,bytes,touch); }
+        else { throw std::invalid_argument("bit flags probe is jemalloc only"); }
+    }
     else if (variant == "adapter_pointer") { kernel(out, backend, variant, HandlePolicy<false,false>{{&shim_ops(B),nullptr}}, iterations, bytes, touch); }
     else if (variant == "handle_inline_unchecked") { kernel(out,backend,variant,HandlePolicy<false,false>{real_handle(B)},iterations,bytes,touch); }
     else if (variant == "handle_inline_checked") { kernel(out,backend,variant,HandlePolicy<true,false>{real_handle(B)},iterations,bytes,touch); }

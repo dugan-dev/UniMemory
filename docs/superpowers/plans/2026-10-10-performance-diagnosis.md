@@ -55,6 +55,9 @@
 | Allocation lifetime/cache | Hot one-object reuse vs batched live set; native/API matching |
 | Warmup/order/state | Fixed warmup, randomized paired order and independent processes |
 | Allocator/compiler provenance | Actual versions, flags, binary hashes, library kind and source SHA |
+| GNU vs strict adapter mode | Same adapter source, only `CXX_EXTENSIONS` changes; inspect `ffs` vs bit-scan lowering |
+| Alignment-flag conversion | Same external jemalloc shim and flags, macro vs C++20 `countr_zero`; verify all supported powers |
+| Loop placement | Same GNU probe source with only `-falign-loops=64`; compare constant and runtime kernels and disassembly |
 
 ## Work and verification
 

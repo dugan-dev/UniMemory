@@ -60,6 +60,7 @@ class DiagnosticTests(unittest.TestCase):
                        'actual_stats','atomic_local_cost','cross_worker_sharing',
                        'counter_field_padding','peak_maintenance','global_lookup','cpu_affinity_api'):
             self.assertIn(factor,factors)
+        self.assertIn('alignment_bit_conversion',factors)
         self.assertEqual(len([f for f in factors if f.startswith('api_')]),9)
 
 

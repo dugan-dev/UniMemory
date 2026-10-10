@@ -46,10 +46,17 @@ jobs:
           windows = os.environ['RUNNER_OS'] == 'Windows'
           root = pathlib.Path.cwd()
           configurations = {'static': (False,False,True), 'static-ipo': (False,True,True), 'shared': (True,False,True), 'shared-ipo': (True,True,True), 'static-nopic': (False,False,False)}
+          if not windows:
+              configurations['static-strict-adapters']=(False,False,True)
+          if os.environ['RUNNER_OS']=='Linux':
+              configurations['static-align64']=(False,False,True)
           executables = {}
           for name, (shared,ipo,pic) in configurations.items():
               directory = root/'build'/('diagnose-'+name)
               command = ['cmake','-S','.', '-B',str(directory),'-DCMAKE_BUILD_TYPE=Release', '-DUNIMEMORY_WITH_MIMALLOC=ON','-DUNIMEMORY_WITH_JEMALLOC=ON','-DUNIMEMORY_BUILD_DIAGNOSTICS=ON', '-DCMAKE_PREFIX_PATH='+str(root/'build/prefix'), '-DBUILD_SHARED_LIBS='+('ON' if shared else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_IPO='+('ON' if ipo else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_PIC='+('ON' if pic else 'OFF')]
+              command+=['-DCMAKE_EXPORT_COMPILE_COMMANDS=ON']
+              if name=='static-strict-adapters': command+=['-DUNIMEMORY_DIAGNOSTIC_ADAPTER_EXTENSIONS=OFF']
+              if name=='static-align64': command+=['-DUNIMEMORY_DIAGNOSTIC_ALIGN_LOOPS=ON']
               if windows:
                   command.append('-DCMAKE_TOOLCHAIN_FILE='+str(root/'build/vcpkg/scripts/buildsystems/vcpkg.cmake'))
                   if shared and ipo:
@@ -91,6 +98,7 @@ jobs:
             build/diagnose-*/disassembly.txt
             build/diagnose-*/*.disassembly.txt
             build/diagnose-*/CMakeCache.txt
+            build/diagnose-*/compile_commands.json
             build/diagnose-*/*.map
             build/diagnose-*/Release/*.map
             build/diagnose-*/Testing/Temporary/LastTest.log

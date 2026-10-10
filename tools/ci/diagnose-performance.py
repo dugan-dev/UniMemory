@@ -139,6 +139,8 @@ def contrasts(affinity):
             add(factor,hot(a),hot(z))
         if b=='standard':
             add('throwing_native_entry',hot('native'),hot('native_throwing'))
+        if b=='jemalloc':
+            add('alignment_bit_conversion',hot('adapter_direct'),hot('adapter_cpp20_bits'))
         for size in (16,256,4096,65536):
             add('whole_wrapper',hot('native',size),hot('api_cached',size))
         for size in (64,65536):
@@ -172,7 +174,7 @@ def contrasts(affinity):
 def smoke(executable, directory, affinity):
     rows=[]
     for b in BACKENDS:
-        variants=HOT+(('native_throwing',) if b=='standard' else ())
+        variants=HOT+(('native_throwing',) if b=='standard' else ())+(('adapter_cpp20_bits',) if b=='jemalloc' else ())
         for v in variants:
             cases=[specimen('hotpath',b,v,affinity=affinity)]
             cases += [specimen('hotpath',b,v,size=65536,touch=True)] if v in ('native','api_cached') else []
@@ -303,7 +305,9 @@ def main():
     for build,exe in executables.items():
         if build=='static': continue
         for b in BACKENDS:
-            for v in ('native','api_cached','handle_inline_checked'):
+            variants=('native','api_cached','handle_inline_checked','handle_checked_constant')
+            if b=='jemalloc': variants+=('adapter_direct','adapter_cpp20_bits')
+            for v in variants:
                 case=specimen('hotpath',b,v,affinity=affinity)
                 n=max(calibrate(baseline,(case,case),args.target_seconds),calibrate(exe,(case,case),args.target_seconds))
                 controls=[]; changes=[]
@@ -315,6 +319,17 @@ def main():
                         (controls if name=='static' else changes).append(value)
                         measurements.append(dict(build=name,factor='build_'+build,trial=trial+1,**value))
                 summaries.append(summary_row('build_'+build,build,(case,case),controls,changes))
+        if build=='static-strict-adapters':
+            pair=(specimen('hotpath','jemalloc','adapter_direct',affinity=affinity),
+                  specimen('hotpath','jemalloc','adapter_cpp20_bits',affinity=affinity))
+            n=calibrate(exe,pair,args.target_seconds)
+            control=[]; changed=[]
+            for trial in range(args.trials):
+                for side in ([0,1] if trial%2==0 else [1,0]):
+                    row=primary(execute(exe,pair[side],n,raw,f'strict-bits-{trial+1}-{side}')[0])
+                    (control if side==0 else changed).append(row)
+                    measurements.append(dict(build=build,factor='strict_alignment_bit_conversion',trial=trial+1,side=side,**row))
+            summaries.append(summary_row('strict_alignment_bit_conversion',build,pair,control,changed))
     # Backend queries have multiple stage metrics and fixed 64MiB payloads.
     backend_rows=[]
     for b in ('mimalloc','jemalloc'):
