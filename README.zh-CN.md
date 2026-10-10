@@ -292,7 +292,7 @@ Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越�
 
 ![Peak resident memory](docs/images/performance/linux-x64/memory.svg)
 
-图中 Standard = 1，条形越短越快。[完整测量报告](docs/performance.zh-CN.md)
+当前图表展示吞吐量（越高越好）与峰值驻留内存（越低越好）。[完整测量报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 

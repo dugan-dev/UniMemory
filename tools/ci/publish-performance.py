@@ -9,6 +9,36 @@ import shutil
 import subprocess
 import time
 
+WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
+REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
+                   "diagnostics acceptance", "performance acceptance"}
+
+
+def validate_results_pr(pr, files, repository, branch, base, revision, head):
+    if (pr["state"] != "open" or pr["user"]["login"] != "github-actions[bot]" or
+            pr["head"]["repo"]["full_name"] != repository or pr["base"]["repo"]["full_name"] != repository or
+            pr["head"]["ref"] != branch or pr["head"]["sha"] != head or
+            pr["base"]["ref"] != base or pr["base"]["sha"] != revision):
+        raise RuntimeError("Results PR identity or source revision changed")
+    if len(files) != pr["changed_files"] or not files or any(item["filename"] not in ("README.md", "README.zh-CN.md") and
+                        not item["filename"].startswith(("docs/images/performance/", "docs/results/current/"))
+                        for item in files):
+        raise RuntimeError("Results PR contains changes outside generated paths")
+
+
+def select_pr_runs(runs, number, head, repository):
+    selected = {}
+    for item in runs:
+        path = item["path"].split("@", 1)[0]
+        workflow = path.rsplit("/", 1)[-1]
+        if (path == f".github/workflows/{workflow}" and workflow in WORKFLOWS and
+                item["head_repository"]["full_name"] == repository and
+                item["event"] == "pull_request" and item["head_sha"] == head and
+                any(pr["number"] == number for pr in item["pull_requests"])):
+            if workflow not in selected or item["id"] > selected[workflow]["id"]:
+                selected[workflow] = item
+    return selected
+
 
 def run(*command):
     return subprocess.check_output(command, text=True).strip()
@@ -69,30 +99,46 @@ def main():
         body_file.write_text(body, encoding="utf-8")
         url = run("gh", "pr", "create", "--base", args.base, "--head", branch, "--title", "Update measured performance charts", "--body-file", str(body_file))
         number = url.rsplit("/", 1)[-1]
-    # Token-created PRs do not trigger ordinary Actions events; explicitly dispatch
-    # the existing required workflows, and wait for their checks before merging.
-    validations = []
-    workflows = ["ci.yml", "release-validation.yml"]
-    if args.base == "main":
-        workflows += ["portability.yml", "diagnostics.yml", "performance.yml"]
-    for workflow in workflows:
-        dispatch = ["gh", "workflow", "run", workflow, "--ref", branch]
-        if workflow == "performance.yml":
-            dispatch += ["-f", "validation_only=true"]
-        run(*dispatch)
-        for attempt in range(30):
-            candidates = json.loads(run("gh", "run", "list", "--workflow", workflow,
-                                       "--branch", branch, "--event", "workflow_dispatch",
-                                       "--json", "databaseId,headSha", "--limit", "5"))
-            selected = next((item for item in candidates if item["headSha"] == run("git", "rev-parse", "HEAD")), None)
-            if selected:
-                validations.append(str(selected["databaseId"]))
-                break
-            time.sleep(10)
-        else:
-            raise RuntimeError("Required publication checks did not start")
-    for validation in validations:
+    # Dispatch checks do not satisfy PR protection. Approve only real PR runs
+    # from this exact, generated-only bot commit, then require their checks.
+    repository = os.environ["GITHUB_REPOSITORY"]
+    head = run("git", "rev-parse", "HEAD")
+    def verify_pr():
+        pr = json.loads(run("gh", "api", f"repos/{repository}/pulls/{number}"))
+        files = json.loads(run("gh", "api", "--paginate", "--slurp",
+                               f"repos/{repository}/pulls/{number}/files", "--jq", "[.[][]]"))
+        validate_results_pr(pr, files, repository, branch, args.base, revision, head)
+    for attempt in range(30):
+        verify_pr()
+        candidates = json.loads(run("gh", "api", f"repos/{repository}/actions/runs?event=pull_request&head_sha={head}&per_page=100"))
+        selected = select_pr_runs(candidates["workflow_runs"], int(number), head, repository)
+        if set(selected) == WORKFLOWS:
+            break
+        time.sleep(10)
+    else:
+        raise RuntimeError("Real PR validation workflows did not start")
+    for item in selected.values():
+        verify_pr()
+        if item["conclusion"] == "action_required":
+            run("gh", "api", "--method", "POST", f"repos/{repository}/actions/runs/{item['id']}/approve")
+            for attempt in range(30):
+                current = json.loads(run("gh", "api", f"repos/{repository}/actions/runs/{item['id']}"))
+                if current["conclusion"] != "action_required":
+                    break
+                time.sleep(2)
+            else:
+                raise RuntimeError("PR workflow approval was not acknowledged")
+    for validation in (str(item["id"]) for item in selected.values()):
         subprocess.run(["gh", "run", "watch", validation, "--exit-status", "--interval", "20"], check=True)
+    verify_pr()
+    for attempt in range(30):
+        checks = json.loads(run("gh", "pr", "view", number, "--json", "statusCheckRollup", "--jq", ".statusCheckRollup"))
+        passed = {item.get("name") for item in checks if (item.get("conclusion") or "").upper() == "SUCCESS"}
+        if REQUIRED_CHECKS <= passed:
+            break
+        time.sleep(10)
+    else:
+        raise RuntimeError("Successful required checks are missing from the PR")
     run("git", "fetch", "origin", args.base)
     if run("git", "rev-parse", f"origin/{args.base}") != revision:
         print("Source changed during publication checks; leave results PR unmerged")

@@ -45,6 +45,7 @@ flowchart LR
 | [Lifetime and threads](compatibility.md) | Ownership, concurrency and shared libraries |
 | [Performance](performance.md) | Time and memory comparisons |
 | [Test results](testing.md) | Verified platforms and coverage |
+| [Remote validation](remote-validation.md) | Native compiler matrix, detection and chart automation |
 
 [Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Upstream validation](upstream-validation.md)
 
@@ -62,7 +63,12 @@ Repair verification from **2026-10-08 to 2026-10-09**; counts identify the confi
 
 Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](testing.md)
 
-The repository keeps `main` and distributes its [source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip) without tags or Releases. The library version remains **0.0.1**; identify deliveries by their source revision and use matching headers and libraries. Homepage performance data was measured on **2026-09-28**, before the October repairs.
+Stable source is on `main`; the expanded CI and performance work is on `dev`.
+The [main source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)
+is distributed without tags or Releases. The library version remains **0.0.1**;
+use matching headers and libraries and identify deliveries by source revision.
+[Current performance reports](performance.md#current-remote-reports) record their
+measured revision; September measurements remain as historical data.
 
 [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Repair review](review-2026-10-08.md)
 

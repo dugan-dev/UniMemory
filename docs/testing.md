@@ -2,6 +2,34 @@
 
 [Documentation](README.md) · **English** · [简体中文](testing.zh-CN.md)
 
+## Remote validation · 2026-10-10
+
+The expanded validation targets source `6738c77`. The [native matrix](remote-validation.md#platform-and-compiler-matrix)
+checks 26 Debug/Release compiler configurations, including all six requested
+platform/architecture combinations, and verifies installed consumers.
+
+| Evidence | Scope |
+| --- | --- |
+| [Build](https://github.com/dugan-dev/UniMemory/actions/runs/38025334927) | Standard, optional backends, shared libraries, examples, installation and documentation |
+| [Portability](https://github.com/dugan-dev/UniMemory/actions/runs/38025334924) | Actual compiler/version and binary architecture; Debug/Release |
+| [Diagnostics](https://github.com/dugan-dev/UniMemory/actions/runs/38025334912) | Strict UBSan control, adapter/native sanitizers, static analysis and coverage |
+| [Release validation](https://github.com/dugan-dev/UniMemory/actions/runs/38025334968) | Existing native suites, sanitizer and pressure validation |
+| [Performance](https://github.com/dugan-dev/UniMemory/actions/runs/38025334938) | Complete three-platform measurements, report regression tests and generated-results publication |
+
+The GCC coverage configuration executes 1,673 registered tests. Its instrumented
+project code reports **604/635 lines (95.12%)** and **333/475 branches (70.11%)**;
+unexecuted translation units are included. This is configuration-specific evidence,
+not complete template instantiation or exhaustive path coverage. Source reports
+identify remaining allocation-failure and capability branches.
+
+Clang TSan runs 1,671 cases; its two incompatible global-new failure-injection
+cases remain required in ordinary and compatible ASan builds. Jemalloc dependency
+internals remain uninstrumented. [Detection scope and stress scale](remote-validation.md#detection-and-pressure)
+
+The report regressions first failed remotely on `568cc2b` for generated EOF format
+and indistinguishable statistics columns. On `6738c77`, all 17 tool tests pass,
+including first/different baselines, incomplete scenarios and SVG validity.
+
 ## Review verification: 2026-10-08 to 2026-10-09
 
 | Configuration | Passed / registered | Installed consumers |

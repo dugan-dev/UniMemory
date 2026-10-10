@@ -9,8 +9,9 @@ Develop on the user-requested `dev` branch. Relevant changes trigger validation
 and performance measurement automatically. Do not add cron/scheduled triggers.
 Keep C++20, the public API, and existing allocator dependency versions unchanged.
 Do not add allocation backends or benchmark-library dependencies.
-Keep the README layout and prose; only replace performance image references when
-the generated assets are ready. Preserve existing historical results.
+Keep the README layout and prose; replace performance image references when the
+assets are ready and correct their adjacent units/direction caption. Preserve
+existing historical results.
 
 ## Platform and compiler coverage
 
@@ -87,8 +88,8 @@ retention after release/collect, and the existing object/container workloads.
 Report actual CPU capacity and distinguish oversubscribed workloads. Measure
 timing overhead; do not label percentiles of batch averages as per-operation
 p95/p99/p99.9. RSS retention is not itself proof of a leak or fragmentation.
-Reuse the existing 16 external application workloads for periodic native
-comparison on relevant changes. Run fresh-process repetitions and preserve all raw samples.
+Reuse the existing 16 external application workloads for native comparison on
+relevant changes. Run fresh-process repetitions and preserve all raw samples.
 
 Correctness failures fail the benchmark job. Performance comparisons on hosted
 runners initially produce reports and regression signals, not an absolute speed

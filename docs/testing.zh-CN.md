@@ -2,6 +2,29 @@
 
 [目录](README.zh-CN.md) · [English](testing.md) · **简体中文**
 
+## 远程验收 · 2026-10-10
+
+扩展验收对应源码 `6738c77`。[原生矩阵](remote-validation.md#platform-and-compiler-matrix)
+覆盖 26 项 Debug/Release 编译器配置，包括要求的六种平台/架构组合，并验证安装消费者。
+
+| 证据 | 范围 |
+| --- | --- |
+| [构建](https://github.com/dugan-dev/UniMemory/actions/runs/38025334927) | Standard、可选后端、共享库、示例、安装与文档 |
+| [平台矩阵](https://github.com/dugan-dev/UniMemory/actions/runs/38025334924) | 实际编译器版本、二进制架构、Debug/Release |
+| [错误检测](https://github.com/dugan-dev/UniMemory/actions/runs/38025334912) | 严格 UBSan 探针、封装/原生检测、静态分析与覆盖率 |
+| [发布验证](https://github.com/dugan-dev/UniMemory/actions/runs/38025334968) | 现有原生套件、错误检测与压力验证 |
+| [性能](https://github.com/dugan-dev/UniMemory/actions/runs/38025334938) | 三平台完整测量、报告回归测试与图表自动发布 |
+
+GCC 覆盖率配置执行 1,673 项注册测试。已插桩项目代码覆盖 **604/635 行（95.12%）**、
+**333/475 分支（70.11%）**，包含未执行的编译单元。该结果对应具体配置，不代表所有
+模板实例和路径均已覆盖；源码报告列出剩余的分配失败、能力判断等分支。
+
+Clang TSan 执行 1,671 项；两项与其全局 new 替换不兼容的失败注入仍在普通构建和兼容
+ASan 配置中要求通过。jemalloc 内部仍未插桩。[检测范围与压力规模](remote-validation.md#detection-and-pressure)
+
+报告回归测试先在 `568cc2b` 远程复现末尾空行与统计柱形难以区分的问题；修复后
+`6738c77` 的 17 项工具测试全部通过，覆盖首次/不同基线、场景缺失拒绝和 SVG 有效性。
+
 ## 2026-10-08 至 2026-10-09 审查修复验收
 
 | 配置 | 通过 / 注册项 | 安装消费者 |

@@ -45,6 +45,7 @@ flowchart LR
 | [生命周期与线程](compatibility.zh-CN.md) | 所有权、并发与动态库 |
 | [性能对比](performance.zh-CN.md) | 耗时与内存占用 |
 | [测试结果](testing.zh-CN.md) | 验证平台与覆盖范围 |
+| [远程验收](remote-validation.md) | 原生编译器矩阵、错误检测与图表自动更新 |
 
 [后端能力对照](allocator-capabilities.zh-CN.md) · [测量方法](benchmarking.zh-CN.md) · [原始数据](results/0.0.1/README.md) · [上游验证](upstream-validation.md)
 
@@ -62,7 +63,11 @@ flowchart LR
 
 共享库配置在 Windows 通过 **1664/1664**、Linux 通过 **1666/1666**；六项本地配置的安装消费者均通过 **7/7**。覆盖常规使用、类型化存储、独立公共头文件、包查找、边界、异常和并发场景。各 CI 链接只验证其记录的修订。[完整测试报告](testing.zh-CN.md)
 
-仓库仅保留 `main`，通过[源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)提供下载，不使用 tag 或 Release。库版本仍为 **0.0.1**，以源码修订标识具体交付；头文件与库应来自同一修订。首页性能数据测于 **2026-09-28**，未针对十月修复重新测量。
+稳定源码位于 `main`，扩展 CI 与性能测试在 `dev` 开发。
+通过 [main 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)
+提供下载，不使用 tag 或 Release。库版本仍为 **0.0.1**，以源码修订标识交付，
+头文件与库应来自同一修订。[当前性能报告](performance.zh-CN.md#当前远程报告)
+记录各自测量修订；九月数据作为历史报告保留。
 
 [贡献指南](../CONTRIBUTING.md) · [安全政策](../SECURITY.md) · [修复审查](review-2026-10-08.md)
 

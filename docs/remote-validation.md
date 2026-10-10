@@ -78,8 +78,16 @@ results remain untouched. README references the Linux throughput/memory pair.
 Per-platform latency, statistics cost, retention and workload charts provide
 more detail. Source revision and remote-run provenance accompany every report.
 
-Only trusted successful push runs can publish. A scoped bot branch opens a PR,
-dispatches required validation explicitly, verifies source freshness, then merges
-the results. Generated-only commits do not trigger another benchmark run.
-Publication to `main` additionally dispatches portability, diagnostics and
-performance report validation; it does not bypass protected-branch checks.
+Only trusted successful push runs can publish. A scoped bot branch opens a PR.
+Before approving its real PR workflows, the publisher verifies repository, bot
+author, branch, source/head revisions and every changed file against the generated
+path allowlist. It waits for all five workflows and their actual PR acceptance
+checks, rechecks source freshness, then merges the exact checked head. Generated
+changes validate existing data without recursively rerunning benchmarks.
+
+GitHub's approval API was verified with the scoped default token in this
+[remote probe](https://github.com/dugan-dev/UniMemory/actions/runs/38026443544).
+No additional credential is required in this configured repository. An approval
+error fails publication and leaves the PR available for review. Dispatched checks
+are not substituted for protected-branch checks; see
+[GitHub's required-check rules](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).

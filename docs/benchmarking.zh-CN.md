@@ -69,6 +69,26 @@ python3 tools/summarize-benchmarks.py docs/results/0.0.1 --output build/comparis
 powershell -NoProfile -File tools/render-benchmarks.ps1 -InputJson build/comparisons.json -OutputDirectory build/charts
 ```
 
-未绑定 CPU；小差异可能是噪声。短时测试不能推断 p95/p99、NUMA、长期碎片或移动设备性能。
+上述批量计时不能推断逐操作 p95/p99。未绑定 CPU；小差异可能是噪声。
+这些短时测试不能证明 NUMA 扩展性、长期碎片或移动设备性能。
+
+## 6 · 当前自动报告
+
+代码或配置变更触发[性能流程](../.github/workflows/performance.yml)，在 Linux x64、
+Windows x64、macOS ARM64 构建三种后端。现有探针之外，增加 Native/API/Basic
+扩展性与逐操作延迟采样；完整 API 场景校验通过后生成并发布 SVG。
+
+| 每平台测量 | 规模 |
+| --- | --- |
+| 扩展性 | 810 项：三轮、三后端、三调用路径、两种释放方式、三种大小、五种线程数 |
+| 尾延迟 | 135 项，每项 8,192 组分配/释放样本；单独记录时钟开销 |
+| API 场景 | 每轮 1,001 项，共三轮 |
+| 外部原生应用 | Linux：16 个程序、三种分配器、三轮 |
+
+扩展性测量每线程执行 4,096 组操作，分为八批、每批 512 个；各路径请求与数据触碰
+一致，最大存活负载 512 MiB。尾延迟来自包含时钟开销的逐操作间隔；RSS 包含进程
+和分配器状态。应在同一测量环境内比较负载。
+
+[报告](performance.zh-CN.md#当前远程报告) · [协议与自动发布](remote-validation.md#performance-and-charts)
 
 [原始数据](results/0.0.1/README.md) · [原生测试与应用](upstream-validation.md)

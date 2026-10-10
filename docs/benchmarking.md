@@ -71,6 +71,29 @@ Optional figure export uses Windows .NET Framework's chart library:
 powershell -NoProfile -File tools/render-benchmarks.ps1 -InputJson build/comparisons.json -OutputDirectory build/charts
 ```
 
-CPU affinity is unpinned. Small differences may be noise. These short tests do not establish p95/p99, NUMA scaling, long-running fragmentation or mobile performance.
+Batch measurements above do not estimate individual-operation p95/p99. CPU affinity
+is unpinned; small differences may be noise. They do not establish NUMA scaling,
+long-running fragmentation or mobile performance.
+
+## 6 · Current automated reports
+
+The change-triggered [performance workflow](../.github/workflows/performance.yml)
+builds all three backends on Linux x64, Windows x64 and macOS ARM64. It runs the
+existing probes plus matched Native/API/Basic scaling and individual-operation
+latency samples, then validates the complete API sweep before publishing SVGs.
+
+| Measurement per platform | Scale |
+| --- | --- |
+| Scaling | 810 cases: three trials, three backends, three paths, two release patterns, three sizes, five thread counts |
+| Tail latency | 135 cases, 8,192 allocate/free samples each; clock overhead recorded |
+| API sweep | 1,001 scenarios per trial, three trials |
+| External native applications | Linux: 16 programs, three allocators, three trials |
+
+Each scaling thread performs 4,096 pairs in eight batches of 512. Requests and
+touching match across paths; the largest scaling payload is 512 MiB. Tail percentiles
+describe individual intervals, including clock overhead. RSS includes process and
+allocator state. Compare workloads within one recorded environment.
+
+[Reports](performance.md#current-remote-reports) · [Protocol and publication](remote-validation.md#performance-and-charts)
 
 [Raw measurements](results/0.0.1/README.md) · [Native suites and applications](upstream-validation.md)

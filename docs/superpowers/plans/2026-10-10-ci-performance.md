@@ -20,7 +20,7 @@ existing compiler tools, Python standard library, generated SVG.
 - Run builds and tests remotely only; no scheduled triggers.
 - Preserve public interfaces and allocator dependency versions.
 - No new allocator or plotting-library dependencies.
-- Keep README prose/layout; update generated chart references only.
+- Keep README prose/layout; update chart references and their short units/direction caption.
 - Compare native allocation, UniMemory API, and enabled statistics separately.
 - Preserve historical data and original backend replacement boundaries.
 
@@ -108,7 +108,7 @@ complete revision-specific set through a bot PR with exact artifact provenance.
 - [ ] Test invalid/missing input rejection and XML-valid chart output remotely.
 - [ ] Gate publication on complete successful trusted-branch measurements.
 - [ ] Limit write permissions to publication, allowlist generated paths, verify
-  artifact revision, and explicitly trigger required checks for bot PRs.
+  artifact revision, and approve/wait for real required PR checks for bot PRs.
 - [ ] Update README fixed image links and preserve historical results.
 - [ ] Prevent generated-only commits from triggering benchmark/publication loops.
 

@@ -292,7 +292,7 @@ Windows x64 · MSVC 19.44 · statistics off · 2026-09-28. **ns/operation; lower
 
 ![Peak resident memory](docs/images/performance/linux-x64/memory.svg)
 
-Standard = 1 in the chart; shorter bars are faster. [Full measurement report](docs/performance.md)
+Current charts show throughput (higher is better) and peak resident memory (lower is better). [Full measurement report](docs/performance.md)
 
 ## Build and Install
 
