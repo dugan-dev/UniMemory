@@ -67,11 +67,13 @@ def main():
     scaling = []
     tails = []
     for trial in range(1, TRIALS + 1):
-        for backend, path, workload, size, threads in scale_cases:
+        for case_index, (backend, path, workload, size, threads) in enumerate(scale_cases, 1):
             rows = measure(executable, backend, workload, path, size, threads)
             if len(rows) != 1:
                 raise RuntimeError("Unexpected scaling record count")
             scaling.append({"trial": trial, **rows[0]})
+            if case_index % 30 == 0:
+                print(f"Scaling trial {trial}: {case_index}/{len(scale_cases)} scenarios", flush=True)
         tail_cases = [(backend, path, size) for backend in BACKENDS for path in PATHS for size in SIZES]
         random.Random(trial).shuffle(tail_cases)
         for backend, path, size in tail_cases:
@@ -116,11 +118,11 @@ def main():
                      "run_id": os.environ.get("GITHUB_RUN_ID", "unrecorded"),
                      "run_url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}",
                      "architecture": platform.machine(), "trials": TRIALS,
-                     "compiler": compiler, "cpu_model": cpu, "measurement_protocol": "native-api-scaling-tails-v1",
+                     "compiler": compiler, "cpu_model": cpu, "measurement_protocol": "native-api-scaling-tails-v2",
                      "threads": list(THREADS), "sizes": list(SIZES), "backends": list(BACKENDS),
                      "paths": list(PATHS), "tail_samples": 8192,
                      "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
-                     "scaling_method": "4096 allocation/free pairs per thread, synchronized batches; thread creation excluded, join included",
+                     "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
                      "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
                      "benchmark_sha256": hashlib.sha256((root / "benchmarks/delivery_bench.cpp").read_bytes()).hexdigest()})
     (args.output / "environment.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")

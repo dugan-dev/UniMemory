@@ -50,7 +50,7 @@ jobs:
     needs: [changes, report-tests]
     if: needs.changes.outputs.measure == 'true'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:

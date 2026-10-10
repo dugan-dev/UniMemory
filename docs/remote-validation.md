@@ -55,6 +55,10 @@ Every measurement uses three fresh-process trials. Scaling covers 1/2/4/8/16
 threads with same-thread and cross-thread release. Native/API paths receive the
 same main-thread and worker warmup before timing. Reports disclose CPU capacity;
 oversubscribed thread counts are not additional physical cores.
+Each thread executes 4,096 pairs in eight batches of 512, amortizing barrier
+scheduling costs. The largest configured scaling live payload is 512 MiB,
+leaving runner headroom. Protocol v2 is distinct from the initial 128-batch
+experiment; its numbers are not compared against that protocol's baseline.
 
 Individual allocate/free samples provide p50/p95/p99/p99.9 and maximum latency.
 Clock overhead is measured separately and remains included in the samples.

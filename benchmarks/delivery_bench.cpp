@@ -197,7 +197,9 @@ template<class A> void scaling(A& allocator, const std::string& backend,
                               const std::string& path, std::size_t bytes,
                               unsigned threads, bool handoff) {
     if (threads == 0 || threads > 16) { throw std::invalid_argument("threads must be 1..16"); }
-    constexpr unsigned batch = 32, rounds = 128;
+    // Keep 4096 pairs/thread while amortizing scheduler/barrier overhead.
+    // Maximum configured live payload: 16 * 512 * 65536 = 512 MiB.
+    constexpr unsigned batch = 512, rounds = 8;
     // Initialize every Native/API path on the main thread before worker startup.
     auto* initial = allocator.allocate(bytes);
     if (!initial) { throw std::bad_alloc(); }
