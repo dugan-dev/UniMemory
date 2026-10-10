@@ -40,6 +40,11 @@ def select_pr_runs(runs, number, head, repository):
     return selected
 
 
+def read_pr_files(repository, number):
+    pages = json.loads(run("gh", "api", "--paginate", "--slurp", f"repos/{repository}/pulls/{number}/files"))
+    return [item for page in pages for item in page]
+
+
 def run(*command):
     return subprocess.check_output(command, text=True).strip()
 
@@ -105,8 +110,7 @@ def main():
     head = run("git", "rev-parse", "HEAD")
     def verify_pr():
         pr = json.loads(run("gh", "api", f"repos/{repository}/pulls/{number}"))
-        files = json.loads(run("gh", "api", "--paginate", "--slurp",
-                               f"repos/{repository}/pulls/{number}/files", "--jq", "[.[][]]"))
+        files = read_pr_files(repository, number)
         validate_results_pr(pr, files, repository, branch, args.base, revision, head)
     for attempt in range(30):
         verify_pr()

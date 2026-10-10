@@ -2,6 +2,7 @@ import copy
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest import mock
 
 spec = importlib.util.spec_from_file_location("publisher", Path(__file__).resolve().parents[2] / "tools/ci/publish-performance.py")
 publisher = importlib.util.module_from_spec(spec)
@@ -54,6 +55,12 @@ class PublicationTests(unittest.TestCase):
     def test_incomplete_file_pagination_rejected(self):
         with self.assertRaises(RuntimeError):
             self.validate(files=self.files[:1])
+
+    def test_file_pages_are_flattened_without_incompatible_cli_filters(self):
+        with mock.patch.object(publisher, "run", return_value='[[{"filename":"README.md"}],[{"filename":"docs/results/current/data.csv"}]]') as command:
+            files = publisher.read_pr_files(self.repository, 4)
+        self.assertEqual([item["filename"] for item in files], ["README.md", "docs/results/current/data.csv"])
+        command.assert_called_once_with("gh", "api", "--paginate", "--slurp", "repos/example/project/pulls/4/files")
 
 
 if __name__ == "__main__":
