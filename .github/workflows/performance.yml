@@ -2,7 +2,7 @@ name: performance
 on:
   push:
     branches: [main, dev]
-    paths: ['src/**', 'include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'vcpkg.json', '.github/workflows/**']
+    paths: ['src/**', 'include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
   pull_request:
   workflow_dispatch:
     inputs:

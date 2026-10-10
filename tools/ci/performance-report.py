@@ -137,6 +137,13 @@ def chart(title, ylabel, xs, series, caption, bars=False):
              '<g font-family="system-ui,Segoe UI,sans-serif" fill="#0f172a">',
              f'<text x="92" y="40" font-size="25" font-weight="650">{html.escape(title)}</text>',
              f'<text x="92" y="66" font-size="14" fill="#475569">{html.escape(ylabel)}</text>']
+    if bars:
+        parts.append('<defs>')
+        for backend, color in COLORS.items():
+            parts.append(f'<pattern id="{backend}-basic" width="6" height="6" patternUnits="userSpaceOnUse">'
+                         f'<rect width="6" height="6" fill="{color}"/>'
+                         '<path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>')
+        parts.append('</defs>')
     for tick in range(6):
         y = top + plot_height * (1 - tick / 5)
         parts.extend([f'<path d="M{left},{y}h{plot_width}" stroke="#e2e8f0"/>',
@@ -146,6 +153,8 @@ def chart(title, ylabel, xs, series, caption, bars=False):
         parts.append(f'<text x="{x}" y="465" text-anchor="middle" font-size="14">{html.escape(str(value))}</text>')
     for number, (backend, path, values) in enumerate(series):
         color = COLORS[backend]
+        fill = f'url(#{backend}-basic)' if path == "basic" else color
+        opacity = .45 if path == "native" else .9
         points = []
         for index, value in enumerate(values):
             x = left + plot_width * (index + .5) / len(xs)
@@ -153,7 +162,7 @@ def chart(title, ylabel, xs, series, caption, bars=False):
             if bars:
                 bar_width = plot_width / len(xs) / (len(series) + 2)
                 x += (number - (len(series)-1)/2) * bar_width
-                parts.append(f'<rect x="{x-bar_width*.42}" y="{y}" width="{bar_width*.84}" height="{top+plot_height-y}" fill="{color}" opacity="{.45 if path == "native" else .9}"/>')
+                parts.append(f'<rect data-path="{path}" x="{x-bar_width*.42}" y="{y}" width="{bar_width*.84}" height="{top+plot_height-y}" fill="{fill}" opacity="{opacity}"/>')
             else:
                 points.append(f"{x},{y}")
                 parts.append(f'<circle cx="{x}" cy="{y}" r="3.5" fill="{color}"/>')
@@ -161,8 +170,11 @@ def chart(title, ylabel, xs, series, caption, bars=False):
             dash = ' stroke-dasharray="7 5"' if path == "native" else ''
             parts.append(f'<polyline points="{" ".join(points)}" fill="none" stroke="{color}" stroke-width="2.5"{dash}/>')
         label = f"{backend} / {'Native' if path == 'native' else 'API + stats' if path == 'basic' else 'UniMemory'}"
-        parts.extend([f'<path d="M880,{115+number*34}h28" stroke="{color}" stroke-width="3"'+ (' stroke-dasharray="7 5"' if path == 'native' else '') + '/>',
-                      f'<text x="880" y="{133+number*34}" font-size="12">{label}</text>'])
+        if bars:
+            parts.append(f'<rect data-path="{path}" x="880" y="{110+number*34}" width="28" height="8" fill="{fill}" opacity="{opacity}"/>')
+        else:
+            parts.append(f'<path d="M880,{115+number*34}h28" stroke="{color}" stroke-width="3"'+ (' stroke-dasharray="7 5"' if path == 'native' else '') + '/>')
+        parts.append(f'<text x="880" y="{133+number*34}" font-size="12">{label}</text>')
     parts.extend([f'<text x="92" y="505" font-size="13" fill="#475569">{html.escape(caption[:145])}</text>',
                   '<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>', '</g></svg>'])
     return "\n".join(parts) + "\n"
@@ -241,7 +253,7 @@ def main():
             analysis.append("\nBaseline comparison withheld: recorded hardware, compiler or measurement protocol differs.\n")
     else:
         analysis.append("\nFirst recorded baseline; no regression comparison is available yet.\n")
-    (args.output / "README.md").write_text("\n".join(analysis) + "\n", encoding="utf-8")
+    (args.output / "README.md").write_text("\n".join(analysis).rstrip() + "\n", encoding="utf-8")
     summary = {"source_revision": manifest["source_revision"], "run_url": manifest["run_url"],
                "scope": args.label, "logical_cpus": manifest["logical_cpus"],
                "oversubscribed_threads": [threads for threads in THREADS if threads > manifest["logical_cpus"]],

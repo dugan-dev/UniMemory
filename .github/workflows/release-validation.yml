@@ -21,6 +21,7 @@ on:
       - 'cmake/**'
       - 'vcpkg.json'
       - 'CMakeLists.txt'
+      - 'CMakePresets.json'
       - '.github/workflows/**'
 jobs:
   rpmalloc-upstream:

@@ -131,16 +131,24 @@ class ReportTests(unittest.TestCase):
                         performance_gate="Report only", tail_method="Individual samples")
         (self.directory / "environment.json").write_text(json.dumps(manifest))
         output = self.directory / "charts"
-        with mock.patch("sys.argv", ["report", str(self.directory), str(output), "--label", "test"]):
-            report.main()
-        for path in output.iterdir():
-            content = path.read_bytes()
-            self.assertTrue(content.endswith(b"\n"), path.name)
-            self.assertFalse(content.endswith(b"\n\n"), path.name)
-            self.assertNotIn(b"\r", content, path.name)
-        self.assertEqual(len(list(output.glob("*.svg"))), 6)
-        for path in output.glob("*.svg"):
-            ET.parse(path)
+        isolated_root = self.directory / "repo"
+        for prior in (None, {"logical_cpus": 1}):
+            with self.subTest(baseline=prior):
+                if prior:
+                    previous = isolated_root / "docs/results/current/test"
+                    previous.mkdir(parents=True)
+                    (previous / "environment.json").write_text(json.dumps(prior))
+                with mock.patch("sys.argv", ["report", str(self.directory), str(output), "--label", "test"]), \
+                     mock.patch.object(report, "__file__", str(isolated_root / "tools/ci/performance-report.py")):
+                    report.main()
+                for path in output.iterdir():
+                    content = path.read_bytes()
+                    self.assertTrue(content.endswith(b"\n"), path.name)
+                    self.assertFalse(content.endswith(b"\n\n"), path.name)
+                    self.assertNotIn(b"\r", content, path.name)
+                self.assertEqual(len(list(output.glob("*.svg"))), 6)
+                for path in output.glob("*.svg"):
+                    ET.parse(path)
 
     def test_statistics_columns_have_distinct_styles_and_matching_legend(self):
         document = report.chart("Statistics", "ns", [64],

@@ -2,7 +2,7 @@ name: diagnostics
 on:
   push:
     branches: [main, dev]
-    paths: ['src/**', 'include/**', 'tests/**', 'cmake/**', 'tools/**', 'CMakeLists.txt', '.github/workflows/**']
+    paths: ['src/**', 'include/**', 'tests/**', 'cmake/**', 'tools/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
   pull_request:
   workflow_dispatch:
 permissions:

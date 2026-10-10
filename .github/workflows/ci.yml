@@ -26,6 +26,8 @@ jobs:
       - uses: actions/checkout@v5
       - name: Check documentation
         run: python tools/check-docs.py
+      - name: Validate CMake presets
+        run: cmake --list-presets
       - name: Configure
         run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BUILD_EXAMPLES=ON
       - name: Build
