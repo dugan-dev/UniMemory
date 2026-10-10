@@ -1,0 +1,108 @@
+name: performance-diagnosis
+on:
+  push:
+    branches: [dev]
+    paths: ['benchmarks/diagnostics/**', 'tools/ci/diagnose-performance.py', 'tests/tools/test_diagnose_performance.py', 'cmake/UniMemoryDiagnostics.cmake', 'src/**', 'include/**', 'CMakeLists.txt', '.github/workflows/performance-diagnosis.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: performance-diagnosis-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tools:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m unittest discover -s tests/tools -v
+  diagnose:
+    needs: tools
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, label: linux-x64}
+          - {os: windows-2022, label: windows-x64}
+          - {os: macos-15, label: macos-arm64}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build existing pinned backend dependencies
+        if: runner.os != 'Windows'
+        run: bash tools/ci/build-backends.sh
+      - name: Prepare existing Windows dependency toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+      - name: Build controlled configurations
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          windows = os.environ['RUNNER_OS'] == 'Windows'
+          root = pathlib.Path.cwd()
+          configurations = {'static': (False,False,True), 'static-ipo': (False,True,True), 'shared': (True,False,True), 'shared-ipo': (True,True,True), 'static-nopic': (False,False,False)}
+          executables = {}
+          for name, (shared,ipo,pic) in configurations.items():
+              directory = root/'build'/('diagnose-'+name)
+              command = ['cmake','-S','.', '-B',str(directory),'-DCMAKE_BUILD_TYPE=Release', '-DUNIMEMORY_WITH_MIMALLOC=ON','-DUNIMEMORY_WITH_JEMALLOC=ON','-DUNIMEMORY_BUILD_DIAGNOSTICS=ON', '-DCMAKE_PREFIX_PATH='+str(root/'build/prefix'), '-DBUILD_SHARED_LIBS='+('ON' if shared else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_IPO='+('ON' if ipo else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_PIC='+('ON' if pic else 'OFF')]
+              if windows:
+                  command.append('-DCMAKE_TOOLCHAIN_FILE='+str(root/'build/vcpkg/scripts/buildsystems/vcpkg.cmake'))
+              subprocess.run(['python3','tools/ci/configure.py','--',*command],check=True)
+              subprocess.run(['cmake','--build',str(directory),'--config','Release','--parallel','4'],check=True)
+              if name=='static':
+                  subprocess.run(['ctest','--test-dir',str(directory),'-C','Release','--parallel','4','--output-on-failure','--no-tests=error'],check=True)
+              executable=directory/('Release/UniMemoryDiagnostic.exe' if windows else 'UniMemoryDiagnostic')
+              executables[name]=str(executable)
+              if windows:
+                  vswhere=pathlib.Path(os.environ['ProgramFiles(x86)'])/'Microsoft Visual Studio/Installer/vswhere.exe'
+                  matches=subprocess.check_output([str(vswhere),'-latest','-products','*','-find','VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe'],text=True).splitlines()
+                  if not matches: raise RuntimeError('MSVC disassembly tool missing')
+                  tool=[matches[0],'/DISASM',str(executable)]
+              else:
+                  tool=['otool','-tvV',str(executable)] if os.environ['RUNNER_OS']=='macOS' else ['objdump','-d','-C',str(executable)]
+              with (directory/'disassembly.txt').open('w') as stream:
+                  subprocess.run(tool,stdout=stream,check=True)
+              libraries=list(directory.glob('libUniMemory.so*'))+list(directory.glob('libUniMemory*.dylib'))+list((directory/'Release').glob('UniMemory.dll'))
+              for library in libraries:
+                  with (directory/('library-'+library.name+'.disassembly.txt')).open('w') as stream:
+                      subprocess.run([*tool[:-1],str(library)],stdout=stream,check=True)
+          (root/'build/diagnostic-executables.json').write_text(json.dumps(executables))
+          PY
+      - name: Validate selectors and measure isolated factors
+        shell: bash
+        run: |
+          python3 tools/ci/diagnose-performance.py --builds "$(cat build/diagnostic-executables.json)" --output build/diagnosis-results --trials 5 --target-seconds 0.12
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-diagnosis-${{ matrix.label }}
+          path: |
+            build/diagnosis-results/
+            build/diagnose-*/diagnostic-build-Release.txt
+            build/diagnose-*/disassembly.txt
+            build/diagnose-*/*.disassembly.txt
+            build/diagnose-*/CMakeCache.txt
+            build/diagnose-*/*.map
+            build/diagnose-*/Release/*.map
+            build/diagnose-*/Testing/Temporary/LastTest.log
+            build/configure.log
+          retention-days: 14
+  acceptance:
+    if: always()
+    needs: [tools, diagnose]
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          jobs=json.loads(os.environ['RESULTS'])
+          assert all(job['result']=='success' for job in jobs.values()), 'Incomplete causal diagnosis'
+          print('All controlled builds, probes and measurements completed')
+          PY

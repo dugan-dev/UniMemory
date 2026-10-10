@@ -4,6 +4,7 @@ option(UNIMEMORY_WITH_MIMALLOC "Enable explicit mimalloc v3 allocations" OFF)
 option(UNIMEMORY_WITH_JEMALLOC "Enable explicit prefixed jemalloc allocations" OFF)
 option(UNIMEMORY_BUILD_BENCHMARKS "Build the opt-in allocation benchmark" OFF)
 option(UNIMEMORY_BUILD_EXAMPLES "Build the public API examples" OFF)
+option(UNIMEMORY_BUILD_DIAGNOSTICS "Build opt-in causal performance probes" OFF)
 if(UNIMEMORY_WITH_MIMALLOC)
     list(APPEND VCPKG_MANIFEST_FEATURES mimalloc)
     if(CMAKE_HOST_WIN32 AND CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg[.]cmake$")
@@ -373,6 +374,10 @@ if(UNIMEMORY_BUILD_BENCHMARKS)
         target_compile_definitions(UniMemoryDeliveryBenchmark PRIVATE UNIMEMORY_BENCH_JEMALLOC)
         target_link_libraries(UniMemoryDeliveryBenchmark PRIVATE unimemory_jemalloc)
     endif()
+endif()
+
+if(UNIMEMORY_BUILD_DIAGNOSTICS)
+    include(cmake/UniMemoryDiagnostics.cmake)
 endif()
 
 install(TARGETS UniMemory EXPORT UniMemoryTargets
