@@ -98,7 +98,7 @@ def main():
         return
     if run("gh", "pr", "view", number, "--json", "headRefOid", "--jq", ".headRefOid") != run("git", "rev-parse", "HEAD"):
         raise RuntimeError("Results PR changed during validation")
-    run("gh", "pr", "merge", number, "--squash", "--delete-branch")
+    run("gh", "pr", "merge", number, "--squash", "--delete-branch", "--match-head-commit", run("git", "rev-parse", "HEAD"))
     print(f"Performance PR #{number} merged after its required checks passed")
 
 

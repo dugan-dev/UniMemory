@@ -22,11 +22,13 @@ class ReportTests(unittest.TestCase):
         self.directory = Path(self.temp.name)
         (self.directory / "environment.json").write_text(json.dumps({"schema": 1, "trials": 3, "source_revision": "a"*40}))
         scaling = [{"trial": trial, "backend": backend, "path": path, "workload": workload,
-                    "bytes": size, "threads": threads, "operations_per_second": 1}
+                    "bytes": size, "threads": threads, "operations_per_second": 1,
+                    "operations": threads*4096, "seconds": 1, "baseline_rss": 100, "final_rss": 100, "peak_rss": 100}
                    for trial, backend, path, workload, size, threads in itertools.product(
                        range(1, 4), report.BACKENDS, report.PATHS, ("same_thread", "handoff"), (64, 4096, 65536), report.THREADS)]
         tails = [{"trial": trial, "backend": backend, "path": path, "bytes": size,
-                  "samples": 8192, "allocate_p99_ns": 1}
+                  "samples": 8192, "allocate_p50_ns": 1, "allocate_p95_ns": 1, "allocate_p99_ns": 1,
+                  "allocate_p999_ns": 1, "allocate_max_ns": 1, "free_p99_ns": 1, "clock_p50_ns": 1}
                  for trial, backend, path, size in itertools.product(range(1, 4), report.BACKENDS, report.PATHS, (16,64,256,4096,65536))]
         measurement.write_rows(self.directory / "scaling.csv", scaling)
         measurement.write_rows(self.directory / "tails.csv", tails)
@@ -71,6 +73,13 @@ class ReportTests(unittest.TestCase):
         rows[0]["operations_per_second"] = "nan"
         measurement.write_rows(self.directory / "scaling.csv", rows)
         with self.assertRaisesRegex(ValueError, "Invalid"):
+            report.validate(self.directory)
+
+    def test_nonfinite_memory_rejected(self):
+        rows = report.read(self.directory / "scaling.csv")
+        rows[0]["peak_rss"] = "nan"
+        measurement.write_rows(self.directory / "scaling.csv", rows)
+        with self.assertRaisesRegex(ValueError, "numeric"):
             report.validate(self.directory)
 
     def test_percentiles_are_individual_samples(self):

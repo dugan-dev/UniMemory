@@ -67,6 +67,20 @@ def validate(directory):
             raise ValueError(f"Invalid {name} measurement")
         if name == "tails" and any(int(row["samples"]) != 8192 for row in rows):
             raise ValueError("Incomplete operation samples")
+        numeric = ("operations", "seconds", "baseline_rss", "final_rss", "peak_rss") if name == "scaling" else (
+            "allocate_p50_ns", "allocate_p95_ns", "allocate_p999_ns", "allocate_max_ns", "free_p99_ns", "clock_p50_ns")
+        try:
+            if any(not math.isfinite(float(row[field])) or float(row[field]) < 0 for row in rows for field in numeric):
+                raise ValueError(f"Invalid {name} numeric field")
+            if name == "scaling" and any(int(row["operations"]) != int(row["threads"])*4096 or
+                                          float(row["seconds"]) <= 0 or float(row["peak_rss"]) <= 0 for row in rows):
+                raise ValueError("Invalid scaling operation count or duration")
+            if name == "tails" and any(not (float(row["allocate_p50_ns"]) <= float(row["allocate_p95_ns"]) <=
+                                            float(row["allocate_p99_ns"]) <= float(row["allocate_p999_ns"]) <=
+                                            float(row["allocate_max_ns"])) for row in rows):
+                raise ValueError("Invalid percentile ordering")
+        except KeyError as error:
+            raise ValueError(f"Invalid {name} schema") from error
     if not manifest.get("source_revision") or manifest["source_revision"] == "unrecorded":
         raise ValueError("Missing source provenance")
     matrices = (
