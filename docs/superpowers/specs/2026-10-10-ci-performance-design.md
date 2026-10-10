@@ -5,6 +5,8 @@
 Expand remote validation across mainstream platforms and compilers, strengthen
 failure detection, and publish reproducible performance charts automatically.
 All builds and test execution for this work run in GitHub Actions, not locally.
+Develop on the user-requested `dev` branch. Relevant changes trigger validation
+and performance measurement automatically. Do not add cron/scheduled triggers.
 Keep C++20, the public API, and existing allocator dependency versions unchanged.
 Do not add allocation backends or benchmark-library dependencies.
 Keep the README layout and prose; only replace performance image references when
@@ -59,7 +61,7 @@ Reuse current data-content, alignment, lifetime, accounting, exception-safety,
 and cross-thread checks. Extend parameterized workloads to thread churn,
 asymmetric allocation/free handoff, large live sets, and controlled failures.
 Use bounded, deterministic workloads on PRs. Put longer randomized and memory
-pressure workloads in scheduled/manual validation with seeds, sizes, thread
+pressure workloads in change-triggered/manual validation with seeds, sizes, thread
 counts and duration captured in the report. All pressure tests use a declared
 memory budget and leave runner headroom; they must not depend on host OOM kills.
 Do not test concurrent reset where the public contract requires exclusive access.
@@ -86,7 +88,7 @@ Report actual CPU capacity and distinguish oversubscribed workloads. Measure
 timing overhead; do not label percentiles of batch averages as per-operation
 p95/p99/p99.9. RSS retention is not itself proof of a leak or fragmentation.
 Reuse the existing 16 external application workloads for periodic native
-comparison. Run fresh-process repetitions and preserve all raw samples.
+comparison on relevant changes. Run fresh-process repetitions and preserve all raw samples.
 
 Correctness failures fail the benchmark job. Performance comparisons on hosted
 runners initially produce reports and regression signals, not an absolute speed
@@ -107,7 +109,7 @@ and charts under `docs/images/performance/`. README references two summary chart
 throughput scaling and memory cost. Detailed charts cover latency, workload
 comparisons, and memory phases in performance documentation.
 
-Scheduled/manual benchmark runs upload immutable artifacts first. Only a complete
+Change-triggered/manual benchmark runs upload immutable artifacts first. Only a complete
 validated report may update the tracked current-results paths. Publication uses
 a bot PR compatible with branch protection, scoped to generated results and
 images, with automatic merge after required validation and temporary branch
@@ -119,7 +121,7 @@ permissions limited to the publication job and never available to untrusted PRs.
 
 1. PR: platform/compiler build, correctness, consumers, static analysis, coverage,
    and bounded sanitizer checks.
-2. Scheduled/manual extended validation: long stress, supported native allocator
+2. Change-triggered/manual extended validation: long stress, supported native allocator
    detection, external application workloads, and full benchmarks.
 3. Publication: validate report completeness, generate charts, open/update a bot
    PR, and retain provenance linking every chart to its run and source revision.
