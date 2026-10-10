@@ -6,7 +6,7 @@ root = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("report", root / "tools/ci/performance-report.py")
 report = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(report)
-directories = sorted((root / "docs/results/current").glob("*/environment.json"))
+directories = sorted((root / "docs/results/current").rglob("environment.json"))
 if not directories:
     print("No current performance baseline is published yet")
 for manifest in directories:

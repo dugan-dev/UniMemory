@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](mimalloc.zh-CN.md)
 
-Tested: **3.4.3**. UniMemory requires v3.4.3+ for its statistics API, matching headers/library, and `UNIMEMORY_WITH_MIMALLOC=ON`. Newer releases are not automatically validated.
+Tested: **3.4.3**. UniMemory requires v3.4.3+ for its statistics API, matching headers/library, and `UNIMEMORY_BACKEND=mimalloc`. Newer releases are not automatically validated.
 
 | Native feature | Key functions | UniMemory decision |
 | --- | --- | --- |
@@ -27,8 +27,7 @@ In the pinned default Release build, `MI_STAT=0`: normal malloc counters are not
 recorded. Requested counters and huge-allocation release updates also do not
 consistently represent live bytes. Heap page accounting is recorded at subprocess
 scope. UniMemory therefore returns only Process committed/reserved metrics; a
-mimalloc Heap reports no native detailed-statistics capability. Enable Basic for
-exact request counters on either kind.
+mimalloc Heap reports no native detailed-statistics capability. Use `UNIMEMORY_STATISTICS=ON` for exact Global request counters and optional Heap Basic counters.
 
 Verified against [build conditions](https://github.com/microsoft/mimalloc/blob/v3.4.3/include/mimalloc/types.h#L70),
 [allocation counters](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/alloc.c#L57),

@@ -1,3 +1,4 @@
+#include "../compiled-test-config.h"
 #include <unimem/memory.h>
 #include <unimem/version.h>
 
@@ -48,11 +49,11 @@ int main() {
     scratch.reset();
     if (scratch.used() != 0 || !scratch.capabilities().checkpoints) { return 9; }
 
-    const auto cap = unimem::capabilities(unimem::Backend::Standard);
-    if (!cap.available || cap.heap || cap.detailed_statistics) { return 3; }
+    const auto cap = unimem::capabilities(unimem::Memory::selected_backend);
+    if (!cap.available || cap.heap != (unimem::Memory::selected_backend != unimem::Backend::Standard)) { return 3; }
     for (auto backend : {unimem::Backend::Mimalloc, unimem::Backend::Jemalloc}) {
         if (!unimem::capabilities(backend).heap) { continue; }
-        unimem::Memory arena = unimem::Memory::heap(backend, unimem::StatisticsMode::Basic);
+        unimem::Memory arena = unimem::Memory::heap(backend, compiled_test::heap_mode);
         {
             auto value = arena.make_unique<int>(23);
             std::pmr::vector<int> items(arena.resource());
@@ -63,7 +64,7 @@ int main() {
         }
         arena.allocate(1024, 64);
         arena.reset();
-        if (arena.statistics()->live_bytes != 0 || arena.owns(nullptr)) {
+        if ((arena.statistics() && arena.statistics()->live_bytes != 0) || arena.owns(nullptr)) {
             return 6;
         }
         auto value = arena.make_unique<int>(29);

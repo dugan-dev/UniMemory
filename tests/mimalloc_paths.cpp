@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 #include <mimalloc.h>
 
@@ -55,28 +56,28 @@ void exercise(Memory& memory, mi_heap_t* heap) {
 }
 
 void defaults() {
-    for (auto mode : {StatisticsMode::Basic}) {
+    for (auto mode : {compiled_test::global_mode}) {
         Memory& first = Memory::global(Backend::Mimalloc);
         Memory& second = Memory::global(Backend::Mimalloc);
         for (unsigned round = 0; round < 16; ++round) {
             exercise(first, mi_heap_main());
             exercise(second, mi_heap_main());
         }
-        check(first.backend_statistics()->scope == BackendStatisticsScope::Process,
+        check( (!compiled_test::supports_statistics || (first.backend_statistics()->scope == BackendStatisticsScope::Process)) ,
               "default statistics must cover the backend");
         const auto native = *first.backend_statistics();
         check(!native.requested_bytes && !native.allocated_bytes &&
               native.committed_bytes && native.reserved_bytes,
               "unreliable native malloc counters must remain unavailable");
         if (mode == StatisticsMode::Basic) {
-            check(first.statistics()->live_bytes == 0 && second.statistics()->live_bytes == 0,
+            check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 0)) && (!compiled_test::supports_statistics || (second.statistics()->live_bytes == 0)) ,
                   "default allocations leaked");
         }
     }
 }
 
 void arenas() {
-    for (auto mode : {StatisticsMode::Disabled, StatisticsMode::Basic}) {
+    for (auto mode : compiled_test::heap_modes()) {
         for (unsigned round = 0; round < 16; ++round) {
             Memory first = Memory::heap(Backend::Mimalloc, mode);
             Memory second = Memory::heap(Backend::Mimalloc, mode);
@@ -103,34 +104,34 @@ void counters() {
     auto a = first.make_block(100);
     auto b = second.make_block(200);
     check(mi_heap_of(a.data()) == mi_heap_of(b.data()), "ordinary memories must share defaults");
-    check(first.statistics()->live_bytes == 300 && &first == &second,
+    check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 300)) && &first == &second,
           "global references must share request counters");
     void* external = mi_malloc(512);
     check(external != nullptr, "native allocation failed");
     mi_free(external);
-    check(first.statistics()->allocations == 2 && second.statistics()->allocations == 2,
+    check( (!compiled_test::supports_statistics || (first.statistics()->allocations == 2)) && (!compiled_test::supports_statistics || (second.statistics()->allocations == 2)) ,
           "native allocations must not enter request counters");
     a.resize(300);
-    check(first.statistics()->live_bytes == 500 && second.statistics()->live_bytes == 500,
+    check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 500)) && (!compiled_test::supports_statistics || (second.statistics()->live_bytes == 500)) ,
           "reallocation changed another memory's counters");
     a.resize(0);
-    check(first.statistics()->live_bytes == 200 && second.statistics()->live_bytes == 200,
+    check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 200)) && (!compiled_test::supports_statistics || (second.statistics()->live_bytes == 200)) ,
           "release changed another memory's counters");
     auto large = first.make_block(1024 * 1024);
-    check(first.statistics()->live_bytes == 200 + large.size(), "live large-block request count");
+    check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 200 + large.size())) , "live large-block request count");
     auto native = *first.backend_statistics();
     check(!native.requested_bytes && !native.allocated_bytes,
           "large allocation exposed unreliable native counters");
     large.resize(0);
     native = *first.backend_statistics();
-    check(first.statistics()->live_bytes == 200 && !native.requested_bytes && !native.allocated_bytes,
+    check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 200)) && !native.requested_bytes && !native.allocated_bytes,
           "stale native huge counter must not be a live-byte metric");
 }
 
 void threads() {
     Memory& first = Memory::global(Backend::Mimalloc);
     Memory& second = Memory::global(Backend::Mimalloc);
-    Memory arena = Memory::heap(Backend::Mimalloc, StatisticsMode::Basic);
+    Memory arena = Memory::heap(Backend::Mimalloc, compiled_test::heap_mode);
     auto anchor = arena.make_block(32);
     auto* arena_heap = mi_heap_of(anchor.data());
     std::atomic<bool> failed{false};
@@ -150,15 +151,15 @@ void threads() {
     check(!failed.load(), "cross-thread path or content failed");
     anchor.resize(0);
     for (auto* memory : {&first, &second, &arena}) {
-        const auto stats = *memory->statistics();
-        check(stats.live_bytes == 0 && stats.allocations == stats.deallocations,
+        const auto stats = memory->statistics();
+        check( (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->allocations == stats->deallocations)) ,
               "concurrent request counters did not balance");
     }
 }
 }
 
 int main(int argc, char** argv) {
-    unimem::Memory::configure_global(unimem::Backend::Mimalloc, unimem::StatisticsMode::Basic);
+    compiled_test::test_configuration(unimem::Backend::Mimalloc, compiled_test::global_mode);
     try {
         const std::string_view mode = argc == 2 ? argv[1] : "";
         if (mode == "default") { defaults(); }

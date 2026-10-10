@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <array>
@@ -29,7 +30,7 @@ constexpr std::array<std::size_t, 6> sizes{1, 7, 64, 4096, 65536, 1048576};
 constexpr std::array<std::size_t, 5> alignments{1, 8, 16, 256, 4096};
 
 void reset_test(Backend backend) {
-    for (auto mode : {StatisticsMode::Disabled, StatisticsMode::Basic}) {
+    for (auto mode : compiled_test::heap_modes()) {
         Memory arena = Memory::heap(backend, mode);
         auto& memory = arena;
         auto* resource = memory.resource();
@@ -47,10 +48,8 @@ void reset_test(Backend backend) {
             check(memory.statistics().has_value() == (mode == StatisticsMode::Basic),
                   "reset changed statistics mode");
             if (mode == StatisticsMode::Basic) {
-                const auto stats = *memory.statistics();
-                check(stats.allocations == 0 && stats.deallocations == 0 &&
-                      stats.reallocations == 0 && stats.live_bytes == 0 &&
-                      stats.peak_live_bytes == 0, "reset did not clear counters");
+                const auto stats = memory.statistics();
+                check( (!compiled_test::supports_statistics || (stats->allocations == 0)) && (!compiled_test::supports_statistics || (stats->deallocations == 0)) && (!compiled_test::supports_statistics || (stats->reallocations == 0)) && (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->peak_live_bytes == 0)) , "reset did not clear counters");
             }
             arena.reset();
             auto block = memory.make_block(17, 256);
@@ -60,14 +59,14 @@ void reset_test(Backend backend) {
 }
 
 void collect_test(Backend backend) {
-    Memory arena = Memory::heap(backend, StatisticsMode::Basic);
+    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
     arena.collect();
     for (unsigned round = 0; round < 64; ++round) {
         for (auto bytes : sizes) {
             auto live = arena.make_block(bytes, 256);
             std::memset(live.data(), 0x52, bytes);
             { auto freed = arena.make_block(bytes * 2); }
-            const auto before = *arena.statistics();
+            const auto before = arena.statistics();
             arena.collect();
             arena.collect();
             check(arena.owns(live.data()), "collect changed ownership");
@@ -75,12 +74,8 @@ void collect_test(Backend backend) {
                 check(static_cast<unsigned char*>(live.data())[i] == 0x52,
                       "collect corrupted live allocation");
             }
-            const auto after = *arena.statistics();
-            check(before.allocations == after.allocations &&
-                  before.deallocations == after.deallocations &&
-                  before.reallocations == after.reallocations &&
-                  before.live_bytes == after.live_bytes &&
-                  before.peak_live_bytes == after.peak_live_bytes,
+            const auto after = arena.statistics();
+            check( (!compiled_test::supports_statistics || (before->allocations == after->allocations)) && (!compiled_test::supports_statistics || (before->deallocations == after->deallocations)) && (!compiled_test::supports_statistics || (before->reallocations == after->reallocations)) && (!compiled_test::supports_statistics || (before->live_bytes == after->live_bytes)) && (!compiled_test::supports_statistics || (before->peak_live_bytes == after->peak_live_bytes)) ,
                   "collect changed request counters");
         }
     }
@@ -113,7 +108,7 @@ void owns_test(Backend backend) {
 }
 
 void containers_test(Backend backend) {
-    Memory arena = Memory::heap(backend, StatisticsMode::Basic);
+    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
     for (unsigned round = 0; round < 128; ++round) {
         {
             auto& memory = arena;
@@ -133,13 +128,13 @@ void containers_test(Backend backend) {
                   arena.owns(ordinary.data()) && arena.owns(polymorphic.data()),
                   "container ownership");
         }
-        check(arena.statistics()->live_bytes == 0, "owner release balance");
+        check( (!compiled_test::supports_statistics || (arena.statistics()->live_bytes == 0)) , "owner release balance");
         arena.reset();
     }
 }
 
 void threads_test(Backend backend) {
-    Memory arena = Memory::heap(backend, StatisticsMode::Basic);
+    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
     for (unsigned epoch = 0; epoch < 8; ++epoch) {
         std::atomic<bool> failed{false};
         std::array<std::thread, 4> workers;
@@ -158,7 +153,7 @@ void threads_test(Backend backend) {
         }
         for (auto& worker : workers) { worker.join(); }
         check(!failed.load(), "concurrent arena operation failed");
-        check(arena.statistics()->live_bytes == 0, "thread balance");
+        check( (!compiled_test::supports_statistics || (arena.statistics()->live_bytes == 0)) , "thread balance");
         // Control operations require exclusive access, after all workers join.
         {
             auto anchor = arena.make_block(4096, 64);
@@ -195,7 +190,14 @@ void lifetime_test(Backend backend) {
 void rejected() {
     check(!capabilities(Backend::Standard).heap, "Standard arena advertised");
     try { Memory arena = Memory::heap(Backend::Standard); }
-    catch (const std::runtime_error&) { return; }
+    catch (const std::invalid_argument&) {
+        check(compiled_test::backend != Backend::Standard, "selected Standard mismatch classification");
+        return;
+    }
+    catch (const std::runtime_error&) {
+        check(compiled_test::backend == Backend::Standard, "unselected Standard mismatch classification");
+        return;
+    }
     throw std::runtime_error("Standard Arena accepted");
 }
 }

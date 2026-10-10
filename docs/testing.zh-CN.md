@@ -2,6 +2,8 @@
 
 [目录](README.zh-CN.md) · [English](testing.md) · **简体中文**
 
+下方结果对应原实测源码修订，包含旧的多后端编译库配置；保留为历史证据，不宣称它们是新纯头文件配置的测试计数。当前配置见[构建指南](getting-started.zh-CN.md)。
+
 ## 远程验收 · 2026-10-10
 
 扩展验收对应源码 `ca4919f`。[原生矩阵](remote-validation.md#platform-and-compiler-matrix)
@@ -80,12 +82,12 @@ Backend 版本：mimalloc 3.4.3、jemalloc 5.3.1。以上验证针对统一 Memo
 ## 运行
 
 ```sh
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ctest --preset release
 ```
 
-默认启用 Standard；可选 Backend 需要开启构建选项并提供依赖。[配置方法](guides/backends.zh-CN.md)
+后端与统计模式必须在构建时选择。上述命令选择 Standard/OFF，其他后端/ON/OFF 配置使用独立构建目录，并提供所选 SDK。[配置方法](guides/backends.zh-CN.md)
 
 ## 自动化验证
 

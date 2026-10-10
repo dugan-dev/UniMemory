@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 #include <atomic>
 #include <cstdlib>
@@ -76,12 +77,25 @@ void operator delete[](void* p, std::align_val_t, const std::nothrow_t&) noexcep
 
 int main(int argc, char** argv) {
     using namespace unimem;
-    const auto mode = argc == 2 && std::strcmp(argv[1], "basic") == 0
-        ? StatisticsMode::Basic : StatisticsMode::Disabled;
-    Memory::configure_global(Backend::Standard, mode);
-    if (mode == StatisticsMode::Basic && !fails([] { (void)Memory::global(); })) {
-        return 1;
+    if (argc == 2 && std::strcmp(argv[1], "initialization_retry") == 0) {
+        bool rejected = false;
+        fail_allocations.store(true);
+        try { (void)Memory::global(); }
+        catch (const std::bad_alloc&) { rejected = true; }
+        fail_allocations.store(false);
+        if (!rejected) { return 7; }
+        auto& recovered = Memory::global();
+        auto* resource = recovered.resource();
+        void* pointer = resource->allocate(0, 16);
+        resource->deallocate(pointer, 0, 16);
+        const auto stats = recovered.statistics();
+        if (!stats || stats->allocations != 1 || stats->deallocations != 1 ||
+            stats->reallocations != 0 || stats->live_bytes != 0 || stats->peak_live_bytes != 1) {
+            return 8;
+        }
+        return 0;
     }
+    compiled_test::test_configuration(Backend::Standard, compiled_test::global_mode);
     Memory& memory = Memory::global();
     fail_allocations.store(true);
     {

@@ -1,5 +1,7 @@
 # Upstream validation
 
+Recorded runs below precede the header-only fixed-profile migration. Static/shared UniMemory references describe those historical builds; current builds use a CMake INTERFACE target with a separately linked SDK. See [current configuration](getting-started.md).
+
 [Documentation](README.md) · [Tests](testing.md)
 
 UniMemory tests its own contract and runs upstream suites separately. An upstream test exercises the allocator's native API; it does not prove that the UniMemory adapter is correct.

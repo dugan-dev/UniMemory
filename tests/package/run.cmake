@@ -1,6 +1,13 @@
 set(arguments -S "${UNIMEMORY_SOURCE}/tests/package" -B "${TEST_BINARY}"
     -G "${TEST_GENERATOR}" "-DUNIMEMORY_SOURCE=${UNIMEMORY_SOURCE}"
     "-DSCENARIO=${SCENARIO}" "-DLOOKUP_MODE=${LOOKUP_MODE}" "-DNM_FIXTURE=${NM_FIXTURE}")
+if(LOOKUP_MODE STREQUAL "source")
+    if(NOT COMPILED_BACKEND STREQUAL "jemalloc" OR NOT COMPILED_STATISTICS MATCHES "^(ON|OFF)$")
+        message(FATAL_ERROR "Source dependency fixture requires the matching compiled Jemalloc profile")
+    endif()
+    list(APPEND arguments "-DUNIMEMORY_BACKEND=${COMPILED_BACKEND}"
+        "-DUNIMEMORY_STATISTICS=${COMPILED_STATISTICS}")
+endif()
 if(INSTALLED_PACKAGE)
     list(APPEND arguments "-DINSTALLED_PACKAGE=${INSTALLED_PACKAGE}" "-Dmimalloc_DIR=${mimalloc_DIR}")
 endif()

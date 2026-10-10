@@ -2,6 +2,8 @@
 
 [Documentation](README.md) · **English** · [简体中文](testing.zh-CN.md)
 
+The results below identify earlier measured source revisions, including compiled multi-backend library builds. They are retained as historical evidence and do not claim validation counts for the new header-only profile. Current configuration is described in the [build guide](getting-started.md).
+
 ## Remote validation · 2026-10-10
 
 The expanded validation targets source `ca4919f`. The [native matrix](remote-validation.md#platform-and-compiler-matrix)
@@ -87,12 +89,12 @@ Callers must avoid mismatched frees, invalid pointers, use after reset and unsyn
 ## Run
 
 ```sh
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ctest --preset release
 ```
 
-Standard is enabled by default; optional backends need their build options and dependencies. [Configuration](guides/backends.md)
+The backend and statistics mode are mandatory build choices. The command selects Standard/OFF; use separate build directories for the other backend/ON/OFF profiles and provide the selected SDK. [Configuration](guides/backends.md)
 
 ## Automated verification
 

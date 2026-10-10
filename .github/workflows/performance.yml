@@ -2,7 +2,7 @@ name: performance
 on:
   push:
     branches: [main, dev]
-    paths: ['src/**', 'include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
+    paths: ['include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
   pull_request:
   workflow_dispatch:
     inputs:
@@ -34,7 +34,7 @@ jobs:
               relevant = False
           elif os.environ.get('PR_NUMBER'):
               files = subprocess.check_output(['gh', 'api', '--paginate', f"repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{os.environ['PR_NUMBER']}/files", '--jq', '.[].filename'], text=True).splitlines()
-              relevant = any(path.startswith(('src/', 'include/', 'tests/', 'benchmarks/', 'tools/', 'cmake/', '.github/workflows/')) or path in ('CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json') for path in files)
+              relevant = any(path.startswith(('include/', 'tests/', 'benchmarks/', 'tools/', 'cmake/', '.github/workflows/')) or path in ('CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json') for path in files)
           with open(os.environ['GITHUB_OUTPUT'], 'a') as file:
               file.write('measure=' + str(relevant).lower() + '\n')
           print('Source/configuration measurement required:', relevant)
@@ -45,38 +45,47 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: python3 -m unittest discover -s tests/tools -v
+      - run: python3 tools/ci/test-profile-report.py
       - run: python3 tools/ci/validate-published.py
   measure:
     needs: [changes, report-tests]
     if: needs.changes.outputs.measure == 'true'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.platform.os }}
     timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        include:
+        platform:
           - {os: ubuntu-24.04, label: linux-x64}
           - {os: windows-2022, label: windows-x64}
           - {os: macos-15, label: macos-arm64}
+        backend: [standard, mimalloc, jemalloc]
+        statistics: ['OFF', 'ON']
     steps:
       - uses: actions/checkout@v5
       - name: Build pinned explicit backends
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.backend != 'standard'
         run: bash tools/ci/build-backends.sh
       - name: Windows pinned dependency toolchain
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.backend != 'standard'
         shell: pwsh
         run: |
           git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Compile and verify benchmark build
         shell: bash
         run: |
           flags=()
-          if [ "$RUNNER_OS" = Windows ]; then flags+=(-DCMAKE_TOOLCHAIN_FILE="$PWD/build/vcpkg/scripts/buildsystems/vcpkg.cmake"); fi
-          python3 tools/ci/configure.py -- cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON "${flags[@]}"
+          if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$PWD/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$PWD/cmake/triplets")
+          fi
+          python3 tools/ci/configure.py -- cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}"
           cmake --build build/performance --config Release --parallel 4
+          if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then export PATH="$PWD/build/performance/vcpkg_installed/x64-windows-unimemory/bin:$PATH"; fi
           ctest --test-dir build/performance -C Release --parallel 4 --output-on-failure --no-tests=error
       - name: Measure matched Native and UniMemory workloads
         shell: bash
@@ -86,18 +95,22 @@ jobs:
           if [ "$RUNNER_OS" = Windows ]; then executable=build/performance/Release/UniMemoryDeliveryBenchmark.exe; sweep=build/performance/Release/UniMemoryBenchmark.exe; fi
           python3 tools/ci/performance.py "$executable" build/results
           python3 tools/run-sweep.py "$sweep" build/results
-          python3 tools/ci/performance-report.py build/results build/charts --label '${{ matrix.label }}'
+          python3 tools/ci/performance-report.py build/results build/charts --label '${{ matrix.platform.label }}/${{ matrix.backend }}/${{ matrix.statistics }}'
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: performance-${{ matrix.label }}
+          name: performance-${{ matrix.platform.label }}-${{ matrix.backend }}-${{ matrix.statistics }}
           path: |
             build/results/
             build/charts/
+            build/performance/benchmark-build-Release.txt
+            build/performance/CMakeCache.txt
+            build/performance/compile_commands.json
           retention-days: 14
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: performance-failure-${{ matrix.label }}
+          name: performance-failure-${{ matrix.platform.label }}-${{ matrix.backend }}-${{ matrix.statistics }}
           path: |
             build/performance/Testing/Temporary/LastTest.log
             build/configure.log

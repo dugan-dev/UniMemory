@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](jemalloc.zh-CN.md)
 
-Tested: **5.3.1** with explicit `je_` exports. Enable `UNIMEMORY_WITH_JEMALLOC`; Unix packages must use `--with-jemalloc-prefix=je_ --disable-cxx`. The prefix does not disable global C++ operators; UniMemory rejects libraries that export those replacements. [Official 5.3.1 build options](https://github.com/jemalloc/jemalloc/blob/5.3.1/INSTALL.md). The online manual describes **5.4.0** and cannot prove that a 5.3.1 build has every new symbol.
+Tested: **5.3.1** with explicit `je_` exports. Enable `UNIMEMORY_BACKEND=jemalloc`; Unix packages must use `--with-jemalloc-prefix=je_ --disable-cxx`. The prefix does not disable global C++ operators; UniMemory rejects libraries that export those replacements. [Official 5.3.1 build options](https://github.com/jemalloc/jemalloc/blob/5.3.1/INSTALL.md). The online manual describes **5.4.0** and cannot prove that a 5.3.1 build has every new symbol.
 
 | Native feature | Key functions / controls | UniMemory decision |
 | --- | --- | --- |

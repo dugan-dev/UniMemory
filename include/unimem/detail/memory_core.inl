@@ -1,8 +1,10 @@
-#include <unimem/memory.h>
+#pragma once
 
-#include "backend.h"
+
+#include <unimem/detail/backend.h>
 
 #include <algorithm>
+#include <climits>
 #include <atomic>
 #include <cstring>
 #include <limits>
@@ -23,61 +25,66 @@ struct TrackingContext {
 
 }
 
-namespace {
+namespace memory_impl {
 
-bool valid_alignment(std::size_t alignment) noexcept {
+UNIMEMORY_FORCE_INLINE bool valid_alignment(std::size_t alignment) noexcept {
     return alignment != 0 && (alignment & (alignment - 1)) == 0;
 }
-
-union GlobalStorage {
-    std::byte bytes[sizeof(Memory)];
-    std::max_align_t alignment;
-};
-static_assert(alignof(GlobalStorage) >= alignof(Memory));
 
 struct GlobalSlot {
     std::mutex mutex;
     std::atomic<Memory*> instance{nullptr};
-    StatisticsMode statistics = StatisticsMode::Disabled;
-    GlobalStorage storage{};
 };
 
-GlobalSlot& global_slot(Backend backend) {
-    switch (backend) {
-    case Backend::Standard:
-    case Backend::Mimalloc:
-    case Backend::Jemalloc: break;
-    default: throw std::invalid_argument("UniMemory: invalid backend");
-    }
-    if (!available(backend)) { throw std::runtime_error("UniMemory: backend is not enabled"); }
-    // The registry intentionally survives static destruction, without a hidden
-    // startup Heap allocation. It also retains optional Global counter state.
-    struct Registry { GlobalSlot slots[3]; };
-    alignas(Registry) static std::byte storage[sizeof(Registry)];
-    static Registry* registry = ::new (storage) Registry;
-    return registry->slots[static_cast<unsigned>(backend)];
+inline GlobalSlot& global_slot() {
+    // Keep mutex/publication state alive across static destruction, without
+    // hidden Heap allocation or an automatically destroyed Memory object.
+    alignas(GlobalSlot) static std::byte storage[sizeof(GlobalSlot)];
+    static GlobalSlot* initialized = ::new (storage) GlobalSlot;
+    (void)initialized;
+    return *std::launder(reinterpret_cast<GlobalSlot*>(storage));
 }
 
-void validate_statistics(StatisticsMode mode) {
+inline void validate_statistics(StatisticsMode mode) {
     if (mode != StatisticsMode::Disabled && mode != StatisticsMode::Basic) {
         throw std::invalid_argument("UniMemory: invalid statistics mode");
     }
 }
 
-void update_peak(detail::TrackingContext* tracked, std::uint64_t live) noexcept {
+UNIMEMORY_FORCE_INLINE void update_peak(detail::TrackingContext* tracked, std::uint64_t live) noexcept {
     auto peak = tracked->peak_live_bytes.load(std::memory_order_relaxed);
     while (live > peak && !tracked->peak_live_bytes.compare_exchange_weak(
                peak, live, std::memory_order_relaxed)) {}
 }
 
-void record_allocation(detail::TrackingContext* tracked, std::size_t bytes) noexcept {
+UNIMEMORY_FORCE_INLINE void record_allocation(detail::TrackingContext* tracked, std::size_t bytes) noexcept {
     tracked->allocations.fetch_add(1, std::memory_order_relaxed);
     const auto live = tracked->live_bytes.fetch_add(bytes, std::memory_order_relaxed)
         + bytes;
     update_peak(tracked, live);
 }
 
-void* tracked_allocate(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void record_reallocation(detail::TrackingContext* tracked,
+    std::size_t old_bytes, std::size_t new_bytes) noexcept {
+    tracked->reallocations.fetch_add(1, std::memory_order_relaxed);
+    if (new_bytes > old_bytes) {
+        const auto live = tracked->live_bytes.fetch_add(new_bytes - old_bytes,
+                                                         std::memory_order_relaxed)
+            + (new_bytes - old_bytes);
+        update_peak(tracked, live);
+    } else {
+        tracked->live_bytes.fetch_sub(old_bytes - new_bytes,
+                                       std::memory_order_relaxed);
+    }
+}
+
+UNIMEMORY_FORCE_INLINE void record_deallocation(detail::TrackingContext* tracked,
+    std::size_t bytes) noexcept {
+    tracked->deallocations.fetch_add(1, std::memory_order_relaxed);
+    tracked->live_bytes.fetch_sub(bytes, std::memory_order_relaxed);
+}
+
+UNIMEMORY_FORCE_INLINE void* tracked_allocate(void* context, std::size_t bytes,
                        std::size_t alignment) noexcept {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     void* pointer = tracked->base.ops->allocate(tracked->base.context, bytes, alignment);
@@ -85,7 +92,7 @@ void* tracked_allocate(void* context, std::size_t bytes,
     return pointer;
 }
 
-void* tracked_allocate_zeroed(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* tracked_allocate_zeroed(void* context, std::size_t bytes,
                               std::size_t alignment) noexcept {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     void* pointer = tracked->base.ops->allocate_zeroed != nullptr
@@ -100,7 +107,7 @@ void* tracked_allocate_zeroed(void* context, std::size_t bytes,
     return pointer;
 }
 
-void* tracked_reallocate(void* context, void* pointer, std::size_t old_bytes,
+UNIMEMORY_FORCE_INLINE void* tracked_reallocate(void* context, void* pointer, std::size_t old_bytes,
                          std::size_t new_bytes, std::size_t alignment) noexcept {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     void* next = nullptr;
@@ -110,148 +117,84 @@ void* tracked_reallocate(void* context, void* pointer, std::size_t old_bytes,
     } else {
         next = tracked->base.ops->allocate(tracked->base.context, new_bytes, alignment);
         if (next != nullptr) {
-            std::memcpy(next, pointer, std::min(old_bytes, new_bytes));
+            std::memcpy(next, pointer, (std::min)(old_bytes, new_bytes));
             tracked->base.ops->deallocate(tracked->base.context, pointer,
                                            old_bytes, alignment);
         }
     }
     if (next != nullptr) {
-        tracked->reallocations.fetch_add(1, std::memory_order_relaxed);
-        if (new_bytes > old_bytes) {
-            const auto live = tracked->live_bytes.fetch_add(new_bytes - old_bytes,
-                                                             std::memory_order_relaxed)
-                + (new_bytes - old_bytes);
-            update_peak(tracked, live);
-        } else {
-            tracked->live_bytes.fetch_sub(old_bytes - new_bytes,
-                                           std::memory_order_relaxed);
-        }
+        record_reallocation(tracked, old_bytes, new_bytes);
     }
     return next;
 }
 
-void tracked_deallocate(void* context, void* pointer, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void tracked_deallocate(void* context, void* pointer, std::size_t bytes,
                         std::size_t alignment) noexcept {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     tracked->base.ops->deallocate(tracked->base.context, pointer, bytes, alignment);
-    tracked->deallocations.fetch_add(1, std::memory_order_relaxed);
-    tracked->live_bytes.fetch_sub(bytes, std::memory_order_relaxed);
+    record_deallocation(tracked, bytes);
 }
 
-void tracked_destroy(void* context) noexcept {
+inline void tracked_destroy(void* context) noexcept {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     tracked->base.ops->destroy(tracked->base.context);
     delete tracked;
 }
 
-bool tracked_statistics(void* context, BackendStatistics& result) {
+inline bool tracked_statistics(void* context, BackendStatistics& result) {
     auto* tracked = static_cast<detail::TrackingContext*>(context);
     return tracked->base.ops->statistics != nullptr &&
            tracked->base.ops->statistics(tracked->base.context, result);
 }
 
-const detail::BackendOps tracked_ops{tracked_allocate, tracked_allocate_zeroed,
+inline const detail::BackendOps tracked_ops{tracked_allocate, tracked_allocate_zeroed,
                                      tracked_reallocate, tracked_deallocate,
                                      tracked_destroy, tracked_statistics};
 
 }
 
-bool available(Backend backend) noexcept {
-    switch (backend) {
-    case Backend::Standard: return true;
-    case Backend::Mimalloc:
-#ifdef UNIMEMORY_WITH_MIMALLOC
-        return true;
-#else
-        return false;
-#endif
-    case Backend::Jemalloc:
-#ifdef UNIMEMORY_WITH_JEMALLOC
-        return true;
-#else
-        return false;
-#endif
-    default: return false;
+// Constant-initialized bytes have no constructor/destructor/atexit guard.
+// The placement-created PMR object itself is never automatically destroyed.
+inline constinit Memory::GlobalResourceStorage Memory::global_resource_storage_{};
+
+UNIMEMORY_FORCE_INLINE Memory& Memory::global(Backend backend) {
+    if (backend != selected_backend) {
+        throw std::invalid_argument("UniMemory: backend differs from this build's selected backend");
     }
+    auto& slot = memory_impl::global_slot();
+    if (slot.instance.load(std::memory_order_acquire) == nullptr) {
+        std::lock_guard lock(slot.mutex);
+        if (slot.instance.load(std::memory_order_relaxed) == nullptr) {
+            Memory* instance = ::new (detail::global_storage.bytes)
+                Memory(selected_backend, selected_statistics, MemoryKind::Global);
+            // Memory/SDK/tracking are live; the noexcept stateless PMR ctor
+            // only establishes its vptr, and precedes release publication.
+            (void)::new (global_resource_storage_.bytes) GlobalResource;
+            slot.instance.store(instance, std::memory_order_release);
+        }
+    }
+    // A successful acquire or guarded initialization proves a live object.
+    return *std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
 }
 
-BackendCapabilities capabilities(Backend backend) noexcept {
-    if (!available(backend)) { return {}; }
-    switch (backend) {
-    case Backend::Standard: return {true, false, false, false};
-    case Backend::Mimalloc: return {true, true, true, true};
-    case Backend::Jemalloc:
-#ifdef UNIMEMORY_WITH_JEMALLOC
-        return {true, detail::jemalloc_statistics_available(), true, true};
-#else
-        return {};
-#endif
-    default: return {};
-    }
-}
-
-bool supports(Backend backend, RuntimeOption option) noexcept {
-    return option == RuntimeOption::UnusedPageReleaseDelayMs &&
-           capabilities(backend).release_delay;
-}
-
-bool set_runtime_option(Backend backend, RuntimeOption option, std::int64_t value) {
-    if (option == RuntimeOption::UnusedPageReleaseDelayMs &&
-        (value < -1 ||
-         value > static_cast<std::int64_t>(std::numeric_limits<long>::max()))) {
-        throw std::invalid_argument("UniMemory: invalid release delay");
-    }
-    if (!supports(backend, option)) { return false; }
-    bool result = false;
-    switch (backend) {
-    case Backend::Mimalloc:
-#ifdef UNIMEMORY_WITH_MIMALLOC
-        result = detail::set_mimalloc_release_delay(value);
-#endif
-        break;
-    case Backend::Jemalloc:
-#ifdef UNIMEMORY_WITH_JEMALLOC
-        result = detail::set_jemalloc_release_delay(value);
-#endif
-        break;
-    default: break;
-    }
-    if (!result) { throw std::runtime_error("UniMemory: backend rejected release delay"); }
-    return true;
-}
-
-Memory& Memory::global(Backend backend) {
-    auto& slot = global_slot(backend);
-    if (Memory* instance = slot.instance.load(std::memory_order_acquire)) { return *instance; }
-    std::lock_guard lock(slot.mutex);
-    Memory* instance = slot.instance.load(std::memory_order_relaxed);
-    if (instance == nullptr) {
-        instance = ::new (slot.storage.bytes) Memory(backend, slot.statistics, MemoryKind::Global);
-        slot.instance.store(instance, std::memory_order_release);
-    }
-    return *instance;
-}
-
-void Memory::configure_global(Backend backend, StatisticsMode statistics) {
-    validate_statistics(statistics);
-    auto& slot = global_slot(backend);
-    std::lock_guard lock(slot.mutex);
-    if (slot.instance.load(std::memory_order_relaxed) != nullptr && slot.statistics != statistics) {
-        throw std::logic_error("UniMemory: global Memory is already initialized");
-    }
-    slot.statistics = statistics;
-}
-
-Memory Memory::heap(Backend backend, StatisticsMode statistics) {
+inline Memory Memory::heap(Backend backend, StatisticsMode statistics) {
     return Memory(backend, statistics, MemoryKind::Heap);
 }
 
-Memory Memory::stack(void* buffer, std::size_t capacity) {
+inline Memory Memory::stack(void* buffer, std::size_t capacity) {
     return Memory(buffer, capacity);
 }
 
-Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kind)
+inline Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kind)
     : kind_(kind), storage_(backend), resource_(*this) {
+    if (backend != selected_backend) {
+        throw std::invalid_argument("UniMemory: backend differs from this build's selected backend");
+    }
+    if constexpr (selected_statistics == StatisticsMode::Disabled) {
+        if (statistics == StatisticsMode::Basic) {
+            throw std::invalid_argument("UniMemory: Basic statistics are disabled in this build");
+        }
+    }
     const bool dedicated_arena = kind == MemoryKind::Heap;
     if (statistics != StatisticsMode::Disabled &&
         statistics != StatisticsMode::Basic) {
@@ -281,7 +224,7 @@ Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kind)
             handle.ops->destroy(handle.context);
             throw;
         }
-        ops_ = &tracked_ops;
+        ops_ = &memory_impl::tracked_ops;
         context_ = tracking_;
     } else {
         ops_ = handle.ops;
@@ -289,13 +232,13 @@ Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kind)
     }
 }
 
-Memory::~Memory() { ops_->destroy(context_); }
+inline Memory::~Memory() { ops_->destroy(context_); }
 
-Memory::Memory(void* buffer, std::size_t capacity)
+inline Memory::Memory(void* buffer, std::size_t capacity)
     : kind_(MemoryKind::Stack), storage_(buffer, capacity), resource_(*this) {
     const auto address = reinterpret_cast<std::uintptr_t>(buffer);
     if ((buffer == nullptr && capacity != 0) ||
-        capacity > std::numeric_limits<std::uintptr_t>::max() - address) {
+        capacity > (std::numeric_limits<std::uintptr_t>::max)() - address) {
         throw std::invalid_argument("UniMemory: invalid stack buffer");
     }
     static const detail::BackendOps ops{stack_allocate, nullptr, stack_reallocate,
@@ -304,7 +247,7 @@ Memory::Memory(void* buffer, std::size_t capacity)
     context_ = &storage_.stack;
 }
 
-void* Memory::stack_allocate(void* context, std::size_t bytes, std::size_t alignment) noexcept {
+UNIMEMORY_FORCE_INLINE void* Memory::stack_allocate(void* context, std::size_t bytes, std::size_t alignment) noexcept {
     auto& stack = *static_cast<StackStorage*>(context);
     const auto address = reinterpret_cast<std::uintptr_t>(stack.buffer) + stack.used;
     const auto padding = (alignment - (address & (alignment - 1))) & (alignment - 1);
@@ -315,7 +258,7 @@ void* Memory::stack_allocate(void* context, std::size_t bytes, std::size_t align
     return reinterpret_cast<void*>(address + padding);
 }
 
-void* Memory::stack_reallocate(void* context, void* pointer, std::size_t old_bytes,
+UNIMEMORY_FORCE_INLINE void* Memory::stack_reallocate(void* context, void* pointer, std::size_t old_bytes,
                                 std::size_t new_bytes, std::size_t alignment) noexcept {
     if (new_bytes <= old_bytes) { return pointer; }
     auto& stack = *static_cast<StackStorage*>(context);
@@ -331,13 +274,13 @@ void* Memory::stack_reallocate(void* context, void* pointer, std::size_t old_byt
     return next;
 }
 
-void Memory::stack_deallocate(void*, void*, std::size_t, std::size_t) noexcept {}
-void Memory::stack_destroy(void*) noexcept {}
+UNIMEMORY_FORCE_INLINE void Memory::stack_deallocate(void*, void*, std::size_t, std::size_t) noexcept {}
+inline void Memory::stack_destroy(void*) noexcept {}
 
-MemoryCapabilities Memory::capabilities() const noexcept {
+inline MemoryCapabilities Memory::capabilities() const noexcept {
     MemoryCapabilities result;
     const auto* native_ops = tracking_ == nullptr ? ops_ : tracking_->base.ops;
-    result.basic_statistics = kind_ != MemoryKind::Stack;
+    result.basic_statistics = selected_statistics == StatisticsMode::Basic && kind_ != MemoryKind::Stack;
     result.detailed_statistics = kind_ != MemoryKind::Stack &&
         native_ops->statistics != nullptr &&
         unimem::capabilities(storage_.backend).detailed_statistics;
@@ -348,9 +291,9 @@ MemoryCapabilities Memory::capabilities() const noexcept {
     return result;
 }
 
-void Memory::reset() {
+inline void Memory::reset() {
     if (kind_ == MemoryKind::Stack) {
-        if (storage_.stack.generation == std::numeric_limits<std::uint64_t>::max()) {
+        if (storage_.stack.generation == (std::numeric_limits<std::uint64_t>::max)()) {
             throw std::length_error("UniMemory: stack mark generation exhausted");
         }
         storage_.stack.used = 0;
@@ -375,7 +318,7 @@ void Memory::reset() {
     }
 }
 
-void Memory::collect() {
+inline void Memory::collect() {
     if (kind_ != MemoryKind::Heap) {
         throw std::logic_error("UniMemory: collect requires Heap Memory");
     }
@@ -384,7 +327,7 @@ void Memory::collect() {
     handle.ops->collect(handle.context);
 }
 
-bool Memory::owns(const void* pointer) const {
+inline bool Memory::owns(const void* pointer) const {
     if (kind_ != MemoryKind::Heap) {
         throw std::logic_error("UniMemory: owns requires Heap Memory");
     }
@@ -394,7 +337,7 @@ bool Memory::owns(const void* pointer) const {
     return handle.ops->owns(handle.context, pointer);
 }
 
-std::optional<MemoryStatistics> Memory::statistics() const noexcept {
+inline std::optional<MemoryStatistics> Memory::statistics() const noexcept {
     if (tracking_ == nullptr) { return std::nullopt; }
     return MemoryStatistics{
         tracking_->allocations.load(std::memory_order_relaxed),
@@ -404,93 +347,91 @@ std::optional<MemoryStatistics> Memory::statistics() const noexcept {
         tracking_->peak_live_bytes.load(std::memory_order_relaxed)};
 }
 
-std::optional<BackendStatistics> Memory::backend_statistics() const {
+inline std::optional<BackendStatistics> Memory::backend_statistics() const {
     if (ops_->statistics == nullptr) { return std::nullopt; }
     BackendStatistics result;
     if (!ops_->statistics(context_, result)) { return std::nullopt; }
     return result;
 }
 
-void* Memory::allocate(std::size_t bytes, std::size_t alignment) {
-    if (!valid_alignment(alignment)) {
+#include <unimem/detail/allocation.inl>
+
+// Global shared storage follows the same SDK and exact accounting as Global PMR.
+UNIMEMORY_FORCE_INLINE void* Memory::global_shared_allocate(std::size_t bytes, std::size_t alignment) {
+#if UNIMEMORY_CHECKS
+    if (!memory_impl::valid_alignment(alignment)) {
         throw std::invalid_argument("UniMemory: alignment must be a power of two");
     }
-    if (bytes == 0) { return nullptr; }
-    void* pointer = ops_->allocate(context_, bytes, alignment);
+#endif
+    const auto effective_bytes = bytes == 0 ? 1 : bytes;
+    void* pointer = Memory::global_allocate_raw<false>(effective_bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
+    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+        auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
+        memory_impl::record_allocation(memory->tracking_, effective_bytes);
+    }
     return pointer;
 }
 
-void* Memory::allocate_zeroed(std::size_t bytes, std::size_t alignment) {
-    if (!valid_alignment(alignment)) {
+UNIMEMORY_FORCE_INLINE void Memory::global_shared_deallocate(
+    void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
+    if (pointer == nullptr) { return; }
+    Memory::global_deallocate_raw(pointer, alignment);
+    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+        auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
+        memory_impl::record_deallocation(memory->tracking_, bytes == 0 ? 1 : bytes);
+    }
+}
+
+// Callbacks operate on the published Global instance.
+UNIMEMORY_FORCE_INLINE void* Memory::GlobalResource::do_allocate(std::size_t bytes, std::size_t alignment) {
+#if UNIMEMORY_CHECKS
+    if (!memory_impl::valid_alignment(alignment)) {
         throw std::invalid_argument("UniMemory: alignment must be a power of two");
     }
-    if (bytes == 0) { return nullptr; }
-    void* pointer = ops_->allocate_zeroed != nullptr
-        ? ops_->allocate_zeroed(context_, bytes, alignment)
-        : ops_->allocate(context_, bytes, alignment);
+#endif
+    const auto effective_bytes = bytes == 0 ? 1 : bytes;
+    void* pointer = Memory::global_allocate_raw<false>(effective_bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
-    if (ops_->allocate_zeroed == nullptr) { std::memset(pointer, 0, bytes); }
+    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+        auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
+        memory_impl::record_allocation(memory->tracking_, effective_bytes);
+    }
     return pointer;
 }
 
-void* Memory::reallocate(void* pointer, std::size_t old_bytes,
-                         std::size_t new_bytes, std::size_t alignment) {
-    if (!valid_alignment(alignment)) {
-        throw std::invalid_argument("UniMemory: alignment must be a power of two");
-    }
-    if (pointer == nullptr) { return allocate(new_bytes, alignment); }
-    if (new_bytes == 0) {
-        deallocate(pointer, old_bytes, alignment);
-        return nullptr;
-    }
-    if (ops_->reallocate != nullptr) {
-        void* next = ops_->reallocate(context_, pointer, old_bytes,
-                                      new_bytes, alignment);
-        if (next == nullptr) { throw std::bad_alloc(); }
-        return next;
-    }
-    void* next = allocate(new_bytes, alignment);
-    std::memcpy(next, pointer, std::min(old_bytes, new_bytes));
-    deallocate(pointer, old_bytes, alignment);
-    return next;
-}
-
-void* Memory::reallocate_zeroed(void* pointer, std::size_t old_bytes,
-                                std::size_t new_bytes, std::size_t alignment) {
-    const auto preserved = pointer == nullptr ? 0 : old_bytes;
-    void* next = reallocate(pointer, old_bytes, new_bytes, alignment);
-    if (next != nullptr && new_bytes > preserved) {
-        std::memset(static_cast<std::byte*>(next) + preserved, 0,
-                    new_bytes - preserved);
-    }
-    return next;
-}
-
-void Memory::deallocate(void* pointer, std::size_t bytes,
-                        std::size_t alignment) noexcept {
-    if (pointer != nullptr) {
-        ops_->deallocate(context_, pointer, bytes, alignment);
+UNIMEMORY_FORCE_INLINE void Memory::GlobalResource::do_deallocate(
+    void* pointer, std::size_t bytes, std::size_t alignment) {
+    if (pointer == nullptr) { return; }
+    Memory::global_deallocate_raw(pointer, alignment);
+    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+        auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
+        memory_impl::record_deallocation(memory->tracking_, bytes == 0 ? 1 : bytes);
     }
 }
 
-OwnedBlock Memory::make_block(std::size_t bytes, std::size_t alignment) {
+inline bool Memory::GlobalResource::do_is_equal(const std::pmr::memory_resource& other) const noexcept {
+    return this == &other;
+}
+
+
+UNIMEMORY_FORCE_INLINE OwnedBlock Memory::make_block(std::size_t bytes, std::size_t alignment) {
     return OwnedBlock(*this, allocate(bytes, alignment), bytes, alignment);
 }
 
-OwnedBlock::OwnedBlock(Memory& memory, void* pointer, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE OwnedBlock::OwnedBlock(Memory& memory, void* pointer, std::size_t bytes,
                        std::size_t alignment) noexcept
     : memory_(&memory), pointer_(pointer), bytes_(bytes), alignment_(alignment) {}
 
-OwnedBlock::~OwnedBlock() { clear(); }
+UNIMEMORY_FORCE_INLINE OwnedBlock::~OwnedBlock() { clear(); }
 
-OwnedBlock::OwnedBlock(OwnedBlock&& other) noexcept
+UNIMEMORY_FORCE_INLINE OwnedBlock::OwnedBlock(OwnedBlock&& other) noexcept
     : memory_(std::exchange(other.memory_, nullptr)),
       pointer_(std::exchange(other.pointer_, nullptr)),
       bytes_(std::exchange(other.bytes_, 0)),
       alignment_(std::exchange(other.alignment_, alignof(std::max_align_t))) {}
 
-OwnedBlock& OwnedBlock::operator=(OwnedBlock&& other) noexcept {
+UNIMEMORY_FORCE_INLINE OwnedBlock& OwnedBlock::operator=(OwnedBlock&& other) noexcept {
     if (this != &other) {
         clear();
         memory_ = std::exchange(other.memory_, nullptr);
@@ -501,15 +442,22 @@ OwnedBlock& OwnedBlock::operator=(OwnedBlock&& other) noexcept {
     return *this;
 }
 
-void OwnedBlock::resize(std::size_t new_bytes) {
+UNIMEMORY_FORCE_INLINE void OwnedBlock::resize(std::size_t new_bytes) {
     if (memory_ == nullptr) { throw std::logic_error("UniMemory: moved-from block"); }
     void* next = memory_->reallocate(pointer_, bytes_, new_bytes, alignment_);
     pointer_ = next;
     bytes_ = new_bytes;
 }
 
-void OwnedBlock::clear() noexcept {
-    if (memory_ != nullptr && pointer_ != nullptr) {
+UNIMEMORY_FORCE_INLINE void OwnedBlock::clear() noexcept {
+    // compiled_owner_invariant_v1: private legal states bind every nonempty block.
+    if (pointer_ != nullptr) {
+#if UNIMEMORY_CHECKS
+        if (memory_ == nullptr) {
+            assert(memory_ != nullptr && "UniMemory: nonempty OwnedBlock must have a bound Memory");
+            std::terminate();
+        }
+#endif
         memory_->deallocate(pointer_, bytes_, alignment_);
     }
     memory_ = nullptr;

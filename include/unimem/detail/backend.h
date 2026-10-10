@@ -25,16 +25,16 @@ struct BackendHandle {
     void* context;
 };
 
-BackendHandle system_backend(bool dedicated);
-bool set_mimalloc_release_delay(std::int64_t value) noexcept;
-bool set_jemalloc_release_delay(std::int64_t value) noexcept;
+inline BackendHandle system_backend(bool dedicated);
+inline bool set_mimalloc_release_delay(std::int64_t value) noexcept;
+inline bool set_jemalloc_release_delay(std::int64_t value) noexcept;
 
 #ifdef UNIMEMORY_WITH_MIMALLOC
-BackendHandle mimalloc_backend(bool dedicated);
+inline BackendHandle mimalloc_backend(bool dedicated);
 #endif
 #ifdef UNIMEMORY_WITH_JEMALLOC
-BackendHandle jemalloc_backend(bool dedicated);
-bool jemalloc_statistics_available() noexcept;
+inline BackendHandle jemalloc_backend(bool dedicated);
+inline bool jemalloc_statistics_available() noexcept;
 #endif
 
 }

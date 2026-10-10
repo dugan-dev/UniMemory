@@ -15,6 +15,9 @@ import statistics
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from benchmark_profile import read_profile, environment_for
+
 BACKENDS = ("standard", "mimalloc", "jemalloc")
 PATHS = ("native", "disabled", "basic")
 SIZES = (16, 64, 256, 4096, 65536)
@@ -54,14 +57,18 @@ def main():
     parser.add_argument("output", type=Path)
     args = parser.parse_args()
     executable = args.executable.resolve()
+    profile = read_profile(executable)
+    os.environ.update(environment_for(profile))
+    backends = (profile['backend'],)
+    paths = ('native', profile['api_path'])
     args.output.mkdir(parents=True, exist_ok=True)
     root = Path(__file__).resolve().parents[2]
     subprocess.run([sys.executable, str(root / "tools/run-benchmarks.py"), str(executable),
                     str(args.output)], check=True)
     raw = args.output / "raw"
     raw.mkdir(exist_ok=True)
-    scale_cases = [(backend, path, workload, size, threads) for backend in BACKENDS
-                   for path in PATHS for workload in ("scaling", "handoff")
+    scale_cases = [(backend, path, workload, size, threads) for backend in backends
+                   for path in paths for workload in ("scaling", "handoff")
                    for size in (64, 4096, 65536) for threads in THREADS]
     random.Random(0x20261010).shuffle(scale_cases)
     scaling = []
@@ -74,7 +81,7 @@ def main():
             scaling.append({"trial": trial, **rows[0]})
             if case_index % 30 == 0:
                 print(f"Scaling trial {trial}: {case_index}/{len(scale_cases)} scenarios", flush=True)
-        tail_cases = [(backend, path, size) for backend in BACKENDS for path in PATHS for size in SIZES]
+        tail_cases = [(backend, path, size) for backend in backends for path in paths for size in SIZES]
         random.Random(trial).shuffle(tail_cases)
         for backend, path, size in tail_cases:
             rows = measure(executable, backend, "tails", path, size)
@@ -114,13 +121,13 @@ def main():
                 break
     elif platform.system() == "Darwin":
         cpu = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip()
-    manifest.update({"schema": 1, "source_revision": os.environ.get("GITHUB_SHA", "unrecorded"),
+    manifest.update({"schema": 2, "build_profile": profile, "source_revision": os.environ.get("GITHUB_SHA", "unrecorded"),
                      "run_id": os.environ.get("GITHUB_RUN_ID", "unrecorded"),
                      "run_url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}",
                      "architecture": platform.machine(), "trials": TRIALS,
                      "compiler": compiler, "cpu_model": cpu, "measurement_protocol": "native-api-scaling-tails-v2",
-                     "threads": list(THREADS), "sizes": list(SIZES), "backends": list(BACKENDS),
-                     "paths": list(PATHS), "tail_samples": 8192,
+                     "threads": list(THREADS), "sizes": list(SIZES), "backends": list(backends),
+                     "paths": list(paths), "tail_samples": 8192,
                      "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
                      "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
                      "performance_gate": "Report only; hosted hardware noise is not a correctness failure",

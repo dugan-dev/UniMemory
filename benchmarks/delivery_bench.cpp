@@ -1,3 +1,4 @@
+#include "diagnostics/compiled-bench-config.h"
 #include <unimem/memory.h>
 #include <algorithm>
 #include <atomic>
@@ -55,7 +56,7 @@ struct NativeJemalloc {
 struct Unified {
     Memory& memory;
     static Memory& get(Backend backend, StatisticsMode mode) {
-        Memory::configure_global(backend, mode);
+        compiled_benchmark_configuration(backend, mode);
         return Memory::global(backend);
     }
     Unified(Backend backend, StatisticsMode mode) : memory(get(backend, mode)) {}
@@ -78,7 +79,11 @@ std::size_t usable_bytes(Backend backend, void* pointer) {
 void environment() {
     std::cout << "{\"memory_bytes\":" << sizeof(Memory)
               << ",\"owned_block_bytes\":" << sizeof(OwnedBlock)
-              << ",\"allocator_bytes\":" << sizeof(Allocator<int>);
+              << ",\"allocator_bytes\":" << sizeof(Allocator<int>)
+              << ",\"core\":\"header-only\",\"selected_backend\":\"" << UNIMEMORY_CONFIG_BACKEND_NAME
+              << "\",\"selected_statistics\":\""
+              << (Memory::selected_statistics == StatisticsMode::Basic ? "basic" : "disabled")
+              << "\",\"checks\":" << UNIMEMORY_CHECKS;
 #ifndef _WIN32
     Dl_info provider{};
     const auto allocate = static_cast<void* (*)(std::size_t)>(&::operator new);
@@ -285,7 +290,7 @@ template<class A> void latency(A& allocator, const std::string& backend,
 void footprint(Backend backend, const std::string& name, StatisticsMode mode, bool dedicated) {
     std::unique_ptr<Memory> heap;
     if (dedicated) { heap.reset(new Memory(Memory::heap(backend, mode))); }
-    else { Memory::configure_global(backend, mode); }
+    else { compiled_benchmark_configuration(backend, mode); }
     auto& memory = dedicated ? *heap : Memory::global(backend);
     constexpr std::size_t count = 16384, bytes = 4096;
     std::vector<void*> pointers(count);

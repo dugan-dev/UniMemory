@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <algorithm>
@@ -91,7 +92,7 @@ void trace(Memory& memory, Memory* arena, unsigned seed, unsigned steps) {
             slot.bytes = next_size;
         }
         if (const auto stats = memory.statistics()) {
-            check(stats->live_bytes == expected_live && stats->peak_live_bytes >= expected_live,
+            check( (!compiled_test::supports_statistics || (stats->live_bytes == expected_live)) && (!compiled_test::supports_statistics || (stats->peak_live_bytes >= expected_live)) ,
                   "trace accounting mismatch");
         }
         if (arena && step % 521 == 0) { arena->collect(); }
@@ -101,7 +102,7 @@ void trace(Memory& memory, Memory* arena, unsigned seed, unsigned steps) {
         memory.deallocate(slot.pointer, slot.bytes, slot.alignment);
     }
     if (const auto stats = memory.statistics()) {
-        check(stats->live_bytes == 0 && stats->allocations == stats->deallocations,
+        check( (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->allocations == stats->deallocations)) ,
               "trace cleanup mismatch");
     }
     if (arena) { arena->reset(); }
@@ -109,7 +110,7 @@ void trace(Memory& memory, Memory* arena, unsigned seed, unsigned steps) {
 
 void random_test(Backend backend, unsigned seed, unsigned steps) {
     trace(Memory::global(backend), nullptr, seed, steps);
-    for (auto mode : {StatisticsMode::Disabled, StatisticsMode::Basic}) {
+    for (auto mode : compiled_test::heap_modes()) {
         if (capabilities(backend).heap) {
             Memory arena = Memory::heap(backend, mode);
             trace(arena, &arena, seed, steps);
@@ -131,22 +132,22 @@ void objects(Backend backend) {
         Object::attempts = Object::alive = 0;
         Object::fail_at = fail;
         throws<std::runtime_error>([&] { auto array = memory.make_unique_array<Object>(64); });
-        check(Object::alive == 0 && memory.statistics()->live_bytes == 0,
+        check(Object::alive == 0 && (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) ,
               "partial construction leaked");
     }
     for (unsigned i = 0; i < 128; ++i) {
         Object::attempts = 0;
         Object::fail_at = 1;
         throws<std::runtime_error>([&] { auto p = memory.make_shared<Object>(); });
-        check(memory.statistics()->live_bytes == 0, "shared constructor rollback");
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "shared constructor rollback");
         Object::fail_at = 0;
         auto shared = memory.make_shared<Object>();
         std::weak_ptr<Object> weak = shared;
         shared.reset();
-        check(Object::alive == 0 && weak.expired() && memory.statistics()->live_bytes > 0,
+        check(Object::alive == 0 && weak.expired() && (!compiled_test::supports_statistics || (memory.statistics()->live_bytes > 0)) ,
               "weak control block lifetime");
         weak.reset();
-        check(memory.statistics()->live_bytes == 0, "weak control block leaked");
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "weak control block leaked");
     }
 }
 
@@ -154,7 +155,7 @@ void containers(Backend backend) {
     Memory& first = Memory::global(backend);
     std::array<std::byte, 65536> buffer{};
     Memory second = [&]() -> Memory {
-        if (capabilities(backend).heap) { return Memory::heap(backend, StatisticsMode::Basic); }
+        if (capabilities(backend).heap) { return Memory::heap(backend, compiled_test::heap_mode); }
         return Memory::stack(buffer);
     }();
     for (unsigned round = 0; round < 64; ++round) {
@@ -178,7 +179,7 @@ void containers(Backend backend) {
             check(rebound.front().get_allocator().resource() == second.resource(),
                   "nested PMR allocator propagation");
         }
-        check(first.statistics()->live_bytes == 0 && (!second.statistics() || second.statistics()->live_bytes == 0),
+        check( (!compiled_test::supports_statistics || (first.statistics()->live_bytes == 0)) && (!compiled_test::supports_statistics || ((!second.statistics() || second.statistics()->live_bytes == 0))) ,
               "container destruction balance");
         second.reset();
     }
@@ -186,6 +187,7 @@ void containers(Backend backend) {
 
 void boundaries(Backend backend) {
     Memory& memory = Memory::global(backend);
+#if UNIMEMORY_CHECKS
     for (const auto alignment : {std::size_t{0}, std::size_t{3}, std::size_t{63},
                                  std::numeric_limits<std::size_t>::max()}) {
         throws<std::invalid_argument>([&] { memory.allocate(0, alignment); });
@@ -195,6 +197,7 @@ void boundaries(Backend backend) {
         throws<std::invalid_argument>([&] { memory.reallocate(block.data(), 31, 0, alignment); });
         check(block.size() == 31, "invalid argument changed block");
     }
+#endif
     throws<std::length_error>([&] { memory.create_array<std::uint64_t>(
         std::numeric_limits<std::size_t>::max()); });
     for (unsigned i = 0; i < 64; ++i) {
@@ -210,7 +213,7 @@ void boundaries(Backend backend) {
         check(moved.data() == original, "self move changed ownership");
     }
     throws<std::invalid_argument>([] { Memory& memory = Memory::global(static_cast<Backend>(99)); });
-    throws<std::invalid_argument>([&] { Memory::configure_global(backend, static_cast<StatisticsMode>(99)); });
+    compiled_test::verify_configuration();
 }
 
 void handoff(Backend backend) {
@@ -245,9 +248,8 @@ void handoff(Backend backend) {
     for (auto& thread : threads) { thread.join(); }
     check(!failed.load(), "handoff content or allocation failed");
     for (auto& memory : memories) {
-        const auto stats = *memory->statistics();
-        check(stats.live_bytes == 0 && stats.allocations == count * rounds * batch &&
-              stats.deallocations == stats.allocations, "handoff counters");
+        const auto stats = memory->statistics();
+        check( (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->allocations == count * rounds * batch)) && (!compiled_test::supports_statistics || (stats->deallocations == stats->allocations)) , "handoff counters");
     }
 }
 
@@ -276,7 +278,7 @@ int main(int argc, char** argv) {
         if (argc < 3) { throw std::invalid_argument("backend and mode required"); }
         const auto backend = parse(argv[1]);
         const std::string mode = argv[2];
-        Memory::configure_global(backend, StatisticsMode::Basic);
+        compiled_test::test_configuration(backend, compiled_test::global_mode);
         if (mode == "trace") {
             if (argc != 4) { throw std::invalid_argument("trace seed required"); }
             random_test(backend, static_cast<unsigned>(std::stoul(argv[3])), 4096);

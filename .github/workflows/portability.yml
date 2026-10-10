@@ -11,13 +11,14 @@ concurrency:
   cancel-in-progress: true
 jobs:
   compiler:
-    name: ${{ matrix.tool.os }} / ${{ matrix.tool.compiler }} / ${{ matrix.configuration }}
+    name: ${{ matrix.tool.os }} / ${{ matrix.tool.compiler }} / ${{ matrix.configuration }} / stats=${{ matrix.statistics }}
     runs-on: ${{ matrix.tool.os }}
     timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
         configuration: [Debug, Release]
+        statistics: ['OFF', 'ON']
         tool:
           - {os: ubuntu-24.04, compiler: gcc-13, cc: gcc-13, cxx: g++-13, arch: x64}
           - {os: ubuntu-24.04, compiler: gcc-14, cc: gcc-14, cxx: g++-14, arch: x64}
@@ -55,7 +56,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cmake -S . -B build/portable -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BUILD_EXAMPLES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake -S . -B build/portable -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_EXAMPLES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           python3 tools/ci/toolchain-manifest.py build/portable --compiler '${{ matrix.tool.compiler }}' --arch '${{ matrix.tool.arch }}'
           cmake --build build/portable --parallel 4
           ctest --test-dir build/portable --parallel 4 --output-on-failure --no-tests=error
@@ -66,12 +67,14 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: portability-${{ matrix.tool.os }}-${{ matrix.tool.compiler }}-${{ matrix.configuration }}
+          name: portability-${{ matrix.tool.os }}-${{ matrix.tool.compiler }}-${{ matrix.configuration }}-${{ matrix.statistics }}
           path: |
             build/portable/CMakeCache.txt
             build/portable/toolchain.json
             build/portable/Testing/Temporary/LastTest.log
             build/consumer/Testing/Temporary/LastTest.log
+            build/consumer/profile-request-conflicts/*.log
+            build/consumer/conflict-*.log
   acceptance:
     name: portability acceptance
     needs: compiler

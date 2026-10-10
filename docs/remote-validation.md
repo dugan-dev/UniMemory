@@ -1,5 +1,7 @@
 # Remote validation
 
+The protocol and recorded counts on this page describe the earlier multi-backend development runs. The current header-only source uses separate mandatory backend/statistics profiles; see [build configuration](getting-started.md). Earlier shared-UniMemory jobs are historical evidence, not a supported current library form.
+
 Related source or configuration changes trigger GitHub Actions on `dev`, `main`,
 and pull requests. There are no scheduled workflows. Builds and tests for this
 development run remotely.

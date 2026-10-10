@@ -1,8 +1,8 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
 
-A modern C++20 library for unified memory allocation across Standard, mimalloc and jemalloc.
+A modern, header-only C++20 library for unified memory allocation with Standard, mimalloc or jemalloc, selected at build time.
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -21,7 +21,7 @@ A modern C++20 library for unified memory allocation across Standard, mimalloc a
 ## Features
 
 - **🚀 Modern C++20**: Typed construction and standard library integration.
-- **🔄 Unified backends**: One API for Standard, mimalloc and jemalloc.
+- **🔄 Unified backends**: One non-template Memory API; choose Standard, mimalloc or jemalloc for each build.
 - **🧱 Object and Array**: Create and destroy typed objects with constructor failure cleanup.
 - **🔒 Smart Pointer**: Create unique and shared pointers; adopt existing objects.
 - **📦 Standard Container**: Allocator and PMR adapters for existing C++ containers.
@@ -38,8 +38,8 @@ A modern C++20 library for unified memory allocation across Standard, mimalloc a
 #include <unimem/memory.h>
 
 int main() {
-    // Get global memory, backend choices: Standard, Mimalloc, Jemalloc
-    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
+    // Get global memory for this build
+    unimem::Memory& memory = unimem::Memory::global();
 
     // Allocate and free
     void* bytes = memory.allocate(1024);
@@ -153,7 +153,7 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### Heap
 
 ```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
+constexpr unimem::Backend backend = unimem::Memory::selected_backend;
 
 // Create a Heap when supported
 if (unimem::available(backend) && unimem::capabilities(backend).heap) {
@@ -197,53 +197,30 @@ scratch.reset();
 ### Initialization and Statistics
 
 ```cpp
-#include <vector>
+// Select request counters at build time with UNIMEMORY_STATISTICS=ON/OFF
+unimem::Memory& memory = unimem::Memory::global();
+unimem::OwnedBlock block = memory.make_block(1024);
 
-const unimem::Backend backends[] = {
-    unimem::Backend::Standard,
-    unimem::Backend::Mimalloc,
-    unimem::Backend::Jemalloc
-};
-
-// Keep the available Memory instances
-std::vector<unimem::Memory*> memories;
-
-for (unimem::Backend backend : backends) {
-    // Skip backends not included in the build
-    if (!unimem::available(backend)) {
-        continue;
-    }
-
-    // Enable counters before the first global() call
-    unimem::Memory::configure_global(backend, unimem::StatisticsMode::Basic);
-    memories.push_back(&unimem::Memory::global(backend));
+// ON: Global Basic counters; OFF: no request statistics
+std::optional<unimem::MemoryStatistics> stats = memory.statistics();
+if (stats) {
+    std::uint64_t live = stats->live_bytes;
+    std::uint64_t peak = stats->peak_live_bytes;
+    std::uint64_t calls = stats->allocations;
 }
 
-// Use each saved Memory and query its statistics
-for (unimem::Memory* memory : memories) {
-    unimem::OwnedBlock block = memory->make_block(1024);
-
-    // Query request counts and bytes
-    std::optional<unimem::MemoryStatistics> stats = memory->statistics();
-    if (stats) {
-        std::uint64_t live = stats->live_bytes;
-        std::uint64_t peak = stats->peak_live_bytes;
-        std::uint64_t calls = stats->allocations;
-    }
-
-    // Native fields may be unavailable
-    std::optional<unimem::BackendStatistics> details = memory->backend_statistics();
-    if (details && details->committed_bytes) {
-        std::uint64_t committed = *details->committed_bytes;
-        unimem::BackendStatisticsScope scope = details->scope;
-    }
+// Native fields may be unavailable
+std::optional<unimem::BackendStatistics> details = memory.backend_statistics();
+if (details && details->committed_bytes) {
+    std::uint64_t committed = *details->committed_bytes;
+    unimem::BackendStatisticsScope scope = details->scope;
 }
 ```
 
 ### Runtime Options
 
 ```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
+constexpr unimem::Backend backend = unimem::Memory::selected_backend;
 const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
 
 // Set backend-wide options before normal allocations
@@ -273,13 +250,15 @@ if (unimem::supports(backend, option)) {
 | Independent Heap | — | ✔ | ✔ |
 | Native statistics scope | — | Process | Process / Heap, build-dependent |
 | Unused memory release delay | — | ✔ | ✔ |
-| Extra dependency | None | Optional | Optional |
+| Extra dependency | None | SDK | SDK |
 
-Standard needs no extra dependency; enable mimalloc or jemalloc as needed. [Configuration guide](docs/guides/backends.md)
+Each build selects one backend. Standard needs no allocator dependency; selecting mimalloc or jemalloc requires its SDK, linked through the interface target. [Configuration guide](docs/guides/backends.md)
 
 ## Performance
 
 Windows x64 · MSVC 19.44 · statistics off · 2026-09-28. **ns/operation; lower is faster.**
+
+Historical measurements from the earlier implementation; they do not describe the current header-only build.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -294,15 +273,15 @@ Standard = 1 in the chart; shorter bars are faster. [Full performance report](do
 
 ## Build and Install
 
-Requires **C++20** and **CMake 3.25+**. Download the [source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip), then run from the extracted source directory:
+Requires **C++20** and **CMake 3.25+**. Download the [source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip), then run from the extracted source directory:
 
 ```sh
-cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-The library is installed to `build/installed`. [Build options](docs/getting-started.md#build-options)
+The headers and CMake `INTERFACE` target are installed to `build/installed`; UniMemory has no separately compiled library. `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` must be explicit. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in Release. `UNIMEMORY_AGGRESSIVE_INLINING=ON` uses `/Ob3` for MSVC Release consumer translation units; set it to `OFF` to retain your own inlining options. [Build options](docs/getting-started.md#build-options)
 
 ## Integration
 
@@ -317,7 +296,7 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, replace `find_package(...)` with `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
+Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`; the installed target carries its backend, statistics and check policy. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
 
 ## Documentation
 

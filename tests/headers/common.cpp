@@ -1,12 +1,13 @@
 #include <unimem/common.h>
-
+#include <initializer_list>
 bool header_common() {
-    unimem::BackendCapabilities capabilities = unimem::capabilities(unimem::Backend::Standard);
+    unsigned enabled=0;
+    for (auto backend : {unimem::Backend::Standard,unimem::Backend::Mimalloc,unimem::Backend::Jemalloc}) {
+        const auto cap=unimem::capabilities(backend);
+        if (cap.available != unimem::available(backend)) { return false; }
+        enabled += cap.available;
+    }
     unimem::MemoryStatistics statistics;
-    unimem::BackendStatistics backend_statistics;
-    return unimem::available(unimem::Backend::Standard) && capabilities.available &&
-           !capabilities.heap && statistics.live_bytes == 0 &&
-           !backend_statistics.requested_bytes &&
-           !unimem::supports(unimem::Backend::Standard,
-                            unimem::RuntimeOption::UnusedPageReleaseDelayMs);
+    unimem::BackendStatistics native;
+    return enabled==1 && statistics.live_bytes==0 && !native.requested_bytes;
 }

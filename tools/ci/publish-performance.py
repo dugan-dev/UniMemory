@@ -7,6 +7,9 @@ from pathlib import Path
 import shutil
 import subprocess
 import time
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from publication_metadata import sanitize_publication
 
 WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
 REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
@@ -66,18 +69,28 @@ def main():
     previous = run("git", "ls-remote", "--heads", "origin", branch)
     lease = previous.split()[0] if previous else ""
     run("git", "switch", "-c", branch)
-    for label in ("linux-x64", "windows-x64", "macos-arm64"):
-        directory = args.artifacts / f"performance-{label}"
-        data = directory / "results"
-        manifest = report.validate(data)
-        if manifest["source_revision"] != revision or str(manifest["run_id"]) != os.environ["GITHUB_RUN_ID"]:
-            raise RuntimeError("Artifact provenance does not match the trusted workflow")
-        charts = root / "docs/images/performance" / label
-        subprocess.run(["python3", str(root / "tools/ci/performance-report.py"), str(data), str(charts), "--label", label], check=True)
-        destination = root / "docs/results/current" / label
-        destination.mkdir(parents=True, exist_ok=True)
-        for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv", "sweep-environment.json"):
-            shutil.copyfile(data / name, destination / name)
+    for platform_label in ("linux-x64", "windows-x64", "macos-arm64"):
+        for backend in report.BACKENDS:
+            for statistics_mode in ("OFF", "ON"):
+                label = f"{platform_label}/{backend}/{statistics_mode}"
+                directory = args.artifacts / f"performance-{platform_label}-{backend}-{statistics_mode}"
+                data = directory / "results"
+                manifest = report.validate(data)
+                if manifest["source_revision"] != revision or str(manifest["run_id"]) != os.environ["GITHUB_RUN_ID"]:
+                    raise RuntimeError("Artifact provenance does not match the trusted workflow")
+                charts = root / "docs/images/performance" / label
+                subprocess.run(["python3", str(root / "tools/ci/performance-report.py"), str(data), str(charts), "--label", label], check=True)
+                destination = root / "docs/results/current" / label
+                destination.mkdir(parents=True, exist_ok=True)
+                for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv", "sweep-environment.json"):
+                    if name.endswith(".json"):
+                        published = sanitize_publication(json.loads((data / name).read_text(encoding="utf-8")))
+                        (destination / name).write_text(json.dumps(published, indent=2) + "\n", encoding="utf-8")
+                    else:
+                        shutil.copyfile(data / name, destination / name)
+                for path in charts.glob("*.json"):
+                    published = sanitize_publication(json.loads(path.read_text(encoding="utf-8")))
+                    path.write_text(json.dumps(published, indent=2) + "\n", encoding="utf-8")
     allowed = GENERATED_PATHS
     changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
     if any(line and not line[3:].startswith(allowed) for line in changed):

@@ -2,7 +2,13 @@
 
 [UniMemory](../README.md) · **English** · [简体中文](performance.zh-CN.md)
 
+## Header-only controls · 2026-10-11
+
+[Complete 23-group Windows control](performance/header-only.md) records default, IPO and `/Ob3` absolute SDK/API times, Global shared request sizes and unresolved cloud limits.
+
 ## Current remote reports
+
+These charts retain their recorded source revisions and protocols, which precede the current header-only fixed profile. They are not a performance guarantee for the new configuration. Build each backend/ON/OFF profile separately and match SDK, compiler flags and timing conditions when comparing.
 
 Compare Standard, mimalloc and jemalloc native allocation with UniMemory. Three fresh-process trials; medians shown. Compare each platform separately.
 

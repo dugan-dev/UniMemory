@@ -9,6 +9,7 @@ import platform
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
+from benchmark_profile import read_profile, environment_for
 
 parser = argparse.ArgumentParser()
 parser.add_argument('executable', type=Path)
@@ -19,7 +20,8 @@ if args.trials < 1:
     parser.error('--trials must be positive')
 args.output.mkdir(parents=True, exist_ok=True)
 executable = args.executable.resolve()
-environment = os.environ.copy()
+profile = read_profile(executable)
+environment = environment_for(profile)
 if platform.system() == 'Windows':
     environment['MIMALLOC_DISABLE_REDIRECT'] = '1'
 keys = None
@@ -27,7 +29,7 @@ with (args.output / 'full.csv').open('w', newline='', encoding='utf-8') as outpu
     writer = None
     for trial in range(1, args.trials + 1):
         current = set()
-        modes = [[], ['--basic']] if trial % 2 else [['--basic'], []]
+        modes = [[]] # --full already selects the compiled Global mode and legal Heap modes.
         for mode in modes:
             result = subprocess.run([str(executable), '--full', *mode],
                                     env=environment, capture_output=True, text=True,
@@ -55,7 +57,7 @@ with (args.output / 'full.csv').open('w', newline='', encoding='utf-8') as outpu
         print(f'Sweep trial {trial}: {len(keys)} scenarios', flush=True)
 
 manifest = {
-    'version': '0.0.1', 'platform': platform.platform(),
+    'version': '0.0.1', 'platform': platform.platform(), 'build_profile': profile,
     'logical_cpus': os.cpu_count(), 'trials': args.trials,
     'scenarios_per_trial': len(keys), 'affinity_pinned': False,
     'sequential_processes': True, 'repetitions': 7,

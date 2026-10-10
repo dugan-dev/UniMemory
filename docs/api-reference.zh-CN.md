@@ -2,15 +2,14 @@
 
 [目录](README.zh-CN.md) · [English](api-reference.md) · **简体中文**
 
-命名空间：`unimem`。包含 `<unimem/memory.h>` 即可使用分配接口。
+命名空间：`unimem`。包含 `<unimem/memory.h>` 即可使用完整纯头文件分配接口，并链接 CMake `UniMemory::UniMemory` 接口目标。`Memory` 为非模板类。
 
 ## 1 · 创建 Memory
 
 | 接口 | 返回值与用途 |
 | --- | --- |
-| `Memory::global(Backend = Standard)` | `Memory&`，库管理的共享实例 |
-| `Memory::configure_global(Backend, StatisticsMode)` | 首次获取前配置统计；之后改模式报错 |
-| `Memory::heap(Backend, StatisticsMode = Disabled)` | `Memory`，独立 Heap，Standard 不支持 |
+| `Memory::global(Backend = selected_backend)` | `Memory&`，库管理的唯一 Global；显式后端必须匹配本次构建 |
+| `Memory::heap(Backend, StatisticsMode = Disabled)` | `Memory`，仅支持所选后端；Basic 要求统计 ON；Standard 不支持 |
 | `Memory::stack(span<byte>)` | `Memory`，固定 Buffer，单线程借用 |
 | `Memory::stack(void*, size_t)` | 同一策略的指针与大小形式 |
 
@@ -20,14 +19,17 @@ Memory 不可复制或移动；全局实例以指针或引用保存。Heap/Stack
 
 | 接口 | 含义 |
 | --- | --- |
-| `Backend::{Standard, Mimalloc, Jemalloc}` | 选择 Backend |
+| `Backend::{Standard, Mimalloc, Jemalloc}` | 后端枚举；由 CMake 选定一种 |
+| `Memory::selected_backend` / `selected_statistics` | `static constexpr` 构建配置值 |
 | `MemoryKind::{Global, Heap, Stack}` / `kind()` | 当前模式 |
 | `backend()` | `optional<Backend>`，Stack 为空 |
-| `available(backend)` | 构建是否启用该 Backend |
+| `available(backend)` | 仅所选 Backend 返回 true |
 | `capabilities(backend)` | `available`、`heap`、`detailed_statistics`、`release_delay` |
 | `memory.capabilities()` | `basic_statistics`、`detailed_statistics`、`reset`、`collect`、`owns`、`checkpoints`、`thread_safe`、`individual_reclaim` |
 | `supports()` / `set_runtime_option()` | 查询或设置 Backend 全局选项 |
 | `statistics()` / `backend_statistics()` | 可选的[统计数据](guides/statistics.zh-CN.md) |
+
+源码配置必填 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc`、`UNIMEMORY_STATISTICS=ON|OFF`。ON 固定 Global Basic，OFF 固定 Global Disabled 并拒绝 Heap Basic；Stack 没有计数。`UNIMEMORY_CHECKS=AUTO` 在 Debug 开启前置条件检查，其他配置省略，可用 ON/OFF 覆盖。使用方各翻译单元保持同一配置。[构建选项](getting-started.zh-CN.md#构建选项)
 
 运行选项为 `UnusedPageReleaseDelayMs`，单位毫秒。支持计数与开启计数是两回事。
 本库不自动替换普通 `new/delete` 或未适配的 Container。
@@ -85,10 +87,11 @@ Stack 单块释放不收回 Buffer 空间。
 | 条件 | 行为 |
 | --- | --- |
 | 分配或容量不足 | `bad_alloc`；重分配保留原块 |
-| 无效对齐、枚举、Buffer、Mark | 已验证处抛 `invalid_argument` |
+| 无效分配对齐 | 检查开启时抛 `invalid_argument`；OFF 时属于调用方前置条件 |
+| 后端不匹配、无效统计模式、OFF 构建的 Heap Basic、无效 Buffer 或 Mark | `invalid_argument` |
 | 数量或标记计数溢出 | `length_error` |
-| Backend 未启用、Heap 不支持、原生控制失败 | `runtime_error` |
-| 模式操作不支持、Global 已初始化后改模式、移动后 Block 扩容 | `logic_error` |
+| Heap 不支持、原生控制失败 | `runtime_error` |
+| 模式操作不支持、移动后 Block 扩容 | `logic_error` |
 | 无效指针、释放不配对、提前 reset/销毁 | 违反调用契约，不保证检测 |
 
 [构建](getting-started.zh-CN.md) · [生命周期](compatibility.zh-CN.md)

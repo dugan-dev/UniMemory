@@ -28,7 +28,7 @@ for obj in objects:
                 relative = path.resolve().relative_to(root).as_posix()
             except ValueError:
                 continue
-            if not relative.startswith(("src/", "include/")):
+            if not relative.startswith("include/"):
                 continue
             lines = records.setdefault(relative, {})
             for line in file["lines"]:

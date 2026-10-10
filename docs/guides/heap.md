@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Scope and lifetime
 
-`Memory::heap(backend)` creates an independent allocation group that grows as needed. Allocations need not be contiguous. All common Memory APIs are available; check `capabilities(backend).heap` first. Standard does not support Heap.
+`Memory::heap(backend)` creates an independent allocation group that grows as needed. Allocations need not be contiguous. All common Memory APIs are available; check `capabilities(backend).heap` first. Standard does not support Heap. Pass `Memory::selected_backend`; other backend values are rejected. The default Heap mode is Disabled. Basic is allowed only when `UNIMEMORY_STATISTICS=ON`, and throws `std::invalid_argument` in an OFF build.
 
 ## Operations
 

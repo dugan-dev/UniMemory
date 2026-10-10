@@ -13,7 +13,6 @@ on:
   push:
     branches: [main, dev]
     paths:
-      - 'src/**'
       - 'include/**'
       - 'tests/**'
       - 'benchmarks/**'
@@ -38,29 +37,6 @@ jobs:
           path: |
             build/rpmalloc-validation/*.log
             build/rpmalloc-validation/environment.json
-  sanitizers:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        sanitizer: [address, thread]
-    steps:
-      - uses: actions/checkout@v5
-      - name: Configure
-        run: cmake -S . -B build/sanitize -DCMAKE_BUILD_TYPE=Debug -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }}
-      - name: Build
-        run: cmake --build build/sanitize --parallel 4
-      - name: Test
-        env:
-          ASAN_OPTIONS: allocator_may_return_null=1
-          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-          TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
-        run: ctest --test-dir build/sanitize --output-on-failure --parallel 2 --no-tests=error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: sanitizer-${{ matrix.sanitizer }}
-          path: build/sanitize/Testing/Temporary/LastTest.log
   native-unix:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -74,6 +50,7 @@ jobs:
         shell: bash
         run: |
           git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
+          test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076
           cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_BUILD_TESTS=ON -DMI_OVERRIDE=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
           cmake --build build/mi --parallel 4
           ctest --test-dir build/mi --output-on-failure
@@ -91,17 +68,9 @@ jobs:
           make stress > ../jemalloc-stress.log 2>&1
           make analyze > ../jemalloc-analyze.log 2>&1
           make install
-      - name: UniMemory with both explicit backends
+      - name: Validate shared and static SDK installed packages
         shell: bash
-        run: |
-          cmake -S . -B build/all -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON
-          cmake --build build/all --parallel 4
-          ctest --test-dir build/all --output-on-failure --parallel 4
-          cmake --install build/all --prefix build/installed
-          cmake -S tests/consumer -B build/consumer -DCMAKE_PREFIX_PATH="$PWD/build/installed;$PWD/build/prefix"
-          cmake --build build/consumer --parallel 4
-          ctest --test-dir build/consumer --output-on-failure
-          build/all/UniMemoryBenchmark --full > build/benchmark.csv
+        run: bash tools/validate-packaging.sh "$PWD/build"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -109,12 +78,13 @@ jobs:
           path: |
             build/*-*.log
             build/mi/Testing/Temporary/LastTest.log
-            build/all/Testing/Temporary/LastTest.log
-            build/benchmark.csv
+            build/*-test.log
+            build/*-consumer/conflict-*.log
+            build/*-consumer/profile-request-conflicts/*.log
 
   acceptance:
     name: release acceptance
-    needs: [rpmalloc-upstream, sanitizers, native-unix]
+    needs: [rpmalloc-upstream, native-unix]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

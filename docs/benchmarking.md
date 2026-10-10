@@ -7,7 +7,7 @@ Measure your workload. [mimalloc-bench](https://github.com/daanx/mimalloc-bench)
 ## 1 · Build
 
 ```sh
-cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BUILD_BENCHMARKS=ON
+cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_BENCHMARKS=ON
 cmake --build build/bench --config Release
 ```
 
@@ -18,11 +18,12 @@ Optional backends need their [build options and dependencies](guides/backends.md
 Linux / macOS:
 
 ```sh
-python3 tools/run-benchmarks.py build/bench/UniMemoryDeliveryBenchmark build/results --backends standard
-python3 tools/run-sweep.py build/bench/UniMemoryBenchmark build/results
+build/bench/UniMemoryDeliveryBenchmark standard latency native 64
+build/bench/UniMemoryDeliveryBenchmark standard latency disabled 64
+build/bench/UniMemoryBenchmark --full
 ```
 
-Windows: use `python` and executables under `build/bench/Release/` with the `.exe` suffix. For three enabled backends, pass `--backends standard mimalloc jemalloc`; the driver defaults to all three.
+Windows: use `python` and executables under `build/bench/Release/` with the `.exe` suffix. Select the backend matching that executable. Build each backend/statistics profile separately; use the `basic` path and `--basic` sweep only for ON builds, and the `disabled` path only for OFF builds. The legacy multi-backend drivers used by the historical reports must not be used to switch a fixed Global profile.
 
 | Probe | Workload | Output |
 | --- | --- | --- |
@@ -33,7 +34,7 @@ Windows: use `python` and executables under `build/bench/Release/` with the `.ex
 | API sweep | Bytes, Objects, Arrays, Containers, ownership, handoff, diagnostics, Stack | full.csv |
 | Environment | Native versions, type sizes, source/executable SHA-256 | environment.json, sweep-environment.json |
 
-The sweep runs Global Disabled and Global Basic in separate processes because Global configuration is fixed before its first lookup. Heap Disabled/Basic and Stack run only once per trial.
+Global Disabled and Basic now require separate OFF/ON builds, not a runtime change or just a new process. Basic Heap scenarios also require an ON build. Keep Native/API SDK versions, link profile, compiler flags, sizes, alignment, touching and timing protocol matched. The workload/output table and counts below describe the recorded earlier report protocol; they are not current fixed-profile coverage totals.
 
 ## 3 · Method
 
@@ -77,7 +78,7 @@ long-running fragmentation or mobile performance.
 
 ## 6 · Current automated reports
 
-The change-triggered [performance workflow](../.github/workflows/performance.yml)
+The recorded reports use the change-triggered [performance workflow](../.github/workflows/performance.yml)
 builds all three backends on Linux x64, Windows x64 and macOS ARM64. It runs the
 existing probes plus matched Native/API/Basic scaling and individual-operation
 latency samples, then validates the complete API sweep before publishing SVGs.

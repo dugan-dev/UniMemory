@@ -1,3 +1,4 @@
+#include "compiled-bench-config.h"
 #include "statistics.h"
 
 #include <unimem/memory.h>
@@ -46,7 +47,7 @@ void* checked_native_allocation(void* pointer) {
 
 struct NativeStandard {
     void* allocate() const {
-        // Match src/backend_system.cpp, including its nothrow allocation form.
+        // Match the Standard backend, including its nothrow allocation form.
         return checked_native_allocation(
             ::operator new(bytes, std::align_val_t{alignment}, std::nothrow));
     }
@@ -528,7 +529,7 @@ void run_backend(std::ostream& output, const std::string& backend_name,
         result = measure(native, counters, iterations, threads);
     } else if (variant == "api_disabled" || variant == "api_basic") {
         const bool basic = variant == "api_basic";
-        unimem::Memory::configure_global(backend, basic ? unimem::StatisticsMode::Basic
+        compiled_benchmark_configuration(backend, basic ? unimem::StatisticsMode::Basic
                                                        : unimem::StatisticsMode::Disabled);
         auto& memory = unimem::Memory::global(backend);
         require(memory.capabilities().thread_safe,

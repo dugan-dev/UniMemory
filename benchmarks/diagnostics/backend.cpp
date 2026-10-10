@@ -1,3 +1,4 @@
+#include "compiled-bench-config.h"
 #include "backend.h"
 
 #include <unimem/memory.h>
@@ -262,7 +263,7 @@ struct ApiAllocator {
                 backend, unimem::StatisticsMode::Disabled)));
             memory = heap.get();
         } else {
-            unimem::Memory::configure_global(backend, unimem::StatisticsMode::Disabled);
+            compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
             memory = &unimem::Memory::global(backend);
         }
     }

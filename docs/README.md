@@ -15,7 +15,8 @@ flowchart LR
 
 | Topic | Content |
 | --- | --- |
-| [Build and install](getting-started.md) | CMake integration and deployment |
+| [Build and install](getting-started.md) | Header-only CMake integration and deployment |
+| [Configuration migration](migration.md) | Fixed backend/statistics/check policy |
 | [Platforms and backends](guides/backends.md) | Platform support and optional backends |
 | [Runnable examples](../examples/README.md) | Complete programs |
 
@@ -51,7 +52,7 @@ flowchart LR
 
 ## 5 · Validation and maintenance
 
-Repair verification from **2026-10-08 to 2026-10-09**; counts identify the configurations actually tested.
+Historical repair verification from **2026-10-08 to 2026-10-09**; these earlier library-build counts do not describe the current header-only profiles.
 
 | Validation | Recorded result |
 | --- | --- |
@@ -63,10 +64,10 @@ Repair verification from **2026-10-08 to 2026-10-09**; counts identify the confi
 
 Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](testing.md)
 
-Stable source is on `main`; the expanded CI and performance work is on `dev`.
-The [main source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)
+The header-only fixed-profile source described here is on `dev`; the earlier stable implementation is on `main`.
+The [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)
 is distributed without tags or Releases. The library version remains **0.0.1**;
-use matching headers and libraries and identify deliveries by source revision.
+use matching headers, generated configuration and SDK libraries and identify deliveries by source revision.
 [Current performance reports](performance.md#current-remote-reports) record their
 measured revision; September measurements remain as historical data.
 

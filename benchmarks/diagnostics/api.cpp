@@ -1,3 +1,4 @@
+#include "compiled-bench-config.h"
 #include "api.h"
 
 #include <unimem/memory.h>
@@ -641,7 +642,7 @@ void run_backend(std::ostream& output, const std::string& backend_name,
         NativeResource<Native> resource(native);
         result = run_workload(access, allocator, &resource, selection.workload, iterations);
     } else {
-        unimem::Memory::configure_global(backend, unimem::StatisticsMode::Disabled);
+        compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
         auto& memory = unimem::Memory::global(backend);
         require(memory.kind() == unimem::MemoryKind::Global &&
                     memory.backend() == backend && !memory.statistics().has_value(),

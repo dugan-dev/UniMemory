@@ -4,7 +4,7 @@
 
 UniMemory 将基础分配、对齐、清零、Object 生命周期、分配范围、详细统计和一项回收延迟设置放入统一接口；heap 遍历、OS arena 和 subprocess 仍是上游特有能力，不作为 UniMemory 公共接口。
 
-**版本与条件：**[官方功能目录](https://microsoft.github.io/mimalloc/topics.html)于 2026-09-23 核对，网站展示 3.5/2.5/1.15；本仓库 Windows x64/MSVC 与 Linux x64/GCC/WSL 本地验证 **3.4.3**；平台与 CI 结果见[测试报告](../testing.zh-CN.md)。启用需要 `UNIMEMORY_WITH_MIMALLOC=ON`、v3 头文件和库。Android/iOS 尚未设备验证。当前核心集成已验证默认分配/清零/对齐重分配、`mi_heap_new`、heap 分配/重分配、`mi_free`、`mi_heap_destroy`、`mi_stats_get`；其余函数使用前须核对实际版本与平台。
+**版本与条件：**[官方功能目录](https://microsoft.github.io/mimalloc/topics.html)于 2026-09-23 核对，网站展示 3.5/2.5/1.15；本仓库 Windows x64/MSVC 与 Linux x64/GCC/WSL 本地验证 **3.4.3**；平台与 CI 结果见[测试报告](../testing.zh-CN.md)。启用需要 `UNIMEMORY_BACKEND=mimalloc`、v3 头文件和库。Android/iOS 尚未设备验证。当前核心集成已验证默认分配/清零/对齐重分配、`mi_heap_new`、heap 分配/重分配、`mi_free`、`mi_heap_destroy`、`mi_stats_get`；其余函数使用前须核对实际版本与平台。
 
 `Memory::heap()` 另提供整体 `reset()`、闲置 `collect()` 和有效指针 `owns()`；见 [Heap 指南](../guides/heap.zh-CN.md)。
 
@@ -32,7 +32,7 @@ UniMemory 将基础分配、对齐、清零、Object 生命周期、分配范围
 
 固定版本的默认 Release 为 `MI_STAT=0`，不记录普通 malloc 计数；请求字节与大块释放更新也不能一致地表示在用字节。
 Heap 页计数记录在 subprocess 范围。因此仅映射 Process 已提交/已预留指标；mimalloc Heap 的详细统计能力为 false。
-两种 Memory 均可开启 Basic 精确请求计数；不可用字段返回 optional 空值。
+`UNIMEMORY_STATISTICS=ON` 固定 Global Basic，并允许 Heap Basic 精确请求计数；不可用字段返回 optional 空值。
 汇总仅覆盖调用线程当前的原生 subprocess（通常为 main），不汇总其他独立原生 subprocess（[查询源码](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L566)）。
 
 核实源码：[构建条件](https://github.com/microsoft/mimalloc/blob/v3.4.3/include/mimalloc/types.h#L70)、

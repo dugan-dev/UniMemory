@@ -2,7 +2,13 @@
 
 [UniMemory](../README.zh-CN.md) · [English](performance.md) · **简体中文**
 
+## 纯头文件控制 · 2026-10-11
+
+[Windows完整23组控制](performance/header-only.zh-CN.md)列出默认、IPO、`/Ob3`的 SDK/API绝对时间、Global shared请求大小及尚未解决的云端限制。
+
 ## 当前远程报告
+
+这些图表保留各自记录的源码修订与协议，早于当前纯头文件固定配置；不把旧结果作为新配置的性能保证。不同后端与 ON/OFF 现在分别构建，比较需匹配 SDK、编译选项和计时条件。
 
 对比 Standard、mimalloc、jemalloc 的原生接口与 UniMemory 封装。三轮独立进程测量，取中位数；不同平台分别比较。
 

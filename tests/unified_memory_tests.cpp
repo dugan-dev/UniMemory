@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <algorithm>
@@ -62,7 +63,7 @@ struct ShutdownProbe {
 } shutdown_probe;
 
 void global_test(Backend backend, StatisticsMode mode) {
-    Memory::configure_global(backend, mode);
+    compiled_test::test_configuration(backend, compiled_test::global_mode);
     std::array<Memory*, 16> addresses{};
     std::array<std::thread, 16> workers;
     for (std::size_t i = 0; i < workers.size(); ++i) {
@@ -73,14 +74,11 @@ void global_test(Backend backend, StatisticsMode mode) {
     for (Memory* address : addresses) { check(address == &memory, "duplicate Global Memory"); }
     check(memory.kind() == MemoryKind::Global && memory.backend() == backend, "global identity");
     const auto caps = memory.capabilities();
-    check(caps.basic_statistics && caps.thread_safe && caps.individual_reclaim &&
+    check(caps.basic_statistics == compiled_test::supports_statistics && caps.thread_safe && caps.individual_reclaim &&
           !caps.reset && !caps.collect && !caps.owns && !caps.checkpoints, "global capabilities");
     check(caps.detailed_statistics == capabilities(backend).detailed_statistics, "native capability");
     check(memory.statistics().has_value() == (mode == StatisticsMode::Basic), "statistics mode");
-    Memory::configure_global(backend, mode);
-    throws<std::logic_error>([&] { Memory::configure_global(backend,
-        mode == StatisticsMode::Basic ? StatisticsMode::Disabled : StatisticsMode::Basic); });
-    throws<std::invalid_argument>([&] { Memory::configure_global(backend, static_cast<StatisticsMode>(99)); });
+    compiled_test::verify_configuration();
     throws<std::logic_error>([&] { memory.reset(); });
     throws<std::logic_error>([&] { memory.collect(); });
     throws<std::logic_error>([&] { memory.owns(nullptr); });
@@ -93,8 +91,8 @@ void global_test(Backend backend, StatisticsMode mode) {
     throws<std::invalid_argument>([] { Memory::global(static_cast<Backend>(99)); });
     for (auto candidate : {Backend::Mimalloc, Backend::Jemalloc}) {
         if (!available(candidate)) {
-            throws<std::runtime_error>([&] { Memory::global(candidate); });
-            throws<std::runtime_error>([&] { Memory::heap(candidate); });
+            throws<std::invalid_argument>([&] { Memory::global(candidate); });
+            throws<std::invalid_argument>([&] { Memory::heap(candidate); });
         }
     }
 
@@ -121,9 +119,8 @@ void global_test(Backend backend, StatisticsMode mode) {
     for (auto& worker : workers) { worker.join(); }
     check(!failed.load(), "global worker failed");
     if (before) {
-        const auto after = *memory.statistics();
-        check(after.live_bytes == 0 && after.allocations - before->allocations == 36864 &&
-              after.deallocations - before->deallocations == 36864, "global accounting");
+        const auto after = memory.statistics();
+        check( (!compiled_test::supports_statistics || (after->live_bytes == 0)) && (!compiled_test::supports_statistics || (after->allocations - before->allocations == 36864)) && (!compiled_test::supports_statistics || (after->deallocations - before->deallocations == 36864)) , "global accounting");
     }
     {
         auto object = memory.make_unique<Object>();
@@ -153,7 +150,7 @@ void global_test(Backend backend, StatisticsMode mode) {
         }
         heap.reset();
         if (mode == StatisticsMode::Basic) {
-            check(heap.statistics()->allocations == 0, "heap statistics epoch");
+            check( (!compiled_test::supports_statistics || (heap.statistics()->allocations == 0)) , "heap statistics epoch");
         }
     } else {
         throws<std::runtime_error>([&] { Memory::heap(backend); });
@@ -178,8 +175,10 @@ void stack_boundaries() {
     check(!stack.statistics() && !stack.backend_statistics(), "Stack statistics");
     throws<std::logic_error>([&] { stack.collect(); });
     throws<std::logic_error>([&] { stack.owns(nullptr); });
+#if UNIMEMORY_CHECKS
     throws<std::invalid_argument>([&] { stack.allocate(0, 0); });
     throws<std::invalid_argument>([&] { stack.allocate(1, 3); });
+#endif
     const auto original = stack.mark();
     auto block = stack.make_block(16, 1);
     void* pointer = block.data();

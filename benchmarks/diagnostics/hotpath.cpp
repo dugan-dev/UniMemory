@@ -1,3 +1,4 @@
+#include "compiled-bench-config.h"
 #include <unimem/memory.h>
 
 #include "hotpath.h"
@@ -250,14 +251,14 @@ void selected(std::ostream& out, const std::string& backend, const std::string& 
     else if (variant == "handle_external_checked") { kernel(out,backend,variant,HandlePolicy<true,true>{real_handle(B)},iterations,bytes,touch); }
     else if (variant == "handle_checked_constant") { kernel<HandlePolicy<true,false>,true>(out,backend,variant,HandlePolicy<true,false>{real_handle(B)},iterations,64,touch); }
     else if (variant == "api_cached" || variant == "api_lookup") {
-        Memory::configure_global(B,StatisticsMode::Disabled);
+        compiled_benchmark_configuration(B,StatisticsMode::Disabled);
         auto& memory = Memory::global(B);
         if (variant == "api_cached") { kernel(out,backend,variant,Actual<false>{B,memory},iterations,bytes,touch); }
         else { kernel(out,backend,variant,Actual<true>{B,memory},iterations,bytes,touch); }
     }
     else if (variant=="native_batch") { batched(out,backend,variant,Native<B>{},iterations,bytes); }
     else if (variant=="api_batch") {
-        Memory::configure_global(B,StatisticsMode::Disabled);
+        compiled_benchmark_configuration(B,StatisticsMode::Disabled);
         batched(out,backend,variant,Actual<false>{B,Memory::global(B)},iterations,bytes);
     }
     else { throw std::invalid_argument("unknown hotpath variant"); }

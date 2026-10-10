@@ -1,6 +1,7 @@
-#include "backend.h"
+#pragma once
 
-#include <unimem/memory.h>
+#include <unimem/detail/backend.h>
+
 #include <mimalloc.h>
 #include <mimalloc-stats.h>
 
@@ -13,30 +14,30 @@
 #endif
 
 namespace unimem::detail {
-namespace {
+namespace mimalloc_impl {
 
-void* default_allocate(void*, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* default_allocate(void*, std::size_t bytes,
                        std::size_t alignment) noexcept {
     return alignment > alignof(void*)
         ? mi_malloc_aligned(bytes, alignment)
         : mi_malloc(bytes);
 }
 
-void* default_allocate_zeroed(void*, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* default_allocate_zeroed(void*, std::size_t bytes,
                               std::size_t alignment) noexcept {
     return alignment > alignof(void*)
         ? mi_zalloc_aligned(bytes, alignment)
         : mi_zalloc(bytes);
 }
 
-void* default_reallocate(void*, void* pointer, std::size_t,
+UNIMEMORY_FORCE_INLINE void* default_reallocate(void*, void* pointer, std::size_t,
                          std::size_t bytes, std::size_t alignment) noexcept {
     return mi_realloc_aligned(pointer, bytes, alignment);
 }
 
-void default_destroy(void*) noexcept {}
+inline void default_destroy(void*) noexcept {}
 
-void* allocate(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* allocate(void* context, std::size_t bytes,
                std::size_t alignment) noexcept {
     auto* heap = static_cast<mi_heap_t*>(context);
     return alignment > alignof(void*)
@@ -44,7 +45,7 @@ void* allocate(void* context, std::size_t bytes,
         : mi_heap_malloc(heap, bytes);
 }
 
-void* allocate_zeroed(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* allocate_zeroed(void* context, std::size_t bytes,
                       std::size_t alignment) noexcept {
     auto* heap = static_cast<mi_heap_t*>(context);
     return alignment > alignof(void*)
@@ -52,31 +53,31 @@ void* allocate_zeroed(void* context, std::size_t bytes,
         : mi_heap_zalloc(heap, bytes);
 }
 
-void* reallocate(void* context, void* pointer, std::size_t,
+UNIMEMORY_FORCE_INLINE void* reallocate(void* context, void* pointer, std::size_t,
                  std::size_t bytes, std::size_t alignment) noexcept {
     return mi_heap_realloc_aligned(static_cast<mi_heap_t*>(context),
                                    pointer, bytes, alignment);
 }
 
-void deallocate(void*, void* pointer, std::size_t,
+UNIMEMORY_FORCE_INLINE void deallocate(void*, void* pointer, std::size_t,
                 std::size_t) noexcept { mi_free(pointer); }
 
-void destroy(void* context) noexcept { mi_heap_destroy(static_cast<mi_heap_t*>(context)); }
+inline void destroy(void* context) noexcept { mi_heap_destroy(static_cast<mi_heap_t*>(context)); }
 
-void* reset(void* context) {
+inline void* reset(void* context) {
     auto* next = mi_heap_new();
     if (next == nullptr) { throw std::bad_alloc(); }
     destroy(context);
     return next;
 }
 
-void collect(void* context) { mi_heap_collect(static_cast<mi_heap_t*>(context), true); }
+inline void collect(void* context) { mi_heap_collect(static_cast<mi_heap_t*>(context), true); }
 
-bool owns(void* context, const void* pointer) {
+inline bool owns(void* context, const void* pointer) {
     return mi_heap_contains(static_cast<mi_heap_t*>(context), pointer);
 }
 
-bool statistics(void*, BackendStatistics& result) {
+inline bool statistics(void*, BackendStatistics& result) {
     mi_stats_t_decl(stats);
     if (!mi_stats_get(&stats)) {
         return false;
@@ -93,22 +94,22 @@ bool statistics(void*, BackendStatistics& result) {
     return true;
 }
 
-const BackendOps ops{allocate, allocate_zeroed, reallocate, deallocate,
+inline const BackendOps ops{allocate, allocate_zeroed, reallocate, deallocate,
                      destroy, nullptr, reset, collect, owns};
-const BackendOps default_ops{default_allocate, default_allocate_zeroed,
+inline const BackendOps default_ops{default_allocate, default_allocate_zeroed,
                              default_reallocate, deallocate, default_destroy,
                              statistics};
 
 }
 
-BackendHandle mimalloc_backend(bool dedicated) {
-    if (!dedicated) { return {&default_ops, nullptr}; }
+inline BackendHandle mimalloc_backend(bool dedicated) {
+    if (!dedicated) { return {&mimalloc_impl::default_ops, nullptr}; }
     auto* heap = mi_heap_new();
     if (heap == nullptr) { throw std::bad_alloc(); }
-    return {&ops, heap};
+    return {&mimalloc_impl::ops, heap};
 }
 
-bool set_mimalloc_release_delay(std::int64_t value) noexcept {
+inline bool set_mimalloc_release_delay(std::int64_t value) noexcept {
     mi_option_set(mi_option_purge_delay, static_cast<long>(value));
     return mi_option_get(mi_option_purge_delay) == static_cast<long>(value);
 }

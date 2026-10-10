@@ -1,6 +1,7 @@
-#include "backend.h"
+#pragma once
 
-#include <unimem/memory.h>
+#include <unimem/detail/backend.h>
+
 
 #include <climits>
 #include <cstddef>
@@ -16,18 +17,25 @@
 #pragma warning(push)
 #pragma warning(disable: 4068)
 #endif
+#ifndef JEMALLOC_NO_RENAME
 #define JEMALLOC_NO_RENAME
+#define UNIMEMORY_RESTORE_JEMALLOC_RENAME
+#endif
 #include <jemalloc/jemalloc.h>
+#ifdef UNIMEMORY_RESTORE_JEMALLOC_RENAME
+#undef JEMALLOC_NO_RENAME
+#undef UNIMEMORY_RESTORE_JEMALLOC_RENAME
+#endif
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
 namespace unimem::detail {
-namespace {
+namespace jemalloc_impl {
 
 struct ArenaContext { unsigned index; };
 
-bool initialize() noexcept {
+inline bool initialize() noexcept {
     // Windows jemalloc can race its process-wide TSD bootstrap when the first
     // calls come from different workers. Finish it before exposing the backend.
     static std::once_flag initialized;
@@ -47,48 +55,48 @@ bool initialize() noexcept {
     }
 }
 
-int arena_flags(void* context) noexcept {
+UNIMEMORY_FORCE_INLINE int arena_flags(void* context) noexcept {
     return MALLOCX_ARENA(static_cast<ArenaContext*>(context)->index) |
            MALLOCX_TCACHE_NONE;
 }
 
-int flags_for(void* context, std::size_t alignment) noexcept {
+UNIMEMORY_FORCE_INLINE int flags_for(void* context, std::size_t alignment) noexcept {
     return MALLOCX_ALIGN(alignment) |
            (context == nullptr ? 0 : arena_flags(context));
 }
 
-void* allocate(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* allocate(void* context, std::size_t bytes,
                std::size_t alignment) noexcept {
     return alignment > static_cast<std::size_t>(INT_MAX)
         ? nullptr : je_mallocx(bytes, flags_for(context, alignment));
 }
 
-void* allocate_zeroed(void* context, std::size_t bytes,
+UNIMEMORY_FORCE_INLINE void* allocate_zeroed(void* context, std::size_t bytes,
                       std::size_t alignment) noexcept {
     return alignment > static_cast<std::size_t>(INT_MAX)
         ? nullptr : je_mallocx(bytes, flags_for(context, alignment) | MALLOCX_ZERO);
 }
 
-void* reallocate(void* context, void* pointer, std::size_t,
+UNIMEMORY_FORCE_INLINE void* reallocate(void* context, void* pointer, std::size_t,
                  std::size_t bytes, std::size_t alignment) noexcept {
     return alignment > static_cast<std::size_t>(INT_MAX)
         ? nullptr : je_rallocx(pointer, bytes, flags_for(context, alignment));
 }
 
-void deallocate(void* context, void* pointer, std::size_t,
+UNIMEMORY_FORCE_INLINE void deallocate(void* context, void* pointer, std::size_t,
                 std::size_t) noexcept {
     je_dallocx(pointer, context == nullptr ? 0 : MALLOCX_TCACHE_NONE);
 }
 
-void destroy(void*) noexcept {}
+inline void destroy(void*) noexcept {}
 
-bool read_size(const char* name, std::size_t& value) noexcept {
+inline bool read_size(const char* name, std::size_t& value) noexcept {
     std::size_t length = sizeof(value);
     return je_mallctl(name, &value, &length, nullptr, 0) == 0 &&
            length == sizeof(value);
 }
 
-bool read_arena_size(unsigned index, const char* suffix,
+inline bool read_arena_size(unsigned index, const char* suffix,
                      std::size_t& value) noexcept {
     char name[96];
     const auto count = std::snprintf(name, sizeof(name),
@@ -97,7 +105,7 @@ bool read_arena_size(unsigned index, const char* suffix,
            read_size(name, value);
 }
 
-bool statistics(void* context, BackendStatistics& result) {
+inline bool statistics(void* context, BackendStatistics& result) {
     bool enabled = false;
     std::size_t enabled_size = sizeof(enabled);
     if (je_mallctl("config.stats", &enabled, &enabled_size, nullptr, 0) != 0 ||
@@ -119,7 +127,7 @@ bool statistics(void* context, BackendStatistics& result) {
         std::size_t large = 0;
         if (!read_arena_size(index, "small.allocated", small) ||
             !read_arena_size(index, "large.allocated", large)) { return false; }
-        if (large > std::numeric_limits<std::size_t>::max() - small) { return false; }
+        if (large > (std::numeric_limits<std::size_t>::max)() - small) { return false; }
         result.allocated_bytes = small + large;
         if (read_arena_size(index, "resident", value)) {
             result.resident_bytes = value;
@@ -128,7 +136,7 @@ bool statistics(void* context, BackendStatistics& result) {
     return true;
 }
 
-void destroy_arena(void* context) noexcept {
+inline void destroy_arena(void* context) noexcept {
     auto* arena = static_cast<ArenaContext*>(context);
     char name[64];
     const auto count = std::snprintf(name, sizeof(name),
@@ -139,7 +147,7 @@ void destroy_arena(void* context) noexcept {
     delete arena;
 }
 
-void arena_command(void* context, const char* command) {
+inline void arena_command(void* context, const char* command) {
     char name[64];
     const auto count = std::snprintf(name, sizeof(name), "arena.%u.%s",
         static_cast<ArenaContext*>(context)->index, command);
@@ -149,14 +157,14 @@ void arena_command(void* context, const char* command) {
     }
 }
 
-void* reset(void* context) {
+inline void* reset(void* context) {
     arena_command(context, "reset");
     return context;
 }
 
-void collect(void* context) { arena_command(context, "purge"); }
+inline void collect(void* context) { arena_command(context, "purge"); }
 
-bool owns(void* context, const void* pointer) {
+inline bool owns(void* context, const void* pointer) {
     unsigned index = 0;
     std::size_t length = sizeof(index);
     void* allocation = const_cast<void*>(pointer);
@@ -167,19 +175,19 @@ bool owns(void* context, const void* pointer) {
     return index == static_cast<ArenaContext*>(context)->index;
 }
 
-const BackendOps ops{allocate, allocate_zeroed, reallocate, deallocate,
+inline const BackendOps ops{allocate, allocate_zeroed, reallocate, deallocate,
                      destroy, statistics};
-const BackendOps arena_ops{allocate, allocate_zeroed, reallocate, deallocate,
+inline const BackendOps arena_ops{allocate, allocate_zeroed, reallocate, deallocate,
                            destroy_arena, statistics, reset, collect, owns};
 
 }
 
-BackendHandle jemalloc_backend(bool dedicated) {
-    if (!initialize()) {
+inline BackendHandle jemalloc_backend(bool dedicated) {
+    if (!jemalloc_impl::initialize()) {
         throw std::runtime_error("UniMemory: jemalloc initialization failed");
     }
-    if (!dedicated) { return {&ops, nullptr}; }
-    auto* arena = new ArenaContext{};
+    if (!dedicated) { return {&jemalloc_impl::ops, nullptr}; }
+    auto* arena = new jemalloc_impl::ArenaContext{};
     std::size_t length = sizeof(arena->index);
     if (je_mallctl("arenas.create", &arena->index, &length, nullptr, 0) != 0 ||
         length != sizeof(arena->index)) {
@@ -188,24 +196,24 @@ BackendHandle jemalloc_backend(bool dedicated) {
     }
     constexpr unsigned max_index = (1u << (sizeof(int) * CHAR_BIT - 21)) - 2u;
     if (arena->index > max_index) {
-        destroy_arena(arena);
+        jemalloc_impl::destroy_arena(arena);
         throw std::runtime_error("UniMemory: jemalloc arena index exceeds flag range");
     }
-    return {&arena_ops, arena};
+    return {&jemalloc_impl::arena_ops, arena};
 }
 
-bool jemalloc_statistics_available() noexcept {
-    if (!initialize()) { return false; }
+inline bool jemalloc_statistics_available() noexcept {
+    if (!jemalloc_impl::initialize()) { return false; }
     bool enabled = false;
     std::size_t length = sizeof(enabled);
     return je_mallctl("config.stats", &enabled, &length, nullptr, 0) == 0 &&
            enabled;
 }
 
-bool set_jemalloc_release_delay(std::int64_t value) noexcept {
-    if (!initialize()) { return false; }
+inline bool set_jemalloc_release_delay(std::int64_t value) noexcept {
+    if (!jemalloc_impl::initialize()) { return false; }
     using SignedSize = std::make_signed_t<std::size_t>;
-    if (value > static_cast<std::int64_t>(std::numeric_limits<SignedSize>::max())) {
+    if (value > static_cast<std::int64_t>((std::numeric_limits<SignedSize>::max)())) {
         return false;
     }
     auto next = static_cast<SignedSize>(value);

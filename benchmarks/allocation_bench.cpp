@@ -1,3 +1,4 @@
+#include "diagnostics/compiled-bench-config.h"
 #include <unimem/memory.h>
 
 #include <algorithm>
@@ -314,12 +315,14 @@ std::vector<Scenario> scenarios(bool full) {
     for (const auto threads : {2U, 4U, 8U}) {
         for (const auto heap : {false, true}) {
             result.push_back({Workload::CrossThread, 64, 16, threads,
-                              unimem::StatisticsMode::Disabled, heap});
+                              heap ? unimem::StatisticsMode::Disabled
+                                   : unimem::Memory::selected_statistics, heap});
         }
     }
     for (const auto heap : {false, true}) {
         result.push_back({Workload::DetailedStatistics, 0, 0, 1,
-                          unimem::StatisticsMode::Disabled, heap});
+                          heap ? unimem::StatisticsMode::Disabled
+                               : unimem::Memory::selected_statistics, heap});
     }
     return result;
 }
@@ -348,16 +351,19 @@ double stack_mark_rewind(std::size_t bytes, std::size_t alignment,
 
 int main(int argc, char** argv) {
     try {
-        bool full = false, basic = false;
+        bool full = false;
+        constexpr bool basic = unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic;
         for (int i = 1; i < argc; ++i) {
             const std::string argument = argv[i];
             if (argument == "--full") { full = true; }
-            else if (argument == "--basic") { basic = true; }
+            else if (argument == "--basic") {
+                if (!basic) { throw std::invalid_argument("--basic requires UNIMEMORY_STATISTICS=ON"); }
+            }
             else { throw std::invalid_argument("expected --full or --basic"); }
         }
         for (const auto backend : backends) {
             if (unimem::available(backend.value)) {
-                unimem::Memory::configure_global(backend.value, basic
+                compiled_benchmark_configuration(backend.value, basic
                     ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
             }
         }
@@ -367,8 +373,10 @@ int main(int argc, char** argv) {
                      "repetitions,operations,median_ns_per_operation\n";
         std::mt19937 generator(0xC0FFEE);
         for (const auto& scenario : scenarios(full)) {
-            if (basic && scenario.heap) { continue; }
             if (!scenario.heap && ((scenario.statistics == unimem::StatisticsMode::Basic) != basic)) {
+                continue;
+            }
+            if (scenario.heap && !basic && scenario.statistics == unimem::StatisticsMode::Basic) {
                 continue;
             }
             std::vector<BackendName> enabled;
@@ -404,7 +412,7 @@ int main(int argc, char** argv) {
                           << times[times.size() / 2] << '\n';
             }
         }
-        if (!basic) for (const auto bytes : full ? std::vector<std::size_t>{64, 256, 4096, 65536}
+        for (const auto bytes : full ? std::vector<std::size_t>{64, 256, 4096, 65536}
                                      : std::vector<std::size_t>{64, 4096}) {
             for (const auto alignment : full ? std::vector<std::size_t>{16, 64, 256}
                                              : std::vector<std::size_t>{16}) {

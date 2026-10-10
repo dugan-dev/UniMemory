@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unimem/common.h>
-#include "../../src/backend.h"
+#include <unimem/detail/backend.h>
 
 #include <cstddef>
 #include <ostream>

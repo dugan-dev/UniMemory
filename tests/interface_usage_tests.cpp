@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <algorithm>
@@ -57,7 +58,7 @@ struct Context {
 
 void balanced(Memory& memory, std::uint64_t baseline = 0) {
     if (auto stats = memory.statistics()) {
-        check(stats->live_bytes == baseline, "requested bytes did not balance");
+        check( (!compiled_test::supports_statistics || (stats->live_bytes == baseline)) , "requested bytes did not balance");
     }
 }
 void verify_bytes(const void* pointer, std::size_t bytes, unsigned char value) {
@@ -82,7 +83,7 @@ void owners(Memory& first, Memory& second) {
         b.resize(62);
         verify_bytes(b.data(), 31, 17);
         if (auto stats = first.statistics()) {
-            check(stats->live_bytes == 62, "moved block changed Memory binding");
+            check( (!compiled_test::supports_statistics || (stats->live_bytes == 62)) , "moved block changed Memory binding");
         }
         auto& self = b;
         b = std::move(self);
@@ -112,7 +113,7 @@ void owners(Memory& first, Memory& second) {
         a.resize(0);
         balanced(second);
         if (auto stats = first.statistics()) {
-            check(stats->live_bytes == 37, "block swap lost original Memory");
+            check( (!compiled_test::supports_statistics || (stats->live_bytes == 37)) , "block swap lost original Memory");
         }
     }
     balanced(first);
@@ -292,7 +293,7 @@ void objects(Memory& first, Memory& second) {
         alias.reset();
         check(weak.expired() && !weak.lock(), "last strong release retained object");
         if (auto stats = first.statistics()) {
-            check(stats->live_bytes > 0, "weak pointer lost its control block");
+            check( (!compiled_test::supports_statistics || (stats->live_bytes > 0)) , "weak pointer lost its control block");
         }
         weak.reset();
     }
@@ -507,37 +508,24 @@ template<class F> void parallel(unsigned count, F&& function) {
 }
 
 void global_config(Backend backend, unsigned scenario, StatisticsMode mode) {
+    check(scenario <= 2, "compiled configuration seed");
+    compiled_test::test_configuration(backend, mode);
+    compiled_test::verify_configuration();
     constexpr unsigned count = 8;
     std::atomic<bool> failed{false};
     std::array<Memory*, count> addresses{};
-    if (scenario == 0) {
-        parallel(count, [&](unsigned) {
-            try { Memory::configure_global(backend, mode); }
-            catch (...) { failed.store(true); }
-        });
-        check(!failed.load(), "concurrent identical preconfiguration");
-    } else if (scenario == 1 || scenario == 2) {
-        Memory::configure_global(backend, mode);
-        (void)Memory::global(backend);
-    } else { throw std::invalid_argument("global-config seed must be 0, 1, or 2"); }
     parallel(count, [&](unsigned id) {
         try {
             for (unsigned round = 0; round < 64; ++round) {
-                if (scenario == 2) {
-                    throws<std::logic_error>([&] {
-                        Memory::configure_global(backend, mode == StatisticsMode::Basic
-                            ? StatisticsMode::Disabled : StatisticsMode::Basic);
-                    });
-                } else { Memory::configure_global(backend, mode); }
                 addresses[id] = &Memory::global(backend);
-                check(addresses[id]->statistics().has_value() == (mode == StatisticsMode::Basic),
-                      "concurrent configuration changed statistics mode");
+                check(addresses[id]->statistics().has_value() == compiled_test::supports_statistics,
+                      "compiled Global statistics");
             }
         } catch (...) { failed.store(true); }
     });
-    check(!failed.load(), "concurrent Global configuration or lookup");
+    check(!failed.load(), "compiled Global lookup failed");
     for (auto* address : addresses) {
-        check(address == addresses[0] && address != nullptr, "Global identity diverged");
+        check(address != nullptr && address == addresses[0], "Global identity diverged");
     }
 }
 
@@ -650,16 +638,13 @@ void handoff(Memory& memory) {
         verify_bytes(anchor.data(), anchor.size(), 139);
         check(memory.owns(anchor.data()), "collect lost live anchor ownership");
         if (before) {
-            const auto after = *memory.statistics();
-            check(before->allocations == after.allocations && before->deallocations == after.deallocations &&
-                  before->reallocations == after.reallocations && before->live_bytes == after.live_bytes &&
-                  before->peak_live_bytes == after.peak_live_bytes, "collect changed anchor accounting");
+            const auto after = memory.statistics();
+            check( (!compiled_test::supports_statistics || (before->allocations == after->allocations)) && (!compiled_test::supports_statistics || (before->deallocations == after->deallocations)) && (!compiled_test::supports_statistics || (before->reallocations == after->reallocations)) && (!compiled_test::supports_statistics || (before->live_bytes == after->live_bytes)) && (!compiled_test::supports_statistics || (before->peak_live_bytes == after->peak_live_bytes)) , "collect changed anchor accounting");
         }
     }
     if (baseline) {
-        const auto after = *memory.statistics();
-        check(after.live_bytes == baseline->live_bytes &&
-              after.allocations - baseline->allocations == after.deallocations - baseline->deallocations,
+        const auto after = memory.statistics();
+        check( (!compiled_test::supports_statistics || (after->live_bytes == baseline->live_bytes)) && (!compiled_test::supports_statistics || (after->allocations - baseline->allocations == after->deallocations - baseline->deallocations)) ,
               "handoff allocation counts did not balance");
     }
     anchor.resize(0);
@@ -780,8 +765,8 @@ void trace(Memory& memory, unsigned seed, unsigned steps) {
     record_balance();
     balanced(memory);
     if (baseline) {
-        const auto after = *memory.statistics();
-        check(after.allocations - baseline->allocations == after.deallocations - baseline->deallocations,
+        const auto after = memory.statistics();
+        check( (!compiled_test::supports_statistics || (after->allocations - baseline->allocations == after->deallocations - baseline->deallocations)) ,
               "owner trace allocation counts did not balance");
     }
     if (memory.kind() == MemoryKind::Stack) {
@@ -807,12 +792,12 @@ int main(int argc, char** argv) {
             throw std::invalid_argument("statistics must be basic or disabled");
         }
         const auto tracking = statistics == "basic" ? StatisticsMode::Basic : StatisticsMode::Disabled;
-        if (mode == "global-config") {
-            check(kind == "global", "global-config requires Global");
+        if (mode == "compiled-config") {
+            check(kind == "global", "compiled-config requires Global");
             global_config(backend, seed, tracking);
             return 0;
         }
-        if (kind == "global") { Memory::configure_global(backend, tracking); }
+        if (kind == "global") { compiled_test::test_configuration(backend, compiled_test::global_mode); }
         Context context(backend, kind, tracking);
         auto& memory = *context.memory;
         if (mode == "trace") { trace(memory, seed, steps); }

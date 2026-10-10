@@ -112,11 +112,11 @@ def primary(rows):
     return timed[0]
 
 
-def contrasts(affinity):
+def contrasts(affinity, backends=BACKENDS, statistics_mode=None):
     result=[]
     def add(factor, control, changed):
         result.append((factor, control, changed))
-    for b in BACKENDS:
+    for b in backends:
         def hot(v, size=64, touch=False, pin=affinity):
             return specimen('hotpath',b,v,size=size,touch=touch,affinity=pin)
         for factor,a,z in (
@@ -168,12 +168,15 @@ def contrasts(affinity):
         for api in API:
             add('api_'+api,specimen('api',b,'native_'+api,affinity=affinity),
                 specimen('api',b,'api_'+api,affinity=affinity))
+    if statistics_mode is not None:
+        unsupported = 'api_basic' if statistics_mode == 'OFF' else 'api_disabled'
+        result = [case for case in result if all(side['variant'] != unsupported for side in case[1:])]
     return result
 
 
-def smoke(executable, directory, affinity):
+def smoke(executable, directory, affinity, backends=BACKENDS, statistics_mode=None):
     rows=[]
-    for b in BACKENDS:
+    for b in backends:
         variants=HOT+(('native_throwing',) if b=='standard' else ())+(('adapter_cpp20_bits',) if b=='jemalloc' else ())
         for v in variants:
             cases=[specimen('hotpath',b,v,affinity=affinity)]
@@ -182,6 +185,8 @@ def smoke(executable, directory, affinity):
                 value,_=execute(executable,case,257,None,'smoke')
                 rows.extend(value)
         for v in STATS:
+            if v == ('api_basic' if statistics_mode == 'OFF' else 'api_disabled' if statistics_mode == 'ON' else ''):
+                continue
             case=specimen('statistics',b,v,threads=2)
             value,_=execute(executable,case,17,None,'smoke')
             rows.extend(value)
@@ -189,7 +194,7 @@ def smoke(executable, directory, affinity):
             for prefix in ('native_','api_'):
                 value,_=execute(executable,specimen('api',b,prefix+v,affinity=affinity),257,None,'smoke')
                 rows.extend(value)
-    for b in ('mimalloc','jemalloc'):
+    for b in (backend for backend in backends if backend != 'standard'):
         variants=['native_heap','api_heap','native_global','api_global']
         if b=='jemalloc': variants+=['native_no_tcache','native_stats','api_stats','epoch_only','native_cached_stats']
         for v in variants:
@@ -229,6 +234,7 @@ def summary_row(factor, build, pair, controls, changes):
 
 def main():
     parser=argparse.ArgumentParser()
+    parser.add_argument('--backend', choices=BACKENDS, required=True)
     parser.add_argument('--builds',required=True,help='JSON mapping build name to diagnostic executable')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--trials',type=int,default=5)
@@ -238,6 +244,9 @@ def main():
     if args.trials<5 or args.target_seconds<.1:
         parser.error('At least five trials and a 100ms calibration target are required')
     executables={name:Path(path).resolve() for name,path in json.loads(args.builds).items()}
+    backends=(args.backend,)
+    baseline_name='headers' if 'headers' in executables else 'static'
+    if baseline_name not in executables: parser.error('Missing header baseline executable')
     out=args.output
     out.mkdir(parents=True,exist_ok=True)
     raw=out/'raw'; raw.mkdir(exist_ok=True)
@@ -252,7 +261,15 @@ def main():
                   caveats=['Synthetic counters change snapshot semantics','Mac CPU affinity unsupported',
                            'Oversubscribed threads include scheduling effects','Aligned vs unaligned changes guarantees',
                            'Signed paired deltas are contextual and not additive'])
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from benchmark_profile import read_profile, environment_for
     for name,exe in executables.items():
+        profile = read_profile(exe)
+        if profile['backend'] != args.backend or profile['statistics'] != 'OFF':
+            raise ValueError('Diagnostic API kernels require the selected statistics-disabled profile')
+        manifest['executables'][name]['build_profile'] = profile
+        if name == baseline_name: os.environ.update(environment_for(profile))
         folder=exe.parent.parent if exe.parent.name=='Release' else exe.parent
         manifest['executables'][name]['build_parameters']=(folder/'diagnostic-build-Release.txt').read_text()
         manifest['executables'][name]['cmake_cache_sha256']=hashlib.sha256((folder/'CMakeCache.txt').read_bytes()).hexdigest()
@@ -262,6 +279,12 @@ def main():
             manifest['executables'][name]['linked_libraries']=subprocess.check_output(['otool','-L',str(exe)],text=True)
         else:
             manifest['executables'][name]['dlls']={path.name:hashlib.sha256(path.read_bytes()).hexdigest() for path in exe.parent.glob('*.dll')}
+    def sdk_identity(profile):
+        return ({key: value['sha256'] for key, value in profile['sdk_binaries'].items()},
+                {Path(path).name: sha for path, sha in profile['sdk_runtime_files'].items()})
+    reference = sdk_identity(manifest['executables'][baseline_name]['build_profile'])
+    if any(sdk_identity(item['build_profile']) != reference for item in manifest['executables'].values()):
+        raise ValueError('Controlled target configurations must use byte-identical SDK binaries')
     if platform.system()=='Linux':
         manifest['cpu_info']=Path('/proc/cpuinfo').read_text().split('\n\n')[0]
     elif platform.system()=='Darwin':
@@ -273,11 +296,11 @@ def main():
     (out/'environment.json').write_text(json.dumps(manifest,indent=2)+'\n')
     for name,exe in executables.items():
         smoke_dir=out/name; smoke_dir.mkdir(exist_ok=True)
-        smoke(exe,smoke_dir,affinity)
+        smoke(exe,smoke_dir,affinity,backends,'OFF')
     if args.smoke_only:
         return
-    baseline=executables['static']
-    cases=contrasts(affinity)
+    baseline=executables[baseline_name]
+    cases=contrasts(affinity,backends,'OFF')
     random.Random(61927).shuffle(cases)
     summaries=[]; measurements=[]
     for index,(factor,a,z) in enumerate(cases):
@@ -292,19 +315,19 @@ def main():
                 rows,stderr=execute(baseline,pair[side],iterations,raw,identity)
                 value=primary(rows)
                 results[side]=value
-                measurements.append(dict(build='static',factor=factor,contrast=index,trial=trial+1,side=side,
+                measurements.append(dict(build=baseline_name,factor=factor,contrast=index,trial=trial+1,side=side,
                                          touch=pair[side]['touch'],affinity=pair[side]['affinity'],
                                          affinity_failed='AFFINITY_UNSUPPORTED' in stderr,**value))
             controls.append(results[0]); changes.append(results[1])
-        summaries.append(summary_row(factor,'static',pair,controls,changes))
+        summaries.append(summary_row(factor,baseline_name,pair,controls,changes))
         write_csv(out/'measurements.csv',measurements)
         write_csv(out/'contrasts.csv',summaries)
         print(f'{index+1}/{len(cases)} {factor} {a["backend"]} {a["bytes"]}B {a["threads"]}t: '
               f'{summaries[-1]["paired_delta_median"]:.3f} {summaries[-1]["unit"]}',flush=True)
     # Build contrasts are paired directly on the same host, not inferred from separate runs.
     for build,exe in executables.items():
-        if build=='static': continue
-        for b in BACKENDS:
+        if build==baseline_name: continue
+        for b in backends:
             variants=('native','api_cached','handle_inline_checked','handle_checked_constant')
             if b=='jemalloc': variants+=('adapter_direct','adapter_cpp20_bits')
             for v in variants:
@@ -312,14 +335,14 @@ def main():
                 n=max(calibrate(baseline,(case,case),args.target_seconds),calibrate(exe,(case,case),args.target_seconds))
                 controls=[]; changes=[]
                 for trial in range(args.trials):
-                    order=[('static',baseline), (build,exe)] if trial%2==0 else [(build,exe),('static',baseline)]
+                    order=[(baseline_name,baseline), (build,exe)] if trial%2==0 else [(build,exe),(baseline_name,baseline)]
                     for name,program in order:
                         rows,stderr=execute(program,case,n,raw,f'build-{build}-{b}-{v}-{trial+1}-{name}')
                         value=primary(rows)
-                        (controls if name=='static' else changes).append(value)
+                        (controls if name==baseline_name else changes).append(value)
                         measurements.append(dict(build=name,factor='build_'+build,trial=trial+1,**value))
                 summaries.append(summary_row('build_'+build,build,(case,case),controls,changes))
-        if build=='static-strict-adapters':
+        if build.endswith('-strict-adapters'):
             pair=(specimen('hotpath','jemalloc','adapter_direct',affinity=affinity),
                   specimen('hotpath','jemalloc','adapter_cpp20_bits',affinity=affinity))
             n=calibrate(exe,pair,args.target_seconds)
@@ -332,7 +355,7 @@ def main():
             summaries.append(summary_row('strict_alignment_bit_conversion',build,pair,control,changed))
     # Backend queries have multiple stage metrics and fixed 64MiB payloads.
     backend_rows=[]
-    for b in ('mimalloc','jemalloc'):
+    for b in (backend for backend in backends if backend != 'standard'):
         variants=['native_heap','api_heap','native_global','api_global']
         if b=='jemalloc': variants+=['native_no_tcache','native_stats','api_stats','epoch_only','native_cached_stats']
         for trial in range(args.trials):
@@ -350,7 +373,7 @@ def main():
         clocks.extend(dict(trial=trial+1,**row) for row in rows)
     write_csv(out/'clock.csv',clocks)
     short=[]
-    for b in BACKENDS:
+    for b in backends:
         for trial in range(15):
             for v in ('native','api_cached'):
                 row=primary(execute(baseline,specimen('hotpath',b,v,affinity=affinity),4096,raw,f'short-{b}-{v}-{trial+1}')[0])

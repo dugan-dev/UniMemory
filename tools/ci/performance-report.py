@@ -9,6 +9,10 @@ import json
 import math
 from pathlib import Path
 import statistics
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from publication_metadata import sanitize_publication
 
 BACKENDS = ("standard", "mimalloc", "jemalloc")
 PATHS = ("native", "disabled", "basic")
@@ -21,7 +25,7 @@ API_SCENARIOS = (("raw", "64", "16"), ("zeroed", "64", "16"), ("reallocate", "64
                  ("object", "64", "1"), ("shared_object", "64", "1"), ("std_vector", "256", "8"))
 
 
-def sweep_scenarios():
+def sweep_scenarios(profile=None):
     """Pinned full-sweep contract, independent of measurements and their manifest."""
     expected = set()
     for backend in BACKENDS:
@@ -44,7 +48,35 @@ def sweep_scenarios():
                 expected.add((backend, "detailed_statistics", "0", "0", "1", "disabled", heap))
     for size, alignment in itertools.product((64,256,4096,65536), (16,64,256)):
         expected.add(("fixed_buffer", "stack_mark_rewind", str(size), str(alignment), "1", "disabled", "no"))
+    if profile is not None:
+        backend = profile['backend']
+        mode = 'basic' if profile['statistics'] == 'ON' else 'disabled'
+        expected = {(*case[:5], mode, case[6]) if case[6] == 'no' and
+                    case[1] in ('cross_thread', 'detailed_statistics') else case for case in expected}
+        expected = {case for case in expected if case[0] == 'fixed_buffer' or
+                    (case[0] == backend and ((case[6] == 'no' and case[5] == mode) or
+                     (case[6] == 'yes' and (profile['statistics'] == 'ON' or case[5] == 'disabled'))))}
     return expected
+
+
+def dimensions(manifest):
+    if manifest.get('schema') == 1:
+        return BACKENDS, PATHS, 'disabled', None
+    if manifest.get('schema') != 2:
+        raise ValueError('Unsupported performance schema')
+    profile = manifest.get('build_profile', {})
+    backend = profile.get('backend')
+    mode = 'basic' if profile.get('statistics') == 'ON' else 'disabled'
+    if backend not in BACKENDS or profile.get('statistics') not in ('ON', 'OFF') or profile.get('core') != 'header-only':
+        raise ValueError('Invalid selected build profile')
+    if manifest.get('backends') != [backend] or manifest.get('paths') != ['native', mode]:
+        raise ValueError('Measurement scope disagrees with its compiled profile')
+    actual = manifest.get('allocator_environment', {})
+    if actual.get('selected_backend') != backend or actual.get('selected_statistics') != mode or actual.get('core') != 'header-only':
+        raise ValueError('Executable and recorded profile disagree')
+    if backend != 'standard' and not profile.get('sdk_binaries'):
+        raise ValueError('Missing actual SDK binary provenance')
+    return (backend,), ('native', mode), mode, profile
 
 
 def read(path):
@@ -59,12 +91,13 @@ def write_text(path, content):
 
 def validate(directory):
     manifest = json.loads((directory / "environment.json").read_text())
-    if manifest.get("schema") != 1 or manifest.get("trials") != 3:
+    if manifest.get("schema") not in (1, 2) or manifest.get("trials") != 3:
         raise ValueError("Unsupported or incomplete performance manifest")
+    backends, paths, api_path, profile = dimensions(manifest)
     for name, expected, key in (
-        ("scaling", set(itertools.product(range(1, 4), BACKENDS, PATHS, ("same_thread", "handoff"), (64, 4096, 65536), THREADS)),
+        ("scaling", set(itertools.product(range(1, 4), backends, paths, ("same_thread", "handoff"), (64, 4096, 65536), THREADS)),
          lambda row: (int(row["trial"]), row["backend"], row["path"], row["workload"], int(row["bytes"]), int(row["threads"]))),
-        ("tails", set(itertools.product(range(1, 4), BACKENDS, PATHS, (16, 64, 256, 4096, 65536))),
+        ("tails", set(itertools.product(range(1, 4), backends, paths, (16, 64, 256, 4096, 65536))),
          lambda row: (int(row["trial"]), row["backend"], row["path"], int(row["bytes"]))),
     ):
         rows = read(directory / f"{name}.csv")
@@ -93,15 +126,17 @@ def validate(directory):
     if not manifest.get("source_revision") or manifest["source_revision"] == "unrecorded":
         raise ValueError("Missing source provenance")
     matrices = (
-        ("latency", set(itertools.product(range(1, 4), BACKENDS, PATHS, (16,64,256,4096,65536))),
+        ("latency", set(itertools.product(range(1, 4), backends, paths, (16,64,256,4096,65536))),
          ("trial", "backend", "path", "bytes"), ("min_ns", "median_ns", "max_ns")),
-        ("pressure", set(itertools.product(range(1, 4), BACKENDS, PATHS,
+        ("pressure", set(itertools.product(range(1, 4), backends, paths,
                                            ("dense", "sparse", "churn_dense", "churn_sparse", "freed"))),
          ("trial", "backend", "path", "phase"), ("rss", "peak_rss", "requested_bytes", "live_blocks")),
-        ("footprint", {(trial, backend, stats, heap) for trial in range(1,4) for backend in BACKENDS
-                       for stats in ("disabled", "basic") for heap in (("no",) if backend == "standard" else ("no", "yes"))},
+        ("footprint", {(trial, backend, stats, heap) for trial in range(1,4) for backend in backends
+                       for stats in ('disabled', 'basic') for heap in (('no',) if backend == 'standard' else ('no', 'yes'))
+                       if profile is None or ((heap == 'no' and stats == api_path) or
+                          (heap == 'yes' and (profile['statistics'] == 'ON' or stats == 'disabled')))},
          ("trial", "backend", "statistics", "heap"), ("baseline_rss", "live_rss", "freed_rss", "collected_rss", "peak_rss")),
-        ("heap", set(itertools.product(range(1,4), ("mimalloc", "jemalloc"), ("owns", "collect", "reset"))),
+        ("heap", set(itertools.product(range(1,4), tuple(b for b in backends if b != "standard"), ("owns", "collect", "reset"))),
          ("trial", "backend", "operation"), ("median_ns", "operations")),
     )
     for name, expected, fields, metrics in matrices:
@@ -125,13 +160,15 @@ def validate(directory):
         if trial not in trials or not math.isfinite(float(row["median_ns_per_operation"])) or float(row["median_ns_per_operation"]) <= 0:
             raise ValueError("Invalid full-sweep measurement")
         trials[trial].append(tuple(row[field] for field in scenario_fields))
-    expected = sweep_scenarios()
+    expected = sweep_scenarios(profile)
     for keys in trials.values():
         if len(keys) != len(expected) or set(keys) != expected or len(keys) != sweep_manifest["scenarios_per_trial"]:
             raise ValueError("Incomplete full sweep")
-    for backend, (workload, size, alignment) in itertools.product(BACKENDS, API_SCENARIOS):
-        if (backend, workload, size, alignment, "1", "disabled", "no") not in expected:
+    for backend, (workload, size, alignment) in itertools.product(backends, API_SCENARIOS):
+        if (backend, workload, size, alignment, "1", api_path, "no") not in expected:
             raise ValueError("Missing representative API workload")
+    if profile is not None and sweep_manifest.get('build_profile') != profile:
+        raise ValueError('Full sweep and matched benchmark build profiles differ')
     return manifest
 
 
@@ -215,6 +252,7 @@ def aggregate(rows, key, metric):
 
 
 def render_charts(directory, output, label, manifest, language):
+    backends, paths, api_path, profile = dimensions(manifest)
     def caption(template):
         return localized(template, language).format(platform=label, cpus=manifest["logical_cpus"], revision=manifest["source_revision"][:12])
 
@@ -224,7 +262,7 @@ def render_charts(directory, output, label, manifest, language):
         write_text(output / f"{name}{suffix}.svg", content)
 
     rows = read(directory / "scaling.csv")
-    series = [(backend, path) for backend in BACKENDS for path in ("native", "disabled")]
+    series = [(backend, path) for backend in backends for path in ("native", api_path)]
     scaling_caption = "{platform} · {cpus} logical CPUs · {revision} · 64 B cross-thread workload"
     filtered = [row for row in rows if row["workload"] == "handoff" and int(row["bytes"]) == 64]
     for file, metric, title, ylabel, factor in (
@@ -239,8 +277,9 @@ def render_charts(directory, output, label, manifest, language):
         [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend, path in series],
         "{platform} · {revision} · individual operation samples, not batch averages", "Request size (B)", bars=True)
     write("statistics", "Statistics cost · allocation p99", "Nanoseconds · lower is better", sizes,
-        [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend in BACKENDS for path in PATHS],
-        "{platform} · {revision} · Native, API, and API + statistics", "Request size (B)", bars=True)
+        [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend in backends for path in paths],
+        ("{platform} · {revision} · Native, API, and API + statistics" if profile is None else
+         "{platform} · {revision} · selected API statistics mode · compare within each workload"), "Request size (B)", bars=True)
     phases = ("dense", "sparse", "churn_dense", "churn_sparse", "freed")
     memory = aggregate(read(directory / "pressure.csv"), lambda row: (row["backend"], row["path"], row["phase"]), "rss")
     write("retention", "Mixed-lifetime memory retention", "Resident MiB · not a fragmentation or leak rate", phases,
@@ -248,11 +287,16 @@ def render_charts(directory, output, label, manifest, language):
         "{platform} · {revision} · 16,384 slots; eight refill/free cycles; final phase has zero live requests", "Memory phase")
     workloads = tuple(item[0] for item in API_SCENARIOS)
     sweep = [row for row in read(directory / "full.csv") if (row["workload"], row["bytes"], row["alignment"]) in API_SCENARIOS and row["threads"] == "1" and
-             row["statistics"] == "disabled" and row["heap"] == "no"]
+             row["statistics"] == api_path and row["heap"] == "no"]
     workload_values = aggregate(sweep, lambda row: (row["backend"], row["workload"]), "median_ns_per_operation")
-    write("workloads", "API workloads · normalized time", "Relative to UniMemory Standard = 1 · lower is better", workloads,
-        [(backend, "disabled", [workload_values[backend, workload]/workload_values["standard", workload] for workload in workloads]) for backend in BACKENDS],
-        "{platform} · {revision} · API only, statistics disabled · workload operations differ; compare within each group", "Workload", bars=True)
+    if profile is None:
+        write("workloads", "API workloads · normalized time", "Relative to UniMemory Standard = 1 · lower is better", workloads,
+            [(backend, "disabled", [workload_values[backend, workload]/workload_values["standard", workload] for workload in workloads]) for backend in backends],
+            "{platform} · {revision} · API only, statistics disabled · workload operations differ; compare within each group", "Workload", bars=True)
+    else:
+        write("workloads", "API workloads · absolute time", "Nanoseconds per workload operation · lower is better", workloads,
+            [(backend, api_path, [workload_values[backend, workload] for workload in workloads]) for backend in backends],
+            "{platform} · {revision} · selected API statistics mode · compare within each workload", "Workload", bars=True)
 
 
 def main():
@@ -263,6 +307,7 @@ def main():
     parser.add_argument("--charts-only", action="store_true", help="Regenerate charts from existing data without rewriting analysis or baseline signals")
     args = parser.parse_args()
     manifest = validate(args.input)
+    backends, paths, api_path, profile = dimensions(manifest)
     args.output.mkdir(parents=True, exist_ok=True)
     for language in LANGUAGES:
         render_charts(args.input, args.output, args.label, manifest, language)
@@ -273,24 +318,26 @@ def main():
     analysis = [f"# Performance · {args.label}\n", f"Source: `{manifest['source_revision']}` · [remote run]({manifest['run_url']})\n",
                 "Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.\n",
                 "| Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |\n| --- | ---: | ---: | ---: | ---: |"]
-    for backend in BACKENDS:
+    for backend in backends:
         for size in sizes:
-            native, api = latency[backend, "native", size], latency[backend, "disabled", size]
+            native, api = latency[backend, "native", size], latency[backend, api_path, size]
             analysis.append(f"| {backend} | {size} | {native:.2f} | {api:.2f} | {api/native:.3f} |")
+    if profile is not None:
+        analysis.append(f"\nProfile: `{profile['backend']}` / statistics `{profile['statistics']}` / checks `{profile['checks']}`. ON includes bookkeeping feature cost and is not mixed into OFF performance goals. Native and API share one executable, target flags and SDK binaries. Hosted jobs are not controlled cross-host causal comparisons.\n")
     analysis.extend(["\n## Interpretation\n", "Tail latency includes measured clock overhead. Peak RSS includes stacks and process state. Threads above the recorded CPU capacity are oversubscribed. Timing regressions on hosted runners are signals requiring repeated measurement, not automatic correctness failures.\n"])
     previous = Path(__file__).resolve().parents[2] / "docs/results/current" / args.label
     previous_manifest = previous / "environment.json"
     if previous_manifest.exists():
         prior = json.loads(previous_manifest.read_text())
-        comparable = all(prior.get(key) == manifest.get(key) for key in
-                         ("compiler", "cpu_model", "logical_cpus", "measurement_protocol", "benchmark_sha256"))
+        comparable = all(sanitize_publication(prior.get(key)) == sanitize_publication(manifest.get(key)) for key in
+                         ("compiler", "cpu_model", "logical_cpus", "measurement_protocol", "benchmark_sha256", "build_profile"))
         if comparable:
             old = aggregate(read(previous / "latency.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "median_ns")
             analysis.append("\n## Baseline signals\n\nSame recorded CPU/compiler/protocol. These signals require repeated confirmation.\n\n| Backend | Size | API/Native ratio change |\n| --- | ---: | ---: |")
-            for backend in BACKENDS:
+            for backend in backends:
                 for size in sizes:
-                    before = old[backend, "disabled", size] / old[backend, "native", size]
-                    now = latency[backend, "disabled", size] / latency[backend, "native", size]
+                    before = old[backend, api_path, size] / old[backend, "native", size]
+                    now = latency[backend, api_path, size] / latency[backend, "native", size]
                     analysis.append(f"| {backend} | {size} | {(now/before-1)*100:+.1f}% |")
         else:
             analysis.append("\nBaseline comparison withheld: recorded hardware, compiler or measurement protocol differs.\n")

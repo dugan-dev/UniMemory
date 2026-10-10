@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <algorithm>
@@ -82,11 +83,11 @@ void pressure(unimem::Memory& memory) {
                 std::memset(blocks[index].data(), 0x5A, bytes);
             }
         }
-        check(memory.statistics()->live_bytes == budget, "pressure live accounting");
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == budget)) , "pressure live accounting");
         for (std::size_t index = 0; index < count; ++index) {
             if (index % 8 != 0) { blocks[index] = memory.make_block(0); }
         }
-        check(memory.statistics()->live_bytes == budget / 8, "pressure retention accounting");
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == budget / 8)) , "pressure retention accounting");
     }
     blocks.clear();
 }
@@ -96,18 +97,20 @@ int main(int argc, char** argv) {
     try {
         if (argc != 3) { throw std::invalid_argument("backend and mode required"); }
         const auto selected = backend(argv[1]);
-        unimem::Memory::configure_global(selected, unimem::StatisticsMode::Basic);
+        compiled_test::test_configuration(selected, compiled_test::global_mode);
         auto& memory = unimem::Memory::global(selected);
         const std::string mode = argv[2];
         if (mode == "churn") { churn(memory, false); }
         else if (mode == "asymmetric") { churn(memory, true); }
         else if (mode == "pressure") { pressure(memory); }
         else { throw std::invalid_argument("unknown workload"); }
-        const auto stats = *memory.statistics();
-        check(stats.live_bytes == 0 && stats.allocations == stats.deallocations,
+        const auto stats = memory.statistics();
+        check( (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->allocations == stats->deallocations)) ,
               "extended stress did not balance");
-        std::cout << "PASS " << mode << " allocations=" << stats.allocations
-                  << " peak_requested_bytes=" << stats.peak_live_bytes << '\n';
+        if constexpr (compiled_test::supports_statistics) {
+            std::cout << "PASS " << mode << " allocations=" << stats->allocations
+                      << " peak_requested_bytes=" << stats->peak_live_bytes << '\n';
+        } else { std::cout << "PASS " << mode << " statistics=disabled\n"; }
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

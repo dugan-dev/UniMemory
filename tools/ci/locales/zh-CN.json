@@ -34,5 +34,8 @@
   "{platform} · {revision} · Native, API, and API + statistics": "{platform} · {revision} · 对比原生接口、封装、开启统计",
   "{platform} · {revision} · 16,384 slots; eight refill/free cycles; final phase has zero live requests": "{platform} · {revision} · 16,384 个位置，八轮分配/释放；末阶段无存活请求",
   "{platform} · {revision} · API only, statistics disabled · workload operations differ; compare within each group": "{platform} · {revision} · 封装接口，统计关闭；不同操作只在同组内比较",
-  "Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.": "三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。"
+  "Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.": "三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。",
+  "API workloads · absolute time": "API 负载 · 绝对耗时",
+  "Nanoseconds per workload operation · lower is better": "每次负载操作纳秒数 · 越低越好",
+  "{platform} · {revision} · selected API statistics mode · compare within each workload": "{platform} · {revision} · 当前 API 统计模式 · 仅在同一负载内比较"
 }

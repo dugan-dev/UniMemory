@@ -6,7 +6,7 @@
 
 ## 范围与生命周期
 
-`Memory::heap(backend)` 创建独立分配组，按需增长，各次分配不保证连续。支持全部通用 Memory 接口；先用 `capabilities(backend).heap` 查询支持情况。Standard 不支持。
+`Memory::heap(backend)` 创建独立分配组，按需增长，各次分配不保证连续。支持全部通用 Memory 接口；先用 `capabilities(backend).heap` 查询支持情况。Standard 不支持。传入 `Memory::selected_backend`，其他后端会被拒绝。Heap 默认 Disabled；Basic 仅在 `UNIMEMORY_STATISTICS=ON` 时可用，OFF 构建抛 `std::invalid_argument`。
 
 ## 成员操作
 
