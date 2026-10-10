@@ -28,6 +28,10 @@ build. Thread adapter jobs additionally use mimalloc's supported TSan build so
 its atomics and memory-reuse annotations are visible to the detector. Jemalloc
 internals remain uninstrumented; separate mimalloc UBSan/TSan jobs exercise native
 instrumentation independently.
+Clang TSan supplies strong global new/delete replacements, so the two explicit
+global-new failure-injection cases run in ordinary and compatible ASan jobs,
+not in the Clang TSan binary. They remain required in the standard build matrix;
+this is an instrumentation incompatibility, not a passed skipped test.
 Static analysis uses the actual compile database. GCC reports project line and
 branch coverage, including translation units with no executed data.
 
