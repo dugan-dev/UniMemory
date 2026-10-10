@@ -74,8 +74,9 @@ requires matching recorded CPU/compiler/protocol; raw samples remain in artifact
 SVGs are generated without plotting-library dependencies and stored under
 `docs/images/performance/<platform-architecture>/`. Summaries and measurements
 are stored under `docs/results/current/<platform-architecture>/`; historical
-results remain untouched. README preserves the original workload figure and adds
-the Linux throughput/memory pair. Chinese pages use Chinese SVG variants, including
+results remain untouched. README displays only the original workload figure;
+all generated charts are embedded in the detailed performance report.
+Chinese report pages use Chinese SVG variants, including
 titles, axes, legends and captions; both languages use identical measurements.
 Per-platform latency, statistics cost, retention and workload charts provide
 more detail, embedded by dimension and platform directly in the report page.

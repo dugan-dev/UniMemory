@@ -9,8 +9,8 @@ Develop on the user-requested `dev` branch. Relevant changes trigger validation
 and performance measurement automatically. Do not add cron/scheduled triggers.
 Keep C++20, the public API, and existing allocator dependency versions unchanged.
 Do not add allocation backends or benchmark-library dependencies.
-Keep the README layout and prose; replace performance image references when the
-assets are ready and correct their adjacent units/direction caption. Preserve
+Keep the README layout and prose, with only its original workload comparison
+figure. Embed generated charts in the detailed performance reports. Preserve
 existing historical results.
 
 ## Platform and compiler coverage
@@ -106,9 +106,9 @@ memory trends. Avoid perspective effects that distort quantitative comparisons.
 Show native/API labels explicitly and include environment and revision metadata.
 
 Publish current results under `docs/results/current/<platform-architecture>/`
-and charts under `docs/images/performance/`. README references two summary charts:
-throughput scaling and memory cost. Detailed charts cover latency, workload
-comparisons, and memory phases in performance documentation.
+and charts under `docs/images/performance/`. README keeps its original comparison
+figure. Performance documentation directly embeds throughput, memory, latency,
+statistics, retention and workload charts for each measured platform.
 
 Change-triggered/manual benchmark runs upload immutable artifacts first. Only a complete
 validated report may update the tracked current-results paths. Publication uses

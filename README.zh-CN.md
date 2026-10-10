@@ -290,17 +290,7 @@ Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越�
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-图中 Standard = 1，条形越短越快。
-
-### 当前对比
-
-原生接口与 UniMemory 封装：吞吐量越高越好，峰值内存越低越好。
-
-![跨线程吞吐量](docs/images/performance/linux-x64/throughput.zh-CN.svg)
-
-![峰值驻留内存](docs/images/performance/linux-x64/memory.zh-CN.svg)
-
-[完整性能报告](docs/performance.zh-CN.md)：直接查看三平台的延迟、统计开销、内存保留和常用操作对比。
+图中 Standard = 1，条形越短越快。[完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 
