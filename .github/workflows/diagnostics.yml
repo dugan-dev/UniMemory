@@ -25,8 +25,15 @@ jobs:
       TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
     steps:
       - uses: actions/checkout@v5
-      - name: Build existing backends (native internals uninstrumented)
-        run: bash tools/ci/build-backends.sh
+      - name: Thread instrumentation toolchain
+        if: matrix.sanitizer == 'thread'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y clang-18
+          echo CC=clang-18 >> "$GITHUB_ENV"
+          echo CXX=clang++-18 >> "$GITHUB_ENV"
+      - name: Build existing backends (mimalloc TSAN annotations for thread jobs)
+        run: bash tools/ci/build-backends.sh '${{ matrix.sanitizer }}'
       - name: Build instrumented adapter and run every backend
         run: |
           cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }}

@@ -24,7 +24,10 @@ claim that every optional allocator supports every compiler/architecture pair.
 UBSan is non-recovering, with an isolated overflow control that must fail.
 Standard/Stack and three-backend adapter configurations run sanitizer tests.
 Native dependency internals are not covered by an adapter-only instrumented
-build; separate mimalloc UBSan/TSan jobs exercise supported native instrumentation.
+build. Thread adapter jobs additionally use mimalloc's supported TSan build so
+its atomics and memory-reuse annotations are visible to the detector. Jemalloc
+internals remain uninstrumented; separate mimalloc UBSan/TSan jobs exercise native
+instrumentation independently.
 Static analysis uses the actual compile database. GCC reports project line and
 branch coverage, including translation units with no executed data.
 
