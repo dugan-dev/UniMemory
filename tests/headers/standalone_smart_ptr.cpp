@@ -1,4 +1,4 @@
-#include <unimem/smart_ptr.h>
+#include <unimem/memory.h>
 #include "standalone_types.h"
 
 bool standalone_smart_ptr(unimem::Memory& memory, StandaloneObject* object,
