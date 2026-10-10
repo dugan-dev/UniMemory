@@ -7,8 +7,8 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-10T05:01:21.139738+00:00",
-  "executable_sha256": "7edf9015309e926466b7f3c77b71f5031ec9b0747953d2febeb52a50b9dcddec",
+  "measured_at_utc": "2026-10-10T05:31:50.934983+00:00",
+  "executable_sha256": "5c13d5ed36f29d114859ad9d536558835247523a9400a181e205cb284d6d09f3",
   "benchmark_source_sha256": "10a078729236b74d76edfc9f249a208a35c3196560fb59a2a85969ed9e4481a0",
   "source_hash_line_endings": "LF"
 }

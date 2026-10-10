@@ -22,53 +22,53 @@
 <text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
 <circle cx="168.0" cy="316.14383561643837" r="3.5" fill="#64748b"/>
-<circle cx="320.0" cy="304.1575342465754" r="3.5" fill="#64748b"/>
-<circle cx="472.0" cy="279.32876712328766" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="238.23287671232876" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="166.3150684931507" r="3.5" fill="#64748b"/>
-<polyline points="168.0,316.14383561643837 320.0,304.1575342465754 472.0,279.32876712328766 624.0,238.23287671232876 776.0,166.3150684931507" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="320.0" cy="305.013698630137" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="282.75342465753425" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="237.3767123287671" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="167.17123287671234" r="3.5" fill="#64748b"/>
+<polyline points="168.0,316.14383561643837 320.0,305.013698630137 472.0,282.75342465753425 624.0,237.3767123287671 776.0,167.17123287671234" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">standard / Native</text>
 <circle cx="168.0" cy="316.14383561643837" r="3.5" fill="#64748b"/>
 <circle cx="320.0" cy="305.013698630137" r="3.5" fill="#64748b"/>
 <circle cx="472.0" cy="282.75342465753425" r="3.5" fill="#64748b"/>
 <circle cx="624.0" cy="238.23287671232876" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="167.17123287671234" r="3.5" fill="#64748b"/>
-<polyline points="168.0,316.14383561643837 320.0,305.013698630137 472.0,282.75342465753425 624.0,238.23287671232876 776.0,167.17123287671234" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<circle cx="776.0" cy="166.3150684931507" r="3.5" fill="#64748b"/>
+<polyline points="168.0,316.14383561643837 320.0,305.013698630137 472.0,282.75342465753425 624.0,238.23287671232876 776.0,166.3150684931507" fill="none" stroke="#64748b" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
 <text x="880" y="167" font-size="12">standard / UniMemory</text>
 <circle cx="168.0" cy="299.8767123287671" r="3.5" fill="#0284c7"/>
 <circle cx="320.0" cy="285.3219178082192" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="257.92465753424653" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="258.7808219178082" r="3.5" fill="#0284c7"/>
 <circle cx="624.0" cy="204.84246575342468" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,299.8767123287671 320.0,285.3219178082192 472.0,257.92465753424653 624.0,204.84246575342468 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="776.0" cy="130.35616438356163" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,299.8767123287671 320.0,285.3219178082192 472.0,258.7808219178082 624.0,204.84246575342468 776.0,130.35616438356163" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,183h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="201" font-size="12">mimalloc / Native</text>
 <circle cx="168.0" cy="299.8767123287671" r="3.5" fill="#0284c7"/>
 <circle cx="320.0" cy="285.3219178082192" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="257.92465753424653" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="204.84246575342468" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="130.35616438356163" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,299.8767123287671 320.0,285.3219178082192 472.0,257.92465753424653 624.0,204.84246575342468 776.0,130.35616438356163" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<circle cx="472.0" cy="259.6369863013699" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="205.6986301369863" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,299.8767123287671 320.0,285.3219178082192 472.0,259.6369863013699 624.0,205.6986301369863 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5"/>
 <path d="M880,217h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="235" font-size="12">mimalloc / UniMemory</text>
-<circle cx="168.0" cy="315.28767123287673" r="3.5" fill="#d97706"/>
+<circle cx="168.0" cy="316.14383561643837" r="3.5" fill="#d97706"/>
 <circle cx="320.0" cy="305.013698630137" r="3.5" fill="#d97706"/>
 <circle cx="472.0" cy="282.75342465753425" r="3.5" fill="#d97706"/>
-<circle cx="624.0" cy="234.80821917808223" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="167.17123287671234" r="3.5" fill="#d97706"/>
-<polyline points="168.0,315.28767123287673 320.0,305.013698630137 472.0,282.75342465753425 624.0,234.80821917808223 776.0,167.17123287671234" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="624.0" cy="238.23287671232876" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="168.8835616438356" r="3.5" fill="#d97706"/>
+<polyline points="168.0,316.14383561643837 320.0,305.013698630137 472.0,282.75342465753425 624.0,238.23287671232876 776.0,168.8835616438356" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,251h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="269" font-size="12">jemalloc / Native</text>
 <circle cx="168.0" cy="298.16438356164383" r="3.5" fill="#d97706"/>
 <circle cx="320.0" cy="287.0342465753425" r="3.5" fill="#d97706"/>
-<circle cx="472.0" cy="263.9178082191781" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="264.7739726027397" r="3.5" fill="#d97706"/>
 <circle cx="624.0" cy="221.10958904109592" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="152.6164383561644" r="3.5" fill="#d97706"/>
-<polyline points="168.0,298.16438356164383 320.0,287.0342465753425 472.0,263.9178082191781 624.0,221.10958904109592 776.0,152.6164383561644" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<circle cx="776.0" cy="150.04794520547946" r="3.5" fill="#d97706"/>
+<polyline points="168.0,298.16438356164383 320.0,287.0342465753425 472.0,264.7739726027397 624.0,221.10958904109592 776.0,150.04794520547946" fill="none" stroke="#d97706" stroke-width="2.5"/>
 <path d="M880,285h28" stroke="#d97706" stroke-width="3"/>
 <text x="880" y="303" font-size="12">jemalloc / UniMemory</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64 · 3 logical CPUs · 6738c7779f30 · 64 B cross-thread workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64 · 3 logical CPUs · ca4919fe8a5c · 64 B cross-thread workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

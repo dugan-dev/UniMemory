@@ -35,20 +35,20 @@
 <rect data-path="disabled" x="752.6933333333333" y="129.50000000000003" width="21.28" height="312.5" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
 <text x="880" y="133" font-size="12">standard / UniMemory</text>
-<rect data-path="disabled" x="144.69333333333333" y="386.6984212635062" width="21.28" height="55.30157873649381" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="271.36" y="369.33013942367194" width="21.28" height="72.66986057632806" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="398.0266666666667" y="380.80463169818444" width="21.28" height="61.19536830181556" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="524.6933333333333" y="387.41899156666415" width="21.28" height="54.58100843333585" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="651.36" y="367.22277944986655" width="21.28" height="74.77722055013345" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="778.0266666666666" y="358.6608281457454" width="21.28" height="83.33917185425457" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="144.69333333333333" y="386.40506288561687" width="21.28" height="55.59493711438313" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="271.36" y="374.0487947682323" width="21.28" height="67.95120523176769" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="398.0266666666667" y="387.9763091152512" width="21.28" height="54.02369088474882" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="524.6933333333333" y="387.09948364009455" width="21.28" height="54.90051635990545" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="651.36" y="369.3251107744597" width="21.28" height="72.67488922554031" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="778.0266666666666" y="354.02420680400525" width="21.28" height="87.97579319599475" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#0284c7" opacity="0.9"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory</text>
-<rect data-path="disabled" x="170.0266666666667" y="310.6467649795792" width="21.28" height="131.3532350204208" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="296.6933333333333" y="312.5468368736034" width="21.28" height="129.4531631263966" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="423.36" y="280.8187911016016" width="21.28" height="161.18120889839838" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="550.0266666666666" y="307.6405966464822" width="21.28" height="134.3594033535178" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="676.6933333333334" y="297.5548148851616" width="21.28" height="144.4451851148384" fill="#d97706" opacity="0.9"/>
-<rect data-path="disabled" x="803.36" y="289.8854119461604" width="21.28" height="152.1145880538396" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="170.0266666666667" y="309.3409688187336" width="21.28" height="132.6590311812664" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="296.6933333333333" y="313.3214133314809" width="21.28" height="128.67858666851907" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="423.36" y="263.2040607557701" width="21.28" height="178.79593924422988" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="550.0266666666666" y="308.76681749472687" width="21.28" height="133.23318250527313" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="676.6933333333334" y="308.8468182513923" width="21.28" height="133.15318174860772" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="803.36" y="294.50069825004095" width="21.28" height="147.49930174995905" fill="#d97706" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="178" width="28" height="8" fill="#d97706" opacity="0.9"/>
 <text x="880" y="201" font-size="12">jemalloc / UniMemory</text>
 <text x="92" y="505" font-size="13" fill="#475569">macos-arm64 · API only, statistics disabled · workload operations differ; compare within each group</text>
