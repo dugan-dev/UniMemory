@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -123,6 +124,39 @@ class ReportTests(unittest.TestCase):
         document = report.chart("A < B & C", "units", [1,2], [("standard", "native", [1,2])], "environment")
         tree = ET.fromstring(document)
         self.assertEqual(tree.find("{http://www.w3.org/2000/svg}title").text, "A < B & C")
+
+    def test_generated_reports_follow_repository_text_contract(self):
+        manifest = json.loads((self.directory / "environment.json").read_text())
+        manifest.update(logical_cpus=4, run_url="https://github.com/example/project/actions/runs/1",
+                        performance_gate="Report only", tail_method="Individual samples")
+        (self.directory / "environment.json").write_text(json.dumps(manifest))
+        output = self.directory / "charts"
+        with mock.patch("sys.argv", ["report", str(self.directory), str(output), "--label", "test"]):
+            report.main()
+        for path in output.iterdir():
+            content = path.read_bytes()
+            self.assertTrue(content.endswith(b"\n"), path.name)
+            self.assertFalse(content.endswith(b"\n\n"), path.name)
+            self.assertNotIn(b"\r", content, path.name)
+        self.assertEqual(len(list(output.glob("*.svg"))), 6)
+        for path in output.glob("*.svg"):
+            ET.parse(path)
+
+    def test_statistics_columns_have_distinct_styles_and_matching_legend(self):
+        document = report.chart("Statistics", "ns", [64],
+                                [("mimalloc", path, [1]) for path in report.PATHS], "environment", bars=True)
+        tree = ET.fromstring(document)
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        columns = [node for node in tree.findall(".//svg:rect", namespace)
+                   if node.get("data-path")]
+        styles = {(node.get("fill"), node.get("opacity")) for node in columns}
+        self.assertEqual(len(styles), 3)
+        self.assertEqual(len(columns), 6)  # Three columns and three matching legend swatches.
+        self.assertEqual({node.get("data-path") for node in columns}, set(report.PATHS))
+        for path in report.PATHS:
+            matching = [node for node in columns if node.get("data-path") == path]
+            self.assertEqual([(node.get("fill"), node.get("opacity")) for node in matching],
+                             [(matching[0].get("fill"), matching[0].get("opacity"))]*2)
 
 
 if __name__ == "__main__":
