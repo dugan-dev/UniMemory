@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import platform
 import random
+import re
 import statistics
 import subprocess
 import sys
@@ -96,10 +97,26 @@ def main():
     write_rows(args.output / "scaling.csv", scaling)
     write_rows(args.output / "tails.csv", tails)
     manifest = json.loads((args.output / "environment.json").read_text())
+    compiler_files = list(executable.parent.parent.glob("CMakeFiles/*/CMakeCXXCompiler.cmake"))
+    if not compiler_files:
+        compiler_files = list(executable.parent.glob("CMakeFiles/*/CMakeCXXCompiler.cmake"))
+    if len(compiler_files) != 1:
+        raise RuntimeError("Missing benchmark compiler provenance")
+    compiler_text = compiler_files[0].read_text()
+    compiler = dict(re.findall(r'set\((CMAKE_CXX_(?:COMPILER_ID|COMPILER_VERSION)) "([^"\n]+)"\)', compiler_text))
+    cpu = platform.processor()
+    if platform.system() == "Linux":
+        for line in Path("/proc/cpuinfo").read_text().splitlines():
+            if line.startswith("model name"):
+                cpu = line.split(":", 1)[1].strip()
+                break
+    elif platform.system() == "Darwin":
+        cpu = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip()
     manifest.update({"schema": 1, "source_revision": os.environ.get("GITHUB_SHA", "unrecorded"),
                      "run_id": os.environ.get("GITHUB_RUN_ID", "unrecorded"),
                      "run_url": f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}",
                      "architecture": platform.machine(), "trials": TRIALS,
+                     "compiler": compiler, "cpu_model": cpu, "measurement_protocol": "native-api-scaling-tails-v1",
                      "threads": list(THREADS), "sizes": list(SIZES), "backends": list(BACKENDS),
                      "paths": list(PATHS), "tail_samples": 8192,
                      "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",

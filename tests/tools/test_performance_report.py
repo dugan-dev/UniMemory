@@ -30,8 +30,25 @@ class ReportTests(unittest.TestCase):
                  for trial, backend, path, size in itertools.product(range(1, 4), report.BACKENDS, report.PATHS, (16,64,256,4096,65536))]
         measurement.write_rows(self.directory / "scaling.csv", scaling)
         measurement.write_rows(self.directory / "tails.csv", tails)
-        for file in ("latency.csv", "pressure.csv", "footprint.csv", "heap.csv"):
-            (self.directory / file).write_text("value\n1\n")
+        latency = [{"trial": t, "backend": b, "path": p, "bytes": s, "min_ns": 1, "median_ns": 2, "max_ns": 3}
+                   for t,b,p,s in itertools.product(range(1,4), report.BACKENDS, report.PATHS, (16,64,256,4096,65536))]
+        pressure = [{"trial": t, "backend": b, "path": p, "phase": phase, "rss": 100, "peak_rss": 100,
+                     "requested_bytes": 0 if phase == "freed" else 64, "live_blocks": 0 if phase == "freed" else 1}
+                    for t,b,p,phase in itertools.product(range(1,4), report.BACKENDS, report.PATHS,
+                                                         ("dense", "sparse", "churn_dense", "churn_sparse", "freed"))]
+        footprint = [{"trial": t, "backend": b, "statistics": s, "heap": h,
+                      "baseline_rss": 100, "live_rss": 200, "freed_rss": 100, "collected_rss": 100, "peak_rss": 200}
+                     for t in range(1,4) for b in report.BACKENDS for s in ("disabled", "basic")
+                     for h in (("no",) if b == "standard" else ("no", "yes"))]
+        heap = [{"trial": t, "backend": b, "operation": operation, "median_ns": 1, "operations": 2000}
+                for t,b,operation in itertools.product(range(1,4), ("mimalloc", "jemalloc"), ("owns", "collect", "reset"))]
+        for name, rows in (("latency", latency), ("pressure", pressure), ("footprint", footprint), ("heap", heap)):
+            measurement.write_rows(self.directory / f"{name}.csv", rows)
+        full = [{"trial": t, "backend": b, "workload": w, "bytes": size, "alignment": alignment,
+                 "threads": 1, "statistics": "disabled", "heap": "no", "median_ns_per_operation": 1}
+                for t,b,(w,size,alignment) in itertools.product(range(1,4), report.BACKENDS, report.API_SCENARIOS)]
+        measurement.write_rows(self.directory / "full.csv", full)
+        (self.directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": 18}))
 
     def test_complete_matrix(self):
         self.assertEqual(report.validate(self.directory)["trials"], 3)
@@ -60,6 +77,30 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(measurement.percentile(list(range(1, 101)), .99), 99)
         with self.assertRaises(ValueError):
             measurement.percentile([], .99)
+
+    def test_missing_memory_phase_rejected(self):
+        rows = report.read(self.directory / "pressure.csv")
+        measurement.write_rows(self.directory / "pressure.csv", rows[:-1])
+        with self.assertRaisesRegex(ValueError, "pressure scenarios"):
+            report.validate(self.directory)
+
+    def test_outstanding_requests_rejected(self):
+        rows = report.read(self.directory / "pressure.csv")
+        next(row for row in rows if row["phase"] == "freed")["live_blocks"] = "1"
+        measurement.write_rows(self.directory / "pressure.csv", rows)
+        with self.assertRaisesRegex(ValueError, "outstanding"):
+            report.validate(self.directory)
+
+    def test_nonempty_wrong_schema_rejected(self):
+        (self.directory / "latency.csv").write_text("value\n1\n")
+        with self.assertRaisesRegex(ValueError, "schema"):
+            report.validate(self.directory)
+
+    def test_missing_full_sweep_workload_rejected(self):
+        rows = report.read(self.directory / "full.csv")
+        measurement.write_rows(self.directory / "full.csv", rows[:-1])
+        with self.assertRaisesRegex(ValueError, "full sweep"):
+            report.validate(self.directory)
 
     def test_chart_xml_and_escaping(self):
         document = report.chart("A < B & C", "units", [1,2], [("standard", "native", [1,2])], "environment")

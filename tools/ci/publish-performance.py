@@ -31,7 +31,7 @@ def main():
     previous = run("git", "ls-remote", "--heads", "origin", branch)
     lease = previous.split()[0] if previous else ""
     run("git", "switch", "-c", branch)
-    for label in ("linux-x64", "macos-arm64"):
+    for label in ("linux-x64", "windows-x64", "macos-arm64"):
         directory = args.artifacts / f"performance-{label}"
         data = directory / "results"
         manifest = report.validate(data)
@@ -41,7 +41,7 @@ def main():
         subprocess.run(["python3", str(root / "tools/ci/performance-report.py"), str(data), str(charts), "--label", label], check=True)
         destination = root / "docs/results/current" / label
         destination.mkdir(parents=True, exist_ok=True)
-        for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv"):
+        for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv", "sweep-environment.json"):
             shutil.copyfile(data / name, destination / name)
     for name in ("README.md", "README.zh-CN.md"):
         path = root / name
@@ -51,8 +51,8 @@ def main():
         if old in text:
             path.write_text(text.replace(old, images), encoding="utf-8")
     allowed = ("docs/images/performance/", "docs/results/current/", "README.md", "README.zh-CN.md")
-    changed = run("git", "status", "--porcelain").splitlines()
-    if any(not line[3:].startswith(allowed) for line in changed):
+    changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
+    if any(line and not line[3:].startswith(allowed) for line in changed):
         raise RuntimeError("Publication attempted changes outside generated paths")
     run("git", "config", "user.name", "github-actions[bot]")
     run("git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com")
@@ -71,8 +71,14 @@ def main():
     # Token-created PRs do not trigger ordinary Actions events; explicitly dispatch
     # the existing required workflows, and wait for their checks before merging.
     validations = []
-    for workflow in ("ci.yml", "release-validation.yml"):
-        run("gh", "workflow", "run", workflow, "--ref", branch)
+    workflows = ["ci.yml", "release-validation.yml"]
+    if args.base == "main":
+        workflows += ["portability.yml", "diagnostics.yml", "performance.yml"]
+    for workflow in workflows:
+        dispatch = ["gh", "workflow", "run", workflow, "--ref", branch]
+        if workflow == "performance.yml":
+            dispatch += ["-f", "validation_only=true"]
+        run(*dispatch)
         for attempt in range(30):
             candidates = json.loads(run("gh", "run", "list", "--workflow", workflow,
                                        "--branch", branch, "--event", "workflow_dispatch",

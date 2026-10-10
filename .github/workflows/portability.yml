@@ -56,6 +56,7 @@ jobs:
         run: |
           set -euo pipefail
           cmake -S . -B build/portable -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BUILD_EXAMPLES=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          python3 tools/ci/toolchain-manifest.py build/portable --compiler '${{ matrix.tool.compiler }}' --arch '${{ matrix.tool.arch }}'
           cmake --build build/portable --parallel 4
           ctest --test-dir build/portable --parallel 4 --output-on-failure --no-tests=error
           cmake --install build/portable --prefix build/installed
@@ -68,6 +69,7 @@ jobs:
           name: portability-${{ matrix.tool.os }}-${{ matrix.tool.compiler }}-${{ matrix.configuration }}
           path: |
             build/portable/CMakeCache.txt
+            build/portable/toolchain.json
             build/portable/Testing/Temporary/LastTest.log
             build/consumer/Testing/Temporary/LastTest.log
   acceptance:

@@ -198,13 +198,28 @@ template<class A> void scaling(A& allocator, const std::string& backend,
                               unsigned threads, bool handoff) {
     if (threads == 0 || threads > 16) { throw std::invalid_argument("threads must be 1..16"); }
     constexpr unsigned batch = 32, rounds = 128;
+    // Initialize every Native/API path on the main thread before worker startup.
+    auto* initial = allocator.allocate(bytes);
+    if (!initial) { throw std::bad_alloc(); }
+    std::memset(initial, 0, bytes);
+    allocator.deallocate(initial, bytes);
     std::vector<std::array<void*, batch>> pointers(threads);
     std::vector<std::thread> workers;
     std::barrier phase(static_cast<std::ptrdiff_t>(threads));
     std::barrier start(static_cast<std::ptrdiff_t>(threads + 1));
+    std::barrier ready(static_cast<std::ptrdiff_t>(threads + 1));
     std::atomic<bool> failed{false};
     for (unsigned id = 0; id < threads; ++id) {
         workers.emplace_back([&, id] {
+            try {
+                for (unsigned warmup = 0; warmup < 64; ++warmup) {
+                    auto* pointer = allocator.allocate(bytes);
+                    if (!pointer) { throw std::bad_alloc(); }
+                    static_cast<volatile unsigned char*>(pointer)[0] = 0;
+                    allocator.deallocate(pointer, bytes);
+                }
+            } catch (...) { failed.store(true); }
+            ready.arrive_and_wait();
             start.arrive_and_wait();
             for (unsigned round = 0; round < rounds; ++round) {
                 for (auto& pointer : pointers[id]) {
@@ -226,6 +241,7 @@ template<class A> void scaling(A& allocator, const std::string& backend,
             }
         });
     }
+    ready.arrive_and_wait();
     const auto before_rss = rss();
     const auto begin = Clock::now();
     start.arrive_and_wait();

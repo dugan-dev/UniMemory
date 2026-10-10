@@ -12,8 +12,8 @@ args = parser.parse_args()
 root = Path(__file__).resolve().parents[2]
 args.output.mkdir(parents=True, exist_ok=True)
 records = {}
-objects = list(args.build.rglob("*.gcda"))
-if not objects:
+objects = list(args.build.rglob("*.gcno"))
+if not objects or not list(args.build.rglob("*.gcda")):
     raise SystemExit("No executed coverage data")
 for obj in objects:
     subprocess.run(["gcov-13", "--json-format", "--branch-probabilities", str(obj.resolve())],

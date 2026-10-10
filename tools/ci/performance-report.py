@@ -13,6 +13,8 @@ BACKENDS = ("standard", "mimalloc", "jemalloc")
 PATHS = ("native", "disabled", "basic")
 THREADS = (1, 2, 4, 8, 16)
 COLORS = {"standard": "#64748b", "mimalloc": "#0284c7", "jemalloc": "#d97706"}
+API_SCENARIOS = (("raw", "64", "16"), ("zeroed", "64", "16"), ("reallocate", "64", "16"),
+                 ("object", "64", "1"), ("shared_object", "64", "1"), ("std_vector", "256", "8"))
 
 
 def read(path):
@@ -41,9 +43,46 @@ def validate(directory):
             raise ValueError("Incomplete operation samples")
     if not manifest.get("source_revision") or manifest["source_revision"] == "unrecorded":
         raise ValueError("Missing source provenance")
-    for file in ("latency.csv", "pressure.csv", "footprint.csv", "heap.csv"):
-        if not read(directory / file):
-            raise ValueError(f"Empty {file}")
+    matrices = (
+        ("latency", set(itertools.product(range(1, 4), BACKENDS, PATHS, (16,64,256,4096,65536))),
+         ("trial", "backend", "path", "bytes"), ("min_ns", "median_ns", "max_ns")),
+        ("pressure", set(itertools.product(range(1, 4), BACKENDS, PATHS,
+                                           ("dense", "sparse", "churn_dense", "churn_sparse", "freed"))),
+         ("trial", "backend", "path", "phase"), ("rss", "peak_rss", "requested_bytes", "live_blocks")),
+        ("footprint", {(trial, backend, stats, heap) for trial in range(1,4) for backend in BACKENDS
+                       for stats in ("disabled", "basic") for heap in (("no",) if backend == "standard" else ("no", "yes"))},
+         ("trial", "backend", "statistics", "heap"), ("baseline_rss", "live_rss", "freed_rss", "collected_rss", "peak_rss")),
+        ("heap", set(itertools.product(range(1,4), ("mimalloc", "jemalloc"), ("owns", "collect", "reset"))),
+         ("trial", "backend", "operation"), ("median_ns", "operations")),
+    )
+    for name, expected, fields, metrics in matrices:
+        rows = read(directory / f"{name}.csv")
+        try:
+            keys = [tuple(int(row[field]) if field in ("trial", "bytes") else row[field] for field in fields) for row in rows]
+            if len(keys) != len(expected) or set(keys) != expected:
+                raise ValueError(f"Missing, duplicate or unexpected {name} scenarios")
+            if any(not math.isfinite(float(row[field])) or float(row[field]) < 0 for row in rows for field in metrics):
+                raise ValueError(f"Invalid {name} measurement")
+            if name == "pressure" and any(row["phase"] == "freed" and (int(row["live_blocks"]) or int(row["requested_bytes"])) for row in rows):
+                raise ValueError("Pressure workload retained outstanding requests")
+        except KeyError as error:
+            raise ValueError(f"Invalid {name} schema") from error
+    sweep = read(directory / "full.csv")
+    sweep_manifest = json.loads((directory / "sweep-environment.json").read_text())
+    scenario_fields = ("backend", "workload", "bytes", "alignment", "threads", "statistics", "heap")
+    trials = {trial: [] for trial in range(1,4)}
+    for row in sweep:
+        trial = int(row["trial"])
+        if trial not in trials or not math.isfinite(float(row["median_ns_per_operation"])) or float(row["median_ns_per_operation"]) <= 0:
+            raise ValueError("Invalid full-sweep measurement")
+        trials[trial].append(tuple(row[field] for field in scenario_fields))
+    expected = set(trials[1])
+    for keys in trials.values():
+        if len(keys) != len(expected) or set(keys) != expected or len(keys) != sweep_manifest["scenarios_per_trial"]:
+            raise ValueError("Incomplete full sweep")
+    for backend, (workload, size, alignment) in itertools.product(BACKENDS, API_SCENARIOS):
+        if (backend, workload, size, alignment, "1", "disabled", "no") not in expected:
+            raise ValueError("Missing representative API workload")
     return manifest
 
 
@@ -81,11 +120,11 @@ def chart(title, ylabel, xs, series, caption, bars=False):
         if not bars:
             dash = ' stroke-dasharray="7 5"' if path == "native" else ''
             parts.append(f'<polyline points="{" ".join(points)}" fill="none" stroke="{color}" stroke-width="2.5"{dash}/>')
-        label = f"{backend} / {'Native' if path == 'native' else 'UniMemory'}"
+        label = f"{backend} / {'Native' if path == 'native' else 'API + stats' if path == 'basic' else 'UniMemory'}"
         parts.extend([f'<path d="M880,{115+number*34}h28" stroke="{color}" stroke-width="3"'+ (' stroke-dasharray="7 5"' if path == 'native' else '') + '/>',
                       f'<text x="880" y="{133+number*34}" font-size="12">{label}</text>'])
     parts.extend([f'<text x="92" y="505" font-size="13" fill="#475569">{html.escape(caption[:145])}</text>',
-                  '<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. Native/API matched; statistics disabled. See raw results.</text>', '</g></svg>'])
+                  '<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>', '</g></svg>'])
     return "\n".join(parts) + "\n"
 
 
@@ -120,6 +159,49 @@ def main():
     (args.output / "latency.svg").write_text(chart("Individual allocation p99", "Nanoseconds · includes measured clock overhead · lower is better", sizes,
         [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend, path in series],
         f"{args.label} · {manifest['source_revision'][:12]} · individual operation samples, not batch averages", bars=True), encoding="utf-8")
+    (args.output / "statistics.svg").write_text(chart("Statistics cost · allocation p99", "Nanoseconds · lower is better", sizes,
+        [(backend, path, [tail_values[backend, path, size] for size in sizes]) for backend in BACKENDS for path in PATHS],
+        f"{args.label} · {manifest['source_revision'][:12]} · Native, API, and API + statistics", bars=True), encoding="utf-8")
+    phases = ("dense", "sparse", "churn_dense", "churn_sparse", "freed")
+    memory = aggregate(read(args.input / "pressure.csv"), lambda row: (row["backend"], row["path"], row["phase"]), "rss")
+    (args.output / "retention.svg").write_text(chart("Mixed-lifetime memory retention", "Resident MiB · not a fragmentation or leak rate", phases,
+        [(backend, path, [memory[backend, path, phase]/1024**2 for phase in phases]) for backend, path in series],
+        f"{args.label} · 16,384 slots; eight refill/free cycles; final phase has zero live requests"), encoding="utf-8")
+    workloads = tuple(item[0] for item in API_SCENARIOS)
+    sweep = [row for row in read(args.input / "full.csv") if (row["workload"], row["bytes"], row["alignment"]) in API_SCENARIOS and row["threads"] == "1" and
+             row["statistics"] == "disabled" and row["heap"] == "no"]
+    workload_values = aggregate(sweep, lambda row: (row["backend"], row["workload"]), "median_ns_per_operation")
+    (args.output / "workloads.svg").write_text(chart("API workloads · normalized time", "Relative to UniMemory Standard = 1 · lower is better", workloads,
+        [(backend, "disabled", [workload_values[backend, workload]/workload_values["standard", workload] for workload in workloads]) for backend in BACKENDS],
+        f"{args.label} · API only, statistics disabled · workload operations differ; compare within each group", bars=True), encoding="utf-8")
+    latency = aggregate(read(args.input / "latency.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "median_ns")
+    analysis = [f"# Performance · {args.label}\n", f"Source: `{manifest['source_revision']}` · [remote run]({manifest['run_url']})\n",
+                "Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.\n",
+                "| Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |\n| --- | ---: | ---: | ---: | ---: |"]
+    for backend in BACKENDS:
+        for size in sizes:
+            native, api = latency[backend, "native", size], latency[backend, "disabled", size]
+            analysis.append(f"| {backend} | {size} | {native:.2f} | {api:.2f} | {api/native:.3f} |")
+    analysis.extend(["\n## Interpretation\n", "Tail latency includes measured clock overhead. Peak RSS includes stacks and process state. Threads above the recorded CPU capacity are oversubscribed. Timing regressions on hosted runners are signals requiring repeated measurement, not automatic correctness failures.\n"])
+    previous = Path(__file__).resolve().parents[2] / "docs/results/current" / args.label
+    previous_manifest = previous / "environment.json"
+    if previous_manifest.exists():
+        prior = json.loads(previous_manifest.read_text())
+        comparable = all(prior.get(key) == manifest.get(key) for key in
+                         ("compiler", "cpu_model", "logical_cpus", "measurement_protocol", "benchmark_sha256"))
+        if comparable:
+            old = aggregate(read(previous / "latency.csv"), lambda row: (row["backend"], row["path"], int(row["bytes"])), "median_ns")
+            analysis.append("\n## Baseline signals\n\nSame recorded CPU/compiler/protocol. These signals require repeated confirmation.\n\n| Backend | Size | API/Native ratio change |\n| --- | ---: | ---: |")
+            for backend in BACKENDS:
+                for size in sizes:
+                    before = old[backend, "disabled", size] / old[backend, "native", size]
+                    now = latency[backend, "disabled", size] / latency[backend, "native", size]
+                    analysis.append(f"| {backend} | {size} | {(now/before-1)*100:+.1f}% |")
+        else:
+            analysis.append("\nBaseline comparison withheld: recorded hardware, compiler or measurement protocol differs.\n")
+    else:
+        analysis.append("\nFirst recorded baseline; no regression comparison is available yet.\n")
+    (args.output / "README.md").write_text("\n".join(analysis) + "\n", encoding="utf-8")
     summary = {"source_revision": manifest["source_revision"], "run_url": manifest["run_url"],
                "scope": args.label, "logical_cpus": manifest["logical_cpus"],
                "oversubscribed_threads": [threads for threads in THREADS if threads > manifest["logical_cpus"]],
