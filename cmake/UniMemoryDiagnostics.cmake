@@ -1,5 +1,6 @@
 option(UNIMEMORY_DIAGNOSTIC_IPO "Enable IPO only in this controlled diagnostic build" OFF)
 option(UNIMEMORY_DIAGNOSTIC_PIC "Keep UniMemory PIC in this controlled diagnostic build" ON)
+set(UNIMEMORY_DIAGNOSTIC_EXPORTS_FILE "" CACHE FILEPATH "Plain-object export list for the MSVC shared IPO experiment")
 set_target_properties(UniMemory PROPERTIES POSITION_INDEPENDENT_CODE ${UNIMEMORY_DIAGNOSTIC_PIC})
 add_library(UniMemoryDiagnosticAdapters STATIC benchmarks/diagnostics/adapters.cpp)
 add_executable(UniMemoryDiagnostic
@@ -38,6 +39,15 @@ if(UNIMEMORY_DIAGNOSTIC_IPO)
     foreach(probe IN ITEMS UniMemory UniMemoryDiagnosticAdapters UniMemoryDiagnostic)
         set_property(TARGET ${probe} PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
     endforeach()
+    if(MSVC AND BUILD_SHARED_LIBS)
+        if(NOT EXISTS "${UNIMEMORY_DIAGNOSTIC_EXPORTS_FILE}")
+            message(FATAL_ERROR "MSVC shared IPO requires the matching non-IPO diagnostic export list")
+        endif()
+        # CMake's plain-COFF auto-export scanner cannot read /GL objects.
+        # Reuse the exact ABI exported by the same source's non-IPO build.
+        set_property(TARGET UniMemory PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS OFF)
+        target_sources(UniMemory PRIVATE "${UNIMEMORY_DIAGNOSTIC_EXPORTS_FILE}")
+    endif()
 endif()
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/diagnostic-build-$<CONFIG>.txt" CONTENT
     "compiler=${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\nconfiguration=$<CONFIG>\nshared=${BUILD_SHARED_LIBS}\nipo=${UNIMEMORY_DIAGNOSTIC_IPO}\npic=${UNIMEMORY_DIAGNOSTIC_PIC}\nflags=${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}\n")

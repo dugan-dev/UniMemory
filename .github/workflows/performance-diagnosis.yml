@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: performance-diagnosis-${{ github.ref }}
+  group: performance-diagnosis-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 jobs:
   tools:
@@ -52,6 +52,10 @@ jobs:
               command = ['cmake','-S','.', '-B',str(directory),'-DCMAKE_BUILD_TYPE=Release', '-DUNIMEMORY_WITH_MIMALLOC=ON','-DUNIMEMORY_WITH_JEMALLOC=ON','-DUNIMEMORY_BUILD_DIAGNOSTICS=ON', '-DCMAKE_PREFIX_PATH='+str(root/'build/prefix'), '-DBUILD_SHARED_LIBS='+('ON' if shared else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_IPO='+('ON' if ipo else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_PIC='+('ON' if pic else 'OFF')]
               if windows:
                   command.append('-DCMAKE_TOOLCHAIN_FILE='+str(root/'build/vcpkg/scripts/buildsystems/vcpkg.cmake'))
+                  if shared and ipo:
+                      exports=root/'build/diagnose-shared/UniMemory.dir/Release/exports.def'
+                      if not exports.exists(): raise RuntimeError('Matching plain-object export list missing')
+                      command.append('-DUNIMEMORY_DIAGNOSTIC_EXPORTS_FILE='+str(exports))
               subprocess.run(['python3','tools/ci/configure.py','--',*command],check=True)
               subprocess.run(['cmake','--build',str(directory),'--config','Release','--parallel','4'],check=True)
               if name=='static':
