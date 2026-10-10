@@ -1,4 +1,4 @@
-#include <unimem/allocator.h>
+#include <unimem/memory.h>
 
 #include <memory>
 #include <vector>
