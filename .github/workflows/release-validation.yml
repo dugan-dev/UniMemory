@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - 'src/**'
       - 'include/**'
@@ -52,8 +52,9 @@ jobs:
       - name: Test
         env:
           ASAN_OPTIONS: allocator_may_return_null=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
           TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
-        run: ctest --test-dir build/sanitize --output-on-failure --parallel 2
+        run: ctest --test-dir build/sanitize --output-on-failure --parallel 2 --no-tests=error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
