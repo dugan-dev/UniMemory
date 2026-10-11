@@ -93,9 +93,9 @@
     "mimalloc": "libmimalloc.so.3.4",
     "jemalloc": "libjemalloc.so.2"
   },
-  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-  "run_id": "38101997387",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+  "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+  "run_id": "38105585240",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
   "schema": 1,
   "measured_at_utc": "2026-10-11",
   "measurement_date_source": "workflow run date; native artifact has no per-process timestamp",

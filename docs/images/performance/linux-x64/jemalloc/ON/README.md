@@ -1,16 +1,16 @@
 # Performance · linux-x64/jemalloc/ON
 
-Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
+Source: `81cfacde5cbb1447b088a95438084a132f0a4edd` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240)
 
 Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| jemalloc | 16 | 15.95 | 16.30 | 1.022 |
-| jemalloc | 64 | 14.79 | 16.53 | 1.118 |
-| jemalloc | 256 | 14.68 | 16.66 | 1.134 |
-| jemalloc | 4096 | 16.77 | 18.87 | 1.126 |
-| jemalloc | 65536 | 258.89 | 253.22 | 0.978 |
+| jemalloc | 16 | 19.18 | 21.81 | 1.137 |
+| jemalloc | 64 | 19.25 | 22.44 | 1.166 |
+| jemalloc | 256 | 19.18 | 21.99 | 1.147 |
+| jemalloc | 4096 | 22.32 | 24.94 | 1.118 |
+| jemalloc | 65536 | 364.37 | 365.37 | 1.003 |
 
 Profile: `jemalloc` / statistics `ON` / checks `AUTO`. ON includes bookkeeping feature cost and is not mixed into OFF performance goals. Native and API share one executable, target flags and SDK binaries. Hosted jobs are not controlled cross-host causal comparisons.
 

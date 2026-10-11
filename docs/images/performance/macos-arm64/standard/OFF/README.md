@@ -1,16 +1,16 @@
 # Performance · macos-arm64/standard/OFF
 
-Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
+Source: `81cfacde5cbb1447b088a95438084a132f0a4edd` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240)
 
 Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| standard | 16 | 16.46 | 18.90 | 1.149 |
-| standard | 64 | 19.56 | 20.78 | 1.062 |
-| standard | 256 | 19.54 | 20.69 | 1.059 |
-| standard | 4096 | 22.34 | 22.53 | 1.009 |
-| standard | 65536 | 27.36 | 25.41 | 0.929 |
+| standard | 16 | 16.64 | 16.99 | 1.021 |
+| standard | 64 | 18.27 | 20.01 | 1.095 |
+| standard | 256 | 18.82 | 19.06 | 1.013 |
+| standard | 4096 | 22.53 | 22.84 | 1.014 |
+| standard | 65536 | 24.59 | 25.01 | 1.017 |
 
 Profile: `standard` / statistics `OFF` / checks `AUTO`. ON includes bookkeeping feature cost and is not mixed into OFF performance goals. Native and API share one executable, target flags and SDK binaries. Hosted jobs are not controlled cross-host causal comparisons.
 

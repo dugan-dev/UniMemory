@@ -5,7 +5,7 @@
 **进程常驻内存相对基线的增量，MiB。** 每次测量先减去该进程基线，再对三个独立进程取中位数；统计关闭。
 
 <!-- performance-source -->
-2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)
+2026-10-11 · [81cfacd](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240) · [CSV](../results/current/README.md)
 <!-- /performance-source -->
 
 请求字节表示业务仍需要的存储；常驻内存还包括分配器缓存与管理信息。释放 Block 后，分配器可以保留空间供后续复用。
@@ -29,12 +29,12 @@
 <!-- performance-table:pressure-windows-x64 -->
 | 后端 | 路径 | 初次分配 | 首次保留 | 最终分配 | 最终保留 | 全部释放 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Standard | 原生 | 27.89 | 26.27 | 28.90 | 26.41 | 1.47 |
-| Standard | UniMemory | 27.89 | 26.26 | 28.90 | 26.42 | 1.47 |
+| Standard | 原生 | 27.89 | 26.26 | 28.89 | 26.64 | 1.46 |
+| Standard | UniMemory | 27.89 | 26.26 | 28.89 | 26.40 | 1.46 |
 | mimalloc | 原生 | 31.73 | 31.79 | 46.46 | 46.46 | 46.46 |
 | mimalloc | UniMemory | 31.72 | 31.78 | 46.45 | 46.45 | 46.45 |
-| jemalloc | 原生 | 32.42 | 32.49 | 33.68 | 33.68 | 33.68 |
-| jemalloc | UniMemory | 32.40 | 32.46 | 33.73 | 33.73 | 33.73 |
+| jemalloc | 原生 | 32.23 | 32.29 | 33.48 | 33.48 | 33.48 |
+| jemalloc | UniMemory | 32.28 | 32.34 | 33.54 | 33.54 | 33.54 |
 <!-- /performance-table -->
 
 ### Linux
@@ -56,10 +56,10 @@
 | 后端 | 路径 | 初次分配 | 首次保留 | 最终分配 | 最终保留 | 全部释放 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Standard | 原生 | 28.61 | 28.61 | 34.44 | 34.44 | 18.44 |
-| Standard | UniMemory | 28.61 | 28.61 | 36.47 | 36.47 | 20.47 |
+| Standard | UniMemory | 28.61 | 28.61 | 34.44 | 34.44 | 18.44 |
 | mimalloc | 原生 | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
 | mimalloc | UniMemory | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
-| jemalloc | 原生 | 31.80 | 31.80 | 33.12 | 33.12 | 33.12 |
+| jemalloc | 原生 | 31.78 | 31.78 | 33.11 | 33.11 | 33.11 |
 | jemalloc | UniMemory | 31.78 | 31.78 | 33.09 | 33.09 | 33.09 |
 <!-- /performance-table -->
 
@@ -108,8 +108,8 @@
 | Windows | Standard | Global（全局） | 69.61 | 0.29 | — |
 | Windows | mimalloc | Global（全局） | 64.31 | 64.32 | — |
 | Windows | mimalloc | Heap（独立） | 64.29 | 64.29 | 0.30 |
-| Windows | jemalloc | Global（全局） | 72.05 | 72.05 | — |
-| Windows | jemalloc | Heap（独立） | 72.09 | 72.09 | 8.18 |
+| Windows | jemalloc | Global（全局） | 70.08 | 70.08 | — |
+| Windows | jemalloc | Heap（独立） | 70.09 | 70.09 | 6.12 |
 | Linux | Standard | Global（全局） | 64.38 | 0.25 | — |
 | Linux | mimalloc | Global（全局） | 66.14 | 66.14 | — |
 | Linux | mimalloc | Heap（独立） | 66.13 | 66.13 | 2.13 |

@@ -5,7 +5,7 @@
 Separate Linux programs from mimalloc-bench, using process-wide allocator replacement. **These compare native allocators, not UniMemory wrapper cost.**
 
 <!-- performance-source -->
-2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/native-applications/README.md)
+2026-10-11 · [81cfacd](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240) · [CSV](../results/current/native-applications/README.md)
 <!-- /performance-source -->
 
 [Pinned benchmark collection](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86)
@@ -19,22 +19,22 @@ Separate Linux programs from mimalloc-bench, using process-wide allocator replac
 <!-- performance-table:applications-elapsed -->
 | Program | glibc | mimalloc | jemalloc |
 | --- | --- | --- | --- |
-| cfrac | 3.672 | 3.323 | 3.422 |
-| espresso | 4.073 | 3.622 | 3.674 |
-| barnes | 2.420 | 2.318 | 2.370 |
+| cfrac | 3.672 | 3.322 | 3.422 |
+| espresso | 4.071 | 3.622 | 3.673 |
+| barnes | 2.319 | 2.320 | 2.318 |
 | larson | — | — | — |
 | larson-sized | — | — | — |
-| alloc-test | 4.224 | 3.277 | 3.226 |
-| cache-scratch | 0.566 | 0.618 | 0.566 |
-| cache-thrash | 0.568 | 0.616 | 0.566 |
+| alloc-test | 4.224 | 3.170 | 3.222 |
+| cache-scratch | 0.568 | 0.616 | 0.565 |
+| cache-thrash | 0.565 | 0.619 | 0.566 |
 | xmalloc-test | — | — | — |
 | malloc-large-old | 0.004 | 0.004 | 0.008 |
-| malloc-large | 1.218 | 1.118 | 3.424 |
-| mstress | 0.214 | 0.216 | 0.416 |
+| malloc-large | 1.168 | 1.067 | 3.323 |
+| mstress | 0.216 | 0.166 | 0.365 |
 | mleak | 0.032 | 0.064 | 0.064 |
-| rptest | 16.046 | 16.045 | 16.045 |
-| glibc-simple | 2.218 | 1.617 | 2.019 |
-| glibc-thread | 2.023 | 2.022 | 2.023 |
+| rptest | 16.042 | 16.043 | 16.043 |
+| glibc-simple | 2.219 | 1.667 | 2.018 |
+| glibc-thread | 2.022 | 2.023 | 2.020 |
 <!-- /performance-table -->
 
 ## Peak memory
@@ -44,22 +44,22 @@ Separate Linux programs from mimalloc-bench, using process-wide allocator replac
 <!-- performance-table:applications-memory -->
 | Program | glibc | mimalloc | jemalloc |
 | --- | --- | --- | --- |
-| cfrac | 3.32 | 7.06 | 10.71 |
-| espresso | 2.69 | 12.56 | 10.80 |
-| barnes | 60.67 | 67.23 | 73.30 |
-| larson | 41.73 | 62.73 | 69.45 |
-| larson-sized | 39.25 | 62.72 | 71.75 |
-| alloc-test | 14.82 | 21.33 | 29.21 |
-| cache-scratch | 3.94 | 9.12 | 10.63 |
-| cache-thrash | 3.87 | 9.23 | 10.63 |
-| xmalloc-test | 58.69 | 66.17 | 120.62 |
-| malloc-large-old | 3.90 | 8.30 | 10.62 |
-| malloc-large | 522.01 | 625.16 | 448.61 |
-| mstress | 68.27 | 126.40 | 67.15 |
-| mleak | 1.91 | 6.21 | 18.52 |
-| rptest | 13.08 | 28.98 | 39.34 |
-| glibc-simple | 1.85 | 6.27 | 14.64 |
-| glibc-thread | 2.35 | 16.39 | 26.38 |
+| cfrac | 3.29 | 7.07 | 10.73 |
+| espresso | 2.63 | 12.62 | 10.80 |
+| barnes | 60.70 | 67.15 | 75.14 |
+| larson | 41.92 | 64.85 | 70.51 |
+| larson-sized | 39.83 | 64.77 | 72.31 |
+| alloc-test | 14.77 | 21.42 | 30.90 |
+| cache-scratch | 3.89 | 9.23 | 10.64 |
+| cache-thrash | 3.88 | 9.16 | 10.64 |
+| xmalloc-test | 55.04 | 66.17 | 130.69 |
+| malloc-large-old | 3.90 | 8.30 | 10.52 |
+| malloc-large | 521.96 | 625.15 | 446.62 |
+| mstress | 67.80 | 156.39 | 67.08 |
+| mleak | 1.91 | 6.27 | 26.54 |
+| rptest | 13.53 | 29.11 | 40.07 |
+| glibc-simple | 1.85 | 6.28 | 14.66 |
+| glibc-thread | 2.35 | 16.45 | 26.34 |
 <!-- /performance-table -->
 
 ## Interpretation

@@ -30,7 +30,7 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-        "sha256": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+        "sha256": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
       },
       "sdk_linker_file": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -38,10 +38,10 @@
       }
     },
     "runtime_dlls": {
-      "mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+      "mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
     },
     "sdk_runtime_files": {
-      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
     },
     "cmake_cache_sha256": "f8008227fae7d9b66c07213bd4e14d5c2b6ea1f87013a1825a9599e644ff75cb",
     "native_api_same_executable": true,
@@ -53,8 +53,8 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:41:48.635814+00:00",
-  "executable_sha256": "f9b8b425640bf922493bdffc5f2ab3970bb460f793a136ae007b35cafb236e0c",
+  "measured_at_utc": "2026-10-11T02:58:35.572311+00:00",
+  "executable_sha256": "14fb23d4b6f5af07266183f01290436a614935d0c9923d15cba2f3fee8515cc4",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"
 }

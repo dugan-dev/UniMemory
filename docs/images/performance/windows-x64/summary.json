@@ -1,6 +1,6 @@
 {
   "measurement_schema": 2,
-  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
+  "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
   "measurement_protocol": "native-api-scaling-tails-v2",
   "pressure_protocol": "mixed-size-retention-v1",
   "trials": 3,
@@ -11,13 +11,13 @@
       "manifest": {
         "platform": "Windows-2022Server-10.0.20348-SP0",
         "machine": "AMD64",
-        "processor": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+        "processor": "AMD64 Family 26 Model 2 Stepping 1, AuthenticAMD",
         "trials": 3,
         "command": "UniMemoryDeliveryBenchmark.exe",
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "719cda36f6e51bbac5014f1f4177094f50c0d51f98cc4cec9f454c60238b03d0",
+        "executable_sha256": "1b773aa91a516195b390469ba8642478a968ced9d4b9758035666de5c0be5ca0",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -62,7 +62,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:38:07.005852+00:00",
+        "measured_at_utc": "2026-10-11T02:53:42.990817+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -83,15 +83,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
           "CMAKE_CXX_COMPILER_VERSION": "19.44.35229.0"
         },
-        "cpu_model": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+        "cpu_model": "AMD64 Family 26 Model 2 Stepping 1, AuthenticAMD",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -163,8 +163,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:39:09.044960+00:00",
-        "executable_sha256": "9db67337232eb42b6e5598e6d03180cd83b31477b4d1639cd70cbfb34e26d05e",
+        "measured_at_utc": "2026-10-11T02:54:27.894372+00:00",
+        "executable_sha256": "cfb31531d7801caacc3bb25b2480ac8915ed5e13a78b9d42a45889cc0abe66a1",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }
@@ -174,13 +174,13 @@
       "manifest": {
         "platform": "Windows-2022Server-10.0.20348-SP0",
         "machine": "AMD64",
-        "processor": "AMD64 Family 26 Model 2 Stepping 1, AuthenticAMD",
+        "processor": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
         "trials": 3,
         "command": "UniMemoryDeliveryBenchmark.exe",
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "c698a077f33fc008a28c2fe57631778aab774278992a6a15b35be7523071c24a",
+        "executable_sha256": "ac33648182000b92bf5e69c8f0160c30679773bf85bbe54a0ae37c53077fbb53",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -225,7 +225,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:36:53.204739+00:00",
+        "measured_at_utc": "2026-10-11T02:56:18.800093+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -246,15 +246,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
           "CMAKE_CXX_COMPILER_VERSION": "19.44.35229.0"
         },
-        "cpu_model": "AMD64 Family 26 Model 2 Stepping 1, AuthenticAMD",
+        "cpu_model": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -326,8 +326,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:37:36.158496+00:00",
-        "executable_sha256": "1dbe89e7851c47c26cd7184dac125ff438d112094f514b0df57af97200dedaf9",
+        "measured_at_utc": "2026-10-11T02:57:22.680591+00:00",
+        "executable_sha256": "167907077c554e8163871087e050460ad03a06aa57ba689d6c487cd632ea81db",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }
@@ -343,7 +343,7 @@
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "738af036f78f8044fb1361427878015ba467fdcb53e94cc4d8df992dc544710b",
+        "executable_sha256": "3c426c9076459775c0caa9f2d1dc427023da88a11620911f5a89673fc63d37d6",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -385,7 +385,7 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-              "sha256": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+              "sha256": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
             },
             "sdk_linker_file": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -393,17 +393,17 @@
             }
           },
           "runtime_dlls": {
-            "mimalloc.dll": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+            "mimalloc.dll": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
           },
           "cmake_cache_sha256": "3fe6d5ebfcf1c7cdae8d79137cdbdc16401ebd9f440888d580ef408ddb0e73ca",
           "native_api_same_executable": true,
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:44:46.615136+00:00",
+        "measured_at_utc": "2026-10-11T02:56:01.033809+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -424,9 +424,9 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
@@ -494,7 +494,7 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-              "sha256": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+              "sha256": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
             },
             "sdk_linker_file": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -502,10 +502,10 @@
             }
           },
           "runtime_dlls": {
-            "mimalloc.dll": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+            "mimalloc.dll": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "51086edb050bc104b867d161bda7d8727dcdc2bd5cc36d470e880222e73a08df"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "f3a67258d58f6f826b729c732c8d1997c586d04d3b293695570e941625373f46"
           },
           "cmake_cache_sha256": "3fe6d5ebfcf1c7cdae8d79137cdbdc16401ebd9f440888d580ef408ddb0e73ca",
           "native_api_same_executable": true,
@@ -517,8 +517,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:45:11.494421+00:00",
-        "executable_sha256": "e8b9741636ec91d6c9eacccaeb1543e5ec56ef8c2676bdc7ed44194fd3e304af",
+        "measured_at_utc": "2026-10-11T02:56:26.044882+00:00",
+        "executable_sha256": "9310274f2d966c985c077fb50dc52357464b8d302671b8999622d93f82b108c7",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }
@@ -528,13 +528,13 @@
       "manifest": {
         "platform": "Windows-2022Server-10.0.20348-SP0",
         "machine": "AMD64",
-        "processor": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+        "processor": "Intel64 Family 6 Model 207 Stepping 2, GenuineIntel",
         "trials": 3,
         "command": "UniMemoryDeliveryBenchmark.exe",
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "4369c9f0c24f2629afbbb7584f224f85e6335eac67a7ff32397fc761ad177385",
+        "executable_sha256": "b2fdc340c159ac2be43719873dd434ec8f01a501d32f5f9cf9c6f881f328b02e",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -576,7 +576,7 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-              "sha256": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+              "sha256": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
             },
             "sdk_linker_file": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -584,17 +584,17 @@
             }
           },
           "runtime_dlls": {
-            "mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+            "mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
           },
           "cmake_cache_sha256": "f8008227fae7d9b66c07213bd4e14d5c2b6ea1f87013a1825a9599e644ff75cb",
           "native_api_same_executable": true,
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:41:17.475578+00:00",
+        "measured_at_utc": "2026-10-11T02:57:57.378179+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -615,15 +615,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
           "CMAKE_CXX_COMPILER_VERSION": "19.44.35229.0"
         },
-        "cpu_model": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+        "cpu_model": "Intel64 Family 6 Model 207 Stepping 2, GenuineIntel",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -685,7 +685,7 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-              "sha256": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+              "sha256": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
             },
             "sdk_linker_file": {
               "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -693,10 +693,10 @@
             }
           },
           "runtime_dlls": {
-            "mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+            "mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "9cb76eede4759f7f8e0bd186a7cbc75beb5896459370944d8e0e9ce5d6ba5aaf"
           },
           "cmake_cache_sha256": "f8008227fae7d9b66c07213bd4e14d5c2b6ea1f87013a1825a9599e644ff75cb",
           "native_api_same_executable": true,
@@ -708,8 +708,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:41:48.635814+00:00",
-        "executable_sha256": "f9b8b425640bf922493bdffc5f2ab3970bb460f793a136ae007b35cafb236e0c",
+        "measured_at_utc": "2026-10-11T02:58:35.572311+00:00",
+        "executable_sha256": "14fb23d4b6f5af07266183f01290436a614935d0c9923d15cba2f3fee8515cc4",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }
@@ -719,13 +719,13 @@
       "manifest": {
         "platform": "Windows-2022Server-10.0.20348-SP0",
         "machine": "AMD64",
-        "processor": "Intel64 Family 6 Model 207 Stepping 2, GenuineIntel",
+        "processor": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
         "trials": 3,
         "command": "UniMemoryDeliveryBenchmark.exe",
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "19281b93df9cbd2e4943d6d7921604e11adc399b0c6a7e273fd88a07d408e9a4",
+        "executable_sha256": "5ccfb4165a4ccdb29731d0153bb40a17264443ac7c7f4f1bb3fa3fdc876cfc9e",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -774,17 +774,17 @@
             }
           },
           "runtime_dlls": {
-            "jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
+            "jemalloc.dll": "f401c8afe08dee74fb5670a90881d48846527a2efdd483ab583d82e25238388f"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "f401c8afe08dee74fb5670a90881d48846527a2efdd483ab583d82e25238388f"
           },
           "cmake_cache_sha256": "0cca2e5adf314546b4ff67f6fb6a9b369e2ef155f313e80ca7c14782e79b6940",
           "native_api_same_executable": true,
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:47:48.112939+00:00",
+        "measured_at_utc": "2026-10-11T02:50:33.987318+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -805,15 +805,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
           "CMAKE_CXX_COMPILER_VERSION": "19.44.35229.0"
         },
-        "cpu_model": "Intel64 Family 6 Model 207 Stepping 2, GenuineIntel",
+        "cpu_model": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -883,10 +883,10 @@
             }
           },
           "runtime_dlls": {
-            "jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
+            "jemalloc.dll": "f401c8afe08dee74fb5670a90881d48846527a2efdd483ab583d82e25238388f"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "f401c8afe08dee74fb5670a90881d48846527a2efdd483ab583d82e25238388f"
           },
           "cmake_cache_sha256": "0cca2e5adf314546b4ff67f6fb6a9b369e2ef155f313e80ca7c14782e79b6940",
           "native_api_same_executable": true,
@@ -898,8 +898,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:48:42.259681+00:00",
-        "executable_sha256": "65900891b3d397d5d3ed4fa871d7fe8197288b1f2ef2ba4a2eb976b52c952951",
+        "measured_at_utc": "2026-10-11T02:51:24.999650+00:00",
+        "executable_sha256": "1cb751a340f250bfe238d9bca289f5e30b608a5396494fdc32017617025f1bda",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }
@@ -915,7 +915,7 @@
         "alignment": 16,
         "process_isolation": true,
         "logical_cpus": 4,
-        "executable_sha256": "9d17a5a76c03a369693b0bf0663b703469aebabe50ee2c25d1f8219705ea2c80",
+        "executable_sha256": "b2af91a8c1990e0fb52bdd8b9923737863d66e5dc39bfa19bd3658950120c7d1",
         "allocator_environment": {
           "memory_bytes": 80,
           "owned_block_bytes": 32,
@@ -964,17 +964,17 @@
             }
           },
           "runtime_dlls": {
-            "jemalloc.dll": "c47e0d30fb75d87388956d54a143296d8423e8deba70f25d221b9c10a7a81d0b"
+            "jemalloc.dll": "3874e36720a52fd5b3836dc2f8714b77bc5c9803dcbb609754fa2b3fa1898bca"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "c47e0d30fb75d87388956d54a143296d8423e8deba70f25d221b9c10a7a81d0b"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "3874e36720a52fd5b3836dc2f8714b77bc5c9803dcbb609754fa2b3fa1898bca"
           },
           "cmake_cache_sha256": "55090964bbce26a1191289b00f988e6b59a5f65103d75f8c4e6c9d0bb403fc33",
           "native_api_same_executable": true,
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": true,
-        "measured_at_utc": "2026-10-11T01:41:14.775428+00:00",
+        "measured_at_utc": "2026-10-11T02:53:07.977264+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -995,9 +995,9 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "AMD64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "MSVC",
@@ -1073,10 +1073,10 @@
             }
           },
           "runtime_dlls": {
-            "jemalloc.dll": "c47e0d30fb75d87388956d54a143296d8423e8deba70f25d221b9c10a7a81d0b"
+            "jemalloc.dll": "3874e36720a52fd5b3836dc2f8714b77bc5c9803dcbb609754fa2b3fa1898bca"
           },
           "sdk_runtime_files": {
-            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "c47e0d30fb75d87388956d54a143296d8423e8deba70f25d221b9c10a7a81d0b"
+            "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "3874e36720a52fd5b3836dc2f8714b77bc5c9803dcbb609754fa2b3fa1898bca"
           },
           "cmake_cache_sha256": "55090964bbce26a1191289b00f988e6b59a5f65103d75f8c4e6c9d0bb403fc33",
           "native_api_same_executable": true,
@@ -1088,8 +1088,8 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:42:24.189118+00:00",
-        "executable_sha256": "d9d8c6041c6655734928e9af56fc6ae39e5e1c31e7e9f45e402489099e366311",
+        "measured_at_utc": "2026-10-11T02:54:18.672279+00:00",
+        "executable_sha256": "9e479ee48ee3a2075ace3c1b793432cadae3774a6c23157250d991f5c4b72415",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
       }

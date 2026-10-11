@@ -5,7 +5,7 @@
 **纳秒/完整操作，越小越快。** 三个独立进程取中位数；Global，统计关闭，Release 构建。
 
 <!-- performance-source -->
-2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)
+2026-10-11 · [81cfacd](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240) · [CSV](../results/current/README.md)
 <!-- /performance-source -->
 
 ## 对象、容器与内存块
@@ -15,14 +15,14 @@
 <!-- performance-table:workloads-windows-x64 -->
 | 场景 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
-| make_unique，64 B | 43.6 | 8.1 | 31.4 |
-| make_shared，64 B | 49.9 | 12.4 | 50.7 |
-| vector，32 个 uint64_t | 611.7 | 174.6 | 428.7 |
-| PMR vector，32 个 uint64_t | 559.3 | 184.3 | 432.3 |
-| 零初始化 Block，4 KiB | 88.1 | 62.4 | 60.4 |
-| Block 扩容，4 → 8 KiB | 162.9 | 104.5 | 132.8 |
-| 混合生命周期，4–16 KiB | 114.3 | 29.3 | 127.0 |
-| 跨线程释放，64 B，8 线程 | 92.2 | 51.0 | 106.2 |
+| make_unique，64 B | 26.9 | 8.1 | 40.4 |
+| make_shared，64 B | 39.7 | 11.9 | 45.9 |
+| vector，32 个 uint64_t | 324.1 | 171.7 | 523.3 |
+| PMR vector，32 个 uint64_t | 333.0 | 183.1 | 528.1 |
+| 零初始化 Block，4 KiB | 53.6 | 62.3 | 82.7 |
+| Block 扩容，4 → 8 KiB | 90.6 | 105.2 | 167.6 |
+| 混合生命周期，4–16 KiB | 94.9 | 29.4 | 117.4 |
+| 跨线程释放，64 B，8 线程 | 57.2 | 49.2 | 115.7 |
 <!-- /performance-table -->
 
 ### Linux
@@ -30,14 +30,14 @@
 <!-- performance-table:workloads-linux-x64 -->
 | 场景 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
-| make_unique，64 B | 6.2 | 7.0 | 6.6 |
-| make_shared，64 B | 7.6 | 11.4 | 11.3 |
-| vector，32 个 uint64_t | 57.2 | 79.7 | 80.2 |
-| PMR vector，32 个 uint64_t | 62.1 | 86.6 | 88.2 |
-| 零初始化 Block，4 KiB | 44.8 | 89.1 | 37.3 |
-| Block 扩容，4 → 8 KiB | 75.0 | 103.2 | 62.2 |
-| 混合生命周期，4–16 KiB | 102.6 | 26.1 | 47.4 |
-| 跨线程释放，64 B，8 线程 | 75.7 | 36.0 | 38.6 |
+| make_unique，64 B | 13.0 | 7.0 | 13.6 |
+| make_shared，64 B | 15.1 | 10.9 | 21.2 |
+| vector，32 个 uint64_t | 117.0 | 77.9 | 148.3 |
+| PMR vector，32 个 uint64_t | 128.9 | 87.2 | 161.1 |
+| 零初始化 Block，4 KiB | 103.0 | 89.3 | 89.4 |
+| Block 扩容，4 → 8 KiB | 135.3 | 102.7 | 125.7 |
+| 混合生命周期，4–16 KiB | 143.6 | 25.8 | 82.7 |
+| 跨线程释放，64 B，8 线程 | 129.9 | 34.8 | 73.3 |
 <!-- /performance-table -->
 
 ### macOS
@@ -45,14 +45,14 @@
 <!-- performance-table:workloads-macos-arm64 -->
 | 场景 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
-| make_unique，64 B | 18.4 | 4.8 | 17.0 |
-| make_shared，64 B | 19.1 | 10.3 | 20.6 |
-| vector，32 个 uint64_t | 141.3 | 69.6 | 170.1 |
-| PMR vector，32 个 uint64_t | 144.5 | 88.7 | 185.5 |
-| 零初始化 Block，4 KiB | 66.8 | 62.2 | 76.5 |
-| Block 扩容，4 → 8 KiB | 146.6 | 100.9 | 131.5 |
-| 混合生命周期，4–16 KiB | 31.6 | 21.5 | 23.7 |
-| 跨线程释放，64 B，8 线程 | 28.8 | 15.9 | 58.5 |
+| make_unique，64 B | 18.5 | 4.8 | 16.8 |
+| make_shared，64 B | 19.0 | 10.5 | 19.2 |
+| vector，32 个 uint64_t | 137.5 | 76.7 | 167.0 |
+| PMR vector，32 个 uint64_t | 144.5 | 106.5 | 172.4 |
+| 零初始化 Block，4 KiB | 73.4 | 65.9 | 76.8 |
+| Block 扩容，4 → 8 KiB | 137.8 | 115.2 | 137.4 |
+| 混合生命周期，4–16 KiB | 32.5 | 22.8 | 28.2 |
+| 跨线程释放，64 B，8 线程 | 27.7 | 29.6 | 80.7 |
 <!-- /performance-table -->
 
 对象包含创建与销毁；vector 增长到 32 个 uint64_t；resize 包含分配、扩容与释放。每行操作不同，只在同一行内比较。
@@ -72,21 +72,21 @@ Standard = 1；越短越快。macOS 图展示选定 API 场景，完整八项见
 <!-- performance-table:latency-windows-x64 -->
 | 字节数 | 后端 | Native | API | Basic |
 | --- | --- | --- | --- | --- |
-| 16 | Standard | 45.6 | 46.2 | 42.7 |
-| 16 | mimalloc | 7.3 | 7.2 | 9.8 |
-| 16 | jemalloc | 32.9 | 33.5 | 43.9 |
-| 64 | Standard | 45.0 | 46.1 | 44.0 |
-| 64 | mimalloc | 6.8 | 7.6 | 10.0 |
-| 64 | jemalloc | 33.2 | 33.0 | 41.6 |
-| 256 | Standard | 47.5 | 48.2 | 46.2 |
-| 256 | mimalloc | 7.8 | 8.5 | 10.9 |
-| 256 | jemalloc | 33.4 | 33.6 | 44.0 |
-| 4096 | Standard | 47.5 | 49.0 | 44.7 |
-| 4096 | mimalloc | 28.7 | 29.4 | 30.6 |
-| 4096 | jemalloc | 35.9 | 36.5 | 46.9 |
-| 65536 | Standard | 125.4 | 128.4 | 100.7 |
-| 65536 | mimalloc | 31.5 | 32.2 | 33.4 |
-| 65536 | jemalloc | 289.7 | 289.6 | 331.5 |
+| 16 | Standard | 28.7 | 29.3 | 47.2 |
+| 16 | mimalloc | 7.3 | 7.2 | 30.5 |
+| 16 | jemalloc | 38.3 | 39.7 | 43.8 |
+| 64 | Standard | 28.8 | 29.6 | 47.5 |
+| 64 | mimalloc | 6.7 | 7.6 | 30.8 |
+| 64 | jemalloc | 37.0 | 38.1 | 44.4 |
+| 256 | Standard | 31.0 | 29.4 | 49.2 |
+| 256 | mimalloc | 7.8 | 8.5 | 31.8 |
+| 256 | jemalloc | 38.9 | 38.2 | 41.8 |
+| 4096 | Standard | 30.7 | 29.5 | 50.5 |
+| 4096 | mimalloc | 28.7 | 29.4 | 50.9 |
+| 4096 | jemalloc | 41.4 | 43.3 | 46.7 |
+| 65536 | Standard | 85.4 | 89.0 | 126.7 |
+| 65536 | mimalloc | 31.6 | 32.2 | 53.2 |
+| 65536 | jemalloc | 325.8 | 332.1 | 333.4 |
 <!-- /performance-table -->
 
 ### Linux
@@ -94,21 +94,21 @@ Standard = 1；越短越快。macOS 图展示选定 API 场景，完整八项见
 <!-- performance-table:latency-linux-x64 -->
 | 字节数 | 后端 | Native | API | Basic |
 | --- | --- | --- | --- | --- |
-| 16 | Standard | 8.7 | 8.8 | 26.2 |
-| 16 | mimalloc | 8.4 | 9.4 | 10.4 |
-| 16 | jemalloc | 11.3 | 11.3 | 16.3 |
-| 64 | Standard | 8.5 | 9.0 | 25.9 |
-| 64 | mimalloc | 8.8 | 9.5 | 10.3 |
-| 64 | jemalloc | 10.3 | 10.9 | 16.5 |
-| 256 | Standard | 8.8 | 9.4 | 25.8 |
-| 256 | mimalloc | 9.8 | 10.2 | 10.9 |
-| 256 | jemalloc | 10.4 | 10.8 | 16.7 |
-| 4096 | Standard | 15.9 | 15.9 | 31.4 |
-| 4096 | mimalloc | 24.1 | 24.4 | 24.6 |
-| 4096 | jemalloc | 12.9 | 12.9 | 18.9 |
-| 65536 | Standard | 17.3 | 17.4 | 31.7 |
-| 65536 | mimalloc | 25.3 | 25.3 | 26.5 |
-| 65536 | jemalloc | 193.5 | 192.4 | 253.2 |
+| 16 | Standard | 16.9 | 17.7 | 18.5 |
+| 16 | mimalloc | 8.6 | 9.2 | 9.8 |
+| 16 | jemalloc | 19.1 | 19.7 | 21.8 |
+| 64 | Standard | 17.0 | 17.7 | 18.4 |
+| 64 | mimalloc | 9.0 | 11.9 | 9.9 |
+| 64 | jemalloc | 19.9 | 19.7 | 22.4 |
+| 256 | Standard | 16.9 | 17.8 | 18.4 |
+| 256 | mimalloc | 9.5 | 13.3 | 9.4 |
+| 256 | jemalloc | 18.9 | 19.5 | 22.0 |
+| 4096 | Standard | 29.9 | 30.3 | 31.2 |
+| 4096 | mimalloc | 23.9 | 24.3 | 18.7 |
+| 4096 | jemalloc | 22.1 | 22.7 | 24.9 |
+| 65536 | Standard | 32.4 | 33.2 | 34.0 |
+| 65536 | mimalloc | 25.2 | 25.8 | 19.3 |
+| 65536 | jemalloc | 378.6 | 390.7 | 365.4 |
 <!-- /performance-table -->
 
 ### macOS
@@ -116,21 +116,21 @@ Standard = 1；越短越快。macOS 图展示选定 API 场景，完整八项见
 <!-- performance-table:latency-macos-arm64 -->
 | 字节数 | 后端 | Native | API | Basic |
 | --- | --- | --- | --- | --- |
-| 16 | Standard | 16.5 | 18.9 | 19.8 |
-| 16 | mimalloc | 5.0 | 5.3 | 6.7 |
-| 16 | jemalloc | 15.2 | 16.7 | 18.1 |
-| 64 | Standard | 19.6 | 20.8 | 24.2 |
-| 64 | mimalloc | 5.2 | 5.7 | 6.9 |
-| 64 | jemalloc | 16.0 | 21.3 | 18.7 |
-| 256 | Standard | 19.5 | 20.7 | 20.2 |
-| 256 | mimalloc | 6.8 | 6.8 | 7.9 |
-| 256 | jemalloc | 16.1 | 15.6 | 23.3 |
-| 4096 | Standard | 22.3 | 22.5 | 26.3 |
-| 4096 | mimalloc | 14.7 | 15.3 | 20.1 |
-| 4096 | jemalloc | 22.3 | 20.8 | 27.2 |
-| 65536 | Standard | 27.4 | 25.4 | 26.5 |
-| 65536 | mimalloc | 16.6 | 16.7 | 30.1 |
-| 65536 | jemalloc | 248.3 | 262.3 | 297.3 |
+| 16 | Standard | 16.6 | 17.0 | 18.9 |
+| 16 | mimalloc | 5.8 | 6.2 | 6.8 |
+| 16 | jemalloc | 20.9 | 17.6 | 18.9 |
+| 64 | Standard | 18.3 | 20.0 | 21.4 |
+| 64 | mimalloc | 5.9 | 6.1 | 7.6 |
+| 64 | jemalloc | 18.4 | 25.0 | 21.7 |
+| 256 | Standard | 18.8 | 19.1 | 20.8 |
+| 256 | mimalloc | 7.0 | 7.5 | 7.5 |
+| 256 | jemalloc | 19.6 | 17.4 | 18.6 |
+| 4096 | Standard | 22.5 | 22.8 | 25.0 |
+| 4096 | mimalloc | 16.5 | 18.4 | 16.9 |
+| 4096 | jemalloc | 23.1 | 24.2 | 24.6 |
+| 65536 | Standard | 24.6 | 25.0 | 26.9 |
+| 65536 | mimalloc | 17.2 | 17.9 | 18.0 |
+| 65536 | jemalloc | 282.2 | 291.3 | 242.8 |
 <!-- /performance-table -->
 
 小差异可能是测量噪声；后端和尺寸都会影响统计成本。各路径的成功请求大小与对齐一致。
@@ -142,15 +142,15 @@ Standard = 1；越短越快。macOS 图展示选定 API 场景，完整八项见
 <!-- performance-table:cross-thread -->
 | 平台 | 工作线程 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- | --- |
-| Windows | 2 | 63.7 | 30.2 | 80.2 |
-| Windows | 4 | 84.8 | 34.9 | 92.0 |
-| Windows | 8 | 92.2 | 51.0 | 106.2 |
-| Linux | 2 | 65.6 | 22.6 | 21.8 |
-| Linux | 4 | 81.8 | 23.7 | 29.1 |
-| Linux | 8 | 75.7 | 36.0 | 38.6 |
-| macOS | 2 | 26.2 | 14.2 | 49.9 |
-| macOS | 4 | 26.1 | 14.4 | 45.4 |
-| macOS | 8 | 28.8 | 15.9 | 58.5 |
+| Windows | 2 | 66.1 | 29.7 | 93.8 |
+| Windows | 4 | 55.6 | 36.0 | 102.5 |
+| Windows | 8 | 57.2 | 49.2 | 115.7 |
+| Linux | 2 | 112.5 | 24.2 | 48.2 |
+| Linux | 4 | 122.3 | 26.5 | 59.9 |
+| Linux | 8 | 129.9 | 34.8 | 73.3 |
+| macOS | 2 | 23.7 | 26.2 | 43.1 |
+| macOS | 4 | 24.8 | 25.0 | 55.6 |
+| macOS | 8 | 27.7 | 29.6 | 80.7 |
 <!-- /performance-table -->
 
 ## 栈式分配
@@ -160,12 +160,12 @@ Standard = 1；越短越快。macOS 图展示选定 API 场景，完整八项见
 <!-- performance-table:stack -->
 | 平台 | 字节数 | 纳秒/轮 |
 | --- | --- | --- |
-| Windows | 64 | 3.39 |
-| Windows | 4096 | 3.39 |
-| Linux | 64 | 3.84 |
-| Linux | 4096 | 3.83 |
-| macOS | 64 | 4.33 |
-| macOS | 4096 | 3.91 |
+| Windows | 64 | 2.17 |
+| Windows | 4096 | 2.17 |
+| Linux | 64 | 4.67 |
+| Linux | 4096 | 4.66 |
+| macOS | 64 | 3.86 |
+| macOS | 4096 | 3.76 |
 <!-- /performance-table -->
 
 未绑定 CPU。此页报告完整操作的中位数；单次分配的 p95/p99 见性能主页。

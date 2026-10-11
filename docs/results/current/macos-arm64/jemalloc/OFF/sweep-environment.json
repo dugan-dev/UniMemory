@@ -30,16 +30,16 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "05b41b7c70a31d2e336d67830e108ea1576b5a50ca15a556e4eee7f9cde12656"
+        "sha256": "2268e90993ff26dd95f9bd2f63290386a1cc7a61a83461443d968d45fa672e3d"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "05b41b7c70a31d2e336d67830e108ea1576b5a50ca15a556e4eee7f9cde12656"
+        "sha256": "2268e90993ff26dd95f9bd2f63290386a1cc7a61a83461443d968d45fa672e3d"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "946114d3538932acba49fbe2994f9fb13d4924a73dd55bebc54ac719ee69db39",
+    "cmake_cache_sha256": "67dd529b77fc9b4e740fe965ac2e9c156ebc2ea83e0a0946236d6fc82932663f",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
@@ -49,7 +49,7 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:46:13.338357+00:00",
+  "measured_at_utc": "2026-10-11T03:02:08.511795+00:00",
   "executable_sha256": "f85a46ab9fd24ea7ad75550e65cab1b3aaeaf4cb304eddaee59fa454fa173f5d",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"

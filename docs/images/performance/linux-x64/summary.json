@@ -1,6 +1,6 @@
 {
   "measurement_schema": 2,
-  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
+  "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
   "measurement_protocol": "native-api-scaling-tails-v2",
   "pressure_protocol": "mixed-size-retention-v1",
   "trials": 3,
@@ -63,7 +63,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:41:12.830036+00:00",
+        "measured_at_utc": "2026-10-11T02:55:36.679069+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -84,15 +84,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
           "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
         },
-        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -164,7 +164,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:41:35.036310+00:00",
+        "measured_at_utc": "2026-10-11T02:56:20.500790+00:00",
         "executable_sha256": "1a06f74dd2dd8e0a1a3c76c26eb126dc330f4015a8856186366ecd337827e120",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
@@ -227,7 +227,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:44:03.006070+00:00",
+        "measured_at_utc": "2026-10-11T02:56:50.526468+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -248,15 +248,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
           "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
         },
-        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -328,7 +328,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:44:25.197644+00:00",
+        "measured_at_utc": "2026-10-11T02:57:34.594558+00:00",
         "executable_sha256": "a0cbd87c7d70f2f58e3a85b7aaa41c0b55147c1404c956b4df916132307e8b4a",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
@@ -388,11 +388,11 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+              "sha256": "ed71c1feea03afcc7915e12496f032e8b2407794ba82f9e9bd2570a9dce49098"
             },
             "sdk_linker_file": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+              "sha256": "ed71c1feea03afcc7915e12496f032e8b2407794ba82f9e9bd2570a9dce49098"
             }
           },
           "runtime_dlls": {},
@@ -402,7 +402,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:35:22.280027+00:00",
+        "measured_at_utc": "2026-10-11T02:52:53.702545+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -423,9 +423,9 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
@@ -493,11 +493,11 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+              "sha256": "ed71c1feea03afcc7915e12496f032e8b2407794ba82f9e9bd2570a9dce49098"
             },
             "sdk_linker_file": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+              "sha256": "ed71c1feea03afcc7915e12496f032e8b2407794ba82f9e9bd2570a9dce49098"
             }
           },
           "runtime_dlls": {},
@@ -512,7 +512,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:35:43.133260+00:00",
+        "measured_at_utc": "2026-10-11T02:53:15.098046+00:00",
         "executable_sha256": "540712826d63b1eb54bb7d66565e280c2a330dd8182d07170854b99963786e96",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
@@ -572,11 +572,11 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
+              "sha256": "55bd29c06badb4326c663f737031e188bab06e685be9670c01ed0dd627616f31"
             },
             "sdk_linker_file": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
+              "sha256": "55bd29c06badb4326c663f737031e188bab06e685be9670c01ed0dd627616f31"
             }
           },
           "runtime_dlls": {},
@@ -586,7 +586,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:43:18.851359+00:00",
+        "measured_at_utc": "2026-10-11T02:54:04.873294+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -607,15 +607,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
           "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
         },
-        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "cpu_model": "AMD EPYC 9V74 80-Core Processor",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -677,11 +677,11 @@
           "sdk_binaries": {
             "sdk_binary": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
+              "sha256": "55bd29c06badb4326c663f737031e188bab06e685be9670c01ed0dd627616f31"
             },
             "sdk_linker_file": {
               "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-              "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
+              "sha256": "55bd29c06badb4326c663f737031e188bab06e685be9670c01ed0dd627616f31"
             }
           },
           "runtime_dlls": {},
@@ -696,7 +696,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:43:45.594488+00:00",
+        "measured_at_utc": "2026-10-11T02:54:26.694067+00:00",
         "executable_sha256": "39c7f7069e7734b25c1d0460627989f9e18bcac461a03666bca09e8355273ed4",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
@@ -769,7 +769,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:41:31.252951+00:00",
+        "measured_at_utc": "2026-10-11T02:46:57.977667+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -790,15 +790,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
           "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
         },
-        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -879,7 +879,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:41:48.053074+00:00",
+        "measured_at_utc": "2026-10-11T02:47:28.867780+00:00",
         "executable_sha256": "f2ead95bee2bd3d3c11523b31b7df6120b023c6c49fbd7c473581300a5998ec8",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"
@@ -952,7 +952,7 @@
           "native_api_same_sdk_target": true
         },
         "windows_disable_redirect": false,
-        "measured_at_utc": "2026-10-11T01:45:12.705924+00:00",
+        "measured_at_utc": "2026-10-11T02:48:52.789837+00:00",
         "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
         "source_hash_line_endings": "LF",
         "pressure_protocol": "mixed-size-retention-v1",
@@ -973,15 +973,15 @@
         "pressure_anchor_stride": 16,
         "pressure_seed": "0xC0FFEE",
         "schema": 2,
-        "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-        "run_id": "38101997387",
-        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+        "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+        "run_id": "38105585240",
+        "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
         "architecture": "x86_64",
         "compiler": {
           "CMAKE_CXX_COMPILER_ID": "GNU",
           "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
         },
-        "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
         "measurement_protocol": "native-api-scaling-tails-v2",
         "threads": [
           1,
@@ -1062,7 +1062,7 @@
         "affinity_pinned": false,
         "sequential_processes": true,
         "repetitions": 7,
-        "measured_at_utc": "2026-10-11T01:45:42.633600+00:00",
+        "measured_at_utc": "2026-10-11T02:49:32.639075+00:00",
         "executable_sha256": "76891914ee5614818dd57c3abb471a1f25e4288ca75b3465f7be00308b582a65",
         "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
         "source_hash_line_endings": "LF"

@@ -1,26 +1,26 @@
 # Performance · macOS
 
-Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
+Source: `81cfacde5cbb1447b088a95438084a132f0a4edd` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240)
 
 Statistics OFF. Each row compares Native/API allocation/free pairs from the same measured profile. Backends and ON/OFF profiles use independent builds/runners; hardware and SDK binaries may differ.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| standard | 16 | 16.46 | 18.90 | 1.149 |
-| standard | 64 | 19.56 | 20.78 | 1.062 |
-| standard | 256 | 19.54 | 20.69 | 1.059 |
-| standard | 4096 | 22.34 | 22.53 | 1.009 |
-| standard | 65536 | 27.36 | 25.41 | 0.929 |
-| mimalloc | 16 | 4.96 | 5.34 | 1.077 |
-| mimalloc | 64 | 5.19 | 5.73 | 1.104 |
-| mimalloc | 256 | 6.82 | 6.81 | 0.998 |
-| mimalloc | 4096 | 14.72 | 15.25 | 1.036 |
-| mimalloc | 65536 | 16.63 | 16.68 | 1.003 |
-| jemalloc | 16 | 15.17 | 16.69 | 1.100 |
-| jemalloc | 64 | 15.99 | 21.26 | 1.329 |
-| jemalloc | 256 | 16.12 | 15.62 | 0.969 |
-| jemalloc | 4096 | 22.29 | 20.83 | 0.935 |
-| jemalloc | 65536 | 248.32 | 262.33 | 1.056 |
+| standard | 16 | 16.64 | 16.99 | 1.021 |
+| standard | 64 | 18.27 | 20.01 | 1.095 |
+| standard | 256 | 18.82 | 19.06 | 1.013 |
+| standard | 4096 | 22.53 | 22.84 | 1.014 |
+| standard | 65536 | 24.59 | 25.01 | 1.017 |
+| mimalloc | 16 | 5.81 | 6.15 | 1.059 |
+| mimalloc | 64 | 5.88 | 6.09 | 1.036 |
+| mimalloc | 256 | 6.97 | 7.45 | 1.069 |
+| mimalloc | 4096 | 16.51 | 18.40 | 1.115 |
+| mimalloc | 65536 | 17.16 | 17.93 | 1.045 |
+| jemalloc | 16 | 20.88 | 17.61 | 0.843 |
+| jemalloc | 64 | 18.44 | 24.98 | 1.355 |
+| jemalloc | 256 | 19.65 | 17.40 | 0.886 |
+| jemalloc | 4096 | 23.13 | 24.19 | 1.046 |
+| jemalloc | 65536 | 282.19 | 291.29 | 1.032 |
 
 Tail latency includes clock overhead. Retention shows RSS above each trial's baseline; peak RSS includes process and allocator state. Thread counts above each profile's logical CPU count are oversubscribed.
 

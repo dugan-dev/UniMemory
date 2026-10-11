@@ -49,21 +49,21 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "bff18c5d18943b79ba849c2d5af079abbf9b4d15091b4321815c5a4cd1408559"
+        "sha256": "8c46ac5aade4afa6ac03942c77bd2a2fd1d690836cda76ee0094bf61a4d42476"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "bff18c5d18943b79ba849c2d5af079abbf9b4d15091b4321815c5a4cd1408559"
+        "sha256": "8c46ac5aade4afa6ac03942c77bd2a2fd1d690836cda76ee0094bf61a4d42476"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "b40bbc27eac9650377134e58c37e51bee00d48b523593bc8559a7526c3edb469",
+    "cmake_cache_sha256": "e90c95d5b2c4a58e9bd1614f90e7bbdcafc40f97ac8b69c13fb9e35cfb24258c",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "windows_disable_redirect": false,
-  "measured_at_utc": "2026-10-11T01:45:16.777413+00:00",
+  "measured_at_utc": "2026-10-11T02:59:22.054662+00:00",
   "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
   "source_hash_line_endings": "LF",
   "pressure_protocol": "mixed-size-retention-v1",
@@ -84,9 +84,9 @@
   "pressure_anchor_stride": 16,
   "pressure_seed": "0xC0FFEE",
   "schema": 2,
-  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
-  "run_id": "38101997387",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+  "source_revision": "81cfacde5cbb1447b088a95438084a132f0a4edd",
+  "run_id": "38105585240",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38105585240",
   "architecture": "arm64",
   "compiler": {
     "CMAKE_CXX_COMPILER_ID": "AppleClang",

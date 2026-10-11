@@ -5,7 +5,7 @@
 **Resident process memory above baseline, MiB.** Subtract each process baseline before taking the median of three fresh processes; counters off.
 
 <!-- performance-source -->
-2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)
+2026-10-11 · [81cfacd](https://github.com/dugan-dev/UniMemory/actions/runs/38105585240) · [CSV](../results/current/README.md)
 <!-- /performance-source -->
 
 Requested bytes are storage the application still needs. Resident memory also includes allocator caches and metadata. Freed storage can remain available for reuse.
@@ -29,12 +29,12 @@ Live requested storage, MiB; the same workload runs on all platforms:
 <!-- performance-table:pressure-windows-x64 -->
 | Backend | Path | Fill | Keep 1024 | Refill | Keep again | Free all |
 | --- | --- | --- | --- | --- | --- | --- |
-| Standard | Native | 27.89 | 26.27 | 28.90 | 26.41 | 1.47 |
-| Standard | UniMemory | 27.89 | 26.26 | 28.90 | 26.42 | 1.47 |
+| Standard | Native | 27.89 | 26.26 | 28.89 | 26.64 | 1.46 |
+| Standard | UniMemory | 27.89 | 26.26 | 28.89 | 26.40 | 1.46 |
 | mimalloc | Native | 31.73 | 31.79 | 46.46 | 46.46 | 46.46 |
 | mimalloc | UniMemory | 31.72 | 31.78 | 46.45 | 46.45 | 46.45 |
-| jemalloc | Native | 32.42 | 32.49 | 33.68 | 33.68 | 33.68 |
-| jemalloc | UniMemory | 32.40 | 32.46 | 33.73 | 33.73 | 33.73 |
+| jemalloc | Native | 32.23 | 32.29 | 33.48 | 33.48 | 33.48 |
+| jemalloc | UniMemory | 32.28 | 32.34 | 33.54 | 33.54 | 33.54 |
 <!-- /performance-table -->
 
 ### Linux
@@ -56,10 +56,10 @@ Live requested storage, MiB; the same workload runs on all platforms:
 | Backend | Path | Fill | Keep 1024 | Refill | Keep again | Free all |
 | --- | --- | --- | --- | --- | --- | --- |
 | Standard | Native | 28.61 | 28.61 | 34.44 | 34.44 | 18.44 |
-| Standard | UniMemory | 28.61 | 28.61 | 36.47 | 36.47 | 20.47 |
+| Standard | UniMemory | 28.61 | 28.61 | 34.44 | 34.44 | 18.44 |
 | mimalloc | Native | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
 | mimalloc | UniMemory | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
-| jemalloc | Native | 31.80 | 31.80 | 33.12 | 33.12 | 33.12 |
+| jemalloc | Native | 31.78 | 31.78 | 33.11 | 33.11 | 33.11 |
 | jemalloc | UniMemory | 31.78 | 31.78 | 33.09 | 33.09 | 33.09 |
 <!-- /performance-table -->
 
@@ -108,8 +108,8 @@ Extra usable capacity relative to requested bytes at initial fill. Standard has 
 | Windows | Standard | Global | 69.61 | 0.29 | — |
 | Windows | mimalloc | Global | 64.31 | 64.32 | — |
 | Windows | mimalloc | Heap | 64.29 | 64.29 | 0.30 |
-| Windows | jemalloc | Global | 72.05 | 72.05 | — |
-| Windows | jemalloc | Heap | 72.09 | 72.09 | 8.18 |
+| Windows | jemalloc | Global | 70.08 | 70.08 | — |
+| Windows | jemalloc | Heap | 70.09 | 70.09 | 6.12 |
 | Linux | Standard | Global | 64.38 | 0.25 | — |
 | Linux | mimalloc | Global | 66.14 | 66.14 | — |
 | Linux | mimalloc | Heap | 66.13 | 66.13 | 2.13 |

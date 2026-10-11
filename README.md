@@ -260,10 +260,10 @@ Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Median of 
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| Create and destroy an object, 64 B | 43.5 | 7.6 | 31.4 |
-| Grow and destroy a vector, 32 `uint64_t` values | 611.7 | 174.6 | 428.7 |
-| Allocate, resize and free, 4 → 8 KiB | 162.9 | 104.5 | 132.8 |
-| Allocate on one thread, free on eight | 92.2 | 51.0 | 106.2 |
+| Create and destroy an object, 64 B | 26.8 | 7.6 | 37.3 |
+| Grow and destroy a vector, 32 `uint64_t` values | 324.1 | 171.7 | 523.3 |
+| Allocate, resize and free, 4 → 8 KiB | 90.6 | 105.2 | 167.6 |
+| Allocate on one thread, free on eight | 57.2 | 49.2 | 115.7 |
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
