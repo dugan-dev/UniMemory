@@ -4,7 +4,7 @@
   "machine": "x86_64",
   "processor": "x86_64",
   "architecture": "x86_64",
-  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
   "compiler": {
     "CMAKE_CXX_COMPILER_ID": "GNU",
     "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
@@ -14,7 +14,7 @@
   "alignment": 16,
   "process_isolation": true,
   "logical_cpus": 4,
-  "executable_sha256": "6fca531afb4098ac9ae1b29a276d8b9c9b96b8c1e97fa090b20c3d6acb5a44c2",
+  "executable_sha256": "1cba65f882193d9858341caba95c30202924b5f8d21b86120e445267d42ec434",
   "allocator_environment": {
     "memory_bytes": 80,
     "owned_block_bytes": 32,
@@ -70,58 +70,58 @@
     "native_api_same_sdk_target": true
   },
   "windows_disable_redirect": false,
-  "measured_at_utc": "2026-10-11T08:33:03.065563+00:00",
-  "benchmark_source_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
-  "benchmark_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "measured_at_utc": "2026-10-11T20:35:11.844083+00:00",
+  "benchmark_source_sha256": "1d16791d0a9addcc1223b0e19fe4db5adbea89073fcb5d56278d86ee92454d1b",
+  "benchmark_sha256": "1d16791d0a9addcc1223b0e19fe4db5adbea89073fcb5d56278d86ee92454d1b",
   "source_hash_line_endings": "LF",
-  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
-  "run_id": "38122935359",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "source_revision": "8365472eea66997cde5163182aef82d3b94dcc48",
+  "run_id": "38167739252",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167739252",
   "measurement_protocol": "native-api-sustained-v4",
   "calibration": {
     "latency": {
-      "16": 18276109,
-      "64": 18414600,
-      "256": 18203735,
-      "4096": 15822048,
-      "65536": 1031168
+      "16": 23815278,
+      "64": 23693969,
+      "256": 23712972,
+      "4096": 20891050,
+      "65536": 1399166
     },
     "scaling": {
-      "scaling:64:1": 21191,
-      "scaling:64:2": 11459,
+      "scaling:64:1": 28120,
+      "scaling:64:2": 21771,
       "scaling:64:4": 32,
       "scaling:64:8": 32,
       "scaling:64:16": 32,
-      "scaling:4096:1": 2271,
-      "scaling:4096:2": 2089,
+      "scaling:4096:1": 3210,
+      "scaling:4096:2": 3000,
       "scaling:4096:4": 32,
       "scaling:4096:8": 32,
       "scaling:4096:16": 32,
-      "scaling:65536:1": 219,
-      "scaling:65536:2": 131,
+      "scaling:65536:1": 265,
+      "scaling:65536:2": 154,
       "scaling:65536:4": 32,
-      "scaling:65536:8": 22,
-      "scaling:65536:16": 11,
-      "handoff:64:1": 21132,
-      "handoff:64:2": 10099,
+      "scaling:65536:8": 28,
+      "scaling:65536:16": 13,
+      "handoff:64:1": 28347,
+      "handoff:64:2": 12759,
       "handoff:64:4": 32,
       "handoff:64:8": 32,
       "handoff:64:16": 32,
-      "handoff:4096:1": 2301,
-      "handoff:4096:2": 1923,
+      "handoff:4096:1": 3220,
+      "handoff:4096:2": 2798,
       "handoff:4096:4": 32,
       "handoff:4096:8": 32,
       "handoff:4096:16": 32,
-      "handoff:65536:1": 217,
-      "handoff:65536:2": 134,
+      "handoff:65536:1": 264,
+      "handoff:65536:2": 154,
       "handoff:65536:4": 32,
-      "handoff:65536:8": 22,
-      "handoff:65536:16": 11
+      "handoff:65536:8": 28,
+      "handoff:65536:16": 13
     },
     "heap": {
-      "owns": 3568264,
-      "collect": 1971153,
-      "reset": 434580
+      "owns": 3895034,
+      "collect": 2299271,
+      "reset": 562177
     }
   },
   "target_interval_seconds": 0.25,
@@ -190,55 +190,55 @@
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "a2ac4b9ad45e3d504f99cc788fc9747c764b6f6edd94edf07465f87da00145f1",
-        "sweep_executable_sha256": "5ca62bb76c251461f548cf152e2f5acf514c52786719c751c2403c0ff83bfeb6",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "dca8cbf78cb35384b1b9b46819819494f694c1b81604a18051a89c89af8a90bf",
+        "executable_sha256": "3f64eb69dbb9f03d8b01e1ca7ef7a2ab84c64d1a939548f409ae07bb7aeac392",
+        "sweep_executable_sha256": "fa94469b1c9f56f961858d6ca5e7db4ee20b1c7e3c97c67738241e51157fe37a",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "e9dad540071769224e0fc953d450364efe9f68dfe1255d0e9cbb341820dbb9a1",
         "heap_operation_counts": {},
         "delivery_calibration": {
           "latency": {
-            "16": 20393560,
-            "64": 20402612,
-            "256": 20422740,
-            "4096": 11696986,
-            "65536": 10705566
+            "16": 26572707,
+            "64": 26143159,
+            "256": 26139468,
+            "4096": 15808241,
+            "65536": 14397594
           },
           "scaling": {
-            "scaling:64:1": 25675,
-            "scaling:64:2": 11957,
+            "scaling:64:1": 32889,
+            "scaling:64:2": 19267,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 401,
-            "scaling:4096:2": 377,
+            "scaling:4096:1": 477,
+            "scaling:4096:2": 449,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 105,
-            "scaling:65536:2": 79,
+            "scaling:65536:1": 137,
+            "scaling:65536:2": 97,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 15,
+            "scaling:65536:8": 17,
             "scaling:65536:16": 8,
-            "handoff:64:1": 25689,
-            "handoff:64:2": 11017,
+            "handoff:64:1": 32998,
+            "handoff:64:2": 14313,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 402,
-            "handoff:4096:2": 378,
+            "handoff:4096:1": 471,
+            "handoff:4096:2": 448,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 102,
-            "handoff:65536:2": 79,
+            "handoff:65536:1": 137,
+            "handoff:65536:2": 98,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 14,
+            "handoff:65536:8": 16,
             "handoff:65536:16": 8
           },
           "heap": {}
         },
-        "calibration_sha256": "e29b0d409ce3d187acffea8f2b0def7496a36c7b9d9db0dfeb6a360d2fd6c314",
-        "full_calibration_sha256": "8e0e26cdce33560dca35e8f0ced9277c7d9d29350bec848f0d3705fa429674bb"
+        "calibration_sha256": "c9ed496bfbf2ce1063d8d3a8c4f11582a045b38ae32814b9438fe6c552cd40d7",
+        "full_calibration_sha256": "fa3dd44c280b6c737c6cc9a19a5f6e535899b9bc4947d49394888ee6bdddd1f9"
       },
       {
         "backend": "standard",
@@ -251,55 +251,55 @@
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "3818b11a3947cad4e8509754da234045b2bc69575ca2382958ba61d15aaca077",
-        "sweep_executable_sha256": "e0c4d0438b97ce7b1a77e34259d122161a8a209cf9982dc6fd0e007fe520a9d3",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "3331f01152a84ca223ab6ed0712e902067aefd30e0ad31ec93d67fc66147ef5a",
+        "executable_sha256": "cbc25db9e59f80009c413d6e985d2c6c04efbd182b9610ae795cbb1473806f9c",
+        "sweep_executable_sha256": "9aca50f240f9e28b4d699f36568400a3a18e85adad636e19e61c00ebdcc5d319",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "97183b7ea2c7dd4e2afb0113474f11817f385a82bb6478631b9d339d83679fed",
         "heap_operation_counts": {},
         "delivery_calibration": {
           "latency": {
-            "16": 20400268,
-            "64": 20446026,
-            "256": 20400335,
-            "4096": 11689818,
-            "65536": 10694042
+            "16": 27027255,
+            "64": 26151795,
+            "256": 26112597,
+            "4096": 15811861,
+            "65536": 14396560
           },
           "scaling": {
-            "scaling:64:1": 25766,
-            "scaling:64:2": 11613,
+            "scaling:64:1": 32852,
+            "scaling:64:2": 19197,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 414,
-            "scaling:4096:2": 381,
+            "scaling:4096:1": 473,
+            "scaling:4096:2": 448,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 120,
-            "scaling:65536:2": 85,
+            "scaling:65536:1": 137,
+            "scaling:65536:2": 98,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 15,
+            "scaling:65536:8": 16,
             "scaling:65536:16": 8,
-            "handoff:64:1": 25631,
-            "handoff:64:2": 10465,
+            "handoff:64:1": 32969,
+            "handoff:64:2": 14479,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 403,
-            "handoff:4096:2": 376,
+            "handoff:4096:1": 474,
+            "handoff:4096:2": 445,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 106,
-            "handoff:65536:2": 82,
+            "handoff:65536:1": 134,
+            "handoff:65536:2": 90,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 15,
-            "handoff:65536:16": 8
+            "handoff:65536:8": 16,
+            "handoff:65536:16": 9
           },
           "heap": {}
         },
-        "calibration_sha256": "943cb7cf4e305c93353caecb419809da1be0b05bdd08e83579a8779681763833",
-        "full_calibration_sha256": "18c0dac60aa64a46de0ec5e31e1a255f646fe2b52832418660b6dc7f76c8c42f"
+        "calibration_sha256": "b90e4c23831d0090754fb6e55ddd8a580ec75634c72f7ad1fa11de60d6fdc126",
+        "full_calibration_sha256": "3c1652f3cab6f2ec063623fbd195260da5045805c7e149b194c07cb59adc4d6a"
       },
       {
         "backend": "mimalloc",
@@ -309,69 +309,69 @@
         "msvc_runtime": "",
         "release_flags": "-O3 -DNDEBUG",
         "sdk_binaries": {
-          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
-          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+          "sdk_binary": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77",
+          "sdk_linker_file": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
         },
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "dd786dd63691f506c93cd15295f37d29bda9e7789306c9793edba6b9624ea202",
-        "sweep_executable_sha256": "b113032aeaf557a22399f1c3f3309f46ded7b5e2323af9f6d0d1d82c4c5c32ca",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "b2b143dea74b247608da338b3d53cbc6a428013cd9b43333e96c227d56cb9ebc",
+        "executable_sha256": "8a1f958fc2656f6e41622c14142f925ff624e48fa26fecbee62d3359fe2b85be",
+        "sweep_executable_sha256": "598abef5ad85832dc164bffa0d0ab4ee7029ccadd1197b54034c54c22928aaa4",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "43e5855f711cd7fc3222011c3238d7c1060420a43f0d6e614032d1c3cc8433da",
         "heap_operation_counts": {
-          "owns": 44335858,
-          "collect": 859846,
-          "reset": 85042
+          "owns": 51174197,
+          "collect": 1071063,
+          "reset": 110361
         },
         "delivery_calibration": {
           "latency": {
-            "16": 42264894,
-            "64": 40973735,
-            "256": 36974199,
-            "4096": 14718110,
-            "65536": 13772322
+            "16": 48707496,
+            "64": 49624274,
+            "256": 45860062,
+            "4096": 19271351,
+            "65536": 19807613
           },
           "scaling": {
-            "scaling:64:1": 56079,
-            "scaling:64:2": 18378,
+            "scaling:64:1": 72313,
+            "scaling:64:2": 39959,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 4795,
-            "scaling:4096:2": 3351,
+            "scaling:4096:1": 6696,
+            "scaling:4096:2": 4094,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 192,
-            "scaling:65536:2": 118,
+            "scaling:65536:1": 295,
+            "scaling:65536:2": 191,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 26,
-            "scaling:65536:16": 12,
-            "handoff:64:1": 56663,
-            "handoff:64:2": 15070,
+            "scaling:65536:8": 32,
+            "scaling:65536:16": 17,
+            "handoff:64:1": 72196,
+            "handoff:64:2": 21725,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 4923,
-            "handoff:4096:2": 3055,
+            "handoff:4096:1": 6587,
+            "handoff:4096:2": 3787,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 211,
-            "handoff:65536:2": 128,
+            "handoff:65536:1": 307,
+            "handoff:65536:2": 179,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 25,
-            "handoff:65536:16": 12
+            "handoff:65536:8": 32,
+            "handoff:65536:16": 16
           },
           "heap": {
-            "owns": 44335858,
-            "collect": 859846,
-            "reset": 85042
+            "owns": 51174197,
+            "collect": 1071063,
+            "reset": 110361
           }
         },
-        "calibration_sha256": "a327ce947667eaa129ad6a78e16778b0d9793062131cb70efa437e9b19355565",
-        "full_calibration_sha256": "a951622e9c93e0d03d7f95f5fce6b158bab5b5ed32dbd094c968d9872c70f16a"
+        "calibration_sha256": "5d8814daf490b78f87f77c50b16e74282334ae8c8d748441d5f1799df016ec32",
+        "full_calibration_sha256": "1308587380ec6469515205d7a0e5843577c89882ec813830e1ba609a0d037cd7"
       },
       {
         "backend": "mimalloc",
@@ -381,213 +381,213 @@
         "msvc_runtime": "",
         "release_flags": "-O3 -DNDEBUG",
         "sdk_binaries": {
-          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
-          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+          "sdk_binary": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77",
+          "sdk_linker_file": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
         },
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "c082784d383468ae255f0d44ff172111a7a3104e8a0df4fdf6b1c6fd20d43b80",
-        "sweep_executable_sha256": "cc14e220184c3ca8255ca13f8a8ac42f8407354bd008da893a1e19c8597d6f63",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "3257cde611c369b13e3bde7832a0649cc1e6527f295e486cd936709e9da8ee52",
+        "executable_sha256": "16d059ca10e3249036b92955ac98fa7cd9547562d96648bec8deee9bdbf430b4",
+        "sweep_executable_sha256": "010b025abfd01240fc0ac15aa9fdbcd0d18b34631863aabfa441b2bf0ece283d",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "ec1326f9b8d7c2e6fbc4bf6aef7524aabd1236ea0469cb90020c49c80de17e49",
         "heap_operation_counts": {
-          "owns": 46934221,
-          "collect": 860762,
-          "reset": 85315
+          "owns": 51227917,
+          "collect": 1068186,
+          "reset": 110416
         },
         "delivery_calibration": {
           "latency": {
-            "16": 42200236,
-            "64": 39690703,
-            "256": 37649438,
-            "4096": 14727668,
-            "65536": 13662053
+            "16": 50110655,
+            "64": 48588690,
+            "256": 45634705,
+            "4096": 19305124,
+            "65536": 19792762
           },
           "scaling": {
-            "scaling:64:1": 57642,
-            "scaling:64:2": 20136,
+            "scaling:64:1": 70931,
+            "scaling:64:2": 40008,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 5028,
-            "scaling:4096:2": 3340,
+            "scaling:4096:1": 6705,
+            "scaling:4096:2": 4044,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 203,
-            "scaling:65536:2": 134,
+            "scaling:65536:1": 293,
+            "scaling:65536:2": 178,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 27,
-            "scaling:65536:16": 13,
-            "handoff:64:1": 55549,
-            "handoff:64:2": 14963,
+            "scaling:65536:8": 32,
+            "scaling:65536:16": 16,
+            "handoff:64:1": 71303,
+            "handoff:64:2": 21412,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 4747,
+            "handoff:4096:1": 6706,
+            "handoff:4096:2": 3711,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 292,
+            "handoff:65536:2": 178,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 32,
+            "handoff:65536:16": 16
+          },
+          "heap": {
+            "owns": 51227917,
+            "collect": 1068186,
+            "reset": 110416
+          }
+        },
+        "calibration_sha256": "e694c4dd969dcfb0b5e4d44eddd7bfbc4e2734fc811505a5c1e56016cdc7935e",
+        "full_calibration_sha256": "8f725b27d5676f327097093d96e858bcc5e8e1e50c96ee93047c94ce82205000"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "803dd4a9ba5fd9016b31f24248723f1782fef178dd6bb2f26f0df097f4fe5911",
+        "sweep_executable_sha256": "ead2f28b80d9106c19b71fd5f461df96d1961608b35a2b8decfa16033c7247c3",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "2ec61d57dc3e257ac2089ba6acb4ef9254fc72f735a77175c0cdc628f5728295",
+        "heap_operation_counts": {
+          "owns": 3029554,
+          "collect": 2342798,
+          "reset": 571467
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 23801283,
+            "64": 23697488,
+            "256": 23710738,
+            "4096": 20881974,
+            "65536": 1410848
+          },
+          "scaling": {
+            "scaling:64:1": 28354,
+            "scaling:64:2": 21726,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 3192,
+            "scaling:4096:2": 3015,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 261,
+            "scaling:65536:2": 155,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 29,
+            "scaling:65536:16": 13,
+            "handoff:64:1": 28232,
+            "handoff:64:2": 12723,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 3201,
+            "handoff:4096:2": 2766,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 264,
+            "handoff:65536:2": 149,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 28,
+            "handoff:65536:16": 12
+          },
+          "heap": {
+            "owns": 3029554,
+            "collect": 2342798,
+            "reset": 571467
+          }
+        },
+        "calibration_sha256": "36534f731045d69733d6e92d3b5f7072448dd20d0c79259e29b742ff6f322b43",
+        "full_calibration_sha256": "ad8535abe1aecde36fe12fc137139f46902c6206d41571b91c14d7ce8fa5516c"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "1cba65f882193d9858341caba95c30202924b5f8d21b86120e445267d42ec434",
+        "sweep_executable_sha256": "97298ae1756cb91d5b0014e373aea7ea7a7d87de75f5433fc9e18d09d2425bff",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "12f530029c18cf4a8ed8e7aef2ac1f07b8ece2eee53f4c88216045426f7fc19f",
+        "heap_operation_counts": {
+          "owns": 3895034,
+          "collect": 2299271,
+          "reset": 562177
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 23815278,
+            "64": 23693969,
+            "256": 23712972,
+            "4096": 20891050,
+            "65536": 1399166
+          },
+          "scaling": {
+            "scaling:64:1": 28120,
+            "scaling:64:2": 21771,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 3210,
+            "scaling:4096:2": 3000,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 265,
+            "scaling:65536:2": 154,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 28,
+            "scaling:65536:16": 13,
+            "handoff:64:1": 28347,
+            "handoff:64:2": 12759,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 3220,
             "handoff:4096:2": 2798,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 211,
-            "handoff:65536:2": 151,
+            "handoff:65536:1": 264,
+            "handoff:65536:2": 154,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 27,
+            "handoff:65536:8": 28,
             "handoff:65536:16": 13
           },
           "heap": {
-            "owns": 46934221,
-            "collect": 860762,
-            "reset": 85315
+            "owns": 3895034,
+            "collect": 2299271,
+            "reset": 562177
           }
         },
-        "calibration_sha256": "1a26abfbadcba13877d8a9fa8aa412098782464dfa84ac9b45c4f59268ffddf6",
-        "full_calibration_sha256": "4f055c086745d14e491bd2c710b56e55257e23988ac1c149df838e3e8b86455b"
-      },
-      {
-        "backend": "jemalloc",
-        "statistics": "OFF",
-        "configuration": "Release",
-        "compiler": "GNU 13.3.0",
-        "msvc_runtime": "",
-        "release_flags": "-O3 -DNDEBUG",
-        "sdk_binaries": {
-          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
-          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
-        },
-        "flags": "",
-        "ipo": "",
-        "compile_options": "",
-        "executable_sha256": "17d0d2b367c1214a568c3aba4013e0354aa57244b454c618749ba02d7b797766",
-        "sweep_executable_sha256": "f305aa9c2e4aa38c9cf9b9582d2d7d17ce4683d51b45a8eae215832dff1659ab",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "be75033f28334a00c375dd188cfa5359991ce8fae9f42d05bbfb053832f06c8f",
-        "heap_operation_counts": {
-          "owns": 3314599,
-          "collect": 1955472,
-          "reset": 432820
-        },
-        "delivery_calibration": {
-          "latency": {
-            "16": 18306187,
-            "64": 18276168,
-            "256": 18400338,
-            "4096": 15809640,
-            "65536": 956729
-          },
-          "scaling": {
-            "scaling:64:1": 20923,
-            "scaling:64:2": 11248,
-            "scaling:64:4": 32,
-            "scaling:64:8": 32,
-            "scaling:64:16": 32,
-            "scaling:4096:1": 2305,
-            "scaling:4096:2": 2098,
-            "scaling:4096:4": 32,
-            "scaling:4096:8": 32,
-            "scaling:4096:16": 32,
-            "scaling:65536:1": 206,
-            "scaling:65536:2": 134,
-            "scaling:65536:4": 32,
-            "scaling:65536:8": 22,
-            "scaling:65536:16": 11,
-            "handoff:64:1": 20893,
-            "handoff:64:2": 9922,
-            "handoff:64:4": 32,
-            "handoff:64:8": 32,
-            "handoff:64:16": 32,
-            "handoff:4096:1": 2302,
-            "handoff:4096:2": 1933,
-            "handoff:4096:4": 32,
-            "handoff:4096:8": 32,
-            "handoff:4096:16": 32,
-            "handoff:65536:1": 199,
-            "handoff:65536:2": 124,
-            "handoff:65536:4": 32,
-            "handoff:65536:8": 22,
-            "handoff:65536:16": 11
-          },
-          "heap": {
-            "owns": 3314599,
-            "collect": 1955472,
-            "reset": 432820
-          }
-        },
-        "calibration_sha256": "faf6395858cea1801767b90ee02c5ca040d9a61858d27ce7e49531fea2fee64b",
-        "full_calibration_sha256": "6ef3645fdf5e91c234b2fa63d3657f918067d33b593ffba508ce5224bb9fabff"
-      },
-      {
-        "backend": "jemalloc",
-        "statistics": "ON",
-        "configuration": "Release",
-        "compiler": "GNU 13.3.0",
-        "msvc_runtime": "",
-        "release_flags": "-O3 -DNDEBUG",
-        "sdk_binaries": {
-          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
-          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
-        },
-        "flags": "",
-        "ipo": "",
-        "compile_options": "",
-        "executable_sha256": "6fca531afb4098ac9ae1b29a276d8b9c9b96b8c1e97fa090b20c3d6acb5a44c2",
-        "sweep_executable_sha256": "b93a8f3b8fdfde9330aab57a841636b45fcffbde707516e5e192ab83ab394254",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "e6c86965c671bc6d121aa39555882a55114df5782a8e92f0455cff61d7f30d11",
-        "heap_operation_counts": {
-          "owns": 3568264,
-          "collect": 1971153,
-          "reset": 434580
-        },
-        "delivery_calibration": {
-          "latency": {
-            "16": 18276109,
-            "64": 18414600,
-            "256": 18203735,
-            "4096": 15822048,
-            "65536": 1031168
-          },
-          "scaling": {
-            "scaling:64:1": 21191,
-            "scaling:64:2": 11459,
-            "scaling:64:4": 32,
-            "scaling:64:8": 32,
-            "scaling:64:16": 32,
-            "scaling:4096:1": 2271,
-            "scaling:4096:2": 2089,
-            "scaling:4096:4": 32,
-            "scaling:4096:8": 32,
-            "scaling:4096:16": 32,
-            "scaling:65536:1": 219,
-            "scaling:65536:2": 131,
-            "scaling:65536:4": 32,
-            "scaling:65536:8": 22,
-            "scaling:65536:16": 11,
-            "handoff:64:1": 21132,
-            "handoff:64:2": 10099,
-            "handoff:64:4": 32,
-            "handoff:64:8": 32,
-            "handoff:64:16": 32,
-            "handoff:4096:1": 2301,
-            "handoff:4096:2": 1923,
-            "handoff:4096:4": 32,
-            "handoff:4096:8": 32,
-            "handoff:4096:16": 32,
-            "handoff:65536:1": 217,
-            "handoff:65536:2": 134,
-            "handoff:65536:4": 32,
-            "handoff:65536:8": 22,
-            "handoff:65536:16": 11
-          },
-          "heap": {
-            "owns": 3568264,
-            "collect": 1971153,
-            "reset": 434580
-          }
-        },
-        "calibration_sha256": "0ce4772c5a551dbc9d2ba991eff63f605f7c8e638cb3a1fbdf1c564a69bbdf50",
-        "full_calibration_sha256": "9ded0bf70b01962ed9fc87490a6be36c83edf42758ec1ec1a68313b43ee9146f"
+        "calibration_sha256": "2ad602ded861430e12928d38359b3665b4e15476d7c335aa32f1b789125afda5",
+        "full_calibration_sha256": "501e7e24da983149fc731118aeadbb0e11cc8216c059703346d4a67f19a9568a"
       }
     ],
     "schedule": [
@@ -897,8 +897,8 @@
     "calibrated_on_all_profiles": true,
     "target_interval_seconds": 0.25,
     "short_intervals": "Retained and disclosed; calibration cannot remove hosted runner noise",
-    "host_id": "6c72442a-0167-4bf0-bf52-5f528e6226a8",
-    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "host_id": "797a747e-3da4-4559-9e9b-bf6750f376a2",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
     "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
     "architecture": "x86_64",
     "logical_cpus": 4,
@@ -914,403 +914,403 @@
   },
   "tail_trace_evidence": {
     "raw/1-jemalloc-native-16.csv.gz": {
-      "sha256": "b4c0269c33ae3f492cf2505995e7c45e4fd8370056175389a1d606a3692afe87",
+      "sha256": "e9ffe77806838635373383484223eb774405356017ae7feb3d67d0b813f27f11",
       "samples": 8192
     },
     "raw/1-jemalloc-native-64.csv.gz": {
-      "sha256": "815d9c09e94c3389233e79ed08472438dc4fd3d19793510ea1b0061847c30e1b",
+      "sha256": "cf072439e3aeef80b623064f5680d21622a598cf41221f36f1811d213129b76c",
       "samples": 8192
     },
     "raw/1-jemalloc-native-256.csv.gz": {
-      "sha256": "9df501b796770ea36c4c64d90d9abb55d1b4c9f4e95bba519f088cecae1e171e",
+      "sha256": "7dc4c16e5c57bfea1c38219caec0fe85cc7f1fedae75dde70e5bac0f757589d9",
       "samples": 8192
     },
     "raw/1-jemalloc-native-4096.csv.gz": {
-      "sha256": "52dfc2e025e908b509e2a3f976ddc8e56cbe19ab22a8efb53020530096e6f7d2",
+      "sha256": "d9f39bc7e669ac1138d9de15e13bcee8daa5efb561eeadcbd6fc84fd7d1bbd56",
       "samples": 8192
     },
     "raw/1-jemalloc-native-65536.csv.gz": {
-      "sha256": "5ba23674d7120e52d779b4a72a687f37c3f5d1dabb9cf6fb0b803c989926c784",
+      "sha256": "798352f1d9dfa7ab33796b148b0b3fe73d4d2e2d3df368e13df961169de3d9c7",
       "samples": 8192
     },
     "raw/1-jemalloc-basic-16.csv.gz": {
-      "sha256": "512fb66d0a67af69eec76f6c458334cc2e91077aba91cd64709b708a495c5345",
+      "sha256": "0153d07f0ac150dc246341bb7e533ab02ebe2ba390e9732291f2fcb3ad2981e4",
       "samples": 8192
     },
     "raw/1-jemalloc-basic-64.csv.gz": {
-      "sha256": "8f2a82b756076438eb88ba9b29751bfb8c497fcc1df934a8b66e771a7743ccd4",
+      "sha256": "e553f55af442c16e0264fdea8d9b91e7d335393b6b8f4ff7151c04084496d8e9",
       "samples": 8192
     },
     "raw/1-jemalloc-basic-256.csv.gz": {
-      "sha256": "bd9741d1a5d6675d275fcca809283d4e23f8b8d381074d51179d8a6e57c013a9",
+      "sha256": "005eabc32eeb7a71e7b05b5690eb0df2eae7d5927f4807de13e9692045d89fb5",
       "samples": 8192
     },
     "raw/1-jemalloc-basic-4096.csv.gz": {
-      "sha256": "60a9c4f96ec57db9231e5a8c7707b0b8f0617adae8a514b87ed25dbba42f8b08",
+      "sha256": "f01aced76384fb763677e52923730c9ad49c4fcde14a90665eb6058e2df94117",
       "samples": 8192
     },
     "raw/1-jemalloc-basic-65536.csv.gz": {
-      "sha256": "98a0bb2cefb8a91dcabcec0f6368d63d4cbb5a38e83e88c7288d8e7621f8e32c",
+      "sha256": "b864cdb0ebefc62fe12de146d4cb12cb0e0d50f91cfd92094a2ad3b7d8d00aba",
       "samples": 8192
     },
     "raw/2-jemalloc-native-16.csv.gz": {
-      "sha256": "1be95cd7061c43ceb1e070aabf8f46d45c401fe7733ec543b88781eeff44f786",
+      "sha256": "c3d7939052eca78d658f78a917ab59e0717ae718bce52566f4bc3359bceb37cf",
       "samples": 8192
     },
     "raw/2-jemalloc-native-64.csv.gz": {
-      "sha256": "27c0c22580cbf1a1da2932250e62c2af49469242f29e02e7d046bc4c7b88fa6d",
+      "sha256": "2a4104077c2ae100b940d85c7ecd8e47b9ec3fcfe3f598094c17252a0cd50081",
       "samples": 8192
     },
     "raw/2-jemalloc-native-256.csv.gz": {
-      "sha256": "67670259b007751cd891f4fb293a76c319ac082504554ba7545080412c46368c",
+      "sha256": "8b1aa565b26b3b1941524efbd93b0aa207790e957723bce8f7ddffdc1ce182f6",
       "samples": 8192
     },
     "raw/2-jemalloc-native-4096.csv.gz": {
-      "sha256": "6778a61b7856c5ab1e3fbea5b8844a85ef9523f42432a0322abf7aeb7dc78956",
+      "sha256": "57974b2a243373b6cc4dfaa2a8f2c0684017b09c903d6261a575c17b73788229",
       "samples": 8192
     },
     "raw/2-jemalloc-native-65536.csv.gz": {
-      "sha256": "c147802142fc52dbebcc9236fbe08b3edab194e7c94da7fca1e140c4a015c589",
+      "sha256": "4c9ad72c6c0bf6339d0f1d55411b8e482e371c161a61e8cf814d94093c776961",
       "samples": 8192
     },
     "raw/2-jemalloc-basic-16.csv.gz": {
-      "sha256": "6989b7220b2d9f029f541a54ed8f4c277773d24244062dad07500953abdf09a0",
+      "sha256": "c1449113528b19c227873ba93ca6ff9e2c9544ed2a30cdf9b3fc1ad8bf139fa5",
       "samples": 8192
     },
     "raw/2-jemalloc-basic-64.csv.gz": {
-      "sha256": "cca6618849e8492a95faa3e784144610bcade0ddbc2b9e7bca6e83d04205ebe7",
+      "sha256": "4312eb4fcb51c33aaf0cb46202210f512a79a83ecab96953f36a1c079219e590",
       "samples": 8192
     },
     "raw/2-jemalloc-basic-256.csv.gz": {
-      "sha256": "b051cc9d9f09d0f87118ddd618d11ecd1bd5a7971f87a13a382c93456ddcba6a",
+      "sha256": "ab4ad5f07944944606f43c31f20bb7fb09a681d3f37e22dd5bcc0a80e7222e62",
       "samples": 8192
     },
     "raw/2-jemalloc-basic-4096.csv.gz": {
-      "sha256": "0072d899b9793fb656a694d895ad6ada2ca3010e33907d47aba1e5c39773197d",
+      "sha256": "7226d42f9f4e335de7ddbb8142e63a8fd4b6bc3d81c2283400d000e438ec4def",
       "samples": 8192
     },
     "raw/2-jemalloc-basic-65536.csv.gz": {
-      "sha256": "3b31084b71722a46b72074a41c71140209370c0776a0c3a6beeff601c890e5e6",
+      "sha256": "569b1cc845fc1cc7247d118c0c0a6781618c6dcb5681faaba197b12264ff40d3",
       "samples": 8192
     },
     "raw/3-jemalloc-native-16.csv.gz": {
-      "sha256": "187c2fb75f23175e1b3437a0b7582e69f6cb752cca81c03b46910adb333c09e6",
+      "sha256": "2ba1a3b15dbb1bb856db8042aa23df18840eb2a1920f3606729f3713d4e93374",
       "samples": 8192
     },
     "raw/3-jemalloc-native-64.csv.gz": {
-      "sha256": "128f55584ac6ba85c742a4af696a5cc4927f66d8f2cb14377ded013e3081fb18",
+      "sha256": "4adc9612b2a361cafe5054a1f60b5a5cc269086f204fbac54a8dce63cd9af74e",
       "samples": 8192
     },
     "raw/3-jemalloc-native-256.csv.gz": {
-      "sha256": "fe91d1f9cafa82ac8c998d382b72e626e1f85fc7e1924c358c69a8e299942a39",
+      "sha256": "9ff2d2a88a39088724af12300a49bcbb6df3d9c5ab9089fd19ca646a9a1036b4",
       "samples": 8192
     },
     "raw/3-jemalloc-native-4096.csv.gz": {
-      "sha256": "38966c79d6e4299e2e7af798e7e8c603f70b7cc7ad8b12567aa2ed70c9cf33ce",
+      "sha256": "24c7d2213aab0bdf12f91628c37c96c831923b7535e8b5893b4a38959c71ec3a",
       "samples": 8192
     },
     "raw/3-jemalloc-native-65536.csv.gz": {
-      "sha256": "6eb62511610af5ab00548c67489be0c1e9346440b55a1a60be2f91cbc0f06f85",
+      "sha256": "410572c3b12436e0bcb8c9447aa7eca9acb2d2d6501a188ad42550b552841a80",
       "samples": 8192
     },
     "raw/3-jemalloc-basic-16.csv.gz": {
-      "sha256": "e60379fa643b0a8481b619627c705d9982636ca3884b87114516a39c603a5da9",
+      "sha256": "a020276eec5a8d15fc3b0bd6b6cd83e3d59453788b05a33da5212f7bfc14e520",
       "samples": 8192
     },
     "raw/3-jemalloc-basic-64.csv.gz": {
-      "sha256": "e48e1fbcab4836cd491145931f97a3f139d95a4788ce5b21cf76edc22d921039",
+      "sha256": "c15e1abc298b45184c2c0b1e1ba68dc9de08fc38277ebb4825e7136b7c1e81eb",
       "samples": 8192
     },
     "raw/3-jemalloc-basic-256.csv.gz": {
-      "sha256": "18353f077cd8931530b55dc32fbaf080caef222059cb7048e2c64934901a5f52",
+      "sha256": "c4582a2ded0075c5748c4d66ad4439dcdbed2467e36b51798ad6c2961f29dd17",
       "samples": 8192
     },
     "raw/3-jemalloc-basic-4096.csv.gz": {
-      "sha256": "452d98c6486289307dc1ccb3af73f462ff7d7904f8cf5b3f4485ccced594a7a5",
+      "sha256": "c439b091362f30e51265f26380670e3a90600a697af0aedd4d648f9a94661b35",
       "samples": 8192
     },
     "raw/3-jemalloc-basic-65536.csv.gz": {
-      "sha256": "8dd699aa1e3f68d854f9b7d5ab05d5ca003bee0d3dfbb862e27d9fb24e1e6c16",
+      "sha256": "cce7fbc2e1896f82ed1fdf7413c372e8a1619aff8718f74b4f4aac59af89d8fe",
       "samples": 8192
     },
     "raw/4-jemalloc-native-16.csv.gz": {
-      "sha256": "ace414b8766deb28c8bbf20777771a116b5ec8900a65490b73c54aade9be6025",
+      "sha256": "5299d5aa5c092ea9277b9fb4c933baa63ba3be49ebf187c2bdaa7aa28fd7953b",
       "samples": 8192
     },
     "raw/4-jemalloc-native-64.csv.gz": {
-      "sha256": "b6d96b3b15b27042a314cb859e8d1aea72c875e27c74fa5c082a51716eb3064c",
+      "sha256": "177b7a5ded247a959f450cfe023e91fb14ae582c8de6908d747319b546b02142",
       "samples": 8192
     },
     "raw/4-jemalloc-native-256.csv.gz": {
-      "sha256": "bae09d18fd0567322b920fc7964a86b64efd6bcb350db0b4afcc84a4c04eddf0",
+      "sha256": "e4228189c5b48dfcf4e5b93dfd25eb9f4186e476f176500eae9116e97981dafc",
       "samples": 8192
     },
     "raw/4-jemalloc-native-4096.csv.gz": {
-      "sha256": "8e5159a49b6178970364811a6e3226f275b275487475cc3b53206b31be8cc524",
+      "sha256": "414263d1e65e0bf9e7deee0d7ec5ee4e6af793fa069f49e40b0d203f7b78e49e",
       "samples": 8192
     },
     "raw/4-jemalloc-native-65536.csv.gz": {
-      "sha256": "107803acad65ffb2c70b9f7b86424334c881108cf7ce9e896a2a1549fbfee0ed",
+      "sha256": "d66871965aa8d6de0f3778a6581ed81c11b416e3c319c95010e55b5119ee7f30",
       "samples": 8192
     },
     "raw/4-jemalloc-basic-16.csv.gz": {
-      "sha256": "20ef6ea12a56f5d87e5915bcd05dfc89ee86e96fbac7034fe995b89bf578012d",
+      "sha256": "46ec24efeab61bf891da5591b3b555eb0f2b8f13aa2e72016a6539322c5e9861",
       "samples": 8192
     },
     "raw/4-jemalloc-basic-64.csv.gz": {
-      "sha256": "72ba9d2d927daddb8a5955acdf0a6659deb5e3bfb27b897a3b71c7ac473e1b50",
+      "sha256": "fa7f5e0dafa532ad5ca7eee11b06c8f1ccfbc0e06f28deca269e87093c37dc70",
       "samples": 8192
     },
     "raw/4-jemalloc-basic-256.csv.gz": {
-      "sha256": "3125dc193f4323bc42a439768ea1019ecd868a05b6a22896395ca2e211341bdc",
+      "sha256": "9fb81a2fa99f60caee72fcbf5dea5213a79a1b3cf86b1d297bdc11a02bb06c8b",
       "samples": 8192
     },
     "raw/4-jemalloc-basic-4096.csv.gz": {
-      "sha256": "1a2e8a6245a5560e91bdd413d68103af0dab4b5b3e559e071effba1d5a131041",
+      "sha256": "792d91c9f5a4a988121e8ec5f6313583dd5f5495cf6568f7a47a8dac9f8b128b",
       "samples": 8192
     },
     "raw/4-jemalloc-basic-65536.csv.gz": {
-      "sha256": "90d19169e03ca32e33f8bbb876a581e44e74c8b6dfc3e3e3c6a24d6ebd38ac3e",
+      "sha256": "8b4d33d1a81d479b1bc899c19efec51822f388d6fd574ed5f4b9bdc15ca2a1b2",
       "samples": 8192
     },
     "raw/5-jemalloc-native-16.csv.gz": {
-      "sha256": "82d4f0b323fa49e25e3db8447db192e0677b844d5976f06d293bb2e540f445db",
+      "sha256": "adde828c6674da54800b6b434f59c2fc500cedea53e3a3b29296972cf57a994c",
       "samples": 8192
     },
     "raw/5-jemalloc-native-64.csv.gz": {
-      "sha256": "6d5d2830d738139599c6ef12cd6ad4419c8a02536a1aaac740d1a32b87bb04c4",
+      "sha256": "38a9ffb9809e759bfa87dae0f6fa2c78a8b46fab0eaeac9032f073f865365113",
       "samples": 8192
     },
     "raw/5-jemalloc-native-256.csv.gz": {
-      "sha256": "7ceb6ce4aa8e81b5e9cd1e3e7beb4b0fb1285af954e4b948f80f4f532a42db66",
+      "sha256": "cd4d0a603ca572b10315c3c47b85b8ea24baa3cc05254c9bcd72ab166cb97e74",
       "samples": 8192
     },
     "raw/5-jemalloc-native-4096.csv.gz": {
-      "sha256": "de9917c7ff06941bfc1d9dc23daee2cda3688d3447ba6f68bec1188b22984c37",
+      "sha256": "5211f09986409f08766b5a761c727ec8d52ae914d97c8539a0c40572c46d9160",
       "samples": 8192
     },
     "raw/5-jemalloc-native-65536.csv.gz": {
-      "sha256": "7f8af2ff7f4500bd9462ef48d8f875954b99d7bae28921a1164d73715190ceae",
+      "sha256": "b76f39c7750bd62abf451ae2bc2669dc41e8d83377a85e602d1b91f14f319028",
       "samples": 8192
     },
     "raw/5-jemalloc-basic-16.csv.gz": {
-      "sha256": "c00e981a38610d5d020869b72e9ad0fc8544adf0a7eb472b047a237e34a1128d",
+      "sha256": "b1572a5a53d650c0cdb4d1a8a6eddcd7668eba87e5133131d8db20f335969262",
       "samples": 8192
     },
     "raw/5-jemalloc-basic-64.csv.gz": {
-      "sha256": "0af717b79f4e6f643bb271a5fff4e63d795f6ed91e9a4d805a08b26148afad96",
+      "sha256": "c487e803f9793b03eae34ca562912e26e9dbf87afc3afe9e8cc2f4831ca8a528",
       "samples": 8192
     },
     "raw/5-jemalloc-basic-256.csv.gz": {
-      "sha256": "c8c0903b85c3527be95358b80e923842b9b2f112b372ce4c75f9a07f46b8589f",
+      "sha256": "048aace5627c340aeb0b879284cea66e1b5de6076c8762827788075442b40d4a",
       "samples": 8192
     },
     "raw/5-jemalloc-basic-4096.csv.gz": {
-      "sha256": "c6c69ac45d0adbf3d9ae405c09585d850b286b2a96f7267a4e3fdd7c93535bb8",
+      "sha256": "64b480372879d877a5e2ace7aee8eca17161c279c4e0fa57c37dead38e049ab2",
       "samples": 8192
     },
     "raw/5-jemalloc-basic-65536.csv.gz": {
-      "sha256": "14f3c4062bcf6a4913884285918cbd23abdb0e92c678d303215c985ab36a7241",
+      "sha256": "5e94942cea3214dcd082f974f77ee7b794783a9495b8bcb0c4936bf000d327ba",
       "samples": 8192
     },
     "raw/6-jemalloc-native-16.csv.gz": {
-      "sha256": "a6b2c94b4d3aa8bb68327368291295c02332405fbc965c8f9a817b5af14220af",
+      "sha256": "3a30409c05492a8d7c69c6b8968560f360db49fce76850a3a26a1ca516142e49",
       "samples": 8192
     },
     "raw/6-jemalloc-native-64.csv.gz": {
-      "sha256": "3709238e3ba71ff7c63fa95e4f3c487644b293b6b498ba665a0f667ea87965b8",
+      "sha256": "c85dda78110a07c5fb5d4e854dac8ff72562f6052eeb2fede814e23f5f725ea8",
       "samples": 8192
     },
     "raw/6-jemalloc-native-256.csv.gz": {
-      "sha256": "a5ecfd8260172e00550107bb0cc28abdf826c0cefd33b4f1bc551b7247eb93d1",
+      "sha256": "58f2ea2de52a3958ec0811d505edbcab5d042f8df8d6e6cd717d050d73674c27",
       "samples": 8192
     },
     "raw/6-jemalloc-native-4096.csv.gz": {
-      "sha256": "f06b264bfb60628e1b45b077d217db40e2594d7dc6e50109af966672e3e45771",
+      "sha256": "2069521a11c8699ea4a098aa4425aca4a1b54befae9abc0cd378d5e0fbc7c9f7",
       "samples": 8192
     },
     "raw/6-jemalloc-native-65536.csv.gz": {
-      "sha256": "f32c3045731c898c5ad03d19ba57783cf3ce46c9f1b743872e26cf66d7d7aa67",
+      "sha256": "d97bed12b336da09f55b248c4df41d097b7e7eef383f2adcb2859688c93a4ae2",
       "samples": 8192
     },
     "raw/6-jemalloc-basic-16.csv.gz": {
-      "sha256": "fc4ffe4676c9b5e49eb4eea943bec67f2b5e0ae08a8d69352e66fb592ef34a6b",
+      "sha256": "41f0668dfe8e6563a745719ce969aa4d0b8daf53f5d531ba76539b1d41823bb4",
       "samples": 8192
     },
     "raw/6-jemalloc-basic-64.csv.gz": {
-      "sha256": "d5c9b5b9ca3e4b19d2db0693a5e0a24dff74a708dcdba83d66e6e6b9242a2791",
+      "sha256": "a1458e6b0ef7e73408e43de3ddc2426cd76d33305b2fcbc60e151fc14ff0b3fc",
       "samples": 8192
     },
     "raw/6-jemalloc-basic-256.csv.gz": {
-      "sha256": "2b56047ac2cfe2c21da30f64c137f3ea82da68ba009375dc045cbada2d19a9cd",
+      "sha256": "d696da0899f59d02fef08636215792a6352f747806c4d692d84cc7a77a617c89",
       "samples": 8192
     },
     "raw/6-jemalloc-basic-4096.csv.gz": {
-      "sha256": "73cf3db38c6ed295447e3b3516b72f0d39a33b13066238fe0d0b505d5fae2d40",
+      "sha256": "ff62af00068d4c8b1f1968bde7bdc21732019f2e91773f0b33ed36b0279f79df",
       "samples": 8192
     },
     "raw/6-jemalloc-basic-65536.csv.gz": {
-      "sha256": "baafaa6237b96c1e25b1d9e3e846097db51ebc2b9912c29315d9073d861a00e6",
+      "sha256": "0de84ff91f9ddec7ad3d01882043d09c85ec6052c53573598905c81a4bb2bdd5",
       "samples": 8192
     },
     "raw/7-jemalloc-native-16.csv.gz": {
-      "sha256": "5ec882a1e4c7ceb054b3fc31ed294b41ab974fac0413d698b31b2285335664db",
+      "sha256": "3b2526ddd8ea01b4702f4e24824612e498cf634f6fd49f776ebff0cceaac4768",
       "samples": 8192
     },
     "raw/7-jemalloc-native-64.csv.gz": {
-      "sha256": "cc1d224f3920299db45e84950b12352cb9423ac76f59b0d73d91dca4f4d77e41",
+      "sha256": "c91f29b97f73cacdf51f1a992d1d1ba1e9d3b34bb55a79682e5caf946eb8ec71",
       "samples": 8192
     },
     "raw/7-jemalloc-native-256.csv.gz": {
-      "sha256": "3064750e9f8c9db917f27f6b2e7968ab8ef2540d1080ac65cdc60ab74bf3fb12",
+      "sha256": "b57fd194c87336437e4cffcc09944c1f312392b9b26fc4d24ac47af922a47342",
       "samples": 8192
     },
     "raw/7-jemalloc-native-4096.csv.gz": {
-      "sha256": "8ec557cf350d7eeb1a63fabb2220bfd9df696770dbb460eb2cc29257f8ba883a",
+      "sha256": "6611086194378a22676936692a0fbde77fd9ff32cb729b94f1d695043d5d6824",
       "samples": 8192
     },
     "raw/7-jemalloc-native-65536.csv.gz": {
-      "sha256": "16c71a29ce35b0a04351b18b73435ab23dd179345092e30f44352fc9a27a6b37",
+      "sha256": "10ad2757a8c11fac1827e923e5c09517ca715adbadf3d35ea5edae487367be79",
       "samples": 8192
     },
     "raw/7-jemalloc-basic-16.csv.gz": {
-      "sha256": "737762ebe0b0dcb84a723f0c6a2f1ac483da44ea27214d39add8df4cbea9a6eb",
+      "sha256": "39bbd837da0e26d5de6cb54afef887c6ab698087053515dd6d7b2bf9ccceffed",
       "samples": 8192
     },
     "raw/7-jemalloc-basic-64.csv.gz": {
-      "sha256": "253c28ba274e84094befea9f7a37796d24ff2717fd9040dadc9751a962fc0523",
+      "sha256": "9674493f5b63b3c044342ac3d97f5598fbf3f0317590628c46f935193f42364b",
       "samples": 8192
     },
     "raw/7-jemalloc-basic-256.csv.gz": {
-      "sha256": "8ef5baa06b25703b099315cc76491ae507c0ff5eb201f8b0abc03195044beb30",
+      "sha256": "fb7ed8e25461262d3a06c1815666f697b9de28e374c55c2665dc816503b9aca7",
       "samples": 8192
     },
     "raw/7-jemalloc-basic-4096.csv.gz": {
-      "sha256": "5e94a641b519a86c0b5897330a33ec7e12fdd29f9e539a73f10836b565e30610",
+      "sha256": "8e9c3e99e8140629b17348c81508da4d9cefe19adb0cfb0fe8a30d1bde838499",
       "samples": 8192
     },
     "raw/7-jemalloc-basic-65536.csv.gz": {
-      "sha256": "bf2e1aa6c007e9a3a51e91ad20f7c8c02babd43a433a06fbc7a3331604568a90",
+      "sha256": "481da99a7fc6f87282ec408f1c452b10e8bb6590af5287980cb13f2fc3561523",
       "samples": 8192
     },
     "raw/8-jemalloc-native-16.csv.gz": {
-      "sha256": "e3665595e5c0ed97abd8298c2a97e70d0b1059c55f066ee7831a9db3d56a89d7",
+      "sha256": "c94835108818ded3f65d682a3e101bea48fcd925ade5b7b2ec1421df3b4b8a2a",
       "samples": 8192
     },
     "raw/8-jemalloc-native-64.csv.gz": {
-      "sha256": "38c4629ee505ef1cae9b6d6669947a4be9bea9b392a327c1309684bf2519c500",
+      "sha256": "4070f128f987b94dd94ead88dbd0835b9d66433a262820d007389c11b30e874f",
       "samples": 8192
     },
     "raw/8-jemalloc-native-256.csv.gz": {
-      "sha256": "bd57ebc1ad3cd825fb3bad03300a8b9d992c3fe66f34713502e2c7999062eae3",
+      "sha256": "f014801c91f997f6feed6dae422b0127b4ad4ebe290ceaeb614821e92d666aa1",
       "samples": 8192
     },
     "raw/8-jemalloc-native-4096.csv.gz": {
-      "sha256": "e7543ca602901cf68a088c13518f68fd7836ca92676b2ee005dc632583b881c3",
+      "sha256": "8a2e0c39e577a8ac5291ab8132f0ada1e8e581332278e9de63703799ce76e6da",
       "samples": 8192
     },
     "raw/8-jemalloc-native-65536.csv.gz": {
-      "sha256": "c267df20da968cb3a8098dbb61ccda5fb9d6e7be81f4bfd3472e9a2cd770b50d",
+      "sha256": "dedc83e8eb0f19e61b33c65182a8c2f6f52622561343f13770e6f992dd085eb0",
       "samples": 8192
     },
     "raw/8-jemalloc-basic-16.csv.gz": {
-      "sha256": "bc516c268e11349a2fc30b841dbdef26010c2a4abcb69c70621e13f254f7b1f2",
+      "sha256": "6f660983e118c060b4973d9f93fadcf5f52ff74c46e0d56dede086b4f76531a1",
       "samples": 8192
     },
     "raw/8-jemalloc-basic-64.csv.gz": {
-      "sha256": "386ff8b09e4469f3621261422c3ef69f7939d03b3afb2bb32e1758f8777953a8",
+      "sha256": "e7abfdf71802d81b561058c6f32003772aef54408b7582cbbfa0e5f5cfa13853",
       "samples": 8192
     },
     "raw/8-jemalloc-basic-256.csv.gz": {
-      "sha256": "69592c5841b8aba29c5d058cb4a4fb62ebd28bb24cc0a95256f9268f7be99362",
+      "sha256": "2e282c8531ac7e91e91bda969986b65ffc2d36a6594760d9189fc6f51de3040c",
       "samples": 8192
     },
     "raw/8-jemalloc-basic-4096.csv.gz": {
-      "sha256": "badd589e7bb486fa563df5c178a441e09a281adf5715624e26d241caf5c5cfc2",
+      "sha256": "8e4941bc7e701240c695592734de6612ff61c66cdfcbf42a8b4560d16f267d95",
       "samples": 8192
     },
     "raw/8-jemalloc-basic-65536.csv.gz": {
-      "sha256": "e3a271be37e1d8c9bbeebc3ef0a21ebffb1ba10723a6b8071296661f76918259",
+      "sha256": "2606a55b70c752910bd12aac9ec9f924b968561dbd3495a84f3b52f0314871d4",
       "samples": 8192
     },
     "raw/9-jemalloc-native-16.csv.gz": {
-      "sha256": "be1930cb17d67318fadf7a9ebf611f174637d6b4a830ce1a5ad9d754fcc2d632",
+      "sha256": "61e837bbb9cfd0bfc454b6e77c644c5ff071075ec47975d57dc5364dae8f7ec3",
       "samples": 8192
     },
     "raw/9-jemalloc-native-64.csv.gz": {
-      "sha256": "e9d49ad26e54d78a3c4411b666bb68cc9a3c4c9b86f3582456c23145ab039211",
+      "sha256": "cbd7775ddf61af95c276185ab3b1a448188649532e346700855d04dce3d16cec",
       "samples": 8192
     },
     "raw/9-jemalloc-native-256.csv.gz": {
-      "sha256": "dc2dc08f99a5042dac57bae817ed01061e98a9fe32683f519ead199dca44a726",
+      "sha256": "52e0731d200d4c67b2e79a0c7e39f0cb70e8c51f88ef4ef3a84af4bee6786617",
       "samples": 8192
     },
     "raw/9-jemalloc-native-4096.csv.gz": {
-      "sha256": "d8a2def5ada4ecef23ea0a6dff02eb7f9e79009120e1edecbb2f9d4d4d981081",
+      "sha256": "bfeb9694dacb8d8bd84eb704bc55c0c3a16af5b2430c4859dcd7d10ba1f6c1c4",
       "samples": 8192
     },
     "raw/9-jemalloc-native-65536.csv.gz": {
-      "sha256": "2d0c231a9b8aae1cfb93c862c52b130026b180bec161074a74fa346de092457e",
+      "sha256": "4c75389c572b17afac97556f5af7be2366decc3f2b534b4df6cf0a74f452efb0",
       "samples": 8192
     },
     "raw/9-jemalloc-basic-16.csv.gz": {
-      "sha256": "625c7b508159b43b514fb66fc523858d1fcb4632438dc7177a0efe1a2bd84eb5",
+      "sha256": "4977082245d4dd4916ce279712f0b928fce237f6bf1b6f5528bc0439057fe523",
       "samples": 8192
     },
     "raw/9-jemalloc-basic-64.csv.gz": {
-      "sha256": "f4af6677b8cdee8cd25d762a5799ce9cdfa8d0255d1fd5f8d8a04fe589423c6a",
+      "sha256": "1e86db3e35b148838a1d1a0e1d6ecf25229ec951692cdf48996672c58cc5cfb3",
       "samples": 8192
     },
     "raw/9-jemalloc-basic-256.csv.gz": {
-      "sha256": "04017bedba8f27bbf0d90d975e7daeff63af8d66b91068e301096bae84b7c568",
+      "sha256": "5731dd16a002d6853b50c34fc74232f18b866fbe28a1f12741a76bc008d7a0a6",
       "samples": 8192
     },
     "raw/9-jemalloc-basic-4096.csv.gz": {
-      "sha256": "5b584e34c977e1aeabdbdba418e81c1bedb2f43b21a116557e596ec8264685f1",
+      "sha256": "283e064a210214694268e66010dbb7d863205c56f47a422e14b53598e1ed59b4",
       "samples": 8192
     },
     "raw/9-jemalloc-basic-65536.csv.gz": {
-      "sha256": "4ddfb476b9052975e7cd6969ccd19f23c7d559d39a9760f7cd2a6f29ad54f748",
+      "sha256": "c7122d7253a2c52e12503b77d32a178723cc10eb92e1510373ab201de2b33b38",
       "samples": 8192
     },
     "raw/10-jemalloc-native-16.csv.gz": {
-      "sha256": "338d1e70f2225f6bc63220a20332e9e14b24897d3342f11aaa6003da2f9543d8",
+      "sha256": "d86b00a8c14c69fa7d81a68704be8ea3e0a7734835008bbaebac382bb6888390",
       "samples": 8192
     },
     "raw/10-jemalloc-native-64.csv.gz": {
-      "sha256": "a1fdfa7d06d58f8b74b143e548313b6ad2c78beb691fbb80fb1e51aecc50174f",
+      "sha256": "16fd819f2a72940232d1d969f9857474d57a883d9bde63845b971b0fc75cd99b",
       "samples": 8192
     },
     "raw/10-jemalloc-native-256.csv.gz": {
-      "sha256": "38a8dc1356a345ddcf88205a1a8a024d186a9d47f1f01c1fadbba0705e4f7f2b",
+      "sha256": "ef8c6f7bc42fd3ed86c4cc810532ee28fd76c52ed80d5458230b5a8f4167a109",
       "samples": 8192
     },
     "raw/10-jemalloc-native-4096.csv.gz": {
-      "sha256": "1aebcea6c656cc9a70f94a7bcf0ba876321ae0b51a7ed9d2b0823e0c6a6f3c65",
+      "sha256": "f708770857da4c96299b627a5e1e5df24c35505ee1e53d50ba569186b17e97c1",
       "samples": 8192
     },
     "raw/10-jemalloc-native-65536.csv.gz": {
-      "sha256": "f47b391493a2923fc08f22fe098728d267b57b7e50a0f875a795c224a92ed406",
+      "sha256": "8baa1d1a367271fd33f1d331b712f13670e06fbaff05a45188d3098455c5ebcd",
       "samples": 8192
     },
     "raw/10-jemalloc-basic-16.csv.gz": {
-      "sha256": "0d244dc466925c9e7a885f220c2d91b616338bd4b1b2d860bc9c4ed78d4ad8b8",
+      "sha256": "8039db75d078055e48f59a53267f49ddbab7aa24a775c3617a2daca7b6e1d2c1",
       "samples": 8192
     },
     "raw/10-jemalloc-basic-64.csv.gz": {
-      "sha256": "9d5c0b2a66a62e0d2470b9132419b948eed9af378487238b3056a94183eff3bb",
+      "sha256": "58256ac4aa4b89ce0cf983e4b38a0647a2baa7a3fb5d369622d30728d52a841d",
       "samples": 8192
     },
     "raw/10-jemalloc-basic-256.csv.gz": {
-      "sha256": "5b87ce5850069d451d0c32456a2c657e75fea170e6067a9191b0cb4de049564b",
+      "sha256": "4847ae15a4b7ad5a77b6061d18eb5162eb45d668240893002128e8c4795072c3",
       "samples": 8192
     },
     "raw/10-jemalloc-basic-4096.csv.gz": {
-      "sha256": "d894ce7d16004ab5c4a3c70c1ffcf3f167b4959ce8b9eb1e33ba78dcac953946",
+      "sha256": "03a9137e776b4fa117f20c2ca08ec91fc4cffc428e818f02a387bef11084a8db",
       "samples": 8192
     },
     "raw/10-jemalloc-basic-65536.csv.gz": {
-      "sha256": "76bce93468b40f13755e89d4d0fa76f6a3edbe04680f16ac7024d426bb36ab96",
+      "sha256": "587680815d19c2cda525c059e075c3879ecc5c7b4e087413bc73fa064be32c96",
       "samples": 8192
     }
   }
