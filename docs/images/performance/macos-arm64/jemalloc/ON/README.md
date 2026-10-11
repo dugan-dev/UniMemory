@@ -1,16 +1,16 @@
 # Performance · macos-arm64/jemalloc/ON
 
-Source: `e355001f2ad885add2447bd085e199206c7a4096` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38097248244)
+Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
 
 Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| jemalloc | 16 | 26.64 | 17.85 | 0.670 |
-| jemalloc | 64 | 16.14 | 18.92 | 1.172 |
-| jemalloc | 256 | 18.11 | 18.03 | 0.996 |
-| jemalloc | 4096 | 22.70 | 24.56 | 1.082 |
-| jemalloc | 65536 | 319.61 | 260.17 | 0.814 |
+| jemalloc | 16 | 18.81 | 18.06 | 0.960 |
+| jemalloc | 64 | 17.72 | 18.68 | 1.054 |
+| jemalloc | 256 | 16.00 | 23.26 | 1.453 |
+| jemalloc | 4096 | 24.39 | 27.24 | 1.117 |
+| jemalloc | 65536 | 258.82 | 297.27 | 1.149 |
 
 Profile: `jemalloc` / statistics `ON` / checks `AUTO`. ON includes bookkeeping feature cost and is not mixed into OFF performance goals. Native and API share one executable, target flags and SDK binaries. Hosted jobs are not controlled cross-host causal comparisons.
 
@@ -20,4 +20,4 @@ Profile: `jemalloc` / statistics `ON` / checks `AUTO`. ON includes bookkeeping f
 Tail latency includes measured clock overhead. Peak RSS includes stacks and process state. Threads above the recorded CPU capacity are oversubscribed. Timing regressions on hosted runners are signals requiring repeated measurement, not automatic correctness failures.
 
 
-First recorded baseline; no regression comparison is available yet.
+Baseline comparison withheld: recorded hardware, compiler or measurement protocol differs.

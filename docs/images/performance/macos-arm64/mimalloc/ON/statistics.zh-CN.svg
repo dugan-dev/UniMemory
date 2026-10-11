@@ -26,21 +26,21 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">256</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">4096</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">65536</text>
-<rect data-path="native" x="133.04" y="337.0" width="31.919999999999998" height="105.0" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="285.04" y="232.0" width="31.919999999999998" height="210.0" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="133.04" y="232.0" width="31.919999999999998" height="210.0" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="285.04" y="337.0" width="31.919999999999998" height="105.0" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="437.04" y="337.0" width="31.919999999999998" height="105.0" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="589.04" y="232.0" width="31.919999999999998" height="210.0" fill="#0284c7" opacity="0.45"/>
-<rect data-path="native" x="741.04" y="337.0" width="31.919999999999998" height="105.0" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="589.04" y="337.0" width="31.919999999999998" height="105.0" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="741.04" y="232.0" width="31.919999999999998" height="210.0" fill="#0284c7" opacity="0.45"/>
 <rect data-path="native" x="880" y="110" width="28" height="8" fill="#0284c7" opacity="0.45"/>
 <text x="880" y="133" font-size="12">mimalloc / 原生接口</text>
-<rect data-path="basic" x="171.04" y="337.0" width="31.919999999999998" height="105.0" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="171.04" y="234.5" width="31.919999999999998" height="207.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="323.04" y="234.5" width="31.919999999999998" height="207.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="475.04" y="234.5" width="31.919999999999998" height="207.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="627.04" y="234.5" width="31.919999999999998" height="207.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="627.04" y="232.0" width="31.919999999999998" height="210.0" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="779.04" y="129.5" width="31.919999999999998" height="312.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="144" width="28" height="8" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <text x="880" y="167" font-size="12">mimalloc / 封装＋统计</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">分配大小（字节）</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/ON · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/ON · e758dc2a8476 · 当前 API 统计模式 · 仅在同一负载内比较</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

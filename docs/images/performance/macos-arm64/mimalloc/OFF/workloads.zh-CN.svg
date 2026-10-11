@@ -12,30 +12,30 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">14</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">16</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">29</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">31</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">43</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">47</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">57</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">62</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">72</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">78</text>
 <text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">分配与释放</text>
 <text x="282.0" y="465" text-anchor="middle" font-size="14">清零分配</text>
 <text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">扩容</text>
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">创建对象</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">共享对象</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">vector 容器</text>
-<rect data-path="disabled" x="137.60000000000002" y="410.9783297660563" width="35.46666666666666" height="31.021670233943723" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="264.26666666666665" y="396.06158073763913" width="35.46666666666666" height="45.93841926236087" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="390.93333333333334" y="366.9478548791153" width="35.46666666666666" height="75.05214512088469" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="517.5999999999999" y="420.0464851538398" width="35.46666666666666" height="21.953514846160203" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="644.2666666666667" y="392.4933131092366" width="35.46666666666666" height="49.506686890763376" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="137.60000000000002" y="413.43681075392794" width="35.46666666666666" height="28.563189246072056" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="264.26666666666665" y="400.00140922114383" width="35.46666666666666" height="41.99859077885617" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="390.93333333333334" y="368.7423342826378" width="35.46666666666666" height="73.25766571736222" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="517.5999999999999" y="420.4975621660243" width="35.46666666666666" height="21.502437833975705" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="644.2666666666667" y="395.91144225751407" width="35.46666666666666" height="46.08855774248593" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#0284c7" opacity="0.9"/>
 <text x="880" y="133" font-size="12">mimalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">操作</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/OFF · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/OFF · e758dc2a8476 · 当前 API 统计模式 · 仅在同一负载内比较</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

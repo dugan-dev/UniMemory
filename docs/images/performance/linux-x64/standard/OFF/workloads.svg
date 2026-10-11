@@ -12,30 +12,30 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">25</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">13</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">50</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">26</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">74</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">38</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">99</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">51</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">1.2e+02</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">64</text>
 <text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">raw</text>
 <text x="282.0" y="465" text-anchor="middle" font-size="14">zeroed</text>
 <text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">reallocate</text>
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
-<rect data-path="disabled" x="137.60000000000002" y="396.9001093330683" width="35.46666666666666" height="45.099890666931685" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="264.26666666666665" y="389.25724218629995" width="35.46666666666666" height="52.74275781370005" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="390.93333333333334" y="344.916075575354" width="35.46666666666666" height="97.083924424646" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="517.5999999999999" y="405.3019829042839" width="35.46666666666666" height="36.698017095716125" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="644.2666666666667" y="399.95844213931383" width="35.46666666666666" height="42.04155786068617" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="137.60000000000002" y="393.9798731370169" width="35.46666666666666" height="48.02012686298309" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="264.26666666666665" y="387.84686156649724" width="35.46666666666666" height="54.15313843350276" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="390.93333333333334" y="345.1787668022623" width="35.46666666666666" height="96.82123319773768" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="517.5999999999999" y="408.09188253544085" width="35.46666666666666" height="33.908117464559155" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="644.2666666666667" y="400.3203989870549" width="35.46666666666666" height="41.67960101294511" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="770.9333333333333" y="129.5" width="35.46666666666666" height="312.5" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
 <text x="880" y="133" font-size="12">Standard / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Workload</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64/standard/OFF · e355001f2ad8 · selected API statistics mode · compare within each workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/standard/OFF · e758dc2a8476 · selected API statistics mode · compare within each workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

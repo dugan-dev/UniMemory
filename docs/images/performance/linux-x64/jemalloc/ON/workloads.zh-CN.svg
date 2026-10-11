@@ -12,30 +12,30 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">57</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">27</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">1.1e+02</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">55</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">1.7e+02</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">82</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">2.3e+02</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">1.1e+02</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">2.8e+02</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">1.4e+02</text>
 <text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">分配与释放</text>
 <text x="282.0" y="465" text-anchor="middle" font-size="14">清零分配</text>
 <text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">扩容</text>
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">创建对象</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">共享对象</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">vector 容器</text>
-<rect data-path="basic" x="137.60000000000002" y="394.19946618655666" width="35.46666666666666" height="47.80053381344334" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="264.26666666666665" y="393.35410545329773" width="35.46666666666666" height="48.645894546702266" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="390.93333333333334" y="349.5238953985952" width="35.46666666666666" height="92.47610460140481" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="517.5999999999999" y="398.71060389741" width="35.46666666666666" height="43.28939610258999" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="644.2666666666667" y="393.8819783240585" width="35.46666666666666" height="48.11802167594152" fill="url(#jemalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="770.9333333333333" y="129.50000000000006" width="35.46666666666666" height="312.49999999999994" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="137.60000000000002" y="397.8117177747848" width="35.46666666666666" height="44.188282225215175" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="264.26666666666665" y="394.4012876946324" width="35.46666666666666" height="47.5987123053676" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="390.93333333333334" y="329.4049935122528" width="35.46666666666666" height="112.59500648774718" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="517.5999999999999" y="408.5606419584784" width="35.46666666666666" height="33.43935804152159" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="644.2666666666667" y="388.34597143748766" width="35.46666666666666" height="53.65402856251234" fill="url(#jemalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="url(#jemalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="110" width="28" height="8" fill="url(#jemalloc-basic)" opacity="0.9"/>
 <text x="880" y="133" font-size="12">jemalloc / 封装＋统计</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">操作</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64/jemalloc/ON · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/jemalloc/ON · e758dc2a8476 · 当前 API 统计模式 · 仅在同一负载内比较</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

@@ -24,20 +24,20 @@
 <circle cx="168.0" cy="257.3409090909091" r="3.5" fill="#64748b"/>
 <circle cx="320.0" cy="245.5037878787879" r="3.5" fill="#64748b"/>
 <circle cx="472.0" cy="228.9318181818182" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="195.7878787878788" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="198.15530303030303" r="3.5" fill="#64748b"/>
 <circle cx="776.0" cy="131.86742424242425" r="3.5" fill="#64748b"/>
-<polyline points="168.0,257.3409090909091 320.0,245.5037878787879 472.0,228.9318181818182 624.0,195.7878787878788 776.0,131.86742424242425" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<polyline points="168.0,257.3409090909091 320.0,245.5037878787879 472.0,228.9318181818182 624.0,198.15530303030303 776.0,131.86742424242425" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">Standard / Native</text>
 <circle cx="168.0" cy="254.97348484848484" r="3.5" fill="#64748b"/>
 <circle cx="320.0" cy="243.13636363636365" r="3.5" fill="#64748b"/>
 <circle cx="472.0" cy="226.56439393939397" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="195.7878787878788" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="198.15530303030303" r="3.5" fill="#64748b"/>
 <circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#64748b"/>
-<polyline points="168.0,254.97348484848484 320.0,243.13636363636365 472.0,226.56439393939397 624.0,195.7878787878788 776.0,129.50000000000003" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<polyline points="168.0,254.97348484848484 320.0,243.13636363636365 472.0,226.56439393939397 624.0,198.15530303030303 776.0,129.50000000000003" fill="none" stroke="#64748b" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
 <text x="880" y="167" font-size="12">Standard / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Threads</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/standard/OFF · 3 logical CPUs · e355001f2ad8 · 64 B cross-thread workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/standard/OFF · 3 logical CPUs · e758dc2a8476 · 64 B cross-thread workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

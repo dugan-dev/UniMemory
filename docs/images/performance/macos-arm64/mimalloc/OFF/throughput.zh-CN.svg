@@ -7,37 +7,37 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">13</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">17</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">27</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">33</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">40</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">50</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">54</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">66</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">67</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">83</text>
 <text x="168.0" y="465" text-anchor="middle" font-size="14">1</text>
 <text x="320.0" y="465" text-anchor="middle" font-size="14">2</text>
 <text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
-<circle cx="168.0" cy="240.09959857425798" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="145.14385833556074" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="143.75451520952004" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="169.38213721854135" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="178.62972542678466" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,240.09959857425798 320.0,145.14385833556074 472.0,143.75451520952004 624.0,169.38213721854135 776.0,178.62972542678466" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="161.80528662489172" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="246.62179769274596" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="174.3716174807032" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="283.11473635045644" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="412.29040799466514" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,161.80528662489172 320.0,246.62179769274596 472.0,174.3716174807032 624.0,283.11473635045644 776.0,412.29040799466514" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">mimalloc / 原生接口</text>
-<circle cx="168.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="273.543961763285" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="337.59330243229465" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="139.44174097248626" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="141.0598743593873" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,129.50000000000003 320.0,273.543961763285 472.0,337.59330243229465 624.0,139.44174097248626 776.0,141.0598743593873" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<circle cx="168.0" cy="129.50000000000006" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="370.50787465881206" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="183.58554874904502" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="367.6494551791726" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="384.6784807922311" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,129.50000000000006 320.0,370.50787465881206 472.0,183.58554874904502 624.0,367.6494551791726 776.0,384.6784807922311" fill="none" stroke="#0284c7" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">线程数</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/OFF · 3 个逻辑 CPU · e355001f2ad8 · 64 字节跨线程负载</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/OFF · 3 个逻辑 CPU · e758dc2a8476 · 64 字节跨线程负载</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

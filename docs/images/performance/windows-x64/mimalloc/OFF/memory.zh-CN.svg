@@ -21,23 +21,23 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
-<circle cx="168.0" cy="182.92667649226235" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="180.16322770817982" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="174.40604274134125" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="161.04937361827564" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,182.92667649226235 320.0,180.16322770817982 472.0,174.40604274134125 624.0,161.04937361827564 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="183.1965339233039" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="180.89196165191743" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="174.6696165191741" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="161.3030973451328" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.96091445427732" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,183.1965339233039 320.0,180.89196165191743 472.0,174.6696165191741 624.0,161.3030973451328 776.0,129.96091445427732" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">mimalloc / 原生接口</text>
-<circle cx="168.0" cy="182.92667649226235" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="180.16322770817982" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="174.40604274134125" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="160.35851142225502" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,182.92667649226235 320.0,180.16322770817982 472.0,174.40604274134125 624.0,160.35851142225502 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<circle cx="168.0" cy="183.65744837758115" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="180.43104719764017" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="175.13053097345136" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="160.61172566371684" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.50000000000006" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,183.65744837758115 320.0,180.43104719764017 472.0,175.13053097345136 624.0,160.61172566371684 776.0,129.50000000000006" fill="none" stroke="#0284c7" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">线程数</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/OFF · 4 个逻辑 CPU · e355001f2ad8 · 64 字节跨线程负载</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/OFF · 4 个逻辑 CPU · e758dc2a8476 · 64 字节跨线程负载</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

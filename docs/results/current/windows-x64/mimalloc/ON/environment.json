@@ -7,7 +7,7 @@
   "alignment": 16,
   "process_isolation": true,
   "logical_cpus": 4,
-  "executable_sha256": "1f2977cccdbbc2056ca9956b291bc50109fa72cc1bc05d5c7fd8d40f5dc1eafe",
+  "executable_sha256": "4369c9f0c24f2629afbbb7584f224f85e6335eac67a7ff32397fc761ad177385",
   "allocator_environment": {
     "memory_bytes": 80,
     "owned_block_bytes": 32,
@@ -49,7 +49,7 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-        "sha256": "3eec97e0bda7cca27707b6b69f2373693913e1373f78a478119b59ae76e885ac"
+        "sha256": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
       },
       "sdk_linker_file": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -57,17 +57,17 @@
       }
     },
     "runtime_dlls": {
-      "mimalloc.dll": "3eec97e0bda7cca27707b6b69f2373693913e1373f78a478119b59ae76e885ac"
+      "mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
     },
     "sdk_runtime_files": {
-      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "3eec97e0bda7cca27707b6b69f2373693913e1373f78a478119b59ae76e885ac"
+      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "a89204cb89df369f44c2365f858a1670b23a17a6d8ae13fffcac13ee8c38c5c3"
     },
     "cmake_cache_sha256": "f8008227fae7d9b66c07213bd4e14d5c2b6ea1f87013a1825a9599e644ff75cb",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "windows_disable_redirect": true,
-  "measured_at_utc": "2026-10-11T00:27:10.686831+00:00",
+  "measured_at_utc": "2026-10-11T01:41:17.475578+00:00",
   "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
   "source_hash_line_endings": "LF",
   "pressure_protocol": "mixed-size-retention-v1",
@@ -88,9 +88,9 @@
   "pressure_anchor_stride": 16,
   "pressure_seed": "0xC0FFEE",
   "schema": 2,
-  "source_revision": "e355001f2ad885add2447bd085e199206c7a4096",
-  "run_id": "38097248244",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38097248244",
+  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
+  "run_id": "38101997387",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
   "architecture": "AMD64",
   "compiler": {
     "CMAKE_CXX_COMPILER_ID": "MSVC",

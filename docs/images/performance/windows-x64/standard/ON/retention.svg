@@ -21,23 +21,23 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">churn_dense</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">churn_sparse</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">freed</text>
-<circle cx="168.0" cy="139.14000714626013" r="3.5" fill="#64748b"/>
-<circle cx="320.0" cy="154.62357074797524" r="3.5" fill="#64748b"/>
-<circle cx="472.0" cy="129.53722010481184" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="153.2836469747499" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="390.8967960933778" r="3.5" fill="#64748b"/>
-<polyline points="168.0,139.14000714626013 320.0,154.62357074797524 472.0,129.53722010481184 624.0,153.2836469747499 776.0,390.8967960933778" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="139.21676197283773" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="154.70401477245653" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="129.57445794615202" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="153.28931379556832" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="390.92184893971887" r="3.5" fill="#64748b"/>
+<polyline points="168.0,139.21676197283773 320.0,154.70401477245653 472.0,129.57445794615202 624.0,153.28931379556832 776.0,390.92184893971887" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">Standard / Native</text>
-<circle cx="168.0" cy="139.14000714626013" r="3.5" fill="#64748b"/>
-<circle cx="320.0" cy="154.69801095759885" r="3.5" fill="#64748b"/>
+<circle cx="168.0" cy="139.17953299976176" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="154.70401477245653" r="3.5" fill="#64748b"/>
 <circle cx="472.0" cy="129.50000000000003" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="153.46974749880897" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="390.9340161981896" r="3.5" fill="#64748b"/>
-<polyline points="168.0,139.14000714626013 320.0,154.69801095759885 472.0,129.50000000000003 624.0,153.46974749880897 776.0,390.9340161981896" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<circle cx="624.0" cy="153.3637717417203" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="391.1452227781749" r="3.5" fill="#64748b"/>
+<polyline points="168.0,139.17953299976176 320.0,154.70401477245653 472.0,129.50000000000003 624.0,153.3637717417203 776.0,391.1452227781749" fill="none" stroke="#64748b" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
 <text x="880" y="167" font-size="12">Standard / API + stats</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Memory phase</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/standard/ON · e355001f2ad8 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/standard/ON · e758dc2a8476 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

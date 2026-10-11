@@ -30,16 +30,16 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+        "sha256": "8e669db1ea9f361bd4e6329e8638027974ae6273cfa57e4fe65a21853177f938"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+        "sha256": "8e669db1ea9f361bd4e6329e8638027974ae6273cfa57e4fe65a21853177f938"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "79dde091291fe563f8804b3f9f33dfb6dcfc5ff4d97e8289ba1b1e2e5f8a5faa",
+    "cmake_cache_sha256": "fe0afe24ec02f5c5581a8c54b2b392aa1086cd5d69150721a72b2f15e7920e1b",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
@@ -49,7 +49,7 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T00:28:33.569772+00:00",
+  "measured_at_utc": "2026-10-11T01:47:41.637527+00:00",
   "executable_sha256": "f67a9aa99d290437149508c94721950276ea29ec306eb5a89ea96543bc8e8621",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"

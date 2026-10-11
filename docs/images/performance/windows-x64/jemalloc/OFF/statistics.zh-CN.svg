@@ -41,6 +41,6 @@
 <rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#d97706" opacity="0.9"/>
 <text x="880" y="167" font-size="12">jemalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">分配大小（字节）</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/jemalloc/OFF · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/jemalloc/OFF · e758dc2a8476 · 当前 API 统计模式 · 仅在同一负载内比较</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

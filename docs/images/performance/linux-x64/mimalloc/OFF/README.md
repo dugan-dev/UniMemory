@@ -1,16 +1,16 @@
 # Performance · linux-x64/mimalloc/OFF
 
-Source: `e355001f2ad885add2447bd085e199206c7a4096` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38097248244)
+Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
 
 Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| mimalloc | 16 | 12.95 | 9.27 | 0.716 |
-| mimalloc | 64 | 9.60 | 9.20 | 0.958 |
-| mimalloc | 256 | 9.86 | 10.08 | 1.022 |
-| mimalloc | 4096 | 24.01 | 24.09 | 1.003 |
-| mimalloc | 65536 | 25.66 | 25.64 | 0.999 |
+| mimalloc | 16 | 8.38 | 9.40 | 1.122 |
+| mimalloc | 64 | 8.83 | 9.45 | 1.070 |
+| mimalloc | 256 | 9.75 | 10.20 | 1.046 |
+| mimalloc | 4096 | 24.12 | 24.40 | 1.011 |
+| mimalloc | 65536 | 25.33 | 25.35 | 1.001 |
 
 Profile: `mimalloc` / statistics `OFF` / checks `AUTO`. ON includes bookkeeping feature cost and is not mixed into OFF performance goals. Native and API share one executable, target flags and SDK binaries. Hosted jobs are not controlled cross-host causal comparisons.
 
@@ -20,4 +20,4 @@ Profile: `mimalloc` / statistics `OFF` / checks `AUTO`. ON includes bookkeeping 
 Tail latency includes measured clock overhead. Peak RSS includes stacks and process state. Threads above the recorded CPU capacity are oversubscribed. Timing regressions on hosted runners are signals requiring repeated measurement, not automatic correctness failures.
 
 
-First recorded baseline; no regression comparison is available yet.
+Baseline comparison withheld: recorded hardware, compiler or measurement protocol differs.

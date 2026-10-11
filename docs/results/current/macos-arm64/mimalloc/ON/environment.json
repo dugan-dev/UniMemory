@@ -50,21 +50,21 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+        "sha256": "8e669db1ea9f361bd4e6329e8638027974ae6273cfa57e4fe65a21853177f938"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+        "sha256": "8e669db1ea9f361bd4e6329e8638027974ae6273cfa57e4fe65a21853177f938"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "79dde091291fe563f8804b3f9f33dfb6dcfc5ff4d97e8289ba1b1e2e5f8a5faa",
+    "cmake_cache_sha256": "fe0afe24ec02f5c5581a8c54b2b392aa1086cd5d69150721a72b2f15e7920e1b",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "windows_disable_redirect": false,
-  "measured_at_utc": "2026-10-11T00:26:44.709160+00:00",
+  "measured_at_utc": "2026-10-11T01:45:59.661487+00:00",
   "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
   "source_hash_line_endings": "LF",
   "pressure_protocol": "mixed-size-retention-v1",
@@ -85,9 +85,9 @@
   "pressure_anchor_stride": 16,
   "pressure_seed": "0xC0FFEE",
   "schema": 2,
-  "source_revision": "e355001f2ad885add2447bd085e199206c7a4096",
-  "run_id": "38097248244",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38097248244",
+  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
+  "run_id": "38101997387",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
   "architecture": "arm64",
   "compiler": {
     "CMAKE_CXX_COMPILER_ID": "AppleClang",
