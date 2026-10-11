@@ -6,6 +6,5 @@ bool header_common() {
     unimem::BackendStatistics native;
     return cap.heap == (unimem::detail::build_backend != unimem::Backend::Standard) &&
            cap.release_delay == unimem::supports(unimem::RuntimeOption::UnusedPageReleaseDelayMs) &&
-           !unimem::supports(static_cast<unimem::RuntimeOption>(99)) &&
            statistics.live_bytes == 0 && !native.requested_bytes;
 }

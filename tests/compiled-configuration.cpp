@@ -6,6 +6,9 @@ static_assert(std::is_same_v<decltype(unimem::Memory::global()), unimem::Memory&
 int main() {
     using namespace unimem;
     compiled_test::verify_configuration();
+    // Invalid-input cases belong in unit tests, not valid header consumers.
+    const auto unknown_option = static_cast<RuntimeOption>(99);
+    if (supports(unknown_option) || set_runtime_option(unknown_option, 0)) { return 6; }
     // Rejection precedes SDK construction, including selected Standard which
     // does not otherwise support Heap. Do not gate this on heap capability.
     if constexpr (!compiled_test::supports_statistics) {
