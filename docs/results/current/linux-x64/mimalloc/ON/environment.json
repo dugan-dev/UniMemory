@@ -4,7 +4,7 @@
   "machine": "x86_64",
   "processor": "x86_64",
   "architecture": "x86_64",
-  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "cpu_model": "AMD EPYC 9V74 80-Core Processor",
   "compiler": {
     "CMAKE_CXX_COMPILER_ID": "GNU",
     "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
@@ -14,7 +14,7 @@
   "alignment": 16,
   "process_isolation": true,
   "logical_cpus": 4,
-  "executable_sha256": "c082784d383468ae255f0d44ff172111a7a3104e8a0df4fdf6b1c6fd20d43b80",
+  "executable_sha256": "16d059ca10e3249036b92955ac98fa7cd9547562d96648bec8deee9bdbf430b4",
   "allocator_environment": {
     "memory_bytes": 80,
     "owned_block_bytes": 32,
@@ -57,11 +57,11 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        "sha256": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        "sha256": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
       }
     },
     "runtime_dlls": {},
@@ -71,58 +71,58 @@
     "native_api_same_sdk_target": true
   },
   "windows_disable_redirect": false,
-  "measured_at_utc": "2026-10-11T08:36:43.854960+00:00",
-  "benchmark_source_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
-  "benchmark_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "measured_at_utc": "2026-10-11T20:38:52.687653+00:00",
+  "benchmark_source_sha256": "1d16791d0a9addcc1223b0e19fe4db5adbea89073fcb5d56278d86ee92454d1b",
+  "benchmark_sha256": "1d16791d0a9addcc1223b0e19fe4db5adbea89073fcb5d56278d86ee92454d1b",
   "source_hash_line_endings": "LF",
-  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
-  "run_id": "38122935359",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "source_revision": "8365472eea66997cde5163182aef82d3b94dcc48",
+  "run_id": "38167739252",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167739252",
   "measurement_protocol": "native-api-sustained-v4",
   "calibration": {
     "latency": {
-      "16": 42200236,
-      "64": 39690703,
-      "256": 37649438,
-      "4096": 14727668,
-      "65536": 13662053
+      "16": 50110655,
+      "64": 48588690,
+      "256": 45634705,
+      "4096": 19305124,
+      "65536": 19792762
     },
     "scaling": {
-      "scaling:64:1": 57642,
-      "scaling:64:2": 20136,
+      "scaling:64:1": 70931,
+      "scaling:64:2": 40008,
       "scaling:64:4": 32,
       "scaling:64:8": 32,
       "scaling:64:16": 32,
-      "scaling:4096:1": 5028,
-      "scaling:4096:2": 3340,
+      "scaling:4096:1": 6705,
+      "scaling:4096:2": 4044,
       "scaling:4096:4": 32,
       "scaling:4096:8": 32,
       "scaling:4096:16": 32,
-      "scaling:65536:1": 203,
-      "scaling:65536:2": 134,
+      "scaling:65536:1": 293,
+      "scaling:65536:2": 178,
       "scaling:65536:4": 32,
-      "scaling:65536:8": 27,
-      "scaling:65536:16": 13,
-      "handoff:64:1": 55549,
-      "handoff:64:2": 14963,
+      "scaling:65536:8": 32,
+      "scaling:65536:16": 16,
+      "handoff:64:1": 71303,
+      "handoff:64:2": 21412,
       "handoff:64:4": 32,
       "handoff:64:8": 32,
       "handoff:64:16": 32,
-      "handoff:4096:1": 4747,
-      "handoff:4096:2": 2798,
+      "handoff:4096:1": 6706,
+      "handoff:4096:2": 3711,
       "handoff:4096:4": 32,
       "handoff:4096:8": 32,
       "handoff:4096:16": 32,
-      "handoff:65536:1": 211,
-      "handoff:65536:2": 151,
+      "handoff:65536:1": 292,
+      "handoff:65536:2": 178,
       "handoff:65536:4": 32,
-      "handoff:65536:8": 27,
-      "handoff:65536:16": 13
+      "handoff:65536:8": 32,
+      "handoff:65536:16": 16
     },
     "heap": {
-      "owns": 46934221,
-      "collect": 860762,
-      "reset": 85315
+      "owns": 51227917,
+      "collect": 1068186,
+      "reset": 110416
     }
   },
   "target_interval_seconds": 0.25,
@@ -191,55 +191,55 @@
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "a2ac4b9ad45e3d504f99cc788fc9747c764b6f6edd94edf07465f87da00145f1",
-        "sweep_executable_sha256": "5ca62bb76c251461f548cf152e2f5acf514c52786719c751c2403c0ff83bfeb6",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "dca8cbf78cb35384b1b9b46819819494f694c1b81604a18051a89c89af8a90bf",
+        "executable_sha256": "3f64eb69dbb9f03d8b01e1ca7ef7a2ab84c64d1a939548f409ae07bb7aeac392",
+        "sweep_executable_sha256": "fa94469b1c9f56f961858d6ca5e7db4ee20b1c7e3c97c67738241e51157fe37a",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "e9dad540071769224e0fc953d450364efe9f68dfe1255d0e9cbb341820dbb9a1",
         "heap_operation_counts": {},
         "delivery_calibration": {
           "latency": {
-            "16": 20393560,
-            "64": 20402612,
-            "256": 20422740,
-            "4096": 11696986,
-            "65536": 10705566
+            "16": 26572707,
+            "64": 26143159,
+            "256": 26139468,
+            "4096": 15808241,
+            "65536": 14397594
           },
           "scaling": {
-            "scaling:64:1": 25675,
-            "scaling:64:2": 11957,
+            "scaling:64:1": 32889,
+            "scaling:64:2": 19267,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 401,
-            "scaling:4096:2": 377,
+            "scaling:4096:1": 477,
+            "scaling:4096:2": 449,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 105,
-            "scaling:65536:2": 79,
+            "scaling:65536:1": 137,
+            "scaling:65536:2": 97,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 15,
+            "scaling:65536:8": 17,
             "scaling:65536:16": 8,
-            "handoff:64:1": 25689,
-            "handoff:64:2": 11017,
+            "handoff:64:1": 32998,
+            "handoff:64:2": 14313,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 402,
-            "handoff:4096:2": 378,
+            "handoff:4096:1": 471,
+            "handoff:4096:2": 448,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 102,
-            "handoff:65536:2": 79,
+            "handoff:65536:1": 137,
+            "handoff:65536:2": 98,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 14,
+            "handoff:65536:8": 16,
             "handoff:65536:16": 8
           },
           "heap": {}
         },
-        "calibration_sha256": "e29b0d409ce3d187acffea8f2b0def7496a36c7b9d9db0dfeb6a360d2fd6c314",
-        "full_calibration_sha256": "8e0e26cdce33560dca35e8f0ced9277c7d9d29350bec848f0d3705fa429674bb"
+        "calibration_sha256": "c9ed496bfbf2ce1063d8d3a8c4f11582a045b38ae32814b9438fe6c552cd40d7",
+        "full_calibration_sha256": "fa3dd44c280b6c737c6cc9a19a5f6e535899b9bc4947d49394888ee6bdddd1f9"
       },
       {
         "backend": "standard",
@@ -252,55 +252,55 @@
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "3818b11a3947cad4e8509754da234045b2bc69575ca2382958ba61d15aaca077",
-        "sweep_executable_sha256": "e0c4d0438b97ce7b1a77e34259d122161a8a209cf9982dc6fd0e007fe520a9d3",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "3331f01152a84ca223ab6ed0712e902067aefd30e0ad31ec93d67fc66147ef5a",
+        "executable_sha256": "cbc25db9e59f80009c413d6e985d2c6c04efbd182b9610ae795cbb1473806f9c",
+        "sweep_executable_sha256": "9aca50f240f9e28b4d699f36568400a3a18e85adad636e19e61c00ebdcc5d319",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "97183b7ea2c7dd4e2afb0113474f11817f385a82bb6478631b9d339d83679fed",
         "heap_operation_counts": {},
         "delivery_calibration": {
           "latency": {
-            "16": 20400268,
-            "64": 20446026,
-            "256": 20400335,
-            "4096": 11689818,
-            "65536": 10694042
+            "16": 27027255,
+            "64": 26151795,
+            "256": 26112597,
+            "4096": 15811861,
+            "65536": 14396560
           },
           "scaling": {
-            "scaling:64:1": 25766,
-            "scaling:64:2": 11613,
+            "scaling:64:1": 32852,
+            "scaling:64:2": 19197,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 414,
-            "scaling:4096:2": 381,
+            "scaling:4096:1": 473,
+            "scaling:4096:2": 448,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 120,
-            "scaling:65536:2": 85,
+            "scaling:65536:1": 137,
+            "scaling:65536:2": 98,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 15,
+            "scaling:65536:8": 16,
             "scaling:65536:16": 8,
-            "handoff:64:1": 25631,
-            "handoff:64:2": 10465,
+            "handoff:64:1": 32969,
+            "handoff:64:2": 14479,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 403,
-            "handoff:4096:2": 376,
+            "handoff:4096:1": 474,
+            "handoff:4096:2": 445,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 106,
-            "handoff:65536:2": 82,
+            "handoff:65536:1": 134,
+            "handoff:65536:2": 90,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 15,
-            "handoff:65536:16": 8
+            "handoff:65536:8": 16,
+            "handoff:65536:16": 9
           },
           "heap": {}
         },
-        "calibration_sha256": "943cb7cf4e305c93353caecb419809da1be0b05bdd08e83579a8779681763833",
-        "full_calibration_sha256": "18c0dac60aa64a46de0ec5e31e1a255f646fe2b52832418660b6dc7f76c8c42f"
+        "calibration_sha256": "b90e4c23831d0090754fb6e55ddd8a580ec75634c72f7ad1fa11de60d6fdc126",
+        "full_calibration_sha256": "3c1652f3cab6f2ec063623fbd195260da5045805c7e149b194c07cb59adc4d6a"
       },
       {
         "backend": "mimalloc",
@@ -310,69 +310,69 @@
         "msvc_runtime": "",
         "release_flags": "-O3 -DNDEBUG",
         "sdk_binaries": {
-          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
-          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+          "sdk_binary": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77",
+          "sdk_linker_file": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
         },
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "dd786dd63691f506c93cd15295f37d29bda9e7789306c9793edba6b9624ea202",
-        "sweep_executable_sha256": "b113032aeaf557a22399f1c3f3309f46ded7b5e2323af9f6d0d1d82c4c5c32ca",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "b2b143dea74b247608da338b3d53cbc6a428013cd9b43333e96c227d56cb9ebc",
+        "executable_sha256": "8a1f958fc2656f6e41622c14142f925ff624e48fa26fecbee62d3359fe2b85be",
+        "sweep_executable_sha256": "598abef5ad85832dc164bffa0d0ab4ee7029ccadd1197b54034c54c22928aaa4",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "43e5855f711cd7fc3222011c3238d7c1060420a43f0d6e614032d1c3cc8433da",
         "heap_operation_counts": {
-          "owns": 44335858,
-          "collect": 859846,
-          "reset": 85042
+          "owns": 51174197,
+          "collect": 1071063,
+          "reset": 110361
         },
         "delivery_calibration": {
           "latency": {
-            "16": 42264894,
-            "64": 40973735,
-            "256": 36974199,
-            "4096": 14718110,
-            "65536": 13772322
+            "16": 48707496,
+            "64": 49624274,
+            "256": 45860062,
+            "4096": 19271351,
+            "65536": 19807613
           },
           "scaling": {
-            "scaling:64:1": 56079,
-            "scaling:64:2": 18378,
+            "scaling:64:1": 72313,
+            "scaling:64:2": 39959,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 4795,
-            "scaling:4096:2": 3351,
+            "scaling:4096:1": 6696,
+            "scaling:4096:2": 4094,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 192,
-            "scaling:65536:2": 118,
+            "scaling:65536:1": 295,
+            "scaling:65536:2": 191,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 26,
-            "scaling:65536:16": 12,
-            "handoff:64:1": 56663,
-            "handoff:64:2": 15070,
+            "scaling:65536:8": 32,
+            "scaling:65536:16": 17,
+            "handoff:64:1": 72196,
+            "handoff:64:2": 21725,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 4923,
-            "handoff:4096:2": 3055,
+            "handoff:4096:1": 6587,
+            "handoff:4096:2": 3787,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 211,
-            "handoff:65536:2": 128,
+            "handoff:65536:1": 307,
+            "handoff:65536:2": 179,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 25,
-            "handoff:65536:16": 12
+            "handoff:65536:8": 32,
+            "handoff:65536:16": 16
           },
           "heap": {
-            "owns": 44335858,
-            "collect": 859846,
-            "reset": 85042
+            "owns": 51174197,
+            "collect": 1071063,
+            "reset": 110361
           }
         },
-        "calibration_sha256": "a327ce947667eaa129ad6a78e16778b0d9793062131cb70efa437e9b19355565",
-        "full_calibration_sha256": "a951622e9c93e0d03d7f95f5fce6b158bab5b5ed32dbd094c968d9872c70f16a"
+        "calibration_sha256": "5d8814daf490b78f87f77c50b16e74282334ae8c8d748441d5f1799df016ec32",
+        "full_calibration_sha256": "1308587380ec6469515205d7a0e5843577c89882ec813830e1ba609a0d037cd7"
       },
       {
         "backend": "mimalloc",
@@ -382,213 +382,213 @@
         "msvc_runtime": "",
         "release_flags": "-O3 -DNDEBUG",
         "sdk_binaries": {
-          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
-          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+          "sdk_binary": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77",
+          "sdk_linker_file": "71199bb5a44782230f5031e378216a654205277f3eb3c98c051295c73f907f77"
         },
         "flags": "",
         "ipo": "",
         "compile_options": "",
-        "executable_sha256": "c082784d383468ae255f0d44ff172111a7a3104e8a0df4fdf6b1c6fd20d43b80",
-        "sweep_executable_sha256": "cc14e220184c3ca8255ca13f8a8ac42f8407354bd008da893a1e19c8597d6f63",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "3257cde611c369b13e3bde7832a0649cc1e6527f295e486cd936709e9da8ee52",
+        "executable_sha256": "16d059ca10e3249036b92955ac98fa7cd9547562d96648bec8deee9bdbf430b4",
+        "sweep_executable_sha256": "010b025abfd01240fc0ac15aa9fdbcd0d18b34631863aabfa441b2bf0ece283d",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "ec1326f9b8d7c2e6fbc4bf6aef7524aabd1236ea0469cb90020c49c80de17e49",
         "heap_operation_counts": {
-          "owns": 46934221,
-          "collect": 860762,
-          "reset": 85315
+          "owns": 51227917,
+          "collect": 1068186,
+          "reset": 110416
         },
         "delivery_calibration": {
           "latency": {
-            "16": 42200236,
-            "64": 39690703,
-            "256": 37649438,
-            "4096": 14727668,
-            "65536": 13662053
+            "16": 50110655,
+            "64": 48588690,
+            "256": 45634705,
+            "4096": 19305124,
+            "65536": 19792762
           },
           "scaling": {
-            "scaling:64:1": 57642,
-            "scaling:64:2": 20136,
+            "scaling:64:1": 70931,
+            "scaling:64:2": 40008,
             "scaling:64:4": 32,
             "scaling:64:8": 32,
             "scaling:64:16": 32,
-            "scaling:4096:1": 5028,
-            "scaling:4096:2": 3340,
+            "scaling:4096:1": 6705,
+            "scaling:4096:2": 4044,
             "scaling:4096:4": 32,
             "scaling:4096:8": 32,
             "scaling:4096:16": 32,
-            "scaling:65536:1": 203,
-            "scaling:65536:2": 134,
+            "scaling:65536:1": 293,
+            "scaling:65536:2": 178,
             "scaling:65536:4": 32,
-            "scaling:65536:8": 27,
-            "scaling:65536:16": 13,
-            "handoff:64:1": 55549,
-            "handoff:64:2": 14963,
+            "scaling:65536:8": 32,
+            "scaling:65536:16": 16,
+            "handoff:64:1": 71303,
+            "handoff:64:2": 21412,
             "handoff:64:4": 32,
             "handoff:64:8": 32,
             "handoff:64:16": 32,
-            "handoff:4096:1": 4747,
+            "handoff:4096:1": 6706,
+            "handoff:4096:2": 3711,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 292,
+            "handoff:65536:2": 178,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 32,
+            "handoff:65536:16": 16
+          },
+          "heap": {
+            "owns": 51227917,
+            "collect": 1068186,
+            "reset": 110416
+          }
+        },
+        "calibration_sha256": "e694c4dd969dcfb0b5e4d44eddd7bfbc4e2734fc811505a5c1e56016cdc7935e",
+        "full_calibration_sha256": "8f725b27d5676f327097093d96e858bcc5e8e1e50c96ee93047c94ce82205000"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "803dd4a9ba5fd9016b31f24248723f1782fef178dd6bb2f26f0df097f4fe5911",
+        "sweep_executable_sha256": "ead2f28b80d9106c19b71fd5f461df96d1961608b35a2b8decfa16033c7247c3",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "2ec61d57dc3e257ac2089ba6acb4ef9254fc72f735a77175c0cdc628f5728295",
+        "heap_operation_counts": {
+          "owns": 3029554,
+          "collect": 2342798,
+          "reset": 571467
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 23801283,
+            "64": 23697488,
+            "256": 23710738,
+            "4096": 20881974,
+            "65536": 1410848
+          },
+          "scaling": {
+            "scaling:64:1": 28354,
+            "scaling:64:2": 21726,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 3192,
+            "scaling:4096:2": 3015,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 261,
+            "scaling:65536:2": 155,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 29,
+            "scaling:65536:16": 13,
+            "handoff:64:1": 28232,
+            "handoff:64:2": 12723,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 3201,
+            "handoff:4096:2": 2766,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 264,
+            "handoff:65536:2": 149,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 28,
+            "handoff:65536:16": 12
+          },
+          "heap": {
+            "owns": 3029554,
+            "collect": 2342798,
+            "reset": 571467
+          }
+        },
+        "calibration_sha256": "36534f731045d69733d6e92d3b5f7072448dd20d0c79259e29b742ff6f322b43",
+        "full_calibration_sha256": "ad8535abe1aecde36fe12fc137139f46902c6206d41571b91c14d7ce8fa5516c"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "1cba65f882193d9858341caba95c30202924b5f8d21b86120e445267d42ec434",
+        "sweep_executable_sha256": "97298ae1756cb91d5b0014e373aea7ea7a7d87de75f5433fc9e18d09d2425bff",
+        "sweep_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+        "full_operations_sha256": "12f530029c18cf4a8ed8e7aef2ac1f07b8ece2eee53f4c88216045426f7fc19f",
+        "heap_operation_counts": {
+          "owns": 3895034,
+          "collect": 2299271,
+          "reset": 562177
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 23815278,
+            "64": 23693969,
+            "256": 23712972,
+            "4096": 20891050,
+            "65536": 1399166
+          },
+          "scaling": {
+            "scaling:64:1": 28120,
+            "scaling:64:2": 21771,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 3210,
+            "scaling:4096:2": 3000,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 265,
+            "scaling:65536:2": 154,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 28,
+            "scaling:65536:16": 13,
+            "handoff:64:1": 28347,
+            "handoff:64:2": 12759,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 3220,
             "handoff:4096:2": 2798,
             "handoff:4096:4": 32,
             "handoff:4096:8": 32,
             "handoff:4096:16": 32,
-            "handoff:65536:1": 211,
-            "handoff:65536:2": 151,
+            "handoff:65536:1": 264,
+            "handoff:65536:2": 154,
             "handoff:65536:4": 32,
-            "handoff:65536:8": 27,
+            "handoff:65536:8": 28,
             "handoff:65536:16": 13
           },
           "heap": {
-            "owns": 46934221,
-            "collect": 860762,
-            "reset": 85315
+            "owns": 3895034,
+            "collect": 2299271,
+            "reset": 562177
           }
         },
-        "calibration_sha256": "1a26abfbadcba13877d8a9fa8aa412098782464dfa84ac9b45c4f59268ffddf6",
-        "full_calibration_sha256": "4f055c086745d14e491bd2c710b56e55257e23988ac1c149df838e3e8b86455b"
-      },
-      {
-        "backend": "jemalloc",
-        "statistics": "OFF",
-        "configuration": "Release",
-        "compiler": "GNU 13.3.0",
-        "msvc_runtime": "",
-        "release_flags": "-O3 -DNDEBUG",
-        "sdk_binaries": {
-          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
-          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
-        },
-        "flags": "",
-        "ipo": "",
-        "compile_options": "",
-        "executable_sha256": "17d0d2b367c1214a568c3aba4013e0354aa57244b454c618749ba02d7b797766",
-        "sweep_executable_sha256": "f305aa9c2e4aa38c9cf9b9582d2d7d17ce4683d51b45a8eae215832dff1659ab",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "be75033f28334a00c375dd188cfa5359991ce8fae9f42d05bbfb053832f06c8f",
-        "heap_operation_counts": {
-          "owns": 3314599,
-          "collect": 1955472,
-          "reset": 432820
-        },
-        "delivery_calibration": {
-          "latency": {
-            "16": 18306187,
-            "64": 18276168,
-            "256": 18400338,
-            "4096": 15809640,
-            "65536": 956729
-          },
-          "scaling": {
-            "scaling:64:1": 20923,
-            "scaling:64:2": 11248,
-            "scaling:64:4": 32,
-            "scaling:64:8": 32,
-            "scaling:64:16": 32,
-            "scaling:4096:1": 2305,
-            "scaling:4096:2": 2098,
-            "scaling:4096:4": 32,
-            "scaling:4096:8": 32,
-            "scaling:4096:16": 32,
-            "scaling:65536:1": 206,
-            "scaling:65536:2": 134,
-            "scaling:65536:4": 32,
-            "scaling:65536:8": 22,
-            "scaling:65536:16": 11,
-            "handoff:64:1": 20893,
-            "handoff:64:2": 9922,
-            "handoff:64:4": 32,
-            "handoff:64:8": 32,
-            "handoff:64:16": 32,
-            "handoff:4096:1": 2302,
-            "handoff:4096:2": 1933,
-            "handoff:4096:4": 32,
-            "handoff:4096:8": 32,
-            "handoff:4096:16": 32,
-            "handoff:65536:1": 199,
-            "handoff:65536:2": 124,
-            "handoff:65536:4": 32,
-            "handoff:65536:8": 22,
-            "handoff:65536:16": 11
-          },
-          "heap": {
-            "owns": 3314599,
-            "collect": 1955472,
-            "reset": 432820
-          }
-        },
-        "calibration_sha256": "faf6395858cea1801767b90ee02c5ca040d9a61858d27ce7e49531fea2fee64b",
-        "full_calibration_sha256": "6ef3645fdf5e91c234b2fa63d3657f918067d33b593ffba508ce5224bb9fabff"
-      },
-      {
-        "backend": "jemalloc",
-        "statistics": "ON",
-        "configuration": "Release",
-        "compiler": "GNU 13.3.0",
-        "msvc_runtime": "",
-        "release_flags": "-O3 -DNDEBUG",
-        "sdk_binaries": {
-          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
-          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
-        },
-        "flags": "",
-        "ipo": "",
-        "compile_options": "",
-        "executable_sha256": "6fca531afb4098ac9ae1b29a276d8b9c9b96b8c1e97fa090b20c3d6acb5a44c2",
-        "sweep_executable_sha256": "b93a8f3b8fdfde9330aab57a841636b45fcffbde707516e5e192ab83ab394254",
-        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
-        "full_operations_sha256": "e6c86965c671bc6d121aa39555882a55114df5782a8e92f0455cff61d7f30d11",
-        "heap_operation_counts": {
-          "owns": 3568264,
-          "collect": 1971153,
-          "reset": 434580
-        },
-        "delivery_calibration": {
-          "latency": {
-            "16": 18276109,
-            "64": 18414600,
-            "256": 18203735,
-            "4096": 15822048,
-            "65536": 1031168
-          },
-          "scaling": {
-            "scaling:64:1": 21191,
-            "scaling:64:2": 11459,
-            "scaling:64:4": 32,
-            "scaling:64:8": 32,
-            "scaling:64:16": 32,
-            "scaling:4096:1": 2271,
-            "scaling:4096:2": 2089,
-            "scaling:4096:4": 32,
-            "scaling:4096:8": 32,
-            "scaling:4096:16": 32,
-            "scaling:65536:1": 219,
-            "scaling:65536:2": 131,
-            "scaling:65536:4": 32,
-            "scaling:65536:8": 22,
-            "scaling:65536:16": 11,
-            "handoff:64:1": 21132,
-            "handoff:64:2": 10099,
-            "handoff:64:4": 32,
-            "handoff:64:8": 32,
-            "handoff:64:16": 32,
-            "handoff:4096:1": 2301,
-            "handoff:4096:2": 1923,
-            "handoff:4096:4": 32,
-            "handoff:4096:8": 32,
-            "handoff:4096:16": 32,
-            "handoff:65536:1": 217,
-            "handoff:65536:2": 134,
-            "handoff:65536:4": 32,
-            "handoff:65536:8": 22,
-            "handoff:65536:16": 11
-          },
-          "heap": {
-            "owns": 3568264,
-            "collect": 1971153,
-            "reset": 434580
-          }
-        },
-        "calibration_sha256": "0ce4772c5a551dbc9d2ba991eff63f605f7c8e638cb3a1fbdf1c564a69bbdf50",
-        "full_calibration_sha256": "9ded0bf70b01962ed9fc87490a6be36c83edf42758ec1ec1a68313b43ee9146f"
+        "calibration_sha256": "2ad602ded861430e12928d38359b3665b4e15476d7c335aa32f1b789125afda5",
+        "full_calibration_sha256": "501e7e24da983149fc731118aeadbb0e11cc8216c059703346d4a67f19a9568a"
       }
     ],
     "schedule": [
@@ -898,8 +898,8 @@
     "calibrated_on_all_profiles": true,
     "target_interval_seconds": 0.25,
     "short_intervals": "Retained and disclosed; calibration cannot remove hosted runner noise",
-    "host_id": "6c72442a-0167-4bf0-bf52-5f528e6226a8",
-    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "host_id": "797a747e-3da4-4559-9e9b-bf6750f376a2",
+    "cpu_model": "AMD EPYC 9V74 80-Core Processor",
     "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
     "architecture": "x86_64",
     "logical_cpus": 4,
@@ -915,403 +915,403 @@
   },
   "tail_trace_evidence": {
     "raw/1-mimalloc-native-16.csv.gz": {
-      "sha256": "aeb61026b29d6d0cdb80e775bdf954188bfade70c0c28dc683775fb7f5fc2b8c",
+      "sha256": "579cbee737f032ea70671635b5a6bf849413fd32013de0edd8fab3d6b0144da6",
       "samples": 8192
     },
     "raw/1-mimalloc-native-64.csv.gz": {
-      "sha256": "c6cdf67240f0d7a774b4f383224dc635c8c2b5fb4136c11bd531e707d29817f4",
+      "sha256": "60fdf71e87b0c668fe9159620b44657c67a754d57aedc64292dbee48e78e5243",
       "samples": 8192
     },
     "raw/1-mimalloc-native-256.csv.gz": {
-      "sha256": "a75f1e11b54d40e3fdfbf3c3575e8e7c600c93f89bfe53ffe97ca1d18ea1e9e9",
+      "sha256": "6fc0128b8c1e4555e009db7cfc70643655e7b5c9baaf4cf333649dcd6fe048e4",
       "samples": 8192
     },
     "raw/1-mimalloc-native-4096.csv.gz": {
-      "sha256": "5bf1327582c375952657ff8688327460d2985d4d775fcf8c7ee0020f1b21b823",
+      "sha256": "63ca5a269ad57adb6bafcf5132042a7517d03bbff6be26e0ae7b299ac5d2d225",
       "samples": 8192
     },
     "raw/1-mimalloc-native-65536.csv.gz": {
-      "sha256": "17dfc591c1fc1fbf34933ca25291abfbc863881735d84456fa8c35b4c78b05a6",
+      "sha256": "1942b444a705d9c2ada41ce406103e11f3e907d8251c356a6007c05b0e5fa21e",
       "samples": 8192
     },
     "raw/1-mimalloc-basic-16.csv.gz": {
-      "sha256": "08199299bad76a29d2f40a4faef3d92ea0278ebb47936277b962f4cd35d2bb66",
+      "sha256": "6eb89f151541f4c9d02b50bf33c721f733a56895c179dc0050a3e5c7f290dda2",
       "samples": 8192
     },
     "raw/1-mimalloc-basic-64.csv.gz": {
-      "sha256": "09d32bb75fddf8a360f5bc2c18298bc29905ef6d4f56c632c72c1db345cedb37",
+      "sha256": "128bcc2dbdd5b79782325611fd45605d8548301c8dc546367bb0a13a0ebd00cf",
       "samples": 8192
     },
     "raw/1-mimalloc-basic-256.csv.gz": {
-      "sha256": "056152509c377627e1e9f8ad26afdf3f102ddf83166e08ed2b9c4792eb7b7077",
+      "sha256": "291b97f71834c7861f0cd41fd7b6ae0af60a3d8978d0930eac6f3504b1553171",
       "samples": 8192
     },
     "raw/1-mimalloc-basic-4096.csv.gz": {
-      "sha256": "8e53b1c582533b4d130473f380618f754b48c7a1f33f468937f79ca12d64bd26",
+      "sha256": "8244077ff021b5f5ad22ba9cf7da4b4fcb57bc4133f67e3ea947be4f515ec802",
       "samples": 8192
     },
     "raw/1-mimalloc-basic-65536.csv.gz": {
-      "sha256": "cf5c4910e44aee60dcdb976b8ce47b9fbf3e9325ed2fc3eb4efed8bd8cf51621",
+      "sha256": "9e8b633ac732fbebd2af2d893da8ba83c00e2f499db3ee682e5bd8a99634873d",
       "samples": 8192
     },
     "raw/2-mimalloc-native-16.csv.gz": {
-      "sha256": "cd3126b5d965691ca4a5ccc0cc160e92b5f6224c62ced5c7850cb0f03c1f2317",
+      "sha256": "02a6d0459873d6d9517a2cde8673e48781d7c2bfa8dbd2e25df5d528aa72b36a",
       "samples": 8192
     },
     "raw/2-mimalloc-native-64.csv.gz": {
-      "sha256": "4d8bb44638ddd52ae27b969060b49a588d2953df9c4ef863b0f0ffaf22160a10",
+      "sha256": "38f88d2435c14aadff5065dff049f9b20f3c9ab4afd9d24d8464913f74e4de88",
       "samples": 8192
     },
     "raw/2-mimalloc-native-256.csv.gz": {
-      "sha256": "fd49ffa0995c1e8de7cde1f0843898c353e975da305d3a0cd6481a0e4924a535",
+      "sha256": "8bebb0f90b1b64f0e59f8bd86ca146f59e7054633160b2ac1dd819d5f774d9de",
       "samples": 8192
     },
     "raw/2-mimalloc-native-4096.csv.gz": {
-      "sha256": "9064004597545a30e2fcc3f549d51f2745875c4ca8f789d5b355682566cc7bcf",
+      "sha256": "73556f63f397d7f26bea326c02c48252c5f9676ad9faba7a2955522a6680e4f3",
       "samples": 8192
     },
     "raw/2-mimalloc-native-65536.csv.gz": {
-      "sha256": "da1fe641f5cad41869163d1d9fd71fa993df2d1c6c7f7f15dc46de22ff444bd4",
+      "sha256": "e8407fd92af8a0e4551b86d320444c297e4e2f5dd22eb5cff1e3539ee8194bc4",
       "samples": 8192
     },
     "raw/2-mimalloc-basic-16.csv.gz": {
-      "sha256": "8aaaefc60d7c585fde4c75559b1ea2d7eab4cc7ab916024352fbb0f0c2e6b196",
+      "sha256": "16918905b56445de7314984311fa316482fff34d44636e88f2ffb768b12f4af0",
       "samples": 8192
     },
     "raw/2-mimalloc-basic-64.csv.gz": {
-      "sha256": "55f9a795b9a9f790c696d1e1b82c154a866ecf0260226ddc61306d38b60b7e94",
+      "sha256": "35c5a0c76551ffbc0a19621919243aec36dc2021fa45c56649cad96c2eaae23a",
       "samples": 8192
     },
     "raw/2-mimalloc-basic-256.csv.gz": {
-      "sha256": "acb8e3501c72d560dc4d2cc5d6f7cc36e502fb1cc36aae107f270cb55af86f74",
+      "sha256": "dedba366d4a947ae627bf3643f20ab41c5129df51c431732049dac76c7a2ab64",
       "samples": 8192
     },
     "raw/2-mimalloc-basic-4096.csv.gz": {
-      "sha256": "20c047da4776a910deed522be6e671216bee2198b8e7f208908c93df2328748a",
+      "sha256": "ca07e5bbae213653df73f4fe61c0fda9ba70959950ab1a960d6135ec29ab0634",
       "samples": 8192
     },
     "raw/2-mimalloc-basic-65536.csv.gz": {
-      "sha256": "0403032914c7ed016e357f26c99567e711f6776666436ea6fd48f8a5af7e1c32",
+      "sha256": "ca4575a6634e1d7a760f665998cb216179ebd921ee85ff825ad622ca1f6faa49",
       "samples": 8192
     },
     "raw/3-mimalloc-native-16.csv.gz": {
-      "sha256": "2ef6ea82a774ea4f8b338f33f6a669755d42406d31128b05da45e977b493e5e9",
+      "sha256": "75435425d1714c89a6e4b67949ff91d68a5f239999f6d1fd621dd98f06478f14",
       "samples": 8192
     },
     "raw/3-mimalloc-native-64.csv.gz": {
-      "sha256": "143a7b1e287f18c5974febf6def6981437bfce3c07ec207bca9748fa13a64cb3",
+      "sha256": "11670c19f2fc1e05c5dc27d15c491ff803367ab68dfa22b5f29c95ddeaccc5bc",
       "samples": 8192
     },
     "raw/3-mimalloc-native-256.csv.gz": {
-      "sha256": "348c4e9b42658c46aafecbddecdb4940a4fce907abd2ecab1710eb6c516543b1",
+      "sha256": "4f0ea41ad76f6aed306c95cbb25b89abbeb33a81d2186a0b0baf26017a39358d",
       "samples": 8192
     },
     "raw/3-mimalloc-native-4096.csv.gz": {
-      "sha256": "e4bf85b91a3b6fbeb1644a956060542847d7316b68a8ce7ed45fcfd75a9a0907",
+      "sha256": "0ee13f31fb50220a838215996083e9354b41346d392295ee146c684b6155cf03",
       "samples": 8192
     },
     "raw/3-mimalloc-native-65536.csv.gz": {
-      "sha256": "6bba2b982c18f3427135d9b36d9e08a7a0f2cb523241a6f8bf290c6e9e698772",
+      "sha256": "7c04e1cc6b83c5baef3cd91bcd43007ad44309c6eea163a3d54beb041fa41769",
       "samples": 8192
     },
     "raw/3-mimalloc-basic-16.csv.gz": {
-      "sha256": "3fdcd1c8283be582b5970d7e197bb4e7f1000f83213cc59e8f5a92e7e3ea1baa",
+      "sha256": "e2e742ea6b000affa22d03b345fd729d9ba1a3af78c9eb732320d41fadcee761",
       "samples": 8192
     },
     "raw/3-mimalloc-basic-64.csv.gz": {
-      "sha256": "1a8a6012a93cf185b1d2fdf30ca17b922e20268aa7f92d2085fa0e33e5f9e5ef",
+      "sha256": "e1f2b9c2bd23d4400e94fa26d997bf48359f5880e320dc6dafce7f2ee7011508",
       "samples": 8192
     },
     "raw/3-mimalloc-basic-256.csv.gz": {
-      "sha256": "f9c172b1cc260b7cb62832fe71526a58e8b3b772cf19c697f36c0de3616c0f05",
+      "sha256": "fa38129ec64e96b146062a8bb65fe152ba36960bb3ba23c9cd3d528df9dae4bf",
       "samples": 8192
     },
     "raw/3-mimalloc-basic-4096.csv.gz": {
-      "sha256": "1634633fcbdccfd181a14fdf80122b62bc39f21b2380ba89a6465da9aabe940c",
+      "sha256": "6f5da0e8bebcdf77fe8fbb094c40015f8319d4ff53c643d9843535542e435867",
       "samples": 8192
     },
     "raw/3-mimalloc-basic-65536.csv.gz": {
-      "sha256": "21f6703de139431f08bc36420a4afb5b7cf0fe32d5bea2deb919f22051e57c96",
+      "sha256": "026de6370eecbfc36993880018f51afceb0e8e67365e5341888ee0b30e67e9d6",
       "samples": 8192
     },
     "raw/4-mimalloc-native-16.csv.gz": {
-      "sha256": "b72b440f5e8df0fb2987e4f807e1ebcdd51bed09c5c2d1308e973c3a5ccea7a7",
+      "sha256": "63868976f12a51eab2cfa1daa454f00fb00be87fa59c7eadec5e1ab6e3ee7dd1",
       "samples": 8192
     },
     "raw/4-mimalloc-native-64.csv.gz": {
-      "sha256": "d441852632870d266b0d5ec3d012c2c926764c9288168f37c4cbeb3692c3117d",
+      "sha256": "252255245ef0a44f1a6f53a002e54e6c7390952acf19d4a59484f142a59b2ae0",
       "samples": 8192
     },
     "raw/4-mimalloc-native-256.csv.gz": {
-      "sha256": "0c41ba10ef5a8207ed752cbdbe7235b2b11f42c98cd62a6afacaba02860d6470",
+      "sha256": "64596f8931b9b5c2d438265c8482f2fed0f883fe2f7716cdde8e2619073eaee9",
       "samples": 8192
     },
     "raw/4-mimalloc-native-4096.csv.gz": {
-      "sha256": "1df9aac7f2009b9e2da0aa4c775a235fb0dca6196ebaea668ea77d94f808552d",
+      "sha256": "aab947c45abaac54b47bea236735b6f029a91cfd91c5ab10319ed86ad034fb15",
       "samples": 8192
     },
     "raw/4-mimalloc-native-65536.csv.gz": {
-      "sha256": "00928acba7c73ced1e4cb6f5d2153af6a212286a3a70288a60a1fcd9f2ab541f",
+      "sha256": "ae34e57a4f38baf928545c8b299be2c72d711cb9f9a86ed44f902f74a11a4ec5",
       "samples": 8192
     },
     "raw/4-mimalloc-basic-16.csv.gz": {
-      "sha256": "d78e6639bb8d8c5c89b18539dc1ac6f8e6f61e3c09b0ffded0536e613ce4350f",
+      "sha256": "d1fe0b95b7de4b1ac903f7b07f79448a13ef5f2a86f193e2899c9af60e3fa13f",
       "samples": 8192
     },
     "raw/4-mimalloc-basic-64.csv.gz": {
-      "sha256": "9876755214c084e85e1a8266be29e89d3993a340ee51f9e50002084f467e3f37",
+      "sha256": "1804742a3f6e1b3d2e534c49306821be5a935a04de7e327673079dd8c7f73493",
       "samples": 8192
     },
     "raw/4-mimalloc-basic-256.csv.gz": {
-      "sha256": "4c245aedb4ce24ba65183bd12a21a86cb6e858092001bf14096d15dc1a2474cb",
+      "sha256": "5d61e0aed00ce206d07428f38b0f9845524811ddb55c0bc47c48399ed55faa22",
       "samples": 8192
     },
     "raw/4-mimalloc-basic-4096.csv.gz": {
-      "sha256": "68cce686d3f674a56fd840ffc2e1ecf89dd689390e73323bff4807cdf16f4225",
+      "sha256": "2cfd63fee40889eb60508e06e9883b99d5d7a453e5638be243097adc06259082",
       "samples": 8192
     },
     "raw/4-mimalloc-basic-65536.csv.gz": {
-      "sha256": "76be025038c2352c4936fd22db022f6ed0f00cd5c1127c977cd6edd1d987b6a9",
+      "sha256": "ba68b0120fd41a1144c1f2f77394d5869f2be3b93943771521bd6bed283e5f38",
       "samples": 8192
     },
     "raw/5-mimalloc-native-16.csv.gz": {
-      "sha256": "5278692e8ff11bf1f691487cf3447e8c8b7647d464ad27cd97c97165a7bfd7bf",
+      "sha256": "1587b39a44cf129536a2e3dde3192ad368a829c340b632be40993fc7b4e1f93c",
       "samples": 8192
     },
     "raw/5-mimalloc-native-64.csv.gz": {
-      "sha256": "d7ba005cdceae0ac38cea7c5bc881095288a2fea82193cb4618dc420dcf2ff50",
+      "sha256": "cc19a14a473e1ef27b80b6727c83df51db43639ba8ae56f7da8d825d9a39d5c4",
       "samples": 8192
     },
     "raw/5-mimalloc-native-256.csv.gz": {
-      "sha256": "ab54b442946ab900a565927bcbf7a3530a9431c5d166c3327e904976d9213040",
+      "sha256": "dd45211b3d4efe4ff3465e0e3c50ed4670330884bf0e5fa038206d2b7f5e469d",
       "samples": 8192
     },
     "raw/5-mimalloc-native-4096.csv.gz": {
-      "sha256": "0906b2c7abde8d5d1edc8d1dd969ba6cd30196993a20010089f89a993d50e75a",
+      "sha256": "98e6e7d693174f428658defecac8d60e9621306845f23ca510600cb52a3f6b08",
       "samples": 8192
     },
     "raw/5-mimalloc-native-65536.csv.gz": {
-      "sha256": "1ec7859eef1bf6ac81070b1583d603764d669e7782c21e64c9ff0366ce0884ec",
+      "sha256": "f74936452a6065841791939da7b289447b2e5520450abca3352574670d277609",
       "samples": 8192
     },
     "raw/5-mimalloc-basic-16.csv.gz": {
-      "sha256": "7d0feb53b69f395931e44b11695b2b5300061c7bc4d5a6df2f149e920083b1c8",
+      "sha256": "a3d10144174f47334e38a904d5702a60fefc68e27ff3ccfb57e0251d8f3fa0a5",
       "samples": 8192
     },
     "raw/5-mimalloc-basic-64.csv.gz": {
-      "sha256": "f5b7280d4af314b46415edc6dd80d053692d284e72501a3355b0e08f76554fba",
+      "sha256": "334e9bef7060744da08ce6e71675d18b6aa0e9b4525098fa1326046ca35b6401",
       "samples": 8192
     },
     "raw/5-mimalloc-basic-256.csv.gz": {
-      "sha256": "0db1ff5ed202ab5812e998d546d63eef3889d8f383d493141ec554d72f2b6954",
+      "sha256": "ac74417bc672fb68372c9f0fe351ca1ff01c1c055a5ca5489372277570e892a7",
       "samples": 8192
     },
     "raw/5-mimalloc-basic-4096.csv.gz": {
-      "sha256": "85871c13239c48d523724d7cb185e35d9a623ef5ed9f9ef8a64b808135e7ad46",
+      "sha256": "ae475703a245346a39cac8f22219cb2ef9dc12ed28f70438ea48247677ddf253",
       "samples": 8192
     },
     "raw/5-mimalloc-basic-65536.csv.gz": {
-      "sha256": "9590c1054b032f3fa26a5e2fec21dc0485dab43c597f0f459150ceb7c72e1d0e",
+      "sha256": "b1ca438cf99bf6311495f4d3b948dd9f7d8af39dddec52edac55a7791c3ed87d",
       "samples": 8192
     },
     "raw/6-mimalloc-native-16.csv.gz": {
-      "sha256": "6e5c314cac6f25c88310e5e9fdc59739b365ff5edc952bd4426491a09b0fa18d",
+      "sha256": "328d77e44215ca8d3814e55848c05662d47f82dcbb0e2b69c1c1ee99c2ab0bf1",
       "samples": 8192
     },
     "raw/6-mimalloc-native-64.csv.gz": {
-      "sha256": "d06a47f64e2be2830408a230232e08f5da7b513158f61ad7f5a235021fbd6393",
+      "sha256": "dfcfb95a0a19088155571d7f47f22e0197b6d5de869454e5c9f16c437979ae1d",
       "samples": 8192
     },
     "raw/6-mimalloc-native-256.csv.gz": {
-      "sha256": "63c7bed04571a058f6726394f5edd0063111997372d516e027dae79286a9d874",
+      "sha256": "9fca8c3cddf1a1c502d454266aa6cef0ed4a5f3a21c5564a406445028e9f6e84",
       "samples": 8192
     },
     "raw/6-mimalloc-native-4096.csv.gz": {
-      "sha256": "5988c4e4cac3ba7a9e8d5a5f941ee4b84b92a7a277488dab7632e8165a5d32a2",
+      "sha256": "73a7128bc69bda32c09fee05977213277e41c700a689f931f144e2d2a84ed9f8",
       "samples": 8192
     },
     "raw/6-mimalloc-native-65536.csv.gz": {
-      "sha256": "48abda946115baa5d7487f029563a10da54cbd14a9107d44d5275c4cb5bcee8b",
+      "sha256": "69f42a35c95c89bc8cfba193bbf58e5c35d1ac44a34d4c9fbb34ff6d105a23fb",
       "samples": 8192
     },
     "raw/6-mimalloc-basic-16.csv.gz": {
-      "sha256": "6f9fd17eb66762d87c1f6e165b8366fd27d4cedb388ffc845ae05c6366b47985",
+      "sha256": "ea6705d5a6eafda7d40f32246e0f9c4375e66892355fafde8c6b5b945db46229",
       "samples": 8192
     },
     "raw/6-mimalloc-basic-64.csv.gz": {
-      "sha256": "022318ef9b84b9bff2c028b56b9050b1738e7d3dd3cbed2c0024ba2a42cb0d87",
+      "sha256": "9c250d8d7e6514f5a25de87c94e43d944e8946239d4ec9f3a0787599e8ec0dec",
       "samples": 8192
     },
     "raw/6-mimalloc-basic-256.csv.gz": {
-      "sha256": "d7c257f5b1e25cfc7d98318157b16ccecba954e7f322a7812855a851a48f6cbc",
+      "sha256": "49d33f9c38a6507fc73b3d5e032b083fcdac1ae84fcc1aaa47f595190b1514e8",
       "samples": 8192
     },
     "raw/6-mimalloc-basic-4096.csv.gz": {
-      "sha256": "dd48629ae383ba1ba38a31e17ae2f9fd3dde245865256b0028a37f9e1d5ed899",
+      "sha256": "7cb79387f76a9ab38b5ac02a44c1b361ba2c412cd572c855626799440b36cc59",
       "samples": 8192
     },
     "raw/6-mimalloc-basic-65536.csv.gz": {
-      "sha256": "370231fc38963c40501b9fb22c67174c2e6544403e45167f913d9559de260e96",
+      "sha256": "da34d05ae92131b7ad9885a9fa09eb766d53da6db67e5651b2691d412b4d4084",
       "samples": 8192
     },
     "raw/7-mimalloc-native-16.csv.gz": {
-      "sha256": "73c16d1c568bc81ba268e1bc0d83dfa7980644bbabcb2ba48c18a46fbea08ab9",
+      "sha256": "04f6322ad60db5680ade4bda83f08b859c01e3d914eaecefdea09ff7289e6341",
       "samples": 8192
     },
     "raw/7-mimalloc-native-64.csv.gz": {
-      "sha256": "5c702eec0c92db06cf75aaa6f701d76ff50ec36d098e6d195715767cb13d8909",
+      "sha256": "769e6cae214fe71afd3ee9014b7f20446a654857d42c62b59e48cf45b0beb24c",
       "samples": 8192
     },
     "raw/7-mimalloc-native-256.csv.gz": {
-      "sha256": "6fcc04084a7c5d60743b977138309ea08eb450cd88dd08d3eccecb173a111c21",
+      "sha256": "cce26904f3d64f651830a3fc20974c9ccedc602b3bb96d316659beb26ebd8636",
       "samples": 8192
     },
     "raw/7-mimalloc-native-4096.csv.gz": {
-      "sha256": "a89bf83841acf1dc5a5c59968727b53ceaea868fa4aeeee456bbb6095c359c45",
+      "sha256": "9c21c546782e256c5d4462d6e6c5382323ff5993a9493861ff50a8ce7ff67c71",
       "samples": 8192
     },
     "raw/7-mimalloc-native-65536.csv.gz": {
-      "sha256": "604712061b65fd1960fa0a5d8e719a0f6d4ecb964edfe1315f0ffe834638b4a2",
+      "sha256": "f33f82b514c005f938e71fcef79b4f35e171795d1a6916d37412fb9384c9cfa7",
       "samples": 8192
     },
     "raw/7-mimalloc-basic-16.csv.gz": {
-      "sha256": "95595ef79801bf5dc5e6430a5279a7cb8482890468db7311156d22f92f7ae150",
+      "sha256": "00e35a6a72a4e9eed464f57a4b88dde50c3418ab7044cc96f06e6be8cd410475",
       "samples": 8192
     },
     "raw/7-mimalloc-basic-64.csv.gz": {
-      "sha256": "055f9ea8d4570dd4da8c1ed6e7a4afd63465ccfbbd0a9bc1fd6bebc39372033c",
+      "sha256": "64a47695c52c600c324d10188ebddfa333767283215effdcfe472a60ff3fe93c",
       "samples": 8192
     },
     "raw/7-mimalloc-basic-256.csv.gz": {
-      "sha256": "ddf45c6670d6cfdcf8dcc5378031e77f33bf425e260229a8c6618260564161c3",
+      "sha256": "6b5fa5b430d6fd3033c20cc780e5911f5a518057d96ea776e130c8fbe6a2d699",
       "samples": 8192
     },
     "raw/7-mimalloc-basic-4096.csv.gz": {
-      "sha256": "7513aca34d49fd687966a8077204412f46741314165c116981aec5b1bf595e4d",
+      "sha256": "b36d30116a7877194cace29ed2d5165cb73031345ae977aab642aae26efd187b",
       "samples": 8192
     },
     "raw/7-mimalloc-basic-65536.csv.gz": {
-      "sha256": "6cde6b52a1cb2ad3f25bb0ed3369480f2e3f2afb902765d82b9cde3e251060bb",
+      "sha256": "02649e5eb17c0638275647c6c5981f9f13b50658120ed99f10054829916c668f",
       "samples": 8192
     },
     "raw/8-mimalloc-native-16.csv.gz": {
-      "sha256": "c3874cc6683e97bf24f08589cbd1cc12eb2ac14fea31536eca2de2255abb067d",
+      "sha256": "a1b3ea35225e6aadd9e2f6edb7a307df30dea54a45d1152b2fdbd0b034a438f0",
       "samples": 8192
     },
     "raw/8-mimalloc-native-64.csv.gz": {
-      "sha256": "feaeae3c719c112a242e2e95af4718fbdc52878e06709644c4223021664af506",
+      "sha256": "bc1fe73aedd1ee03b892c4009bac740b4cffd0f1f4b9b2c22560f67e554d3081",
       "samples": 8192
     },
     "raw/8-mimalloc-native-256.csv.gz": {
-      "sha256": "98c898c18e4a5f166d9f50487d65abaaa1917a6ce78384c557aade85b603cfcd",
+      "sha256": "27d0783f8cf6a5283afb725ef940399b32b34f50e788a21b1afa44491bb1706a",
       "samples": 8192
     },
     "raw/8-mimalloc-native-4096.csv.gz": {
-      "sha256": "9a8558bc56cc4891dede630ca55dc80ffa6c2399941a77688a1c01696e6e2c62",
+      "sha256": "7d71c70e989185405cee77b969e609da29e9c5374e4c4834ae75e1bea3d894e7",
       "samples": 8192
     },
     "raw/8-mimalloc-native-65536.csv.gz": {
-      "sha256": "f6784fac8267363bedafdf7c7836e33a3c7b97897c325439725299fdfc69beba",
+      "sha256": "096c63456f872fd747cd14cb602f4399512e67b3efca945bfb3d6eca8b2dfdfd",
       "samples": 8192
     },
     "raw/8-mimalloc-basic-16.csv.gz": {
-      "sha256": "d87dbe320bfa70ba200bd4990bc3725d26b1022ad411a652ce364f46a0bf32b5",
+      "sha256": "523b681d56686f69d43da5f08e1a4cac671864e7bc1ca0251b17c8193e08a669",
       "samples": 8192
     },
     "raw/8-mimalloc-basic-64.csv.gz": {
-      "sha256": "2746bbb5b7c82318670ad997b9192fccfbe6faa1868b019088f1d853d4261929",
+      "sha256": "8149d9b391463b5aee48f8d8e093d90a0f67bfa6cc769dfc31b278716b5fbaf5",
       "samples": 8192
     },
     "raw/8-mimalloc-basic-256.csv.gz": {
-      "sha256": "14ea61ffc5de4d602a1ea821928d327584ccee280b8cadcc56bb259dc4fe3ac8",
+      "sha256": "6b844fe5be5e080c149291882f5fd8093c26ec6f1c4323fff1ddcf0567daae0f",
       "samples": 8192
     },
     "raw/8-mimalloc-basic-4096.csv.gz": {
-      "sha256": "668735f5282ca83034b97f403f4eaace455025e60b714c39da1ada910038c7ee",
+      "sha256": "31f0ae72946bb72add8e631bcb9dff261d2cd28839f2c70bcd2d65d631462eed",
       "samples": 8192
     },
     "raw/8-mimalloc-basic-65536.csv.gz": {
-      "sha256": "a96b4b0263719905aa533ed50d3e75a9e08f8b342f173f8ae3f0a97f116ba257",
+      "sha256": "fdc7e6d9969b7dcfc655ac97b4299dab54cf1acfe637eb79f30c23db12bb08cc",
       "samples": 8192
     },
     "raw/9-mimalloc-native-16.csv.gz": {
-      "sha256": "c16b1586833875f090ebb4a08d515bd6faa5f3e44d191f40467e995bc7167319",
+      "sha256": "885a1f3f108f8c98919fccd748661fad5c9802e40254f55b001665d861c0abab",
       "samples": 8192
     },
     "raw/9-mimalloc-native-64.csv.gz": {
-      "sha256": "46a53e18a8a913ea0f0c4f0ca27b43f2b5c403a92a244331f89a88f9e3c5a53c",
+      "sha256": "953fb3b47b34542f4b7b401414b410e27a80c1fb4333607f821c0ee6bc850c20",
       "samples": 8192
     },
     "raw/9-mimalloc-native-256.csv.gz": {
-      "sha256": "354ed55c69d280fc527fc939b6cbcd4f4b08c1bb4453e406268cd2bfabab5836",
+      "sha256": "8c5f5c93f74ce6f238c4c710cb6de7729783d50ea45d834b8c3751df4ff2248b",
       "samples": 8192
     },
     "raw/9-mimalloc-native-4096.csv.gz": {
-      "sha256": "402b39565cd07d9710579ec42c19a39850caf77bcad8fdc254b6c39e96b1272f",
+      "sha256": "fd09604ab7a47adc14fb9949b3f8afcdab5eebcc52c8fbafbecf6d027df9f1d9",
       "samples": 8192
     },
     "raw/9-mimalloc-native-65536.csv.gz": {
-      "sha256": "68b8127f87ff381022e062a768a11119168b1aef5212eb7aa10d4c374945e2a6",
+      "sha256": "41aa630ddf565f2284c2e176d10369523a2ce34f1cdfde2fdf53b7fa10fc1a12",
       "samples": 8192
     },
     "raw/9-mimalloc-basic-16.csv.gz": {
-      "sha256": "cd823ccdf402541b71543a52bc06e505f12cb1c476b95a0e04bf3074d24c1840",
+      "sha256": "a0e785a1f9c8e1924214d54770aad61290f5fefaeac0b59cbf2e6d0ef43c8c59",
       "samples": 8192
     },
     "raw/9-mimalloc-basic-64.csv.gz": {
-      "sha256": "4504c56c052b07a1610a60b4dee2c1645720534ef6b3307901037b4aacf76512",
+      "sha256": "12509ce95da959d3b0c6dc9894542003ec456428d1073244c57de6065f14fda8",
       "samples": 8192
     },
     "raw/9-mimalloc-basic-256.csv.gz": {
-      "sha256": "924cc7ba74aae649891cda957275fa06694fa2bd209cbfa5998677a85a01c0b2",
+      "sha256": "fcad08dc14d92ea40d770a456d396d3a74095628bff5b7e2055dfc2289b79091",
       "samples": 8192
     },
     "raw/9-mimalloc-basic-4096.csv.gz": {
-      "sha256": "e7b4a5bede45beaf0ce31a34921901ee639f4db9f288496d874626bbd7ec9e62",
+      "sha256": "5112a51f94fc43667e840b696907de7e68e94004c8e6995de15c3149d522f3de",
       "samples": 8192
     },
     "raw/9-mimalloc-basic-65536.csv.gz": {
-      "sha256": "74c200bad5819c394b094cbcc681e98552c1beed2e977cea0b8fd2437e583a32",
+      "sha256": "54b3c93415eb2e809a27ae1557420cb6d8f6790ead476868d6e42969b1b05cc1",
       "samples": 8192
     },
     "raw/10-mimalloc-native-16.csv.gz": {
-      "sha256": "91b62ad2efe8dcc566b20da4cb094967803def348ad4272775ed8bff8ee302a3",
+      "sha256": "a0a9696014ca3c05dd9a027c590771a7857d023455144d8bfe7241c031e18564",
       "samples": 8192
     },
     "raw/10-mimalloc-native-64.csv.gz": {
-      "sha256": "fd3b5f41cb0f78c5823b81c8870fde897a2f8a8b1b015c87c5b87f0ede378a49",
+      "sha256": "a8bab931d5093f11f53f04a7cfb8b536bf8c6b83d8ff2e2d669abcb700da24eb",
       "samples": 8192
     },
     "raw/10-mimalloc-native-256.csv.gz": {
-      "sha256": "a62cad866d0144e9d5a3485f0fe16e41935d89fd08b4099fa3aa49e71bd5f4fc",
+      "sha256": "038a1a36f97bf2bf0b46ef37847ad0c137bbc0944244c566c8bf2e510446a878",
       "samples": 8192
     },
     "raw/10-mimalloc-native-4096.csv.gz": {
-      "sha256": "4cb1bb1e0621e38a88bd74116e0219b2aee357d88ecbc3739f1733a53a1e2940",
+      "sha256": "857fca54270a6316ccc40b92acf1efc080c97fda04af8ed5a3d2c3b222e97b0e",
       "samples": 8192
     },
     "raw/10-mimalloc-native-65536.csv.gz": {
-      "sha256": "9dc9c30a711effbc429e98ab7e5d1d2c039f7489172cb1ade0d5582dd36ff30e",
+      "sha256": "fefbf009eabab2b2a62e251f8b6a468314a8253d541a26445da0254ac15cec8e",
       "samples": 8192
     },
     "raw/10-mimalloc-basic-16.csv.gz": {
-      "sha256": "6cb72a2fafe3994697dc99cd0f31f4289fa36824e5fe45d44950f3bc208f9785",
+      "sha256": "8986f510c3d19149d392d0fcc014d2a966b19819da7e2741495056bc46d60c46",
       "samples": 8192
     },
     "raw/10-mimalloc-basic-64.csv.gz": {
-      "sha256": "f45f114e6fd855d9e6068ebcac15faaff5fdf04c969b682688f480f7410d7f44",
+      "sha256": "7c80cf87d9bb3637b64711e4b899f9aad60eeb9a4c3cc9d4ba4eb289c6e9559f",
       "samples": 8192
     },
     "raw/10-mimalloc-basic-256.csv.gz": {
-      "sha256": "e806599fcdf76d59f86b1e1187689116fd592b98adc42d3e1437d65a77d7e361",
+      "sha256": "ba68445589665033a2cc4fcb31ad6e224ec199c8f4cf4783168e0c9bd136009b",
       "samples": 8192
     },
     "raw/10-mimalloc-basic-4096.csv.gz": {
-      "sha256": "7e5e1a7d3490d7a963de40f35f7dfbcab2d502f8481ff90d5b0b1e2dd86bd42d",
+      "sha256": "f8704be9c3580ef78196efcb8071ee17e1136621581507d4952ae265d9e18edc",
       "samples": 8192
     },
     "raw/10-mimalloc-basic-65536.csv.gz": {
-      "sha256": "4961c9029991e7e96677403b714828babed756b70a8797b696a417c101b134a5",
+      "sha256": "5f96526b6a96d1ad32e5b4bee52df8f9a68be55eaa652acb69c22809b0c617c3",
       "samples": 8192
     }
   }
