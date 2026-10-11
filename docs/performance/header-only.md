@@ -38,6 +38,24 @@ The separately retained group named `shape_matched_shared` is the earlier statef
 
 Earlier cloud source 35 data contained 207 cells: 197 medians met 90%, ten failed. Final source 39 is different; this Windows/mimalloc/OFF control does not establish that those cloud failures are fixed. Other SDKs, statistics ON, compilers, link profiles, applications and every future pair need their own validation. The original README chart remains historical and unchanged.
 
+## Standard backend: throwing allocation control
+
+A separate **2026-10-11** control uses GCC 13.3 Release on a local Xeon / WSL2 host, pinned to CPU 0. Both variants keep the same benchmark source, compiler flags, C++ runtime and direct throwing aligned `operator new` reference. Five process pairs measure 200,000 operations per round, nine rounds, alignment 16, statistics OFF and checks OFF.
+
+The only allocation factor removes the private Global Standard `std::nothrow` wrapper and lets the matching throwing allocation propagate `std::bad_alloc`. Conditional `noexcept` preserves the mimalloc/jemalloc helper contracts. Zero handling, failed reallocation ownership, constructor rollback and exact Basic statistics remain required; Heap/Stack paths are unchanged.
+
+| Bytes | Previous API median ns | Throwing API median ns | Previous paired ratio median | Throwing paired ratio median [min,max] |
+| --- | ---: | ---: | ---: | --- |
+| 16 | 13.1275 | 10.8337 | 77.11% | 102.53% [79.97,110.35] |
+| 64 | 12.7759 | 10.7696 | 78.39% | 99.07% [89.62,108.61] |
+| 256 | 12.8916 | 11.2464 | 85.00% | 99.41% [91.33,108.75] |
+| 4096 | 22.4839 | 23.8641 | 85.50% | 98.02% [84.91,108.85] |
+| 65536 | 24.0164 | 22.8747 | 86.39% | 97.90% [94.79,120.54] |
+
+All five paired medians exceed 90%; some individual pairs remain below it. Ratios do not establish an absolute improvement at every size: the separately computed 4096-byte API time median increases in this sample. The strengthened Standard allocation/OOM suite passes all four prototype configurations (Release ON 673, Release OFF 671, Debug ON 676, Debug OFF 674 cases). This local host and two-build control is separate from the cloud delivery results; it cannot erase their failures or establish other backend/platform performance.
+
+[All paired measurements](../results/header-only/linux-standard-throw/measurements.csv) · [Environment](../results/header-only/linux-standard-throw/environment.json)
+
 ## Raw measurements
 
 | Profile | Complete 23-group summary | All paired path measurements |

@@ -119,6 +119,7 @@ int main(int argc, char** argv) {
                 const auto before = memory.statistics();
                 if (!fails([&] { memory.allocate(31, alignment); }) ||
                     !fails([&] { memory.allocate_zeroed(31, alignment); }) ||
+                    !fails([&] { memory.resource()->allocate(31, alignment); }) ||
                     !fails([&] { block.resize(65); }) ||
                     !fails([&] { memory.reallocate_zeroed(original, 33, 65, alignment); }) ||
                     !fails([&] { auto p = memory.make_shared<int>(42); })) { return 2; }
@@ -129,7 +130,9 @@ int main(int argc, char** argv) {
                 const auto after = memory.statistics();
                 if (before && (before->live_bytes != after->live_bytes ||
                                before->allocations != after->allocations ||
-                               before->reallocations != after->reallocations)) { return 5; }
+                               before->deallocations != after->deallocations ||
+                               before->reallocations != after->reallocations ||
+                               before->peak_live_bytes != after->peak_live_bytes)) { return 5; }
             }
         }
     }

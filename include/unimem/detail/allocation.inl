@@ -9,11 +9,11 @@ UNIMEMORY_FORCE_INLINE bool Memory::is_global() const noexcept {
 
 template<bool Zero>
 UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
-    std::size_t bytes, std::size_t alignment) noexcept {
+    std::size_t bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard) {
     if constexpr (selected_backend == Backend::Standard) {
         void* pointer = alignment > alignof(void*)
-            ? ::operator new(bytes, std::align_val_t(alignment), std::nothrow)
-            : ::operator new(bytes, std::nothrow);
+            ? ::operator new(bytes, std::align_val_t(alignment))
+            : ::operator new(bytes);
         if constexpr (Zero) { if (pointer != nullptr) { std::memset(pointer, 0, bytes); } }
         return pointer;
     }
@@ -50,7 +50,7 @@ UNIMEMORY_FORCE_INLINE void Memory::global_deallocate_raw(
 }
 
 UNIMEMORY_FORCE_INLINE void* Memory::global_reallocate_raw(
-    void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) noexcept {
+    void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard) {
     if constexpr (selected_backend == Backend::Standard) {
         // Bypass public tracked allocate/free: successful realloc changes only
         // reallocations/live/peak, including when the old/new sizes are equal.

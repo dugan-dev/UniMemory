@@ -45,6 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: python3 -m unittest discover -s tests/tools -v
+      - run: python3 tools/ci/codegen-evidence.py --self-test
       - run: python3 tools/ci/test-profile-report.py
       - run: python3 tools/ci/validate-published.py
   measure:
@@ -98,6 +99,12 @@ jobs:
           python3 tools/ci/performance.py "$executable" build/results
           python3 tools/run-sweep.py "$sweep" build/results
           python3 tools/ci/performance-report.py build/results build/charts --label '${{ matrix.platform.label }}/${{ matrix.backend }}/${{ matrix.statistics }}'
+      - name: Capture code generation from the measured Delivery executable
+        shell: bash
+        run: |
+          executable=build/performance/UniMemoryDeliveryBenchmark
+          if [ "$RUNNER_OS" = Windows ]; then executable=build/performance/Release/UniMemoryDeliveryBenchmark.exe; fi
+          python3 tools/ci/codegen-evidence.py "$executable" build/results
       - uses: actions/upload-artifact@v4
         if: always()
         with:
