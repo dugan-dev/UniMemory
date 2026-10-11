@@ -66,7 +66,7 @@ set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
 add_subdirectory(UniMemory)
 ```
 
-An installed package retains its selected backend/statistics/check policy and generated `<unimem/config.h>`. Consumers normally inherit them from the target. Conflicting requested CMake settings or compile definitions are rejected; use a separate installation/build directory for a different profile and keep one profile across all translation units. See [migration](migration.md).
+An installed package retains its selected backend, statistics and check settings. Consumers inherit them from the target; conflicting settings are rejected. Use separate build/install directories for different profiles and one profile throughout a program. See [migration](migration.md).
 
 ## Inlining and optimization
 

@@ -66,7 +66,7 @@ set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
 add_subdirectory(UniMemory)
 ```
 
-安装包固定后端、统计和检查策略，并包含生成的 `<unimem/config.h>`。使用方通常直接继承目标配置；冲突的 CMake 请求或编译宏会被拒绝。不同配置使用独立的构建/安装目录，同一程序各翻译单元保持同一配置。见[迁移说明](migration.zh-CN.md)。
+安装包固定后端、统计和检查设置，使用方直接继承目标配置；冲突设置会被拒绝。不同配置使用独立的构建和安装目录，同一程序保持同一配置。见[迁移说明](migration.zh-CN.md)。
 
 ## 内联与优化
 

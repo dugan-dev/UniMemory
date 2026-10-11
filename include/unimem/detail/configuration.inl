@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unimem/config.h>
+#include <unimem/detail/config.inl>
 
 namespace unimem::detail {
 

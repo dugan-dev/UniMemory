@@ -125,8 +125,8 @@ else()
 endif()
 
 set(_unimemory_generated_include "${CMAKE_CURRENT_BINARY_DIR}/generated/include")
-file(MAKE_DIRECTORY "${_unimemory_generated_include}/unimem")
-configure_file(include/unimem/config.h.in "${_unimemory_generated_include}/unimem/config.h" @ONLY)
+file(MAKE_DIRECTORY "${_unimemory_generated_include}/unimem/detail")
+configure_file(include/unimem/detail/config.inl.in "${_unimemory_generated_include}/unimem/detail/config.inl" @ONLY)
 target_include_directories(UniMemory BEFORE INTERFACE $<BUILD_INTERFACE:${_unimemory_generated_include}>)
 target_compile_definitions(UniMemory INTERFACE
     UNIMEMORY_TARGET_CHECKS=${_unimemory_checks_value}
@@ -137,7 +137,7 @@ set_target_properties(UniMemory PROPERTIES
     UNIMEMORY_BACKEND "${UNIMEMORY_BACKEND}"
     UNIMEMORY_STATISTICS "${UNIMEMORY_STATISTICS}")
 set_property(TARGET UniMemory APPEND PROPERTY EXPORT_PROPERTIES UNIMEMORY_BACKEND UNIMEMORY_STATISTICS)
-install(FILES "${_unimemory_generated_include}/unimem/config.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem)
+install(FILES "${_unimemory_generated_include}/unimem/detail/config.inl" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem/detail)
 
 
 if(UNIMEMORY_WITH_MIMALLOC)

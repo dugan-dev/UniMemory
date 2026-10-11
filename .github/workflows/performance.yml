@@ -52,7 +52,10 @@ jobs:
     needs: [changes, report-tests]
     if: needs.changes.outputs.measure == 'true'
     runs-on: ${{ matrix.platform.os }}
-    timeout-minutes: 180
+    # Ten complete same-host rounds plus six sustained calibrations exceeded
+    # 180 minutes on a normally progressing hosted macOS runner. Per-process
+    # 30/600-second watchdogs still identify individual calibration/measurement failures.
+    timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
@@ -99,15 +102,6 @@ jobs:
         shell: bash
         run: |
           python3 tools/controlled_benchmarks.py build/performance build/results --trials 10
-      - name: Existing16 native application benchmarks on the same Linux host
-        if: runner.os == 'Linux'
-        run: bash tools/validate-benchmark-collection.sh "$PWD/build" "$PWD/build/results/controlled-suite.json"
-      - uses: actions/upload-artifact@v4
-        if: always() && runner.os == 'Linux'
-        with:
-          name: native-application-comparison
-          path: build/collection-results/
-          retention-days: 90
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -117,6 +111,15 @@ jobs:
             build/performance/*/benchmark-build-Release.txt
             build/performance/*/CMakeCache.txt
             build/performance/*/compile_commands.json
+          retention-days: 90
+      - name: Existing16 native application benchmarks on the same Linux host
+        if: runner.os == 'Linux'
+        run: bash tools/validate-benchmark-collection.sh "$PWD/build" "$PWD/build/results/controlled-suite.json"
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Linux'
+        with:
+          name: native-application-comparison
+          path: build/collection-results/
           retention-days: 90
       - uses: actions/upload-artifact@v4
         if: failure()
