@@ -31,7 +31,12 @@ python3 "$root/tools/patch-jemalloc-tests.py" "$work/jemalloc-5.3.1"
   make analyze > "$work/je-analyze.log" 2>&1
   make install > "$work/je-install.log"
 )
-cmake -S "$root" -B "$work/unified" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$work/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON > "$work/unified-config.log"
-cmake --build "$work/unified" --parallel 8 > "$work/unified-build.log"
-ctest --test-dir "$work/unified" --parallel 8 --output-on-failure > "$work/unified-tests.log"
-tail -10 "$work/unified-tests.log"
+for backend in standard mimalloc jemalloc; do
+  for statistics in OFF ON; do
+    profile="$backend-$statistics"
+    cmake -S "$root" -B "$work/unified-$profile" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$work/prefix" -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_BENCHMARKS=ON > "$work/unified-$profile-config.log"
+    cmake --build "$work/unified-$profile" --parallel 8 > "$work/unified-$profile-build.log"
+    ctest --test-dir "$work/unified-$profile" --parallel 8 --output-on-failure --no-tests=error > "$work/unified-$profile-tests.log"
+    tail -10 "$work/unified-$profile-tests.log"
+  done
+ done

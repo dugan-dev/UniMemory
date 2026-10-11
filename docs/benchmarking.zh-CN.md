@@ -1,74 +1,40 @@
-# 性能基准
+# 性能测量
 
 [目录](README.zh-CN.md) · [English](benchmarking.md) · **简体中文** · [结果](performance.zh-CN.md)
 
-按实际负载测量。[mimalloc-bench](https://github.com/daanx/mimalloc-bench)提供应用与合成场景；它是基准集合，不是行业认证或统一评分标准。
+比较分配器时，使用同一设备、编译器、运行库和优化选项。不同 CPU 的结果不能用于给后端排名。
 
-## 1 · 构建
+## 构建
 
 ```sh
-cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BUILD_BENCHMARKS=ON
+cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_BENCHMARKS=ON
 cmake --build build/bench --config Release
 ```
 
-Standard 无分配器依赖。可选 Backend 需要[配置选项及依赖](guides/backends.zh-CN.md)。
+后端与统计组合分别构建，可选 SDK 接入见[后端指南](guides/backends.zh-CN.md)。
 
-## 2 · 测量
+## 测量范围
 
-Linux / macOS：
-
-```sh
-python3 tools/run-benchmarks.py build/bench/UniMemoryDeliveryBenchmark build/results --backends standard
-python3 tools/run-sweep.py build/bench/UniMemoryBenchmark build/results
-```
-
-Windows 使用 `python`，可执行文件在 `build/bench/Release/`，后缀 `.exe`。启用三种 Backend 后使用 `--backends standard mimalloc jemalloc`；脚本默认期待三种 Backend。
-
-| 测量 | 负载 | 输出 |
-| --- | --- | --- |
-| Native / API / Basic | 16–65536 B，16 字节对齐，分配/释放 | latency.csv |
-| 内存占用 | 16384 × 4096 B，全部写入，释放/collect | footprint.csv |
-| 混合尺寸 | 16384 个 Block，少量保留，八轮分配/释放 | pressure.csv |
-| Heap 操作 | owns、collect、64 B 分配 + reset | heap.csv |
-| API 扫描 | Bytes、Object、Array、Container、所有权、跨线程、诊断、Stack | full.csv |
-| 环境 | 原生版本、类型大小、源码/程序 SHA-256 | environment.json、sweep-environment.json |
-
-Global 的统计模式在首次获取前固定，因此 Disabled、Basic 分别运行。每轮 Heap 和 Stack 不重复测量。
-
-## 3 · 测量方法
-
-| 探针 | 重复次数 |
+| 维度 | 内容 |
 | --- | --- |
-| 基础耗时 | 预热；进程内 9 × 200000 次操作；3 个独立进程 |
-| 完整扫描 | 预热；7 次重复，随机 Backend 顺序；3 个独立进程 |
-| 内存占用 | 3 个独立进程，写入内存页，检查内容 |
+| 原始分配 | 16–65536 B，相同大小、对齐的原生与 API 调用 |
+| 对象与容器 | 构造/析构、数组、vector、PMR 和所有权 |
+| 并发 | 同线程与跨线程分配释放，1–16 个工作线程 |
+| 内存 | 在用请求、驻留内存、释放与回收 |
+| 原生应用 | 固定版本 mimalloc-bench 中的 16 个程序 |
 
-一次操作表示完整场景：vector 增长并销毁 32 个元素；resize 包含分配、扩容、释放；跨线程测试在一条线程分配，由 2/4/8 条工作线程释放。线程创建不计时，等待完成计时。普通分配不计 Heap 创建；reset 探针计入替换 Heap 的准备。
+每个平台在同一个 runner 上构建所有后端，预热、校准足够的计时长度、交替执行顺序，并保留至少十轮独立进程测量。配对的原生/API 路径使用相同操作次数和 SDK 二进制。
 
-混合探针使用固定种子 `0xC0FFEE`、十种 17–8193 B 尺寸、16 字节对齐和 1024 个长期 Block。检查内容、对齐、计数、原生可用容量。诊断不计入分配循环。RSS 包含缓存、元数据和进程状态；释放后保留内存不等于碎片率。
+每个配置进行三次持续校准试跑。线程超出 runner 容量时，扩展测试最多 32 轮，并标明较短的计时间隔与校准限制。线程扩展包含同步开销，超量线程属于压力场景。
 
-原生统计场景计时包含能力不支持时返回空值。先查询实例能力；返回空值的调用不等价于获取完整原生指标。
+报告展示算术平均值、中位数、最小值、最大值、样本标准差、变异系数和 bootstrap 95% 区间。保留全部样本；波动大时直接标明，不删除慢样本或把波动当作优化收益。内存阶段先减去各轮基线，再做统计。
 
-## 4 · 后端隔离
+每轮进程数据与统计汇总无损保存在仓库。逐次操作轨迹与构建证据保存在关联的工作流产物中，保留 90 天；发布前核验轨迹。
 
-mimalloc 使用 `MI_OVERRIDE=OFF`，Windows 同时 `MI_WIN_REDIRECT=OFF`。Windows 子进程还设置并核对 `MIMALLOC_DISABLE_REDIRECT=1`。
+## 与 mimalloc 官方测试的关系
 
-Unix jemalloc 使用 `--with-jemalloc-prefix=je_ --disable-cxx`。仅前缀仍可能替换全局 new/delete；CMake 检查符号，基准检查 Unix 全局 new 的来源。Native Standard 使用 throwing aligned new，API 使用 nothrow aligned new 并转换失败；成功请求的大小/对齐一致，失败路径不同。
+[mimalloc 官方报告](https://github.com/microsoft/mimalloc#performance)使用十轮平均值，覆盖实际应用与合成负载。[mimalloc-bench](https://github.com/daanx/mimalloc-bench)提供本库使用的原生程序子集。
 
-## 5 · 复现表格和图表
+本库还测量 C++ 对象、容器和上下文处理；Standard 使用 C++ 分配接口，与官方 glibc malloc 基线不同。进程级替换分配器测量的是原生行为，不是封装开销。没有分配器在所有场景下都最快。
 
-```sh
-python3 tools/summarize-benchmarks.py docs/results/0.0.1 --output build/comparisons.json
-```
-
-汇总检查已发布的两平台、三 Backend 矩阵。Python 脚本仅依赖标准库。
-
-可选图表导出使用 Windows .NET Framework：
-
-```powershell
-powershell -NoProfile -File tools/render-benchmarks.ps1 -InputJson build/comparisons.json -OutputDirectory build/charts
-```
-
-未绑定 CPU；小差异可能是噪声。短时测试不能推断 p95/p99、NUMA、长期碎片或移动设备性能。
-
-[原始数据](results/0.0.1/README.md) · [原生测试与应用](upstream-validation.md)
+[数据与环境](results/current/README.md) · [验证](testing.zh-CN.md)

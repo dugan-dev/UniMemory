@@ -1,171 +1,132 @@
 name: build
-
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
-  standard:
-    timeout-minutes: 20
+  profiles:
+    name: ${{ matrix.os }} / ${{ matrix.backend }} / stats=${{ matrix.statistics }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        configuration: [Release, Debug]
-    runs-on: ${{ matrix.os }}
+        os: [windows-2022, ubuntu-24.04, macos-15]
+        backend: [standard, mimalloc, jemalloc]
+        statistics: ['OFF', 'ON']
     steps:
       - uses: actions/checkout@v5
-      - name: Check documentation
-        run: python tools/check-docs.py
-      - name: Configure
-        run: cmake -S . -B build/ci -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DUNIMEMORY_BUILD_EXAMPLES=ON
-      - name: Build
-        run: cmake --build build/ci --config ${{ matrix.configuration }} --parallel 4
-      - name: Test
-        run: ctest --test-dir build/ci -C ${{ matrix.configuration }} --parallel 4 --output-on-failure --no-tests=error
-      - name: Install
-        run: cmake --install build/ci --config ${{ matrix.configuration }} --prefix build/installed
-      - name: Test installed package
+      - name: Documentation, presets and tool tests
         shell: bash
         run: |
-          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DCMAKE_PREFIX_PATH="$PWD/build/installed"
-          cmake --build build/consumer --config ${{ matrix.configuration }} --parallel 4
-          ctest --test-dir build/consumer -C ${{ matrix.configuration }} --output-on-failure --no-tests=error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: standard-${{ matrix.os }}-${{ matrix.configuration }}
-          path: |
-            build/ci/Testing/Temporary/LastTest.log
-            build/consumer/Testing/Temporary/LastTest.log
-          retention-days: 14
-
-  acceptance:
-    name: build acceptance
-    needs: [standard, shared, optional-backends, native-backends]
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Require every build configuration
-        env:
-          RESULTS: ${{ toJSON(needs) }}
-        run: |
-          python3 - <<'PY'
-          import json, os
-          results = json.loads(os.environ['RESULTS'])
-          failed = [name for name, job in results.items() if job['result'] != 'success']
-          if failed:
-              raise SystemExit('Required build jobs did not pass: ' + ', '.join(failed))
-          print('All required build configurations passed.')
-          PY
-
-  shared:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build and test shared library
-        shell: bash
-        run: |
-          cmake -S . -B build/shared -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
-          cmake --build build/shared --config Release --parallel 4
-          ctest --test-dir build/shared -C Release --parallel 4 --output-on-failure --no-tests=error
-          cmake --install build/shared --config Release --prefix build/installed
-      - name: Test installed shared library
+          python3 tools/check-docs.py
+          cmake --list-presets
+          python3 -m unittest discover -s tests/tools -v
+          python3 tools/ci/test-profile-report.py
+      - name: Pinned Unix SDKs
+        if: runner.os != 'Windows' && matrix.backend != 'standard'
+        run: bash tools/ci/build-backends.sh
+      - name: Pinned Windows SDK toolchain
+        if: runner.os == 'Windows' && matrix.backend != 'standard'
         shell: pwsh
-        run: |
-          $env:PATH = "$PWD/build/installed/bin$([IO.Path]::PathSeparator)$env:PATH"
-          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/installed"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cmake --build build/consumer --config Release --parallel 4
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          ctest --test-dir build/consumer -C Release --output-on-failure --no-tests=error
-
-  optional-backends:
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            backend: mimalloc
-            option: UNIMEMORY_WITH_MIMALLOC
-          - os: windows-latest
-            backend: jemalloc
-            option: UNIMEMORY_WITH_JEMALLOC
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v5
-      - name: Obtain vcpkg
-        shell: bash
         run: |
           git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
-      - name: Bootstrap vcpkg
-        shell: pwsh
-        run: ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
-      - name: Configure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Complete Debug and Release tests and installed consumers
         shell: bash
-        run: cmake -S . -B build/optional -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=build/vcpkg/scripts/buildsystems/vcpkg.cmake -D${{ matrix.option }}=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
-      - name: Build
-        run: cmake --build build/optional --config Release --parallel 4
-      - name: Test
-        run: ctest --test-dir build/optional -C Release -j 4 --output-on-failure --no-tests=error
-
-  native-backends:
+        run: |
+          set -euo pipefail
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          flags=(-DCMAKE_PREFIX_PATH="$workspace/build/prefix")
+          if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$workspace/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$workspace/cmake/triplets")
+          fi
+          for configuration in Debug Release; do
+            directory="build/ci-$configuration"
+            installed="$workspace/build/installed-$configuration"
+            cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE="$configuration" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_EXAMPLES=ON "${flags[@]}"
+            cmake --build "$directory" --config "$configuration" --parallel 4
+            if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
+              sdk="$PWD/$directory/vcpkg_installed/x64-windows-unimemory"
+              if [ "$configuration" = Debug ]; then export PATH="$sdk/debug/bin:$sdk/bin:$PATH"; else export PATH="$sdk/bin:$PATH"; fi
+            fi
+            ctest --test-dir "$directory" -C "$configuration" --parallel 4 --output-on-failure --no-tests=error
+            cmake --install "$directory" --config "$configuration" --prefix "$installed"
+            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$installed;$workspace/build/prefix;$workspace/$directory/vcpkg_installed/x64-windows-unimemory" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO
+            cmake --build "build/consumer-$configuration" --config "$configuration" --parallel 4
+            if [ "$RUNNER_OS" = Windows ] && [ '${{ matrix.backend }}' != standard ]; then
+              sdk="$PWD/$directory/vcpkg_installed/x64-windows-unimemory"
+              if [ "$configuration" = Debug ]; then export PATH="$sdk/debug/bin:$sdk/bin:$PATH"; else export PATH="$sdk/bin:$PATH"; fi
+            fi
+            ctest --test-dir "build/consumer-$configuration" -C "$configuration" --output-on-failure --no-tests=error
+          done
+      - name: Required options and invalid profiles must fail configuration
+        if: matrix.backend == 'standard' && matrix.statistics == 'OFF'
+        shell: bash
+        run: python3 tools/ci/check-cmake-options.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-${{ matrix.os }}-${{ matrix.backend }}-${{ matrix.statistics }}
+          path: |
+            build/ci-*/Testing/Temporary/LastTest.log
+            build/ci-*/CMakeCache.txt
+            build/consumer-*/Testing/Temporary/LastTest.log
+            build/consumer-*/conflict-*.log
+            build/consumer-*/profile-request-conflicts/*.log
+            build/option-validation/
+          retention-days: 14
+  checks-policies:
+    name: ${{ matrix.os }} / checks=${{ matrix.checks }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [windows-2022, ubuntu-24.04, macos-15]
+        checks: ['ON', 'OFF']
     steps:
       - uses: actions/checkout@v5
-      - name: Build pinned mimalloc
+      - name: Explicit target-wide CHECKS policies in Debug and Release
         shell: bash
         run: |
-          git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
-          cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_OVERRIDE=OFF -DMI_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
-          cmake --build build/mi --parallel 4
-          cmake --install build/mi
-      - name: Build pinned prefixed jemalloc
-        shell: bash
-        run: |
-          curl -L --fail https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
-          tar -xf build/jemalloc.tar.bz2 -C build
-          cd build/jemalloc-5.3.1
-          ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$GITHUB_WORKSPACE/build/prefix"
-          make -j4
-          make install
-      - name: Test all three backends and installed package
-        shell: bash
-        run: |
-          cmake -S . -B build/all -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DUNIMEMORY_BUILD_EXAMPLES=ON
-          cmake --build build/all --parallel 4
-          ctest --test-dir build/all --parallel 4 --output-on-failure --no-tests=error
-          cmake --install build/all --prefix build/installed
-          cmake -S tests/consumer -B build/consumer -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$PWD/build/installed;$PWD/build/prefix"
-          cmake --build build/consumer --parallel 4
-          ctest --test-dir build/consumer --output-on-failure --no-tests=error
+          set -euo pipefail
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          for configuration in Debug Release; do
+            directory="build/checks-$configuration"
+            cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE="$configuration" -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_CHECKS=${{ matrix.checks }}
+            cmake --build "$directory" --config "$configuration" --parallel 4
+            ctest --test-dir "$directory" -C "$configuration" --parallel 4 --output-on-failure --no-tests=error
+            cmake --install "$directory" --config "$configuration" --prefix "$workspace/build/installed-$configuration"
+            cmake -S tests/consumer -B "build/consumer-$configuration" -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_PREFIX_PATH="$workspace/build/installed-$configuration" -DUNIMEMORY_CHECKS=${{ matrix.checks }}
+            cmake --build "build/consumer-$configuration" --config "$configuration" --parallel 4
+            ctest --test-dir "build/consumer-$configuration" -C "$configuration" --output-on-failure --no-tests=error
+          done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: native-backends-${{ matrix.os }}
+          name: checks-${{ matrix.os }}-${{ matrix.checks }}
           path: |
-            build/all/Testing/Temporary/LastTest.log
-            build/consumer/Testing/Temporary/LastTest.log
-          retention-days: 14
+            build/checks-*/Testing/Temporary/LastTest.log
+            build/consumer-*/Testing/Temporary/LastTest.log
+            build/consumer-*/conflict-*.log
+            build/consumer-*/profile-request-conflicts/*.log
+  acceptance:
+    name: build acceptance
+    needs: [profiles, checks-policies]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - run: test '${{ needs.profiles.result }}' = success && test '${{ needs.checks-policies.result }}' = success

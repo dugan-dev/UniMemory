@@ -1,0 +1,54 @@
+#pragma once
+
+// This installed file is the build profile. Per-TU overrides must agree.
+#ifdef UNIMEMORY_CONFIG_BACKEND
+#if UNIMEMORY_CONFIG_BACKEND != @UNIMEMORY_CONFIG_BACKEND@
+#error "UniMemory backend macro disagrees with the installed build profile"
+#endif
+#else
+#define UNIMEMORY_CONFIG_BACKEND @UNIMEMORY_CONFIG_BACKEND@
+#endif
+#ifdef UNIMEMORY_CONFIG_STATISTICS
+#if UNIMEMORY_CONFIG_STATISTICS != @UNIMEMORY_CONFIG_STATISTICS@
+#error "UniMemory statistics macro disagrees with the installed build profile"
+#endif
+#else
+#define UNIMEMORY_CONFIG_STATISTICS @UNIMEMORY_CONFIG_STATISTICS@
+#endif
+#define UNIMEMORY_CONFIG_BACKEND_NAME "@UNIMEMORY_BACKEND@"
+#define UNIMEMORY_CONFIG_STATISTICS_NAME "@UNIMEMORY_STATISTICS@"
+
+#if UNIMEMORY_CONFIG_BACKEND == 1 && !defined(UNIMEMORY_WITH_MIMALLOC)
+#error "Selected mimalloc build requires its exported SDK definition"
+#elif UNIMEMORY_CONFIG_BACKEND == 2 && !defined(UNIMEMORY_WITH_JEMALLOC)
+#error "Selected jemalloc build requires its exported SDK definition"
+#endif
+
+// Precondition checking is fixed by the exported target/profile.
+// Every TU must consume the same target; per-TU overrides are rejected.
+#ifdef UNIMEMORY_CONFIG_CHECKS_POLICY
+#if UNIMEMORY_CONFIG_CHECKS_POLICY != @UNIMEMORY_CONFIG_CHECKS_POLICY@
+#error "UniMemory checks policy disagrees with the installed build profile"
+#endif
+#else
+#define UNIMEMORY_CONFIG_CHECKS_POLICY @UNIMEMORY_CONFIG_CHECKS_POLICY@
+#endif
+#define UNIMEMORY_CONFIG_CHECKS_NAME "@UNIMEMORY_CHECKS@"
+#ifndef UNIMEMORY_TARGET_CHECKS
+#error "Consume the exported UniMemory target to resolve its CHECKS policy"
+#endif
+#if UNIMEMORY_TARGET_CHECKS != 0 && UNIMEMORY_TARGET_CHECKS != 1
+#error "UNIMEMORY_TARGET_CHECKS must be 0 or 1"
+#endif
+#ifdef UNIMEMORY_CHECKS
+#if UNIMEMORY_CHECKS != UNIMEMORY_TARGET_CHECKS
+#error "Per-TU UNIMEMORY_CHECKS override disagrees with the exported target"
+#endif
+#else
+#define UNIMEMORY_CHECKS UNIMEMORY_TARGET_CHECKS
+#endif
+#if UNIMEMORY_CONFIG_CHECKS_POLICY == 1 && UNIMEMORY_TARGET_CHECKS != 1
+#error "Installed ON checks policy cannot be overridden"
+#elif UNIMEMORY_CONFIG_CHECKS_POLICY == 2 && UNIMEMORY_TARGET_CHECKS != 0
+#error "Installed OFF checks policy cannot be overridden"
+#endif

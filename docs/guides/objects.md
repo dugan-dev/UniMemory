@@ -24,7 +24,7 @@ Keep the allocation-start pointer. An object created as Derived must not be pass
 | `adopt_unique()` / `adopt_unique_array()` | Adopt an allocation created by the same Memory, or released from a matching owner |
 | Adoption | Transfers responsibility; does not allocate or construct |
 | Empty Unique | Valid; assign a bound owner before giving it an object |
-| Nonempty unbound Deleter | Terminates; it has no Memory to use for cleanup |
+| Nonempty unbound Deleter | Contract violation; terminates with checks ON, unchecked with checks OFF |
 | Array `reset(new_pointer)` | Retains the old element count; assign a newly adopted array when the count changes |
 | Polymorphic shared ownership | Converting `make_shared<Derived>()` to `shared_ptr<Base>` retains concrete-type cleanup |
 | Polymorphic unique ownership | Keep `Unique<Derived>`; use `Base*` only as a non-owning view |

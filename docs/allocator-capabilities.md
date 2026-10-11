@@ -2,7 +2,7 @@
 
 [Index](README.md) · **English** · [简体中文](allocator-capabilities.zh-CN.md)
 
-UniMemory unifies common contracts. Backend capability queries describe optional support; they do not make different physical allocator behavior identical.
+UniMemory unifies common contracts. `capabilities()` describes optional features of the CMake-selected backend; different allocators retain their own physical behavior.
 
 | Feature | Standard C++ | mimalloc | jemalloc | UniMemory |
 | --- | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ UniMemory unifies common contracts. Backend capability queries describe optional
 | Zeroed growth | Not a PMR operation | Native form has old-block preconditions | ZERO uses native usable-size boundary | Zero newly requested bytes consistently |
 | Containers | allocator / PMR | C++ adapter | Can supply storage | Allocator adapter and PMR resource |
 | Request counters | Not required by PMR | Native metrics | Native metrics | Optional Global or Heap Basic counters |
-| Independent group | PMR pools have different semantics | Heap | Explicit arena | Memory::heap(), enabled native backends only |
+| Independent group | PMR pools have different semantics | Heap | Explicit arena | Memory::heap(), when mimalloc or jemalloc is selected |
 | Group reset / idle collect / membership | No uniform native contract | Heap operations | arena reset/purge/lookup | Heap reset/collect/owns with pointer/lifetime rules |
 | Detailed statistics | No allocator internals | Process committed/reserved | stats build + mallctl; Process or Heap | Instance capability, optional fields and explicit scope |
 | Reclaim delay | No allocator control | Purge delay | Arena decay defaults | One advisory option |
@@ -22,7 +22,7 @@ UniMemory unifies common contracts. Backend capability queries describe optional
 | Term | Meaning |
 | --- | --- |
 | UniMemory Heap | Independently managed growing group; neither fixed nor necessarily contiguous |
-| mimalloc heap | Native implementation of Memory::heap(Backend::Mimalloc) |
+| mimalloc heap | Native implementation of Memory::heap() in a mimalloc build |
 | mimalloc OS arena | Large reserved OS memory area; a different native facility |
 | jemalloc arena | Native allocation group; default arenas are shared, explicit ones back UniMemory Heap |
 | Stack Memory | Your fixed buffer with bump allocation and rewind |

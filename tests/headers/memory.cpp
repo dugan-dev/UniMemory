@@ -1,10 +1,28 @@
 #include <unimem/memory.h>
 #include <unimem/version.h>
+#include "memory_api_contract.h"
 #include "standalone_types.h"
 
 static_assert(UNIMEMORY_VERSION_MAJOR == 0);
 static_assert(UNIMEMORY_VERSION_MINOR == 0);
 static_assert(UNIMEMORY_VERSION_PATCH == 1);
+static_assert(static_cast<int>(unimem::detail::build_backend) == UNIMEMORY_CONFIG_BACKEND);
+static_assert(static_cast<int>(unimem::detail::build_statistics) == UNIMEMORY_CONFIG_STATISTICS);
+static_assert(sizeof(void*) != 8 || sizeof(unimem::Memory) == 80);
+static_assert(sizeof(void*) != 8 || sizeof(unimem::OwnedBlock) == 32);
+static_assert(sizeof(unimem::Allocator<int>) == sizeof(void*));
+static_assert(sizeof(unimem::Memory::Mark) == sizeof(void*) + sizeof(std::size_t) + sizeof(std::uint64_t));
+
+constexpr bool selected_profile() {
+    if constexpr (unimem::detail::build_backend == unimem::Backend::Standard) {
+        return UNIMEMORY_CONFIG_BACKEND == 0;
+    } else if constexpr (unimem::detail::build_backend == unimem::Backend::Mimalloc) {
+        return UNIMEMORY_CONFIG_BACKEND == 1;
+    } else {
+        return UNIMEMORY_CONFIG_BACKEND == 2;
+    }
+}
+static_assert(selected_profile());
 
 namespace {
 struct Point { int x; int y; };

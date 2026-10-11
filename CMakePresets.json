@@ -1,24 +1,60 @@
 {
   "version": 6,
-  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "debug",
       "binaryDir": "${sourceDir}/build/UniMemory-debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "UNIMEMORY_BACKEND": "standard",
+        "UNIMEMORY_STATISTICS": "OFF",
+        "UNIMEMORY_CHECKS": "AUTO"
+      }
     },
     {
       "name": "release",
       "binaryDir": "${sourceDir}/build/UniMemory-release",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "UNIMEMORY_BACKEND": "standard",
+        "UNIMEMORY_STATISTICS": "OFF",
+        "UNIMEMORY_CHECKS": "AUTO"
+      }
     }
   ],
   "buildPresets": [
-    { "name": "debug", "configurePreset": "debug", "configuration": "Debug" },
-    { "name": "release", "configurePreset": "release", "configuration": "Release" }
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release"
+    }
   ],
   "testPresets": [
-    { "name": "debug", "configurePreset": "debug", "configuration": "Debug", "output": { "outputOnFailure": true } },
-    { "name": "release", "configurePreset": "release", "configuration": "Release", "output": { "outputOnFailure": true } }
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
   ]
 }

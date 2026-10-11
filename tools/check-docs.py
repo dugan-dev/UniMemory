@@ -1,5 +1,6 @@
 """Check text format, delivery links and source/example language with Python stdlib."""
 from pathlib import Path
+import gzip
 import os
 import re
 import subprocess
@@ -9,6 +10,12 @@ from urllib.parse import unquote, urlsplit
 
 def check_text_format(path, root, errors):
     data = path.read_bytes()
+    if path.suffix == ".gz":
+        try:
+            data = gzip.decompress(data)
+        except (OSError, EOFError) as error:
+            errors.append(f"{path.relative_to(root)}: invalid gzip data: {error}")
+            return
     name = path.relative_to(root)
     try:
         content = data.decode("utf-8")
@@ -17,7 +24,11 @@ def check_text_format(path, root, errors):
         return
     if data.startswith(b"\xef\xbb\xbf"):
         errors.append(f"{name}: UTF-8 BOM is not allowed")
-    if b"\r" in data:
+    if name.parts[:3] == ("docs", "results", "current") and name.name == "sweep-operations.txt":
+        # Hashed calibration evidence keeps its original bytes. Only the
+        # format-checking view uses LF; decoding and publication scans remain.
+        content = content.replace("\r\n", "\n")
+    if "\r" in content:
         errors.append(f"{name}: use LF line endings")
     if content and not content.endswith("\n"):
         errors.append(f"{name}: missing final newline")
@@ -46,6 +57,11 @@ def heading_ids(text):
 
 def check_publication_content(path, root, errors):
     content = path.read_bytes()
+    if path.suffix == ".gz":
+        try:
+            content = gzip.decompress(content)
+        except (OSError, EOFError):
+            return  # The format check reports corrupted compressed data.
     patterns = {
         "local user path": rb"(?:[A-Z]:[\\/]+(?:Users|Documents and Settings)[\\/]+|/(?:home|Users)/[A-Za-z0-9_.-]+/)",
         "private key": rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",
@@ -126,7 +142,8 @@ def main():
     sources = [path for path in paths if path.suffix in suffixes or path.name == "CMakeLists.txt"]
     for path in sources:
         content = path.read_text(encoding="utf-8")
-        if re.search(r"[\u3400-\u9fff]", content):
+        translation = path.relative_to(root).as_posix() == "tools/ci/locales/zh-CN.json"
+        if not translation and re.search(r"[\u3400-\u9fff]", content):
             errors.append(f"{path.relative_to(root)}: non-English source/configuration text")
         if path.suffix == ".py":
             try:

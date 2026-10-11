@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Scope and lifetime
 
-`Memory::heap(backend)` creates an independent allocation group that grows as needed. Allocations need not be contiguous. All common Memory APIs are available; check `capabilities(backend).heap` first. Standard does not support Heap.
+`Memory::heap()` creates an independent allocation group using the CMake-selected backend. It grows as needed; allocations need not be contiguous. All common Memory APIs are available; check `capabilities().heap` first. Standard does not support Heap. The default Heap statistics mode is Disabled. `Memory::heap(StatisticsMode::Basic)` is allowed only when `UNIMEMORY_STATISTICS=ON`, and throws `std::invalid_argument` in an OFF build.
 
 ## Operations
 

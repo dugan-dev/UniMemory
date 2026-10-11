@@ -11,29 +11,27 @@ class Allocator {
 public:
     using value_type = T;
 
-    explicit Allocator(Memory& memory) noexcept : memory_(&memory) {}
+    explicit Allocator(Memory& memory) noexcept;
 
     template<class U>
-    Allocator(const Allocator<U>& other) noexcept : memory_(&other.memory()) {}
+    Allocator(const Allocator<U>& other) noexcept;
 
     T* allocate(std::size_t count);
 
     void deallocate(T* pointer, std::size_t count) noexcept;
 
-    Memory& memory() const noexcept { return *memory_; }
+    Memory& memory() const noexcept;
 
     template<class U>
-    bool operator==(const Allocator<U>& other) const noexcept {
-        return memory_ == &other.memory();
-    }
+    bool operator==(const Allocator<U>& other) const noexcept;
 
     template<class U>
-    bool operator!=(const Allocator<U>& other) const noexcept {
-        return !(*this == other);
-    }
+    bool operator!=(const Allocator<U>& other) const noexcept;
 
 private:
     Memory* memory_;
 };
 
 }
+
+#include <unimem/detail/allocator.inl>

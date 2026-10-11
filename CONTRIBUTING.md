@@ -1,7 +1,7 @@
 # Contributing
 
 Open a pull request for a feature branch. CI runs on every pull request and on
-pushes to main, so one change cannot produce conflicting duplicate merge gates.
+pushes to main and dev.
 
 Keep C++20, existing dependency pins and explicit allocator backends. Discuss new dependencies, backend additions and API changes before implementation. Do not replace global `new`/`delete`, commit credentials, local configuration or build output.
 
@@ -11,13 +11,13 @@ For code changes, run the full configured CTest suite, independent public-header
 
 ```sh
 python tools/check-docs.py
-cmake -S . -B build/check -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake -S . -B build/check -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build build/check --config Release --parallel 4
 ctest --test-dir build/check -C Release --output-on-failure
 ```
 
 Reuse already installed dependencies without running another manifest against a shared vcpkg prefix; see [backend setup](docs/guides/backends.md). Performance reports need pinned revisions, workload and machine details, native/API scope, statistics settings, raw trials and a stated acceptance budget. The published September measurements are historical, not a performance gate for new code.
 
-Submit changes through a pull request. The build and release-validation checks must pass before merge; report skips, failures and checks that require another platform. Independent review should address the implementation and evidence rather than infer correctness from a test count. Repository rules do not require a sole maintainer to approve their own pull request. Keep main-branch history. The permanent branch is main; remove temporary contribution branches after merge. Distribute source from main without repository tags or Releases, and record the commit alongside the library version.
+Submit changes through a pull request. The build and release-validation checks must pass before merge; report skips, failures and checks that require another platform. Independent review should address the implementation and evidence rather than infer correctness from a test count. Repository rules do not require a sole maintainer to approve their own pull request. Keep main-branch history. Development runs on dev; main remains the stable branch. Remove temporary experiment branches after their evidence is archived. Record the commit alongside the library version.
 
 Use the issue and pull-request templates for reproducible reports. See [validation instructions](docs/testing.md) for platform evidence and [SECURITY.md](SECURITY.md) for private vulnerability reports.

@@ -1,0 +1,197 @@
+name: performance
+on:
+  push:
+    branches: [main, dev]
+    paths: ['include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      validation_only:
+        description: 'Validate tools and existing published data without benchmarking'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      measure: ${{ steps.scope.outputs.measure }}
+    steps:
+      - id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VALIDATION_ONLY: ${{ inputs.validation_only }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess
+          relevant = True
+          if os.environ.get('VALIDATION_ONLY') == 'true':
+              relevant = False
+          elif os.environ.get('PR_NUMBER'):
+              files = subprocess.check_output(['gh', 'api', '--paginate', f"repos/{os.environ['GITHUB_REPOSITORY']}/pulls/{os.environ['PR_NUMBER']}/files", '--jq', '.[].filename'], text=True).splitlines()
+              relevant = any(path.startswith(('include/', 'tests/', 'benchmarks/', 'tools/', 'cmake/', '.github/workflows/')) or path in ('CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json') for path in files)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as file:
+              file.write('measure=' + str(relevant).lower() + '\n')
+          print('Source/configuration measurement required:', relevant)
+          PY
+  report-tests:
+    needs: changes
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m unittest discover -s tests/tools -v
+      - run: python3 tools/ci/codegen-evidence.py --self-test
+      - run: python3 tools/ci/test-profile-report.py
+      - run: python3 tools/ci/validate-published.py
+  measure:
+    needs: [changes, report-tests]
+    if: needs.changes.outputs.measure == 'true'
+    runs-on: ${{ matrix.platform.os }}
+    # Ten complete same-host rounds plus six sustained calibrations exceeded
+    # 180 minutes on a normally progressing hosted macOS runner. Per-process
+    # 30/600-second watchdogs still identify individual calibration/measurement failures.
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {os: ubuntu-24.04, label: linux-x64}
+          - {os: windows-2022, label: windows-x64}
+          - {os: macos-15, label: macos-arm64}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build pinned explicit backends
+        if: runner.os != 'Windows'
+        run: bash tools/ci/build-backends.sh
+      - name: Windows pinned dependency toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/vcpkg.exe install --triplet=x64-windows-unimemory --overlay-triplets=cmake/triplets --x-install-root=build/sdk-installed --x-feature=mimalloc --x-feature=jemalloc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile and verify benchmark build
+        shell: bash
+        run: |
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          flags=(-DCMAKE_PREFIX_PATH="$workspace/build/prefix")
+          if [ "$RUNNER_OS" = Windows ]; then
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$workspace/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$workspace/cmake/triplets" -DVCPKG_MANIFEST_MODE=OFF -DVCPKG_MANIFEST_INSTALL=OFF -DVCPKG_INSTALLED_DIR="$workspace/build/sdk-installed" -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL)
+            export PATH="$PWD/build/sdk-installed/x64-windows-unimemory/bin:$PATH"
+          fi
+          for backend in standard mimalloc jemalloc; do
+            for statistics in OFF ON; do
+              directory="build/performance/$backend-$statistics"
+              python3 tools/ci/configure.py -- cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}"
+              cmake --build "$directory" --config Release --parallel 4
+              ctest --test-dir "$directory" -C Release --parallel 4 --output-on-failure --no-tests=error
+            done
+          done
+      - name: Measure matched Native and UniMemory workloads
+        shell: bash
+        run: |
+          python3 tools/controlled_benchmarks.py build/performance build/results --trials 10
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-${{ matrix.platform.label }}
+          path: |
+            build/results/
+            build/performance/*/benchmark-build-Release.txt
+            build/performance/*/CMakeCache.txt
+            build/performance/*/compile_commands.json
+          retention-days: 90
+      - name: Existing16 native application benchmarks on the same Linux host
+        if: runner.os == 'Linux'
+        run: bash tools/validate-benchmark-collection.sh "$PWD/build" "$PWD/build/results/controlled-suite.json"
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Linux'
+        with:
+          name: native-application-comparison
+          path: build/collection-results/
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: performance-failure-${{ matrix.platform.label }}
+          path: |
+            build/performance/*/Testing/Temporary/LastTest.log
+            build/configure.log
+            build/sdk-installed/vcpkg/status
+  overview:
+    needs: [changes, report-tests, measure]
+    if: needs.changes.outputs.measure == 'true'
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: performance-*
+          path: build/downloads
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-application-comparison
+          path: build/native-applications
+      - name: Refresh overview tables and original PNG figures
+        shell: powershell
+        run: |
+          python tools/ci/refresh-performance-overview.py --artifacts build/downloads --native-input build/native-applications --source-revision '${{ github.sha }}' --output build/overview/comparison.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tools/render-benchmarks.ps1 -InputJson build/overview/comparison.json -OutputDirectory build/overview
+          Copy-Item -LiteralPath README.md,README.zh-CN.md -Destination build/overview
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-overview
+          path: build/overview/
+  acceptance:
+    name: performance acceptance
+    needs: [changes, report-tests, measure, overview]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          jobs = json.loads(os.environ['RESULTS'])
+          assert jobs['changes']['result'] == jobs['report-tests']['result'] == 'success'
+          measuring = jobs['changes']['outputs']['measure'] == 'true'
+          assert all(jobs[name]['result'] == ('success' if measuring else 'skipped') for name in ('measure', 'overview')), 'Incomplete performance validation'
+          print('Full measurements passed' if measuring else 'No benchmark rerun needed for generated/documentation-only changes')
+          PY
+  publish:
+    needs: acceptance
+    timeout-minutes: 45
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: performance-*
+          path: build/downloads
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-application-comparison
+          path: build/native-applications
+      - name: Open generated-results PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/ci/publish-performance.py build/downloads '${{ github.ref_name }}' --native-input build/native-applications

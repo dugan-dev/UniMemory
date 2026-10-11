@@ -1,0 +1,1300 @@
+{
+  "schema": 3,
+  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "processor": "arm",
+  "architecture": "arm64",
+  "cpu_model": "Apple M1 (Virtual)",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "AppleClang",
+    "CMAKE_CXX_COMPILER_VERSION": "17.0.0.17000013"
+  },
+  "trials": 10,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 3,
+  "executable_sha256": "2be94e895a2e7e42fc195aee521ec9bd111cee49cf3d6313e4c536ce853544ba",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "core": "header-only",
+    "selected_backend": "standard",
+    "selected_statistics": "basic",
+    "checks": 0,
+    "standard_new_provider": "libc++abi.dylib",
+    "resident_measurement": "Mach task resident_size"
+  },
+  "build_profile": {
+    "backend": "standard",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "standard",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "AppleClang 17.0.0.17000013",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0",
+      "compile_options": "",
+      "sdk_target": "standard",
+      "sdk_binary": "",
+      "sdk_linker_file": "",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {},
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "a1e4592a45947deaf1a52664b214ad6cee6b8c261a88c7e9ac8d74cd9682eece",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-11T08:54:15.449766+00:00",
+  "benchmark_source_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "benchmark_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "source_hash_line_endings": "LF",
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "measurement_protocol": "native-api-sustained-v4",
+  "calibration": {
+    "latency": {
+      "16": 21624905,
+      "64": 18136669,
+      "256": 17754935,
+      "4096": 15875987,
+      "65536": 14703555
+    },
+    "scaling": {
+      "scaling:64:1": 23575,
+      "scaling:64:2": 12138,
+      "scaling:64:4": 32,
+      "scaling:64:8": 10,
+      "scaling:64:16": 7,
+      "scaling:4096:1": 2716,
+      "scaling:4096:2": 541,
+      "scaling:4096:4": 15,
+      "scaling:4096:8": 14,
+      "scaling:4096:16": 8,
+      "scaling:65536:1": 103,
+      "scaling:65536:2": 61,
+      "scaling:65536:4": 12,
+      "scaling:65536:8": 10,
+      "scaling:65536:16": 6,
+      "handoff:64:1": 20008,
+      "handoff:64:2": 6867,
+      "handoff:64:4": 32,
+      "handoff:64:8": 10,
+      "handoff:64:16": 9,
+      "handoff:4096:1": 2038,
+      "handoff:4096:2": 981,
+      "handoff:4096:4": 13,
+      "handoff:4096:8": 9,
+      "handoff:4096:16": 6,
+      "handoff:65536:1": 126,
+      "handoff:65536:2": 80,
+      "handoff:65536:4": 17,
+      "handoff:65536:8": 8,
+      "handoff:65536:16": 7
+    },
+    "heap": {}
+  },
+  "target_interval_seconds": 0.25,
+  "calibration_target_seconds": 0.35,
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "standard"
+  ],
+  "paths": [
+    "native",
+    "basic"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "8192 individual allocate/free intervals; clock overhead retained separately",
+  "trace_storage": {
+    "location": "workflow artifacts",
+    "retention_days": 90
+  },
+  "scaling_method": "Per-profile paired rounds; sustained3-pilot calibration; disclosed safety caps; synchronized512-block batches;512MiB maximum live payload; thread creation,warmup,join excluded",
+  "performance_gate": "Report only; all trials retained, short intervals disclosed",
+  "statistic": "Arithmetic mean of independent process intervals; no sample removal",
+  "controlled_suite": {
+    "schema": 3,
+    "protocol": "native-api-sustained-v4",
+    "trials": 10,
+    "seed": 539365393,
+    "profiles": [
+      {
+        "backend": "standard",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {},
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "b5d408e927104158e4cdb3e71906979bfe8ab98c0395caba698718423c2c8eec",
+        "sweep_executable_sha256": "5c67b26b2f9adf422eea370b8b51aa4f478e3bd7af8127712dde7a43b3705fca",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "2dc3ab9f20e2ca7abf5c3a7a3fb6e02ee14ea98b630c1f662ab96ce6bf8f89d5",
+        "heap_operation_counts": {},
+        "delivery_calibration": {
+          "latency": {
+            "16": 21396968,
+            "64": 17958087,
+            "256": 18989191,
+            "4096": 15864766,
+            "65536": 14587192
+          },
+          "scaling": {
+            "scaling:64:1": 15966,
+            "scaling:64:2": 12792,
+            "scaling:64:4": 32,
+            "scaling:64:8": 9,
+            "scaling:64:16": 10,
+            "scaling:4096:1": 4150,
+            "scaling:4096:2": 588,
+            "scaling:4096:4": 14,
+            "scaling:4096:8": 10,
+            "scaling:4096:16": 7,
+            "scaling:65536:1": 114,
+            "scaling:65536:2": 33,
+            "scaling:65536:4": 15,
+            "scaling:65536:8": 8,
+            "scaling:65536:16": 6,
+            "handoff:64:1": 22804,
+            "handoff:64:2": 10721,
+            "handoff:64:4": 32,
+            "handoff:64:8": 25,
+            "handoff:64:16": 10,
+            "handoff:4096:1": 4549,
+            "handoff:4096:2": 1997,
+            "handoff:4096:4": 25,
+            "handoff:4096:8": 10,
+            "handoff:4096:16": 7,
+            "handoff:65536:1": 106,
+            "handoff:65536:2": 29,
+            "handoff:65536:4": 14,
+            "handoff:65536:8": 8,
+            "handoff:65536:16": 7
+          },
+          "heap": {}
+        },
+        "calibration_sha256": "1224d29d383d62212368be6aa94650bff1fb5b751a2a328fa5ec29cec7a165da",
+        "full_calibration_sha256": "761d5526985543902cb0b42a8535a5663238512d501e18724b70ddbb9af555be"
+      },
+      {
+        "backend": "standard",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {},
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "2be94e895a2e7e42fc195aee521ec9bd111cee49cf3d6313e4c536ce853544ba",
+        "sweep_executable_sha256": "43da29771bef758b50c0bc11d700017310166e5f8a4e3e81af43647a8f66d66c",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "07d6ca85c5d27b71a5204c2183f531f6624e8e993e51551fe729c7224baeb5fa",
+        "heap_operation_counts": {},
+        "delivery_calibration": {
+          "latency": {
+            "16": 21624905,
+            "64": 18136669,
+            "256": 17754935,
+            "4096": 15875987,
+            "65536": 14703555
+          },
+          "scaling": {
+            "scaling:64:1": 23575,
+            "scaling:64:2": 12138,
+            "scaling:64:4": 32,
+            "scaling:64:8": 10,
+            "scaling:64:16": 7,
+            "scaling:4096:1": 2716,
+            "scaling:4096:2": 541,
+            "scaling:4096:4": 15,
+            "scaling:4096:8": 14,
+            "scaling:4096:16": 8,
+            "scaling:65536:1": 103,
+            "scaling:65536:2": 61,
+            "scaling:65536:4": 12,
+            "scaling:65536:8": 10,
+            "scaling:65536:16": 6,
+            "handoff:64:1": 20008,
+            "handoff:64:2": 6867,
+            "handoff:64:4": 32,
+            "handoff:64:8": 10,
+            "handoff:64:16": 9,
+            "handoff:4096:1": 2038,
+            "handoff:4096:2": 981,
+            "handoff:4096:4": 13,
+            "handoff:4096:8": 9,
+            "handoff:4096:16": 6,
+            "handoff:65536:1": 126,
+            "handoff:65536:2": 80,
+            "handoff:65536:4": 17,
+            "handoff:65536:8": 8,
+            "handoff:65536:16": 7
+          },
+          "heap": {}
+        },
+        "calibration_sha256": "6650dc80883a4c6779c5df5d76600d47061a6deeceb46422ff622f156160a94b",
+        "full_calibration_sha256": "a7150928f90223b99f31f75a9fd2db2ee079ec56e8a6ca58f5c915589fbfaa9c"
+      },
+      {
+        "backend": "mimalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6",
+          "sdk_linker_file": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "c479d3113899b5a17d4ca0b432f64cad5f900971f78b15822e458061a889e4df",
+        "sweep_executable_sha256": "983f94b8e72c1ef5755a346aa971e34f838a7a3743782dd8b3ca5419f5343350",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "dd97d67791dac49993378e90046612ffa6369c6baf83a2edadf06fe3f8c03886",
+        "heap_operation_counts": {
+          "owns": 100000000,
+          "collect": 1705638,
+          "reset": 118127
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 74776121,
+            "64": 71924589,
+            "256": 59118938,
+            "4096": 23100592,
+            "65536": 21634010
+          },
+          "scaling": {
+            "scaling:64:1": 77712,
+            "scaling:64:2": 61268,
+            "scaling:64:4": 32,
+            "scaling:64:8": 9,
+            "scaling:64:16": 9,
+            "scaling:4096:1": 5642,
+            "scaling:4096:2": 1240,
+            "scaling:4096:4": 13,
+            "scaling:4096:8": 10,
+            "scaling:4096:16": 8,
+            "scaling:65536:1": 572,
+            "scaling:65536:2": 253,
+            "scaling:65536:4": 18,
+            "scaling:65536:8": 11,
+            "scaling:65536:16": 7,
+            "handoff:64:1": 97966,
+            "handoff:64:2": 14645,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 10,
+            "handoff:4096:1": 5109,
+            "handoff:4096:2": 1111,
+            "handoff:4096:4": 13,
+            "handoff:4096:8": 9,
+            "handoff:4096:16": 7,
+            "handoff:65536:1": 358,
+            "handoff:65536:2": 115,
+            "handoff:65536:4": 20,
+            "handoff:65536:8": 8,
+            "handoff:65536:16": 7
+          },
+          "heap": {
+            "owns": 100000000,
+            "collect": 1705638,
+            "reset": 118127
+          }
+        },
+        "calibration_sha256": "99d6f857c550145bf9c153d21828affa38e2b53eae01d527b108bc017a421c35",
+        "full_calibration_sha256": "98fe9125910dd622bd2743af9b297cb1c0f0d64d64fdc9dfd578957214cd68e1"
+      },
+      {
+        "backend": "mimalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6",
+          "sdk_linker_file": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "e295d2cbf876fc3ec5d485a1d1e11aa539b3005f08c84975c715105934b17795",
+        "sweep_executable_sha256": "57e521063cbadd3f3ddde5dcdf5c79d1b0a20443d45088bfe250ceefabb0eb55",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "6f54bf629261c1b6dbff975f8711033abce79de6c28dd5988c17edd9e03e14fc",
+        "heap_operation_counts": {
+          "owns": 86338746,
+          "collect": 1384168,
+          "reset": 94963
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 72086720,
+            "64": 68775964,
+            "256": 52541000,
+            "4096": 24694329,
+            "65536": 22105883
+          },
+          "scaling": {
+            "scaling:64:1": 76135,
+            "scaling:64:2": 29858,
+            "scaling:64:4": 32,
+            "scaling:64:8": 9,
+            "scaling:64:16": 9,
+            "scaling:4096:1": 5720,
+            "scaling:4096:2": 3738,
+            "scaling:4096:4": 10,
+            "scaling:4096:8": 9,
+            "scaling:4096:16": 8,
+            "scaling:65536:1": 508,
+            "scaling:65536:2": 198,
+            "scaling:65536:4": 15,
+            "scaling:65536:8": 9,
+            "scaling:65536:16": 7,
+            "handoff:64:1": 53611,
+            "handoff:64:2": 4397,
+            "handoff:64:4": 32,
+            "handoff:64:8": 10,
+            "handoff:64:16": 14,
+            "handoff:4096:1": 5542,
+            "handoff:4096:2": 841,
+            "handoff:4096:4": 14,
+            "handoff:4096:8": 10,
+            "handoff:4096:16": 7,
+            "handoff:65536:1": 427,
+            "handoff:65536:2": 83,
+            "handoff:65536:4": 16,
+            "handoff:65536:8": 7,
+            "handoff:65536:16": 6
+          },
+          "heap": {
+            "owns": 86338746,
+            "collect": 1384168,
+            "reset": 94963
+          }
+        },
+        "calibration_sha256": "bf2af0891d9871623f5468f85ad58cbba74bac5c44166cabfd8ef7a85e16d478",
+        "full_calibration_sha256": "cdf3ca4fd21ca3cdaec7338fdafee803fc3de3c87ecdfaea6e5c39b43980db13"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69",
+          "sdk_linker_file": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "37df607bfb14e35bb3db37364d8b01476ae66af937d7f78472faa38ae6af4795",
+        "sweep_executable_sha256": "280d902bdea5d7cf04f8c823730be9de8aefd21c135fba10e999a7bfdb4f70f8",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "713865693738a5a078a93cbc52eb5bb0c829c94a5c0a69c96abf59f3d95ed8c7",
+        "heap_operation_counts": {
+          "owns": 2967106,
+          "collect": 2049875,
+          "reset": 720783
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 23391642,
+            "64": 22800034,
+            "256": 22731928,
+            "4096": 19058263,
+            "65536": 2295646
+          },
+          "scaling": {
+            "scaling:64:1": 26744,
+            "scaling:64:2": 19715,
+            "scaling:64:4": 24,
+            "scaling:64:8": 11,
+            "scaling:64:16": 10,
+            "scaling:4096:1": 5177,
+            "scaling:4096:2": 60,
+            "scaling:4096:4": 11,
+            "scaling:4096:8": 10,
+            "scaling:4096:16": 7,
+            "scaling:65536:1": 370,
+            "scaling:65536:2": 160,
+            "scaling:65536:4": 16,
+            "scaling:65536:8": 8,
+            "scaling:65536:16": 7,
+            "handoff:64:1": 25151,
+            "handoff:64:2": 19282,
+            "handoff:64:4": 32,
+            "handoff:64:8": 9,
+            "handoff:64:16": 15,
+            "handoff:4096:1": 5079,
+            "handoff:4096:2": 254,
+            "handoff:4096:4": 13,
+            "handoff:4096:8": 9,
+            "handoff:4096:16": 8,
+            "handoff:65536:1": 319,
+            "handoff:65536:2": 64,
+            "handoff:65536:4": 15,
+            "handoff:65536:8": 9,
+            "handoff:65536:16": 6
+          },
+          "heap": {
+            "owns": 2967106,
+            "collect": 2049875,
+            "reset": 720783
+          }
+        },
+        "calibration_sha256": "8fa35237206bcc44d2872de6e37b9e210ebe304ae1240b82a142e421317a5fc3",
+        "full_calibration_sha256": "f6519335ab1f3ad6957b34e56e185bcfa0c44617e17c4294aeee95546c65325f"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "AppleClang 17.0.0.17000013",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69",
+          "sdk_linker_file": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "f5b8542b43879351c5fe31beab1e933d829043a9281b47c94ae9fdbcfa36c1ec",
+        "sweep_executable_sha256": "823372736817b36f4b44aeec9e3986cda3f00961558b53a2835dbf78c9a34f64",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "c5ea26049d38b636b2743dc48411b563d28830093d740ae9e922e3b19e81590a",
+        "heap_operation_counts": {
+          "owns": 3502218,
+          "collect": 2190582,
+          "reset": 789453
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 24157510,
+            "64": 23839701,
+            "256": 23947109,
+            "4096": 18864689,
+            "65536": 2257270
+          },
+          "scaling": {
+            "scaling:64:1": 19359,
+            "scaling:64:2": 16011,
+            "scaling:64:4": 15,
+            "scaling:64:8": 10,
+            "scaling:64:16": 8,
+            "scaling:4096:1": 4398,
+            "scaling:4096:2": 3497,
+            "scaling:4096:4": 17,
+            "scaling:4096:8": 13,
+            "scaling:4096:16": 8,
+            "scaling:65536:1": 430,
+            "scaling:65536:2": 39,
+            "scaling:65536:4": 13,
+            "scaling:65536:8": 8,
+            "scaling:65536:16": 7,
+            "handoff:64:1": 26615,
+            "handoff:64:2": 21799,
+            "handoff:64:4": 32,
+            "handoff:64:8": 14,
+            "handoff:64:16": 8,
+            "handoff:4096:1": 5376,
+            "handoff:4096:2": 1801,
+            "handoff:4096:4": 26,
+            "handoff:4096:8": 10,
+            "handoff:4096:16": 7,
+            "handoff:65536:1": 450,
+            "handoff:65536:2": 185,
+            "handoff:65536:4": 13,
+            "handoff:65536:8": 8,
+            "handoff:65536:16": 7
+          },
+          "heap": {
+            "owns": 3502218,
+            "collect": 2190582,
+            "reset": 789453
+          }
+        },
+        "calibration_sha256": "46d4ab1434ff7f13a02aa7bebef927cba66c27d37255f061612a2fbabcfca169",
+        "full_calibration_sha256": "f80047f4b1434561280c0510d63783af04dd5a0969b72a25f088a69ceb3fe50c"
+      }
+    ],
+    "schedule": [
+      {
+        "trial": 1,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 1,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 1,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 4,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 4,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 5,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 5,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 8,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 8,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 9,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 9,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "standard",
+        "statistics": "OFF"
+      }
+    ],
+    "calibration_strategy": "Sustained per-profile paired Native/API counts; disclosed caps and short intervals; cross-SDK rates normalized per operation",
+    "full_calibration": "Per SDK/statistics profile; calibrated interval normalized per complete operation",
+    "calibrated_on_all_profiles": true,
+    "target_interval_seconds": 0.25,
+    "short_intervals": "Retained and disclosed; calibration cannot remove hosted runner noise",
+    "host_id": "4165c7e1-02fc-45e0-bfaf-c3bbd13ed893",
+    "cpu_model": "Apple M1 (Virtual)",
+    "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "logical_cpus": 3,
+    "effective_cpus": 3,
+    "affinity": {
+      "method": "Platform has no supported hard affinity API; scheduler unrestricted",
+      "cpus": [],
+      "pinned": false
+    }
+  },
+  "tail_trace_evidence": {
+    "raw/1-standard-native-16.csv.gz": {
+      "sha256": "12750a24c45472ca934e411217c2ea0cc1949544f3e0bce756e2c372a9509010",
+      "samples": 8192
+    },
+    "raw/1-standard-native-64.csv.gz": {
+      "sha256": "3e3d74f830edd0ebb764019c84662e6bdea913c6c5d725814af3ce34ee1a29d5",
+      "samples": 8192
+    },
+    "raw/1-standard-native-256.csv.gz": {
+      "sha256": "7c71363ba80d5dfe8cdabe5db15b820b7e8ef2b1a97eabadc788bf1dd0f8655d",
+      "samples": 8192
+    },
+    "raw/1-standard-native-4096.csv.gz": {
+      "sha256": "420187c8e6b885611a1cb199e55a06197a6bb06279984d1e975cfdc1d1500cbf",
+      "samples": 8192
+    },
+    "raw/1-standard-native-65536.csv.gz": {
+      "sha256": "85aaf8ae9684ee1788c8026ea999f223bdfa05a2b18a2bba9e5f2179fad53f66",
+      "samples": 8192
+    },
+    "raw/1-standard-basic-16.csv.gz": {
+      "sha256": "138defb32ff12aee6f3a26632f0a1daab5010e46c46a25ae198478ef5dc392b8",
+      "samples": 8192
+    },
+    "raw/1-standard-basic-64.csv.gz": {
+      "sha256": "d18ef72b9083d5ee6884f2817c401005741d171a112426e6f20f3e7d2400d7dd",
+      "samples": 8192
+    },
+    "raw/1-standard-basic-256.csv.gz": {
+      "sha256": "f772b8ddd8ee37188a1834bde2e8a9d9aef523755b0e27b0d582fc6bc8f1ac05",
+      "samples": 8192
+    },
+    "raw/1-standard-basic-4096.csv.gz": {
+      "sha256": "4dc497bd6958f88cb70ed38981360706f32e7ac9722dee7317aa904704459577",
+      "samples": 8192
+    },
+    "raw/1-standard-basic-65536.csv.gz": {
+      "sha256": "301cb6612f63542ced127fb29b8c2a5e0952948071a332e8971fd8fa6a080eff",
+      "samples": 8192
+    },
+    "raw/2-standard-native-16.csv.gz": {
+      "sha256": "b5a5f62653f8b3d14f46508cbf2fbad0d688e9c4296d1ea5cd126de09c7571f4",
+      "samples": 8192
+    },
+    "raw/2-standard-native-64.csv.gz": {
+      "sha256": "d87c8401cc69cb23aed47190cb0be5f6a2e500b743dcdd95bb0567376fb56057",
+      "samples": 8192
+    },
+    "raw/2-standard-native-256.csv.gz": {
+      "sha256": "077816e95455aa9d08f158cf089b2b280024e9245eaf629d0dac6a457110b547",
+      "samples": 8192
+    },
+    "raw/2-standard-native-4096.csv.gz": {
+      "sha256": "dc471cec93c5aaea8b7959b0d07546f8aa88fbb3d05d68d521ee0cb715ea04bb",
+      "samples": 8192
+    },
+    "raw/2-standard-native-65536.csv.gz": {
+      "sha256": "32f539740fdf664fce39160d220a9c92ab62731088e6c0203d67094a23ef900f",
+      "samples": 8192
+    },
+    "raw/2-standard-basic-16.csv.gz": {
+      "sha256": "ffcf8f209bd56798875209658e8ee5ca949bea038555363e638f42d9577550d6",
+      "samples": 8192
+    },
+    "raw/2-standard-basic-64.csv.gz": {
+      "sha256": "2eba3563f0c017bade7d16ada2cbe23ebe92b79eee314efcb36cdc38a8544d8e",
+      "samples": 8192
+    },
+    "raw/2-standard-basic-256.csv.gz": {
+      "sha256": "885c498ea08020f4f3c2e0f0952895c1d1aa2caf306be3ecbeeade2d789fdb5b",
+      "samples": 8192
+    },
+    "raw/2-standard-basic-4096.csv.gz": {
+      "sha256": "e943b5778f4da673e0fa1fce8edd2e2783ca25fc3a1956e290870e64c1986479",
+      "samples": 8192
+    },
+    "raw/2-standard-basic-65536.csv.gz": {
+      "sha256": "e6c35fa08bede414f07005638d08772764c7503433a24a74ac1e8ba0c3fe736b",
+      "samples": 8192
+    },
+    "raw/3-standard-native-16.csv.gz": {
+      "sha256": "11b2d229268e0ec2771a46c880ae24755b391846bcee63a5beeff9b60d8281d6",
+      "samples": 8192
+    },
+    "raw/3-standard-native-64.csv.gz": {
+      "sha256": "a91ad442b2485b2b62cbb9557858eb95ba1c6da17f261eb17d9e28bf4a8c97f8",
+      "samples": 8192
+    },
+    "raw/3-standard-native-256.csv.gz": {
+      "sha256": "4dddbda71f0fef5c7f16f2aa94f27e73bd0eb8b9899ffd871aec86e2a777fd1d",
+      "samples": 8192
+    },
+    "raw/3-standard-native-4096.csv.gz": {
+      "sha256": "68d3cba1f3782d4d34a85de850cab7b34874717e8acac6ffe316b7037b2283bd",
+      "samples": 8192
+    },
+    "raw/3-standard-native-65536.csv.gz": {
+      "sha256": "27e3faec5789daf0b5e69aef0fcc3043158f954ab8fa0b362b9e2788d133979c",
+      "samples": 8192
+    },
+    "raw/3-standard-basic-16.csv.gz": {
+      "sha256": "b4a3f3499b0553db56a1076585c147f6da57a1fc1c8aa5c24339496f1f1b4490",
+      "samples": 8192
+    },
+    "raw/3-standard-basic-64.csv.gz": {
+      "sha256": "18c75edae964d3b1835ee3ffb3ff107c78593c25732cbe62bc9f98f9835a575a",
+      "samples": 8192
+    },
+    "raw/3-standard-basic-256.csv.gz": {
+      "sha256": "687911283bb0f2ccba0e24107617ddad2f9669409ad4e66caea853f3c07c43ee",
+      "samples": 8192
+    },
+    "raw/3-standard-basic-4096.csv.gz": {
+      "sha256": "ec1454f5722728b3b8e9741f4abbff7e6daf6f252a1b8e062109bce36e39922e",
+      "samples": 8192
+    },
+    "raw/3-standard-basic-65536.csv.gz": {
+      "sha256": "e59318f4e85ad17ca68d691275c5618fc27a83ee5c822f0a203ad4aead19a4a0",
+      "samples": 8192
+    },
+    "raw/4-standard-native-16.csv.gz": {
+      "sha256": "d9f3781cbe042114067dcc17c50dd91378f0ee17aac237ac1ebb89a1791c1951",
+      "samples": 8192
+    },
+    "raw/4-standard-native-64.csv.gz": {
+      "sha256": "db1b43e515db3323e590b5a0f9c43ea849d4f62fa00d85b9719ca205659e878b",
+      "samples": 8192
+    },
+    "raw/4-standard-native-256.csv.gz": {
+      "sha256": "59685261fe929fe487b692aa45ca9dbc4b73d4a3e3fc4a307d49a69d734a24d4",
+      "samples": 8192
+    },
+    "raw/4-standard-native-4096.csv.gz": {
+      "sha256": "b0edac6f32abbb7a11bf31f7c3ddb857071a2fd87331dc03beba56e8da1e9400",
+      "samples": 8192
+    },
+    "raw/4-standard-native-65536.csv.gz": {
+      "sha256": "bdf0f43b0e06bb198e4a6744342fd8de7769c3c4036828c20a5de47e50c692e7",
+      "samples": 8192
+    },
+    "raw/4-standard-basic-16.csv.gz": {
+      "sha256": "d40211f5fc8dd2aafbd6a7c26d2b0e1c6da67500a6414a648ef0e40bd44d943d",
+      "samples": 8192
+    },
+    "raw/4-standard-basic-64.csv.gz": {
+      "sha256": "a1b2b5d687c02f6568ce7584b2b932f82f505a0b955c3bb6ee601e44a851ca65",
+      "samples": 8192
+    },
+    "raw/4-standard-basic-256.csv.gz": {
+      "sha256": "97334a6d31787678ea2b447275b23a32c15c3faba62cf4d140ec72c400c409b5",
+      "samples": 8192
+    },
+    "raw/4-standard-basic-4096.csv.gz": {
+      "sha256": "87f2ca4411dac9271bd62b1ba1dfea088126142d55553cc3fb404221333667cc",
+      "samples": 8192
+    },
+    "raw/4-standard-basic-65536.csv.gz": {
+      "sha256": "f7d98204b4399eb706c7925c14393300e8b019529f81d36bb25f89a06aca2647",
+      "samples": 8192
+    },
+    "raw/5-standard-native-16.csv.gz": {
+      "sha256": "15f59f9dcdcb5b94f5d109d0ec88908898d3cacb83b5c6123a948c0486f13079",
+      "samples": 8192
+    },
+    "raw/5-standard-native-64.csv.gz": {
+      "sha256": "b5f19cf667333576bff187ccc0e0f9ce95006f20294c7ee925094e290fb038e7",
+      "samples": 8192
+    },
+    "raw/5-standard-native-256.csv.gz": {
+      "sha256": "8a30679c2d6f3b24cc509474b56c71c41a59c5a0d12be6aed9732dcc66769cc8",
+      "samples": 8192
+    },
+    "raw/5-standard-native-4096.csv.gz": {
+      "sha256": "a8bc517bdacaf90646614410eb0818a16051b83b8b0d04e470021f3a8ec8aea3",
+      "samples": 8192
+    },
+    "raw/5-standard-native-65536.csv.gz": {
+      "sha256": "9883b1b95e615f9070b3ac95cf1b068a84d05b12774ab297b9eb6ecce10509a9",
+      "samples": 8192
+    },
+    "raw/5-standard-basic-16.csv.gz": {
+      "sha256": "2a295ec0e10dedd30e0739499b6fe55a970167ee6951489fee169ab17ab4dbc0",
+      "samples": 8192
+    },
+    "raw/5-standard-basic-64.csv.gz": {
+      "sha256": "bf6153a7b35022247b2aca38bd2fe9e76db1501af7fce2c18525aa76577bcc9f",
+      "samples": 8192
+    },
+    "raw/5-standard-basic-256.csv.gz": {
+      "sha256": "dee34bb31beaebb9744c07562cd40ac6ed21472bca9267e7a9959c80376c8bd7",
+      "samples": 8192
+    },
+    "raw/5-standard-basic-4096.csv.gz": {
+      "sha256": "f5bb9a5bb420db3e226a24b41727e5baa70bda8cbad031707a50a82686c7f1f7",
+      "samples": 8192
+    },
+    "raw/5-standard-basic-65536.csv.gz": {
+      "sha256": "b49236fb17219909015b698df2bee743cb62e9373a8a28c54a163f9615cd8b49",
+      "samples": 8192
+    },
+    "raw/6-standard-native-16.csv.gz": {
+      "sha256": "3c40485c57faf37a965ccc2c569c3b555eeb1e2cbec53aa0f895aabe16649e9e",
+      "samples": 8192
+    },
+    "raw/6-standard-native-64.csv.gz": {
+      "sha256": "fc10d0a127fb16a23a8840ae9d2deaee10597555daaf39ce0e3f6a084371c2f6",
+      "samples": 8192
+    },
+    "raw/6-standard-native-256.csv.gz": {
+      "sha256": "02dcb1f754e779297d1af4d760fdf68eea63785a3c50cb608d85ed9a7350362d",
+      "samples": 8192
+    },
+    "raw/6-standard-native-4096.csv.gz": {
+      "sha256": "848f6f8b5c942c6bc233a6678a3943f6d59d0785e1145a600f181bffbaf9c803",
+      "samples": 8192
+    },
+    "raw/6-standard-native-65536.csv.gz": {
+      "sha256": "480c00efdcec3c2fd4aed76f1877cb5fca4f63e347bc903e2e1dfb753cad1dc5",
+      "samples": 8192
+    },
+    "raw/6-standard-basic-16.csv.gz": {
+      "sha256": "0d1afe8334e256aa0a11be966b8e2652d0c30545255dd3a4152950afa65d8276",
+      "samples": 8192
+    },
+    "raw/6-standard-basic-64.csv.gz": {
+      "sha256": "c23a117a02d85bed16bcfa81d08dbe9de91e5e85b5284898fe7d35ef0d8fc475",
+      "samples": 8192
+    },
+    "raw/6-standard-basic-256.csv.gz": {
+      "sha256": "137101cd042e645164fcb4c86bebc19192838f6037baad27bc5061bf062c6f59",
+      "samples": 8192
+    },
+    "raw/6-standard-basic-4096.csv.gz": {
+      "sha256": "4a9befa4ec43999e7b98123fb4ca41d19f608fdf176fa5dc0bae459079e10bc1",
+      "samples": 8192
+    },
+    "raw/6-standard-basic-65536.csv.gz": {
+      "sha256": "9581e56ec80dad83234b230a1c218ca8fe64597265c9b1ef64d9463f9fa61c66",
+      "samples": 8192
+    },
+    "raw/7-standard-native-16.csv.gz": {
+      "sha256": "eab11d39edf1f8b0828d266cd0ddec4deb7872558377c64ee3859ef3f7c427f3",
+      "samples": 8192
+    },
+    "raw/7-standard-native-64.csv.gz": {
+      "sha256": "191b544f8430c488e07dc97a6fa919fcfa967b2b156b8cafe4d20046a195991d",
+      "samples": 8192
+    },
+    "raw/7-standard-native-256.csv.gz": {
+      "sha256": "3bf1d3300f771b930581bb09de838078f9118dc086411e57c770d907892caa4c",
+      "samples": 8192
+    },
+    "raw/7-standard-native-4096.csv.gz": {
+      "sha256": "7a34b50c626b60328ab483780553ae874030595fe2de8aeddf9b1015f4c7f3f7",
+      "samples": 8192
+    },
+    "raw/7-standard-native-65536.csv.gz": {
+      "sha256": "03542f449188c1936c088eaee4949b1a723d7f048b7e389189ba4ab897191f97",
+      "samples": 8192
+    },
+    "raw/7-standard-basic-16.csv.gz": {
+      "sha256": "8044ab8f307afef1aa3e00e3ba6cafe9884afafe83e5506abeafdd2fb075eb1f",
+      "samples": 8192
+    },
+    "raw/7-standard-basic-64.csv.gz": {
+      "sha256": "95dacd4baa291685828ec961b8f1e4522450dd6d15e41ac802f9c7766a035f2f",
+      "samples": 8192
+    },
+    "raw/7-standard-basic-256.csv.gz": {
+      "sha256": "c1714e9a357b0b62a0c064af431f5f27c74e51eeeef197a0ef0e7e0ab8d76ffc",
+      "samples": 8192
+    },
+    "raw/7-standard-basic-4096.csv.gz": {
+      "sha256": "56d1c0d0a937e319997078b3c2dc404444265faceedbce67a21f477309f55c29",
+      "samples": 8192
+    },
+    "raw/7-standard-basic-65536.csv.gz": {
+      "sha256": "97f48c87a76ae43bff0dd7c527454fd0fd47c6cf83ea0084f0a5fe204f2dfbf2",
+      "samples": 8192
+    },
+    "raw/8-standard-native-16.csv.gz": {
+      "sha256": "680f4827c026bc723338e6bb1d0a339f5e635133356b83de2ab186a68264928b",
+      "samples": 8192
+    },
+    "raw/8-standard-native-64.csv.gz": {
+      "sha256": "c6cddc8ee4831ebd01fe83d4ad5ddcca1b240c81b7c45401091701404b13c6ce",
+      "samples": 8192
+    },
+    "raw/8-standard-native-256.csv.gz": {
+      "sha256": "4ab7d522f2dfe2be8aef81607166b783fd3e657c3b64481d9784bbc32c2e570b",
+      "samples": 8192
+    },
+    "raw/8-standard-native-4096.csv.gz": {
+      "sha256": "c90b9243b22f01caf73a2741baee4ee7e05a3dbafedd813f187448d48f8505a2",
+      "samples": 8192
+    },
+    "raw/8-standard-native-65536.csv.gz": {
+      "sha256": "d948e2d239064b5de6606a38a12586ec592d606da8de0eb1976c72750852bc1f",
+      "samples": 8192
+    },
+    "raw/8-standard-basic-16.csv.gz": {
+      "sha256": "ad34a44c2815f7cd68b5a6c32fc909faf50690d3742d35c9fba89aa36d170c71",
+      "samples": 8192
+    },
+    "raw/8-standard-basic-64.csv.gz": {
+      "sha256": "11801b87586e4f4a68840221109e32725772a9bddec228a7841baa538455e5cd",
+      "samples": 8192
+    },
+    "raw/8-standard-basic-256.csv.gz": {
+      "sha256": "4fd21d35b36e70fb59cbb1502fffc1dd42ef9eed0863066349897620ea939dbb",
+      "samples": 8192
+    },
+    "raw/8-standard-basic-4096.csv.gz": {
+      "sha256": "aeca6a9ef215b91b4d7172a2d720bb3c08642c2ca483e256885dc8a37b3cde49",
+      "samples": 8192
+    },
+    "raw/8-standard-basic-65536.csv.gz": {
+      "sha256": "9f30e848a2a9fb4a524add22a21bfda4897dfbcd8e92bb3653794b7da3e23e55",
+      "samples": 8192
+    },
+    "raw/9-standard-native-16.csv.gz": {
+      "sha256": "4d0534b10d997561ef1f1f84bd539009e300678dcb5f7e31f08df8a115c51a5f",
+      "samples": 8192
+    },
+    "raw/9-standard-native-64.csv.gz": {
+      "sha256": "8e733dab8880aa8dc4294fe8c13e262a91bf3ec875b9062c7bb9f403a5fb480e",
+      "samples": 8192
+    },
+    "raw/9-standard-native-256.csv.gz": {
+      "sha256": "d02c715e88597be1107d035936861c30486e8832f0230274d7f0122bb10fef53",
+      "samples": 8192
+    },
+    "raw/9-standard-native-4096.csv.gz": {
+      "sha256": "216854f3eb43c28bf17579ffc84dd8178544dc2887c4508b7fe95a23826a2ba1",
+      "samples": 8192
+    },
+    "raw/9-standard-native-65536.csv.gz": {
+      "sha256": "7f04257f16200c1d7de692d8e827b7a17c96f1be0303848adce69068fa22feac",
+      "samples": 8192
+    },
+    "raw/9-standard-basic-16.csv.gz": {
+      "sha256": "afec44e43308e8441d97e565b335d7478e971cfa4cfec2e2fcd04dc5f76e8532",
+      "samples": 8192
+    },
+    "raw/9-standard-basic-64.csv.gz": {
+      "sha256": "e45615b114ad0ab33b0af9c7914325bc0a41bdedc39a3e61bc4d182d1dbcd6f9",
+      "samples": 8192
+    },
+    "raw/9-standard-basic-256.csv.gz": {
+      "sha256": "a96a85c92af25b3bc26a305a3a12c41a848f9b6d6c400845a762f0a96eeb7cca",
+      "samples": 8192
+    },
+    "raw/9-standard-basic-4096.csv.gz": {
+      "sha256": "7d4aec890c8238e2c473e54087186d19366a43dfefbecbe3af4db3b06dc354a5",
+      "samples": 8192
+    },
+    "raw/9-standard-basic-65536.csv.gz": {
+      "sha256": "6059f11fa5770311adb34bb03cb59a17d50601ee38055c6266b0658c780a02a8",
+      "samples": 8192
+    },
+    "raw/10-standard-native-16.csv.gz": {
+      "sha256": "4050b89dcf211bd4bc61a7f173e79f70c901e96d53c201ede6e8e34f8807e000",
+      "samples": 8192
+    },
+    "raw/10-standard-native-64.csv.gz": {
+      "sha256": "3b233734536da4a7d0cf0d9ea06764a9ba6f3a8931d07326bd3254db1bb158d0",
+      "samples": 8192
+    },
+    "raw/10-standard-native-256.csv.gz": {
+      "sha256": "05414e8ce9a9ea4f066bab80aaf5211e9fc529c046e66ca7a0a362803da11253",
+      "samples": 8192
+    },
+    "raw/10-standard-native-4096.csv.gz": {
+      "sha256": "63a7bba1c476ed5f4220bac705bf1491b73f58fd4f13128109fab30f47c789d2",
+      "samples": 8192
+    },
+    "raw/10-standard-native-65536.csv.gz": {
+      "sha256": "253dac909e8392434c0406e54f7895398ad3476715acf3c5326d493795e3e12d",
+      "samples": 8192
+    },
+    "raw/10-standard-basic-16.csv.gz": {
+      "sha256": "d4f4d31ea4f4704ed35ae7ef737ddde3b9d7e9ab9cf637e68f96ee22d02915f4",
+      "samples": 8192
+    },
+    "raw/10-standard-basic-64.csv.gz": {
+      "sha256": "dda05b638378901232b9e94a6ded6c8ea3f69f091e26d897e7a1dd3fa17f5d83",
+      "samples": 8192
+    },
+    "raw/10-standard-basic-256.csv.gz": {
+      "sha256": "8b74c0c9b62723dddf8340a99cd45e2b78b01174606a16eb84780b2909e6716d",
+      "samples": 8192
+    },
+    "raw/10-standard-basic-4096.csv.gz": {
+      "sha256": "7d395a0bb2c4c636a9d2e73ac081de45b96589e4c262f8ae640311b177295fc5",
+      "samples": 8192
+    },
+    "raw/10-standard-basic-65536.csv.gz": {
+      "sha256": "4c8b7f840650aaf0816d53d1be1f149394f8205cfae0af1968cf38f1add4221a",
+      "samples": 8192
+    }
+  }
+}

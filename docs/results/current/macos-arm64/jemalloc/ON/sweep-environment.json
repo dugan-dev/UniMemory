@@ -1,0 +1,62 @@
+{
+  "schema": 3,
+  "version": "0.0.1",
+  "build_profile": {
+    "backend": "jemalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "jemalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "AppleClang 17.0.0.17000013",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
+      "compile_options": "",
+      "sdk_target": "unimemory_jemalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
+        "sha256": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
+        "sha256": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "7925b0cff3d8b4e1d5780902d36540b52a3adef6bba2bad8465e7a9e9afe604e",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "c5ea26049d38b636b2743dc48411b563d28830093d740ae9e922e3b19e81590a",
+  "measured_at_utc": "2026-10-11T11:14:34.215529+00:00",
+  "executable_sha256": "823372736817b36f4b44aeec9e3986cda3f00961558b53a2835dbf78c9a34f64",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "f80047f4b1434561280c0510d63783af04dd5a0969b72a25f088a69ceb3fe50c"
+}

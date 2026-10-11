@@ -1,8 +1,8 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
-现代 C++20 内存分配库，为 Standard、mimalloc 和 jemalloc 提供统一接口。
+现代 C++20 纯头文件内存分配库，构建时选择 Standard、mimalloc 或 jemalloc，使用统一接口。
 
 [English](README.md) · **简体中文**
 
@@ -38,8 +38,8 @@
 #include <unimem/memory.h>
 
 int main() {
-    // 获取全局分配器，后端可选 Standard、Mimalloc、Jemalloc
-    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
+    // 获取本次构建所选后端的全局 Memory
+    unimem::Memory& memory = unimem::Memory::global();
 
     // 普通分配与释放
     void* bytes = memory.allocate(1024);
@@ -153,11 +153,9 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### 堆
 
 ```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
-
 // 支持时创建堆
-if (unimem::available(backend) && unimem::capabilities(backend).heap) {
-    unimem::Memory heap = unimem::Memory::heap(backend);
+if (unimem::capabilities().heap) {
+    unimem::Memory heap = unimem::Memory::heap();
 
     // 检查归属并释放
     void* bytes = heap.allocate(1024);
@@ -197,59 +195,35 @@ scratch.reset();
 ### 初始化与统计
 
 ```cpp
-#include <vector>
+// 通过 UNIMEMORY_STATISTICS=ON 启用请求计数
+unimem::Memory& memory = unimem::Memory::global();
+unimem::OwnedBlock block = memory.make_block(1024);
 
-const unimem::Backend backends[] = {
-    unimem::Backend::Standard,
-    unimem::Backend::Mimalloc,
-    unimem::Backend::Jemalloc
-};
-
-// 保存可用的 Memory
-std::vector<unimem::Memory*> memories;
-
-for (unimem::Backend backend : backends) {
-    // 跳过未启用的后端
-    if (!unimem::available(backend)) {
-        continue;
-    }
-
-    // 首次获取前启用统计
-    unimem::Memory::configure_global(backend, unimem::StatisticsMode::Basic);
-    memories.push_back(&unimem::Memory::global(backend));
+// 查询请求次数与字节数；关闭计数时为空
+std::optional<unimem::MemoryStatistics> stats = memory.statistics();
+if (stats) {
+    std::uint64_t live = stats->live_bytes;
+    std::uint64_t peak = stats->peak_live_bytes;
+    std::uint64_t calls = stats->allocations;
 }
 
-// 使用保存的 Memory，并查询统计
-for (unimem::Memory* memory : memories) {
-    unimem::OwnedBlock block = memory->make_block(1024);
-
-    // 查询请求次数与字节数
-    std::optional<unimem::MemoryStatistics> stats = memory->statistics();
-    if (stats) {
-        std::uint64_t live = stats->live_bytes;
-        std::uint64_t peak = stats->peak_live_bytes;
-        std::uint64_t calls = stats->allocations;
-    }
-
-    // 原生统计字段可能不可用
-    std::optional<unimem::BackendStatistics> details = memory->backend_statistics();
-    if (details && details->committed_bytes) {
-        std::uint64_t committed = *details->committed_bytes;
-        unimem::BackendStatisticsScope scope = details->scope;
-    }
+// 原生统计字段可能不可用
+std::optional<unimem::BackendStatistics> details = memory.backend_statistics();
+if (details && details->committed_bytes) {
+    std::uint64_t committed = *details->committed_bytes;
+    unimem::BackendStatisticsScope scope = details->scope;
 }
 ```
 
 ### 运行时选项
 
 ```cpp
-const unimem::Backend backend = unimem::Backend::Mimalloc;
 const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
 
 // 正常分配前设置后端级选项
-if (unimem::supports(backend, option)) {
+if (unimem::supports(option)) {
     // 将闲置页释放延迟设为 1000 毫秒
-    bool configured = unimem::set_runtime_option(backend, option, 1000);
+    bool configured = unimem::set_runtime_option(option, 1000);
 }
 ```
 
@@ -258,11 +232,11 @@ if (unimem::supports(backend, option)) {
 | 平台 | Standard | mimalloc | jemalloc | 编译器 |
 | --- | :---: | :---: | :---: | --- |
 | Windows x64 | ✔ | ✔ | ✔ | MSVC |
-| Linux x64 | ✔ | ✔ | ✔ | GCC |
+| Linux x64 | ✔ | ✔ | ✔ | GCC / Clang |
 | macOS | ✔ | ✔ | ✔ | Apple Clang |
 | Android / iOS | — | — | — | 尚未设备验证 |
 
-✔ 已支持；— 尚未设备验证。[平台说明](docs/guides/backends.zh-CN.md)
+✔ 已支持；— 尚待验证。[平台说明](docs/guides/backends.zh-CN.md)
 
 ## 功能
 
@@ -273,28 +247,28 @@ if (unimem::supports(backend, option)) {
 | 独立堆 | — | ✔ | ✔ |
 | 原生统计范围 | — | 进程 | 进程 / 独立堆，取决于构建 |
 | 闲置内存释放延迟 | — | ✔ | ✔ |
-| 额外依赖 | 无 | 可选 | 可选 |
+| 额外依赖 | 无 | SDK | SDK |
 
-Standard 无需额外依赖；mimalloc、jemalloc 按需启用。[配置指南](docs/guides/backends.zh-CN.md)
+Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。[配置指南](docs/guides/backends.zh-CN.md)
 
 ## 性能
 
-Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越小越快**。
+Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。取 10 轮独立进程测量的算术平均值，单位 **ns/次，越小越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| 创建并销毁对象，64 B | 46.4 | 12.2 | 36.0 |
-| vector 增长并销毁，32 个整数 | 590.3 | 237.4 | 488.5 |
-| 分配、扩容、释放，4 → 8 KiB | 168.5 | 139.8 | 149.4 |
-| 单线程分配，8 个线程释放 | 105.4 | 59.8 | 166.6 |
+| 创建并销毁对象，64 B | 33.8 | 5.4 | 31.4 |
+| vector 增长并销毁，32 个 `uint64_t` | 415.1 | 135.0 | 394.5 |
+| 分配、扩容、释放，4 → 8 KiB | 127.4 | 89.0 | 131.3 |
+| 单线程分配，8 个线程释放 | 57.8 | 27.2 | 59.4 |
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-图中 Standard = 1，条形越短越快。[完整测量报告](docs/performance.zh-CN.md)
+各后端独立测量；图中 Standard = 1，条形越短越快。[完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 
-需要 **C++20** 和 **CMake 3.25+**。下载[源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip)，解压后在源码目录执行：
+需要 **C++20** 和 **CMake 3.25+**。下载[源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，解压后在源码目录执行：
 
 ```sh
 cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
@@ -302,7 +276,7 @@ cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-库安装至 `build/installed`。[构建选项](docs/getting-started.zh-CN.md#构建选项)
+头文件安装到 `build/installed`。release 预设选择 Standard 并关闭统计，可通过[构建选项](docs/getting-started.zh-CN.md#构建选项)调整。
 
 ## 项目集成
 
@@ -317,7 +291,7 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-配置项目时，用 `-DCMAKE_PREFIX_PATH=<安装目录的绝对路径>` 指定安装位置。源码集成可用 `add_subdirectory(UniMemory)` 替代 `find_package(...)`。[集成指南](docs/getting-started.zh-CN.md)
+配置自己的项目时传入 `-DCMAKE_PREFIX_PATH=<安装目录绝对路径>`。源码集成时，在 `add_subdirectory(UniMemory)` 前设置 `UNIMEMORY_BACKEND` 与 `UNIMEMORY_STATISTICS`。[项目集成指南](docs/getting-started.zh-CN.md)
 
 ## 文档
 

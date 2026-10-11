@@ -4,7 +4,7 @@
 
 Examples: [Quick Start](../../README.md#quick-start).
 
-`UnusedPageReleaseDelayMs` adjusts how long unused memory may wait before returning to the OS. Allocators may cache freed storage for reuse. Check `supports()` first.
+`UnusedPageReleaseDelayMs` adjusts how long unused memory may wait before returning to the OS. Allocators may cache freed storage for reuse. Check `supports(option)`, then call `set_runtime_option(option, value)` for the CMake-selected backend.
 
 | Value | Request |
 | --- | --- |

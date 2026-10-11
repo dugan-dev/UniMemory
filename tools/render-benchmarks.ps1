@@ -11,6 +11,9 @@ $data = Get-Content -LiteralPath $InputJson -Raw | ConvertFrom-Json
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $palette = @('#94A3B8', '#0284C7', '#0D9488')
 $backends = @('standard', 'mimalloc', 'jemalloc')
+$aggregation = if ($data.statistics.aggregation -eq 'mean') { 'Mean' } else { 'Median' }
+$trials = if ($data.statistics.trials) { [int]$data.statistics.trials } else { 3 }
+$sampling = "$aggregation of $trials fresh processes"
 
 function New-Chart([string]$Title, [string]$Subtitle, [int]$Height) {
     $chart = New-Object System.Windows.Forms.DataVisualization.Charting.Chart
@@ -47,7 +50,7 @@ function New-Area($Chart, [string]$Name, [float]$Left, [float]$Width) {
     return $area
 }
 
-$chart = New-Chart 'Allocation time by Backend' 'Standard = 1 within each workload. Shorter is faster. Statistics off.' 950
+$chart = New-Chart 'Allocation time by Backend' "Standard = 1 within each workload. Shorter is faster. Statistics off. $sampling." 950
 try {
     for ($panel = 0; $panel -lt 2; ++$panel) {
         $platform = @('windows', 'linux')[$panel]
@@ -62,7 +65,7 @@ try {
         }
         $area.AxisY.Maximum = [Math]::Ceiling($maximumRatio * 2) / 2 + 0.5
         $area.AxisY.Interval = 0.5
-        $area.AxisY.Title = @('Windows / MSVC 19.44', 'Linux / WSL / GCC 13.3')[$panel]
+        $area.AxisY.Title = @('Windows / MSVC 19.44', 'Linux / GCC 13.3')[$panel]
         for ($index = 0; $index -lt 3; ++$index) {
             $backend = $backends[$index]
             $series = $chart.Series.Add("$platform-$backend")
@@ -83,13 +86,18 @@ try {
     $chart.SaveImage((Join-Path $OutputDirectory 'workload-comparison.png'), 'Png')
 } finally { $chart.Dispose() }
 
-$chart = New-Chart 'Memory during allocation and free' 'Windows x64. RSS above baseline, MiB. Median of 3 processes; no explicit collect.' 650
+$chart = New-Chart 'Memory during allocation and free' "Windows x64. RSS above baseline, MiB. $sampling; no explicit collect." 650
 try {
+    $memoryMaximum = 0.0
+    foreach ($row in $data.platforms.windows.pressure) {
+        $memoryMaximum = [Math]::Max($memoryMaximum, $row.requested_mib)
+        $memoryMaximum = [Math]::Max($memoryMaximum, $row.resident_delta_mib)
+    }
     for ($panel = 0; $panel -lt 3; ++$panel) {
         $backend = $backends[$panel]
         $area = New-Area $chart $backend (1 + 33 * $panel) 32
         $area.AxisY.Minimum = 0
-        $area.AxisY.Maximum = 55
+        $area.AxisY.Maximum = [Math]::Ceiling($memoryMaximum / 10) * 10 + 10
         $area.AxisY.Interval = 10
         $area.AxisY.Title = @('Standard - MiB', 'mimalloc - MiB', 'jemalloc - MiB')[$panel]
         $area.AxisX.LabelStyle.Angle = -25

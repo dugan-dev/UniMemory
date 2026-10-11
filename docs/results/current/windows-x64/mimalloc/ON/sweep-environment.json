@@ -1,0 +1,67 @@
+{
+  "schema": 3,
+  "version": "0.0.1",
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "MSVC 19.44.35229.0",
+      "msvc_runtime": "MultiThreadedDLL",
+      "flags": "/DWIN32 /D_WINDOWS /EHsc",
+      "release_flags": "/O2 /Ob2 /DNDEBUG",
+      "debug_flags": "/Ob0 /Od /RTC1",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "/Ob3",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "D:/a/UniMemory/UniMemory/build/sdk-installed/x64-windows-unimemory/bin/mimalloc.dll",
+      "sdk_linker_file": "D:/a/UniMemory/UniMemory/build/sdk-installed/x64-windows-unimemory/lib/mimalloc.dll.lib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
+        "sha256": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+      },
+      "sdk_linker_file": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
+        "sha256": "d785088891a82b1af135328333d22bc3b30bed6d962c836935b93d7ebe6690b1"
+      }
+    },
+    "runtime_dlls": {
+      "mimalloc.dll": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+    },
+    "sdk_runtime_files": {
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "26f8d3736287029ed9bf8d154b814bfd8ec65ed5c43973016e1d22fc40c3fbb5",
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+    },
+    "cmake_cache_sha256": "a5fc46d08a8c0eadb7e0c72785b2498e3bb86535ace17274bbe1affc6ad72c31",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 4,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": true,
+  "sequential_processes": true,
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "710fae631afda18c8830a00d0d5417fc914ac321f60983927869bb0129249063",
+  "measured_at_utc": "2026-10-11T10:11:44.582300+00:00",
+  "executable_sha256": "8cf84ae8822096a4f9174228fc42a4eb7e5646bfa55da3848f5dd5574ec11a07",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "58b35ba89d544473e63f30e26c525c75f173d2f896cde4f293ee4b07fe94c03f"
+}

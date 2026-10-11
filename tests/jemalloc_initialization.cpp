@@ -13,7 +13,7 @@
 
 namespace {
 using namespace unimem;
-constexpr auto backend = Backend::Jemalloc;
+static_assert(detail::build_backend == Backend::Jemalloc);
 
 void check(bool condition, const char* message) {
     if (!condition) { throw std::runtime_error(message); }
@@ -43,18 +43,18 @@ void worker(std::string_view mode, Memory* shared, unsigned index, unsigned loop
     if (mode == "shared") {
         allocate(*shared, loops);
     } else if (mode == "heap") {
-        auto memory = Memory::heap(backend);
+        auto memory = Memory::heap();
         allocate(memory, loops);
         auto block = memory.make_block(128, 64);
         check(memory.owns(block.data()), "heap allocation lost its arena");
     } else {
         if (mode == "capabilities") {
-            check(capabilities(backend).release_delay, "jemalloc capabilities unavailable");
+            check(capabilities().release_delay, "jemalloc capabilities unavailable");
         } else if (mode == "option") {
-            check(set_runtime_option(backend, RuntimeOption::UnusedPageReleaseDelayMs, 10),
+            check(set_runtime_option(RuntimeOption::UnusedPageReleaseDelayMs, 10),
                   "jemalloc runtime option unavailable");
         }
-        allocate(Memory::global(backend), loops);
+        allocate(Memory::global(), loops);
     }
 }
 }
@@ -72,13 +72,21 @@ int main(int argc, char** argv) {
               "invalid workload size");
         // Only the shared case constructs Memory before starting its workers.
         // No jemalloc query or allocator warmup precedes the other cold entries.
-        auto* shared = mode == "shared" ? &Memory::global(backend) : nullptr;
+        auto* shared = mode == "shared" ? &Memory::global() : nullptr;
         for (unsigned long round = 0; round < rounds; ++round) {
             std::array<std::exception_ptr, 6> failures;
             {
-                std::array<std::jthread, 6> workers;
+                std::array<std::thread, 6> workers;
+                struct JoinWorkers {
+                    std::array<std::thread, 6>& workers;
+                    ~JoinWorkers() {
+                        for (auto& thread : workers) {
+                            if (thread.joinable()) { thread.join(); }
+                        }
+                    }
+                } join_workers{workers};
                 for (unsigned index = 0; index < workers.size(); ++index) {
-                    workers[index] = std::jthread([&, index] {
+                    workers[index] = std::thread([&, index] {
                         try { worker(mode, shared, index, static_cast<unsigned>(loops)); }
                         catch (...) { failures[index] = std::current_exception(); }
                     });

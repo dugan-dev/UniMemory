@@ -1,0 +1,62 @@
+{
+  "schema": 3,
+  "version": "0.0.1",
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "GNU 13.3.0",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "3ac259d866303647ab1bb915a51ec79fae3c1fa22c31124fffbe5de268447d39",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 4,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": true,
+  "sequential_processes": true,
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "3257cde611c369b13e3bde7832a0649cc1e6527f295e486cd936709e9da8ee52",
+  "measured_at_utc": "2026-10-11T09:59:59.221685+00:00",
+  "executable_sha256": "cc14e220184c3ca8255ca13f8a8ac42f8407354bd008da893a1e19c8597d6f63",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "4f055c086745d14e491bd2c710b56e55257e23988ac1c149df838e3e8b86455b"
+}

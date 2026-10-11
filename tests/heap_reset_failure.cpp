@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 #include <mimalloc.h>
 #include <cstring>
@@ -12,8 +13,8 @@ extern "C" mi_heap_t* __wrap_mi_heap_new() {
 // GNU linker interception affects this executable only, not library behavior.
 int main() {
     using namespace unimem;
-    for (auto mode : {StatisticsMode::Disabled, StatisticsMode::Basic}) {
-        Memory arena = Memory::heap(Backend::Mimalloc, mode);
+    for (auto mode : compiled_test::heap_modes()) {
+        Memory arena = Memory::heap(mode);
         for (unsigned round = 0; round < 128; ++round) {
             auto block = arena.make_block(257, 256);
             std::memset(block.data(), 31, block.size());

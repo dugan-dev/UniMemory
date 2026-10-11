@@ -9,7 +9,7 @@
 | [scratch.cpp](scratch.cpp) | Fixed-buffer allocation and rewind |
 
 ```sh
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ```
 
@@ -21,4 +21,4 @@ Run an executable from the repository root:
 | Heap | `build/UniMemory-release/Release/UniMemoryExample_heap.exe` | `build/UniMemory-release/UniMemoryExample_heap` |
 | Stack | `build/UniMemory-release/Release/UniMemoryExample_scratch.exe` | `build/UniMemory-release/UniMemoryExample_scratch` |
 
-Heap runs each enabled optional backend and skips unsupported Heaps. Examples are optional and are not installed with the library.
+Heap uses the selected mimalloc or jemalloc backend and skips Standard, which has no independent Heap. Examples are optional and are not installed with the library.

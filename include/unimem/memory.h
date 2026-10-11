@@ -6,24 +6,19 @@
 #include <unimem/smart_ptr.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <memory_resource>
 #include <optional>
 #include <span>
-#include <utility>
 
 namespace unimem {
 
 class Memory final {
 public:
-    static Memory& global(Backend backend = Backend::Standard);
-    static Memory heap(Backend backend,
-                       StatisticsMode statistics = StatisticsMode::Disabled);
+    static Memory& global();
+    static Memory heap(StatisticsMode statistics = StatisticsMode::Disabled);
     static Memory stack(void* buffer, std::size_t capacity);
     static Memory stack(std::span<std::byte> buffer);
-
-    static void configure_global(Backend backend, StatisticsMode statistics);
 
     ~Memory();
     Memory(const Memory&) = delete;
@@ -98,19 +93,7 @@ public:
     void collect();
     bool owns(const void* pointer) const;
 
-    class Mark final {
-    public:
-        Mark(const Mark&) = default;
-        Mark& operator=(const Mark&) = default;
-
-    private:
-        friend class Memory;
-        Mark(const Memory* owner, std::size_t used, std::uint64_t generation) noexcept;
-
-        const Memory* owner_;
-        std::size_t used_;
-        std::uint64_t generation_;
-    };
+    class Mark;
 
     Mark mark() const;
 
@@ -121,56 +104,11 @@ public:
     std::size_t capacity() const;
 
 private:
-    Memory(Backend backend, StatisticsMode statistics, MemoryKind kind);
-    Memory(void* buffer, std::size_t capacity);
-
-    void require_stack() const;
-
-    struct StackStorage {
-        std::byte* buffer;
-        std::size_t capacity;
-        std::size_t used = 0;
-        std::uint64_t generation = 0;
-    };
-
-    union Storage {
-        Backend backend;
-        StackStorage stack;
-
-        explicit Storage(Backend value) noexcept : backend(value) {}
-        Storage(void* buffer, std::size_t capacity) noexcept
-            : stack{static_cast<std::byte*>(buffer), capacity} {}
-    };
-
-    static void* stack_allocate(void*, std::size_t, std::size_t) noexcept;
-    static void* stack_reallocate(void*, void*, std::size_t, std::size_t,
-                                  std::size_t) noexcept;
-    static void stack_deallocate(void*, void*, std::size_t, std::size_t) noexcept;
-    static void stack_destroy(void*) noexcept;
-
-    class Resource final : public std::pmr::memory_resource {
-    public:
-        explicit Resource(Memory& memory) noexcept;
-
-    private:
-        void* do_allocate(std::size_t bytes, std::size_t alignment) override;
-
-        void do_deallocate(void* pointer, std::size_t bytes,
-                           std::size_t alignment) override;
-
-        bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override;
-
-        Memory& memory_;
-    };
-
-    const detail::BackendOps* ops_ = nullptr;
-    void* context_ = nullptr;
-    detail::TrackingContext* tracking_ = nullptr;
-    MemoryKind kind_;
-    Storage storage_;
-    Resource resource_;
+#include <unimem/detail/memory_members.inl>
 };
 
 }
 
 #include <unimem/detail/memory.inl>
+#include <unimem/detail/global_storage.inl>
+#include <unimem/detail/memory_core.inl>

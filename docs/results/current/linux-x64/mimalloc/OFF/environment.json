@@ -1,0 +1,1318 @@
+{
+  "schema": 3,
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "architecture": "x86_64",
+  "cpu_model": "AMD EPYC 7763 64-Core Processor",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "GNU",
+    "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
+  },
+  "trials": 10,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 4,
+  "executable_sha256": "dd786dd63691f506c93cd15295f37d29bda9e7789306c9793edba6b9624ea202",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "core": "header-only",
+    "selected_backend": "mimalloc",
+    "selected_statistics": "disabled",
+    "checks": 0,
+    "standard_new_provider": "libstdc++.so.6",
+    "resident_measurement": "smaps_rollup Rss",
+    "mimalloc_version": 30403,
+    "mimalloc_redirected": false
+  },
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "OFF",
+    "checks": "AUTO",
+    "api_path": "disabled",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "OFF",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "GNU 13.3.0",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "2d1195f7d1b6ebb8fd393339264f137f86d5bb820913c3d81a56b3dcf9e0d145",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-11T08:31:31.704200+00:00",
+  "benchmark_source_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "benchmark_sha256": "702e9b7c18d62be97e643b0e03a06769a19ce65d151d78cbdf747f99d794dcb2",
+  "source_hash_line_endings": "LF",
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "measurement_protocol": "native-api-sustained-v4",
+  "calibration": {
+    "latency": {
+      "16": 42264894,
+      "64": 40973735,
+      "256": 36974199,
+      "4096": 14718110,
+      "65536": 13772322
+    },
+    "scaling": {
+      "scaling:64:1": 56079,
+      "scaling:64:2": 18378,
+      "scaling:64:4": 32,
+      "scaling:64:8": 32,
+      "scaling:64:16": 32,
+      "scaling:4096:1": 4795,
+      "scaling:4096:2": 3351,
+      "scaling:4096:4": 32,
+      "scaling:4096:8": 32,
+      "scaling:4096:16": 32,
+      "scaling:65536:1": 192,
+      "scaling:65536:2": 118,
+      "scaling:65536:4": 32,
+      "scaling:65536:8": 26,
+      "scaling:65536:16": 12,
+      "handoff:64:1": 56663,
+      "handoff:64:2": 15070,
+      "handoff:64:4": 32,
+      "handoff:64:8": 32,
+      "handoff:64:16": 32,
+      "handoff:4096:1": 4923,
+      "handoff:4096:2": 3055,
+      "handoff:4096:4": 32,
+      "handoff:4096:8": 32,
+      "handoff:4096:16": 32,
+      "handoff:65536:1": 211,
+      "handoff:65536:2": 128,
+      "handoff:65536:4": 32,
+      "handoff:65536:8": 25,
+      "handoff:65536:16": 12
+    },
+    "heap": {
+      "owns": 44335858,
+      "collect": 859846,
+      "reset": 85042
+    }
+  },
+  "target_interval_seconds": 0.25,
+  "calibration_target_seconds": 0.35,
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "mimalloc"
+  ],
+  "paths": [
+    "native",
+    "disabled"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "8192 individual allocate/free intervals; clock overhead retained separately",
+  "trace_storage": {
+    "location": "workflow artifacts",
+    "retention_days": 90
+  },
+  "scaling_method": "Per-profile paired rounds; sustained3-pilot calibration; disclosed safety caps; synchronized512-block batches;512MiB maximum live payload; thread creation,warmup,join excluded",
+  "performance_gate": "Report only; all trials retained, short intervals disclosed",
+  "statistic": "Arithmetic mean of independent process intervals; no sample removal",
+  "controlled_suite": {
+    "schema": 3,
+    "protocol": "native-api-sustained-v4",
+    "trials": 10,
+    "seed": 539365393,
+    "profiles": [
+      {
+        "backend": "standard",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {},
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "a2ac4b9ad45e3d504f99cc788fc9747c764b6f6edd94edf07465f87da00145f1",
+        "sweep_executable_sha256": "5ca62bb76c251461f548cf152e2f5acf514c52786719c751c2403c0ff83bfeb6",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "dca8cbf78cb35384b1b9b46819819494f694c1b81604a18051a89c89af8a90bf",
+        "heap_operation_counts": {},
+        "delivery_calibration": {
+          "latency": {
+            "16": 20393560,
+            "64": 20402612,
+            "256": 20422740,
+            "4096": 11696986,
+            "65536": 10705566
+          },
+          "scaling": {
+            "scaling:64:1": 25675,
+            "scaling:64:2": 11957,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 401,
+            "scaling:4096:2": 377,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 105,
+            "scaling:65536:2": 79,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 15,
+            "scaling:65536:16": 8,
+            "handoff:64:1": 25689,
+            "handoff:64:2": 11017,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 402,
+            "handoff:4096:2": 378,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 102,
+            "handoff:65536:2": 79,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 14,
+            "handoff:65536:16": 8
+          },
+          "heap": {}
+        },
+        "calibration_sha256": "e29b0d409ce3d187acffea8f2b0def7496a36c7b9d9db0dfeb6a360d2fd6c314",
+        "full_calibration_sha256": "8e0e26cdce33560dca35e8f0ced9277c7d9d29350bec848f0d3705fa429674bb"
+      },
+      {
+        "backend": "standard",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {},
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "3818b11a3947cad4e8509754da234045b2bc69575ca2382958ba61d15aaca077",
+        "sweep_executable_sha256": "e0c4d0438b97ce7b1a77e34259d122161a8a209cf9982dc6fd0e007fe520a9d3",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "3331f01152a84ca223ab6ed0712e902067aefd30e0ad31ec93d67fc66147ef5a",
+        "heap_operation_counts": {},
+        "delivery_calibration": {
+          "latency": {
+            "16": 20400268,
+            "64": 20446026,
+            "256": 20400335,
+            "4096": 11689818,
+            "65536": 10694042
+          },
+          "scaling": {
+            "scaling:64:1": 25766,
+            "scaling:64:2": 11613,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 414,
+            "scaling:4096:2": 381,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 120,
+            "scaling:65536:2": 85,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 15,
+            "scaling:65536:16": 8,
+            "handoff:64:1": 25631,
+            "handoff:64:2": 10465,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 403,
+            "handoff:4096:2": 376,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 106,
+            "handoff:65536:2": 82,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 15,
+            "handoff:65536:16": 8
+          },
+          "heap": {}
+        },
+        "calibration_sha256": "943cb7cf4e305c93353caecb419809da1be0b05bdd08e83579a8779681763833",
+        "full_calibration_sha256": "18c0dac60aa64a46de0ec5e31e1a255f646fe2b52832418660b6dc7f76c8c42f"
+      },
+      {
+        "backend": "mimalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
+          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "dd786dd63691f506c93cd15295f37d29bda9e7789306c9793edba6b9624ea202",
+        "sweep_executable_sha256": "b113032aeaf557a22399f1c3f3309f46ded7b5e2323af9f6d0d1d82c4c5c32ca",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "b2b143dea74b247608da338b3d53cbc6a428013cd9b43333e96c227d56cb9ebc",
+        "heap_operation_counts": {
+          "owns": 44335858,
+          "collect": 859846,
+          "reset": 85042
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 42264894,
+            "64": 40973735,
+            "256": 36974199,
+            "4096": 14718110,
+            "65536": 13772322
+          },
+          "scaling": {
+            "scaling:64:1": 56079,
+            "scaling:64:2": 18378,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 4795,
+            "scaling:4096:2": 3351,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 192,
+            "scaling:65536:2": 118,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 26,
+            "scaling:65536:16": 12,
+            "handoff:64:1": 56663,
+            "handoff:64:2": 15070,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 4923,
+            "handoff:4096:2": 3055,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 211,
+            "handoff:65536:2": 128,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 25,
+            "handoff:65536:16": 12
+          },
+          "heap": {
+            "owns": 44335858,
+            "collect": 859846,
+            "reset": 85042
+          }
+        },
+        "calibration_sha256": "a327ce947667eaa129ad6a78e16778b0d9793062131cb70efa437e9b19355565",
+        "full_calibration_sha256": "a951622e9c93e0d03d7f95f5fce6b158bab5b5ed32dbd094c968d9872c70f16a"
+      },
+      {
+        "backend": "mimalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff",
+          "sdk_linker_file": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "c082784d383468ae255f0d44ff172111a7a3104e8a0df4fdf6b1c6fd20d43b80",
+        "sweep_executable_sha256": "cc14e220184c3ca8255ca13f8a8ac42f8407354bd008da893a1e19c8597d6f63",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "3257cde611c369b13e3bde7832a0649cc1e6527f295e486cd936709e9da8ee52",
+        "heap_operation_counts": {
+          "owns": 46934221,
+          "collect": 860762,
+          "reset": 85315
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 42200236,
+            "64": 39690703,
+            "256": 37649438,
+            "4096": 14727668,
+            "65536": 13662053
+          },
+          "scaling": {
+            "scaling:64:1": 57642,
+            "scaling:64:2": 20136,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 5028,
+            "scaling:4096:2": 3340,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 203,
+            "scaling:65536:2": 134,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 27,
+            "scaling:65536:16": 13,
+            "handoff:64:1": 55549,
+            "handoff:64:2": 14963,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 4747,
+            "handoff:4096:2": 2798,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 211,
+            "handoff:65536:2": 151,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 27,
+            "handoff:65536:16": 13
+          },
+          "heap": {
+            "owns": 46934221,
+            "collect": 860762,
+            "reset": 85315
+          }
+        },
+        "calibration_sha256": "1a26abfbadcba13877d8a9fa8aa412098782464dfa84ac9b45c4f59268ffddf6",
+        "full_calibration_sha256": "4f055c086745d14e491bd2c710b56e55257e23988ac1c149df838e3e8b86455b"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "OFF",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "17d0d2b367c1214a568c3aba4013e0354aa57244b454c618749ba02d7b797766",
+        "sweep_executable_sha256": "f305aa9c2e4aa38c9cf9b9582d2d7d17ce4683d51b45a8eae215832dff1659ab",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "be75033f28334a00c375dd188cfa5359991ce8fae9f42d05bbfb053832f06c8f",
+        "heap_operation_counts": {
+          "owns": 3314599,
+          "collect": 1955472,
+          "reset": 432820
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 18306187,
+            "64": 18276168,
+            "256": 18400338,
+            "4096": 15809640,
+            "65536": 956729
+          },
+          "scaling": {
+            "scaling:64:1": 20923,
+            "scaling:64:2": 11248,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 2305,
+            "scaling:4096:2": 2098,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 206,
+            "scaling:65536:2": 134,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 22,
+            "scaling:65536:16": 11,
+            "handoff:64:1": 20893,
+            "handoff:64:2": 9922,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 2302,
+            "handoff:4096:2": 1933,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 199,
+            "handoff:65536:2": 124,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 22,
+            "handoff:65536:16": 11
+          },
+          "heap": {
+            "owns": 3314599,
+            "collect": 1955472,
+            "reset": 432820
+          }
+        },
+        "calibration_sha256": "faf6395858cea1801767b90ee02c5ca040d9a61858d27ce7e49531fea2fee64b",
+        "full_calibration_sha256": "6ef3645fdf5e91c234b2fa63d3657f918067d33b593ffba508ce5224bb9fabff"
+      },
+      {
+        "backend": "jemalloc",
+        "statistics": "ON",
+        "configuration": "Release",
+        "compiler": "GNU 13.3.0",
+        "msvc_runtime": "",
+        "release_flags": "-O3 -DNDEBUG",
+        "sdk_binaries": {
+          "sdk_binary": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e",
+          "sdk_linker_file": "06628577bfa733be0eb3ec709518e2694406d766b7e2ef128822296983b5114e"
+        },
+        "flags": "",
+        "ipo": "",
+        "compile_options": "",
+        "executable_sha256": "6fca531afb4098ac9ae1b29a276d8b9c9b96b8c1e97fa090b20c3d6acb5a44c2",
+        "sweep_executable_sha256": "b93a8f3b8fdfde9330aab57a841636b45fcffbde707516e5e192ab83ab394254",
+        "sweep_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+        "full_operations_sha256": "e6c86965c671bc6d121aa39555882a55114df5782a8e92f0455cff61d7f30d11",
+        "heap_operation_counts": {
+          "owns": 3568264,
+          "collect": 1971153,
+          "reset": 434580
+        },
+        "delivery_calibration": {
+          "latency": {
+            "16": 18276109,
+            "64": 18414600,
+            "256": 18203735,
+            "4096": 15822048,
+            "65536": 1031168
+          },
+          "scaling": {
+            "scaling:64:1": 21191,
+            "scaling:64:2": 11459,
+            "scaling:64:4": 32,
+            "scaling:64:8": 32,
+            "scaling:64:16": 32,
+            "scaling:4096:1": 2271,
+            "scaling:4096:2": 2089,
+            "scaling:4096:4": 32,
+            "scaling:4096:8": 32,
+            "scaling:4096:16": 32,
+            "scaling:65536:1": 219,
+            "scaling:65536:2": 131,
+            "scaling:65536:4": 32,
+            "scaling:65536:8": 22,
+            "scaling:65536:16": 11,
+            "handoff:64:1": 21132,
+            "handoff:64:2": 10099,
+            "handoff:64:4": 32,
+            "handoff:64:8": 32,
+            "handoff:64:16": 32,
+            "handoff:4096:1": 2301,
+            "handoff:4096:2": 1923,
+            "handoff:4096:4": 32,
+            "handoff:4096:8": 32,
+            "handoff:4096:16": 32,
+            "handoff:65536:1": 217,
+            "handoff:65536:2": 134,
+            "handoff:65536:4": 32,
+            "handoff:65536:8": 22,
+            "handoff:65536:16": 11
+          },
+          "heap": {
+            "owns": 3568264,
+            "collect": 1971153,
+            "reset": 434580
+          }
+        },
+        "calibration_sha256": "0ce4772c5a551dbc9d2ba991eff63f605f7c8e638cb3a1fbdf1c564a69bbdf50",
+        "full_calibration_sha256": "9ded0bf70b01962ed9fc87490a6be36c83edf42758ec1ec1a68313b43ee9146f"
+      }
+    ],
+    "schedule": [
+      {
+        "trial": 1,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 1,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 1,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 1,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 2,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 2,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 3,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 3,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 4,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 4,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 4,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 5,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 5,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 5,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 6,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 6,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 7,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 7,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 8,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 8,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 8,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 9,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 9,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 9,
+        "backend": "standard",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "jemalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "mimalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "mimalloc",
+        "statistics": "OFF"
+      },
+      {
+        "trial": 10,
+        "backend": "standard",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "jemalloc",
+        "statistics": "ON"
+      },
+      {
+        "trial": 10,
+        "backend": "standard",
+        "statistics": "OFF"
+      }
+    ],
+    "calibration_strategy": "Sustained per-profile paired Native/API counts; disclosed caps and short intervals; cross-SDK rates normalized per operation",
+    "full_calibration": "Per SDK/statistics profile; calibrated interval normalized per complete operation",
+    "calibrated_on_all_profiles": true,
+    "target_interval_seconds": 0.25,
+    "short_intervals": "Retained and disclosed; calibration cannot remove hosted runner noise",
+    "host_id": "6c72442a-0167-4bf0-bf52-5f528e6226a8",
+    "cpu_model": "AMD EPYC 7763 64-Core Processor",
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "architecture": "x86_64",
+    "logical_cpus": 4,
+    "effective_cpus": 2,
+    "affinity": {
+      "method": "One allowed logical CPU per physical core; worker threads inherit the entire selected core set",
+      "cpus": [
+        0,
+        2
+      ],
+      "pinned": true
+    }
+  },
+  "tail_trace_evidence": {
+    "raw/1-mimalloc-native-16.csv.gz": {
+      "sha256": "373c034329a56efef782a408e169ce68df842121d02472b85a915dc5604e1998",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-native-64.csv.gz": {
+      "sha256": "b7236d75411adc54ff3ce83513accdff9f09c3c458995e573b89adf5893b7b29",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-native-256.csv.gz": {
+      "sha256": "0cc87a019aa2a2bf8739040e5aaebdbc3b66365f366df6006df78a2914f8fac3",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-native-4096.csv.gz": {
+      "sha256": "1d445235ec9a34472dd981dbd264e7761142fef957bf48abfd982124dc6aa4ea",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-native-65536.csv.gz": {
+      "sha256": "43b761faa57db3a22c77d2eb9da28778a849a419f1b94fb1180c9f30ed450bd0",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-disabled-16.csv.gz": {
+      "sha256": "46d59829feddb468aa4a958d3e5b979b17348570ac068f666c2a16f61622de02",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-disabled-64.csv.gz": {
+      "sha256": "1ca05ce19750e1243d98e59f19d7907e45167fba5d1f310f31be79a39e266710",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-disabled-256.csv.gz": {
+      "sha256": "4bf7b74fac055e23f6311269a0dde74408003b98e74ad5e587dae2b35c2e7005",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "62ccf1faf935c5a094cc9606252d0217b003c3c738f1d4b98c4cbe35b83eccb5",
+      "samples": 8192
+    },
+    "raw/1-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "f8cb01130e5b81b4e92f19232a80e9e062f5452d6d1f9282ea934860c93424ba",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-native-16.csv.gz": {
+      "sha256": "e8387ccdebb80feec233c99ba288e1e65154ffcca663ab9e350bc489a582f470",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-native-64.csv.gz": {
+      "sha256": "cd07d99903ba7e8e349b0a266df7e955b87539cad45de952d373e3c2af0d0672",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-native-256.csv.gz": {
+      "sha256": "4cb8c619bdbb69d10a1451bde07ecce02edfbb27791e739cb14f437344e217a6",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-native-4096.csv.gz": {
+      "sha256": "39b30f63828042d76ee1e8c8acaa7e568b6299317bfba674c4a1fb0421af6df4",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-native-65536.csv.gz": {
+      "sha256": "22d75f5039ddd41703b41ba4d098a6fa00561fc46e6d7b86fbe8d928a0b5ba99",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-disabled-16.csv.gz": {
+      "sha256": "4e05ae95a4d44bcafc6b967a47d8d1dd1e8224f75a9d2bb11315992f2e839b54",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-disabled-64.csv.gz": {
+      "sha256": "7a55a2368da18c418dbdee44cc9b644f775616e3d882925e3dc007e4d7782ec4",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-disabled-256.csv.gz": {
+      "sha256": "434aeec328602236233006c153dfe2d8a8585ef6aa1acd19a5ee9beefc01fcb9",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "2eab854a1a89f2bb0fdab5deb793804cd951924b423fed3f5f30b50954238366",
+      "samples": 8192
+    },
+    "raw/2-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "ab5e91e514e63712ed79b3b0bd68ec65d95d83ed977fb2c14bb429e0d27b172d",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-native-16.csv.gz": {
+      "sha256": "0ea38250b38f6425757ac28d7c95d33dfdfe1095619025de234d9cc3a91d8196",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-native-64.csv.gz": {
+      "sha256": "3a65900cca2460447cdb0a0b2fd18dde3488fd5715ca32cb2e37af4806340802",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-native-256.csv.gz": {
+      "sha256": "e333425bccf06adea339845ae2dc08528ddee0d7d6d50669ef8f3747cb34ed49",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-native-4096.csv.gz": {
+      "sha256": "d5111e2629b652ed9df849c3cfbe188ed5dfecb138c4af24278c69fd7415dd4f",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-native-65536.csv.gz": {
+      "sha256": "8a42848e00f8f03bd694d4aeef90de8d1e7b25d09b90aced299c01d0e996c5b5",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-disabled-16.csv.gz": {
+      "sha256": "78c50def8c7eb9efedeb6e1625e329e7228f2867c0dbaf4163b48aebd6745e3e",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-disabled-64.csv.gz": {
+      "sha256": "64b4c538658bb4cd5f1ca011f0fb27c4ebec79eeeaab4a31bf71a3c999db7e1b",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-disabled-256.csv.gz": {
+      "sha256": "8e623ce591a5333b184ea257a712ef0cd098d7c71ace2f45636b15368d30af61",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "cd23a7967d183b631ac9b3b3a9458caafa91ea6487ae3fb85103ad0f9258af1d",
+      "samples": 8192
+    },
+    "raw/3-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "40181a5d9db296c3f901a99b1327646d4a10840e2a079e963592e8701f88b150",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-native-16.csv.gz": {
+      "sha256": "9150eea1e47bd2ee6e30424e677d1a59f60a651701f10caf180d9c79838f91c2",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-native-64.csv.gz": {
+      "sha256": "be990bc2a0e4b87a930827dc3b817e78f743e4bbc5bd3b154b677542c0101797",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-native-256.csv.gz": {
+      "sha256": "c6c1c0e109f4a83df8f8e766cd1d40459fa4cf8637bad6788908fc03128505cd",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-native-4096.csv.gz": {
+      "sha256": "b7d7db3e938614daf6a0035362b84dd93de7c311ce5cefa5cc1d3d4a734ae976",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-native-65536.csv.gz": {
+      "sha256": "0b42df935e83b6bcca632f4f1bd000fd33acb2aa7ad2635bd19e0de04eb0d93e",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-disabled-16.csv.gz": {
+      "sha256": "8818ec5eda6ed35e3d2cc18053b9d1ea66cf1bcd6bca63d138ee216c113a918e",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-disabled-64.csv.gz": {
+      "sha256": "8d0b742b1e2b67e6ca3a307860c5fbe7b197cd52480771f6fb1f655c4bd3220e",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-disabled-256.csv.gz": {
+      "sha256": "4048774a6cbc266631a2633da4f302cf7b869cf1b33eee0c42e9e70684598fde",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "7b4f6a5d8a07decbaaf30394019d7f2403d80f1da474d0cda2fbf911f782aefb",
+      "samples": 8192
+    },
+    "raw/4-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "f7e5faf2582bb27688866195b18e625e5b60395cb45903f9b27a3cdc14698edc",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-native-16.csv.gz": {
+      "sha256": "3d79a7dd042b0167f964483849e0425dae7e0a8e487f0b3aaa4d7d27c69bb8f8",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-native-64.csv.gz": {
+      "sha256": "63093627654c116c5074c6da2147c8035914b9b9ef9867ed7ebc0c3ee9db8f19",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-native-256.csv.gz": {
+      "sha256": "72d4429c79d50b8031c6f42500b523a125ab686b752b7abf8cfa3774cb3a7b7d",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-native-4096.csv.gz": {
+      "sha256": "627c10747c31e5c92ee3531a50b7a4b1ca4b4f6c823b2412079c5cde6ee8df9d",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-native-65536.csv.gz": {
+      "sha256": "7b4312af74851deb10b8c42dc5ae0dd225ad57760fd8a02fad678ea75bf881f1",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-disabled-16.csv.gz": {
+      "sha256": "229ce9e4cec32fb0b1e993e78a13dce8e906f07469baf0227c1bf8673277ddc5",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-disabled-64.csv.gz": {
+      "sha256": "59b881de056a92d592b99efcd97b49b82cf3a7e60e87fbda9bf686ac36352ef3",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-disabled-256.csv.gz": {
+      "sha256": "f7328829dfb1a94d6bf3951bd1c36ace4807d28f46867573b8898dde572b9baa",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "53cf9b0af58beb41cc137185b8f571f4387c095708f061cb9455d751c6700aa8",
+      "samples": 8192
+    },
+    "raw/5-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "933ff723fe4cc3ea6f8ed940b719e2527c639ea2404027259a2e2dcf6b44c19e",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-native-16.csv.gz": {
+      "sha256": "877214838eeca3e43ad4506821d113bbb5d2db26c4c771d73dcee4eb6fbc84c8",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-native-64.csv.gz": {
+      "sha256": "af2e0857225be46e010129d0e75e738353cef2e2071f68a4841d11b14d3c2fee",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-native-256.csv.gz": {
+      "sha256": "2d52217e6a4d9b10845c8c78c942e376e7835b3d4f2064796756efa8c96eac7f",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-native-4096.csv.gz": {
+      "sha256": "dd05439a63d3c309ca9d275a269d425549a90bedf8afb3d52a02137a386b81af",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-native-65536.csv.gz": {
+      "sha256": "6a8062adc30d2a543c2019a102789a36b569fb8d42b3b10ca5708733a235dd43",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-disabled-16.csv.gz": {
+      "sha256": "04ce06784cb2402618cd243b6c1472ff9a761e6f2a59ba17dfc73684bfb63236",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-disabled-64.csv.gz": {
+      "sha256": "5f233ffdb1fa7261200697b1017ce61d6f3c3972e44d2f36b65f375f78114708",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-disabled-256.csv.gz": {
+      "sha256": "c897cbe52427be81d85fc024e45ade67ac06e694c9173b283ebe902f8b379f56",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "d42ec762261fc5e265ca723252a739750b4a269e8d4448ca3b41541269918117",
+      "samples": 8192
+    },
+    "raw/6-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "397f5a0b299bceb44699d6f0cccdecc3437b57e90113dcab2cc1985d5ae0ea2f",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-native-16.csv.gz": {
+      "sha256": "7051b733efb408d6698ad33f044b79ed93a38a46a0a3488ef0beaf68116d1518",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-native-64.csv.gz": {
+      "sha256": "6dd4ad00727c8de6c8e49dbf3d51c7d40cab129b9cc963cadd42c01134e966f7",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-native-256.csv.gz": {
+      "sha256": "5eeea681515158041fcb3bda13e39144877af9bc1c33ab72f04025df940320ef",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-native-4096.csv.gz": {
+      "sha256": "f89b74ead9858c968025917fbab1feb0b1a79ad5ac8f490cf7e780079709f533",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-native-65536.csv.gz": {
+      "sha256": "367620fbcb146d411b4b7b2f95f711d0bf9773f02aea933c71641eb13cb543f9",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-disabled-16.csv.gz": {
+      "sha256": "c48d5ff420dfd94ac87d312c8c075275402129c5659a3864a7c433eb3eed3095",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-disabled-64.csv.gz": {
+      "sha256": "855cdecb56cd870ac30de6744375ba474f02eb4e0640927d9a4ffbc38cc04521",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-disabled-256.csv.gz": {
+      "sha256": "c0740562ec8b9aed20e4a8eab81be62437c52b8598b7df9728733604477152a5",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "93734b331db995ff3a4f1d1dfb62d3cdea0c245489dc615b46a6094ad793c244",
+      "samples": 8192
+    },
+    "raw/7-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "ebb0a33a5da100020134c25e927b6c4a787b401b66c4f86f23c0d2a0ddcdf354",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-native-16.csv.gz": {
+      "sha256": "a74aaaa62e973622eed4ce3c82363e8bf5e11dba0babb961512deab98636583b",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-native-64.csv.gz": {
+      "sha256": "701bf25cfb7b7fda30c755c0f071cf5cf136d0954ce8bc823f463f619e9c7d69",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-native-256.csv.gz": {
+      "sha256": "fcb3c7ccbe93456bff9825b19a3d7c261787f29e1fbde5d20461d98dcbe5b959",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-native-4096.csv.gz": {
+      "sha256": "2ca7c78b8cdb3d4836b523bfa73f780959c9618f94bb528d119af934771d29b5",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-native-65536.csv.gz": {
+      "sha256": "37c8e051a946473ecce373b297835a514acab973b8e50aafaaf3ddb67d4d7d9b",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-disabled-16.csv.gz": {
+      "sha256": "01c82675481a62dbbe98cd356d4f391c6adef4fe220b12168b1f40f8940df826",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-disabled-64.csv.gz": {
+      "sha256": "83a13a0c1900969d55d854d6dd79f065f466b396867aa2e3db85202b0ccc55b9",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-disabled-256.csv.gz": {
+      "sha256": "b225948f2cc72edb9463652be181eb1041b893ac720afed6c43d55d345010c62",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "5012a2a1e976800ffb95af296ac409b924c75d74efc95afeb69361373c12b4c5",
+      "samples": 8192
+    },
+    "raw/8-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "4386c6da4aa46dac3d583ba1fff3960a0b48b8ce9b90d700e822155301dee463",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-native-16.csv.gz": {
+      "sha256": "d5d144030c5dfe42989841cfea6672d35e49332b914e219748629e8ac97dd6b2",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-native-64.csv.gz": {
+      "sha256": "95943faac34298ca67893cb6a50433ea1d64bbdfa13615920c7b5e97ddc0958e",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-native-256.csv.gz": {
+      "sha256": "5e2b5bf200331d709442e8de951d689ce810b0da35cb4030f4ad1d76d3a39e54",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-native-4096.csv.gz": {
+      "sha256": "21d373485c20780f0251ea9ed851f1d9b9851b97f97e6e10264f7d54f4e08531",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-native-65536.csv.gz": {
+      "sha256": "4b1525682359b49fa737870044f0ab05e6b0efe4ab61c21c0f4613c4a0e276c4",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-disabled-16.csv.gz": {
+      "sha256": "ac17a01918bad08888fd7565841867a52a6b9ca43c7ac69dd5719bd2e21f9484",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-disabled-64.csv.gz": {
+      "sha256": "2efab8cb147b03ba7c3da5180b8e82c6f8dce0ca9c7b8ab9e420fac822b85e47",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-disabled-256.csv.gz": {
+      "sha256": "8f16f8dfc418d4ac23e3082606ae1f0953b59476d840e029a0da9bcde5a5dc0b",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "143d68432d7ff236462bb47ce1f074a9dc0373098b1d9e40637c3db45f194e96",
+      "samples": 8192
+    },
+    "raw/9-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "e70d58c0dcecaa36fc411c749746019bc1299f6dc9ab7acfd5986e6f6e814c2b",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-native-16.csv.gz": {
+      "sha256": "607315fd0ca73b2c470f675a5e2b73c0d3132fe722ff512c64c552aab19b31ad",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-native-64.csv.gz": {
+      "sha256": "7fb6bb6eb8a3099e43a9ca80818a52dc79b92b8dea6cd03ee3e05707043c6ddf",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-native-256.csv.gz": {
+      "sha256": "123f30367c803e830cde18d467586e159b5c8a9262982aaf4c651944cfa11d10",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-native-4096.csv.gz": {
+      "sha256": "56a5863a6721a8ffe99b3e1ae6d34f0da229f027d5b17925f5be711b19184f9f",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-native-65536.csv.gz": {
+      "sha256": "bcd13d1341ca3ed96c81e6a18be948d4ebdce3e89b8965fe0fde720474ce2b32",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-disabled-16.csv.gz": {
+      "sha256": "dffece71bc4a504f6c0bff3ebf0697110b4083dd21fc17ee703418f86cf803f6",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-disabled-64.csv.gz": {
+      "sha256": "08ea4614782f4456b61e6c3b6aded6ad275f29e7428c793ce930a58f3c3feb3c",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-disabled-256.csv.gz": {
+      "sha256": "fc0359c2ccbb5b47369cdb62d9346fbc0bcb13573c850084a2f0b7b588c9e921",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-disabled-4096.csv.gz": {
+      "sha256": "c3743836f1cf51df884ba71ccaa181465bfd302ea6bf23198cfb13baa5857547",
+      "samples": 8192
+    },
+    "raw/10-mimalloc-disabled-65536.csv.gz": {
+      "sha256": "857a0ccc22b888f96783fbd6ca13c9f8ece5af577e756c9a99bed275d8de1ec7",
+      "samples": 8192
+    }
+  }
+}
