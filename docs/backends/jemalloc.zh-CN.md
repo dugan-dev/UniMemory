@@ -26,4 +26,4 @@ UniMemory 显式调用 `je_` 分配入口；`Memory::global(Backend::Jemalloc)` 
 
 Global/Heap 创建、能力查询和运行选项修改共用首次初始化保护。在并发 UniMemory 操作进入 jemalloc 前，先完成一次原生版本查询。初始化失败允许后续重试：工厂及运行选项修改通过异常报告失败；noexcept 能力查询报告无详细统计。`available()` 表示编译支持，不代表初始化探测成功。
 
-保护范围是一份已链接的 UniMemory。直接调用 `je_*` 或多份独立封装共享同一原生 DLL 时，仍需自行协调启动。它不代替对象读写同步，也不改变 Heap 回收的独占要求。[冷启动证据](../review-2026-10-08.md#concurrent-jemalloc-initialization)
+保护范围是一份已链接的 UniMemory。直接调用 `je_*` 或多份独立封装共享同一原生 DLL 时，仍需自行协调启动。它不代替对象读写同步，也不改变 Heap 回收的独占要求。[线程约定](../compatibility.zh-CN.md)

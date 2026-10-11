@@ -1,101 +1,35 @@
 # Remote validation
 
-The current library is header-only, with one mandatory backend/statistics profile per build; see [build configuration](getting-started.md). The matrix below runs both statistics settings. Earlier shared-UniMemory jobs and recorded counts are historical evidence, not a supported current library form.
+Source and configuration changes trigger GitHub Actions on `dev`, `main` and pull requests. There are no scheduled runs.
 
-Related source or configuration changes trigger GitHub Actions on `dev`, `main`,
-and pull requests. There are no scheduled workflows. Builds and tests for this
-development run remotely.
+## Builds and integration
 
-## Platform and compiler matrix
-
-| Native runner | Compilers | Configurations |
+| Platform | Compilers | Builds |
 | --- | --- | --- |
-| Ubuntu 24.04 x64 / ARM64 | GCC 13, GCC 14, Clang 18 | Debug / Release |
-| Windows 2022 x64 | MSVC, clang-cl, installed MinGW-w64 GCC | Debug / Release |
-| Windows 11 ARM64 | MSVC, clang-cl | Debug / Release |
-| macOS 15 Intel / Apple Silicon | AppleClang | Debug / Release |
+| Windows x64 / ARM64 | MSVC, clang-cl; MinGW-w64 GCC on x64 | Debug / Release |
+| Linux x64 / ARM64 | GCC 13/14, Clang 18 | Debug / Release |
+| macOS Intel / Apple Silicon | AppleClang | Debug / Release |
 
-Actual compiler family, version, SDK where available, and produced binary
-architecture are recorded in `toolchain.json`. Compiler major selections are
-checked; the build cannot silently use a different target. The 13 compiler/architecture combinations run Debug/Release and statistics
-ON/OFF, for 52 profiles. Separate x64 Windows/Linux and ARM64 macOS jobs cover
-all three SDKs and both statistics settings, including installed consumers. This table does not
-claim that every optional allocator supports every compiler/architecture pair.
+Both statistics settings are tested. Separate SDK profiles verify Standard, mimalloc and jemalloc, including installed consumers. Each artifact records the actual compiler, architecture and dependency versions. Optional SDK support varies by platform.
 
-## Detection and pressure
+## Correctness
 
-UBSan is non-recovering, with an isolated overflow control that must fail.
-Standard/Stack and three-backend adapter configurations run sanitizer tests.
-Native dependency internals are not covered by an adapter-only instrumented
-build. Thread adapter jobs additionally use mimalloc's supported TSan build so
-its atomics and memory-reuse annotations are visible to the detector. Jemalloc
-internals remain uninstrumented; separate mimalloc UBSan/TSan jobs exercise native
-instrumentation independently.
-Clang TSan supplies strong global new/delete replacements, so explicit
-global-new failure injection and initialization-retry cases run in ordinary and compatible ASan jobs,
-not in the Clang TSan binary. They remain required in the standard build matrix;
-this is an instrumentation incompatibility, not a passed skipped test.
-Static analysis uses the actual compile database. GCC reports project line and
-branch coverage, including translation units with no executed data.
+Allocation, alignment, object lifetime, containers, heaps, stacks and concurrent handoffs must pass. Installed consumers verify integration and conflicting build profiles. ASan, non-recovering UBSan, TSan, static analysis and coverage add independent checks; upstream SDK tests run separately.
 
-Extended pressure includes 32 waves of four producer threads handing surviving
-blocks to newly created consumers, an asymmetric four-producer/one-consumer
-case, and a 64 MiB live-set test with sparse survivors across eight cycles.
-Data, alignment, lifetime and allocation accounting must remain valid. This is
-bounded pressure, not proof of unlimited capacity or multi-day service stability.
+Sanitizer instrumentation does not imply full coverage of third-party internals. Compiler-specific limitations and skipped incompatible failure-injection cases are recorded explicitly. See [testing](testing.md) and [upstream validation](upstream-validation.md).
 
-libstdc++ 13/14 can destroy partially constructed shared arrays in forward order.
-The compatibility test requires the same behavior from a standalone STL call;
-all objects and storage must still be reclaimed. Diagnostics record the standard
-library limitation rather than attributing it to UniMemory. C++20 requires reverse
-order. The UniMemory raw/unique array paths retain their own reverse-order tests.
+## Performance
 
-## Performance and charts
+Each platform builds all six backend/statistics profiles on one runner. At least ten fresh-process trials use a shuffled order and calibrated operation counts. Native and UniMemory paths share the same SDK binary, compiler, runtime and optimization options.
 
-Linux x64, Windows x64 and macOS ARM64 measure matched Standard/mimalloc/jemalloc
-native calls against the UniMemory API with statistics disabled and enabled.
-Every measurement uses three fresh-process trials. Scaling covers 1/2/4/8/16
-threads with same-thread and cross-thread release. Native/API paths receive the
-same main-thread and worker warmup before timing. Reports disclose CPU capacity;
-oversubscribed thread counts are not additional physical cores.
-Each thread executes 4,096 pairs in eight batches of 512, amortizing barrier
-scheduling costs. The largest configured scaling live payload is 512 MiB,
-leaving runner headroom. Protocol v2 is distinct from the initial 128-batch
-experiment; its numbers are not compared against that protocol's baseline.
+Reports retain arithmetic mean, minimum, maximum, median, sample deviation, CV and a bootstrap confidence interval. Every process-trial observation is retained in the repository; individual operation traces remain in workflow artifacts for 90 days and are validated before publication. No outliers are removed. Memory deltas are calculated per process before aggregation. The 16-program native application subset runs on the same Linux host.
 
-Individual allocate/free samples provide p50/p95/p99/p99.9 and maximum latency.
-Clock overhead is measured separately and remains included in the samples.
-Memory probes record RSS and release/collection phases; cached resident memory
-is not automatically a leak or fragmentation rate. The existing API sweep and
-16 external native application workloads also execute remotely. External process
-allocator replacement does not measure the UniMemory adapter.
+Correctness failures, incomplete scenarios and inconsistent provenance fail validation. Hosted-runner variability is reported; it is not an absolute speed gate. See [benchmarking](benchmarking.md).
 
-Correctness failures or incomplete scenarios fail the job. Hosted-runner timing
-differences are reported, not used as absolute speed gates. Baseline comparison
-requires matching recorded CPU/compiler/protocol; raw samples remain in artifacts.
+## Publication
 
-SVGs are generated without plotting-library dependencies and stored under
-`docs/images/performance/<platform-architecture>/`. Summaries and measurements
-are stored under `docs/results/current/<platform-architecture>/`; historical
-results remain untouched. README displays only the original workload figure;
-all generated charts are embedded in the detailed performance report.
-Chinese report pages use Chinese SVG variants, including
-titles, axes, legends and captions; both languages use identical measurements.
-Per-platform latency, statistics cost, retention and workload charts provide
-more detail, embedded by dimension and platform directly in the report page.
-Source revision and remote-run provenance accompany every report. Publication only
-updates charts, measurements and the marked performance table/source blocks. README prose and scenario labels are checked against the source and remain unchanged. The original PNG layout is rendered from the same verified current measurements.
+Successful trusted push runs update the current data, 36 bilingual SVGs, original PNG figures and marked performance tables. User prose and scenario labels are preserved.
 
-Only trusted successful push runs can publish. A scoped bot branch opens a PR.
-Before approving its real PR workflows, the publisher verifies repository, bot
-author, branch, source/head revisions and every changed file against the generated
-path allowlist. It waits for all five workflows and their actual PR acceptance
-checks, rechecks source freshness, then merges the exact checked head. Generated
-changes validate existing data without recursively rerunning benchmarks.
+The publisher opens a scoped generated-results PR, checks its author, repository, source/head and file allowlist, then waits for all five genuine PR acceptance checks. It merges only the verified head if the measured source is still current. Generated-only updates validate retained data without rerunning benchmarks.
 
-GitHub's approval API was verified with the scoped default token in this
-[remote probe](https://github.com/dugan-dev/UniMemory/actions/runs/38026443544).
-No additional credential is required in this configured repository. An approval
-error fails publication and leaves the PR available for review. Dispatched checks
-are not substituted for protected-branch checks; see
-[GitHub's required-check rules](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).
+[Current results](results/current/README.md) · [Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)

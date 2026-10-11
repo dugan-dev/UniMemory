@@ -6,15 +6,19 @@ Previously retained native results keep their own provenance when omitted.
 """
 import argparse
 import csv
+import importlib.util
 import json
 import math
 from pathlib import Path
 import re
 import statistics
 import sys
+from functools import lru_cache
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from publication_metadata import sanitize_publication
+from result_io import read_csv, read_json, resolve_path
 
 PLATFORMS = (("windows-x64", "Windows"), ("linux-x64", "Linux"),
              ("macos-arm64", "macOS"))
@@ -47,9 +51,12 @@ FIXED_DURATION = {"larson", "larson-sized", "xmalloc-test"}
 MIB = 1024 ** 2
 
 
-def read_csv(path):
-    with path.open(encoding="utf-8", newline="") as stream:
-        return list(csv.DictReader(stream))
+@lru_cache(maxsize=1)
+def report_tool():
+    spec = importlib.util.spec_from_file_location("performance_report", Path(__file__).with_name("performance-report.py"))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def median_trial(rows, value):
@@ -62,35 +69,79 @@ def median_trial(rows, value):
     return statistics.median(values)
 
 
+def trial_values(rows, value):
+    if not rows:
+        raise ValueError("Missing process measurements")
+    trials = int(rows[0].get("_trials", 3))
+    return report_tool().process_values(rows, value, trials)
+
+
+def repeated(rows):
+    return bool(rows and rows[0].get("_schema") == 3)
+
+
+def reduce_trial(rows, value):
+    values = trial_values(rows, value)
+    return statistics.mean(values) if repeated(rows) else statistics.median(values)
+
+
+def selected_field(rows, field):
+    return field.replace("median_ns", "mean_ns") if repeated(rows) else field
+
+
+def formatted_values(rows, value, decimals=1, percent=False):
+    values = trial_values(rows, value)
+    suffix = "%" if percent else ""
+    if not repeated(rows):
+        return f"{statistics.median(values):.{decimals}f}{suffix}"
+    mean = statistics.mean(values)
+    cv = f"{statistics.stdev(values) / abs(mean) * 100:.1f}%" if mean else "n/a"
+    return f"{mean:.{decimals}f}{suffix} [{min(values):.{decimals}f}, {max(values):.{decimals}f}], CV {cv}"
+
+
+def formatted_metric(rows, field, decimals=1, factor=1, **dimensions):
+    samples = select(rows, **dimensions)
+    field = selected_field(samples, field)
+    return formatted_values(samples, lambda row: float(row[field]) / factor, decimals)
+
+
+def formatted_delta(rows, field, **dimensions):
+    samples = select(rows, **dimensions)
+    return formatted_values(samples, lambda row: (float(row[field]) - float(row["baseline_rss"])) / MIB, 2)
+
+
 def select(rows, **dimensions):
     return [row for row in rows if all(row.get(name) == str(value)
                                      for name, value in dimensions.items())]
 
 
 def metric(rows, field, **dimensions):
-    return median_trial(select(rows, **dimensions), lambda row: row[field])
+    samples = select(rows, **dimensions)
+    field = selected_field(samples, field)
+    return reduce_trial(samples, lambda row: row[field])
 
 
 def resident_delta(rows, field, **dimensions):
-    return median_trial(select(rows, **dimensions),
+    return reduce_trial(select(rows, **dimensions),
                         lambda row: (float(row[field]) - float(row["baseline_rss"])) / MIB)
 
 
-def native_summary(rows):
+def native_summary(rows, trials=3, mean=False):
     required = {"trial", "backend", "workload", "elapsed_seconds", "user_seconds",
                 "system_seconds", "peak_rss_kib", "exit_code"}
     if any(not required <= row.keys() for row in rows):
         raise ValueError("Missing native application result fields")
-    expected = {(str(trial), backend, program) for trial in range(1, 4)
+    expected = {(str(trial), backend, program) for trial in range(1, trials + 1)
                 for backend in BACKENDS for program in PROGRAMS}
     actual = [(row["trial"], row["backend"], row["workload"]) for row in rows]
-    if len(actual) != 144 or len(set(actual)) != 144 or set(actual) != expected:
-        raise ValueError("Expected 144 unique native runs across 16 programs")
+    if len(actual) != 48 * trials or len(set(actual)) != 48 * trials or set(actual) != expected:
+        raise ValueError(f"Expected {48 * trials} unique native runs across 16 programs")
     if any(row["exit_code"] != "0" for row in rows):
         raise ValueError("Native application run failed")
     if any(not math.isfinite(float(row[field])) or float(row[field]) < 0
            for row in rows for field in ("elapsed_seconds", "user_seconds", "system_seconds", "peak_rss_kib")):
         raise ValueError("Invalid native application measurement")
+    rows = [{**row, "_schema": 3 if mean else 1, "_trials": trials} for row in rows]
     return {
         (program, backend): (
             metric(rows, "elapsed_seconds", workload=program, backend=backend),
@@ -101,18 +152,24 @@ def native_summary(rows):
 
 def validate_native_data(directory):
     directory = Path(directory)
-    native_summary(read_csv(directory / "results.csv"))
-    manifest = json.loads((directory / "environment.json").read_text(encoding="utf-8"))
-    if (manifest.get("schema") != 1 or manifest.get("trials") != 3 or
+    manifest = read_json(directory / "environment.json")
+    count = report_tool().trial_count(manifest)
+    native_summary(read_csv(directory / "results.csv"), count, manifest["schema"] == 3)
+    if (manifest.get("schema") not in (1, 3) or
             manifest.get("threads") != 4 or
             manifest.get("interface") != "native malloc/new through LD_PRELOAD" or
             set(manifest.get("commands", {})) != set(PROGRAMS) or
             not re.fullmatch(r"[0-9a-f]{40}", manifest.get("source_revision", "")) or
             not re.fullmatch(r"[0-9a-f]{40}", manifest.get("revision", "")) or
             not re.fullmatch(r"[0-9]+", str(manifest.get("run_id", ""))) or
-            not re.fullmatch(r"\d{4}-\d{2}-\d{2}", manifest.get("measured_at_utc", "")) or
+            not re.fullmatch(r"\d{4}-\d{2}-\d{2}", manifest.get("measured_at_utc", "")[:10]) or
             not manifest.get("run_url", "").endswith("/actions/runs/" + str(manifest.get("run_id", "")))):
         raise ValueError("Invalid native application provenance or scope")
+    if manifest["schema"] == 3:
+        if (manifest.get("measurement_protocol") != "native-application-repeated-v3" or
+                not manifest.get("controlled_suite", {}).get("host_id")):
+            raise ValueError("Missing repeated native application host provenance")
+        report_tool().validate_summary(directory, native=True)
     return manifest
 
 
@@ -123,21 +180,26 @@ def sdk_inputs(root):
         for backend in BACKENDS:
             for mode in ("OFF", "ON"):
                 directory = root / "docs/results/current" / platform / backend / mode
-                manifest = json.loads((directory / "environment.json").read_text(encoding="utf-8"))
+                manifest = read_json(directory / "environment.json")
                 profile = manifest.get("build_profile", {})
-                if (manifest.get("schema") != 2 or manifest.get("trials") != 3 or
+                count = report_tool().trial_count(manifest)
+                if (manifest.get("schema") not in (2, 3) or
                         profile.get("backend") != backend or profile.get("statistics") != mode):
                     raise ValueError("Unexpected performance dataset profile")
                 manifests.append(manifest)
                 datasets[platform, backend, mode] = {
-                    name: read_csv(directory / f"{name}.csv")
+                    name: [{**row, "_schema": manifest["schema"], "_trials": count}
+                           for row in read_csv(directory / f"{name}.csv")]
                     for name in ("full", "latency", "pressure", "footprint")
                 }
     revisions = {item["source_revision"] for item in manifests}
     runs = {str(item["run_id"]) for item in manifests}
     dates = {item["measured_at_utc"][:10] for item in manifests}
-    if len(revisions) != 1 or len(runs) != 1 or len(dates) != 1:
+    contracts = {(item["schema"], item["trials"], item.get("measurement_protocol")) for item in manifests}
+    if len(revisions) != 1 or len(runs) != 1 or len(dates) != 1 or len(contracts) != 1:
         raise ValueError("Detailed tables require one consistent source revision and run")
+    for index in range(0, len(manifests), 6):
+        report_tool().validate_profile_group(manifests[index:index + 6])
     return datasets, manifests
 
 
@@ -156,20 +218,20 @@ def sdk_tables(datasets, manifests):
                                               'requested_bytes', backend=backend, path=path, phase=phase) / MIB
                                        for phase in PHASES))
         tables[f"workloads-{platform}"] = [
-            [title, *[f"{metric(datasets[platform, backend, 'OFF']['full'], 'median_ns_per_operation', backend=backend, workload=workload, bytes=size, alignment=alignment, threads=threads, statistics='disabled', heap='no'):.1f}"
+            [title, *[formatted_metric(datasets[platform, backend, 'OFF']['full'], 'median_ns_per_operation', backend=backend, workload=workload, bytes=size, alignment=alignment, threads=threads, statistics='disabled', heap='no')
                       for backend in BACKENDS]]
             for workload, size, alignment, threads, title in WORKLOADS
         ]
         tables[f"latency-{platform}"] = [
             [str(size), BACKEND_LABELS[backend],
-             f"{metric(datasets[platform, backend, 'OFF']['latency'], 'median_ns', backend=backend, path='native', bytes=size):.1f}",
-             f"{metric(datasets[platform, backend, 'OFF']['latency'], 'median_ns', backend=backend, path='disabled', bytes=size):.1f}",
-             f"{metric(datasets[platform, backend, 'ON']['latency'], 'median_ns', backend=backend, path='basic', bytes=size):.1f}"]
+             formatted_metric(datasets[platform, backend, 'OFF']['latency'], 'median_ns', backend=backend, path='native', bytes=size),
+             formatted_metric(datasets[platform, backend, 'OFF']['latency'], 'median_ns', backend=backend, path='disabled', bytes=size),
+             formatted_metric(datasets[platform, backend, 'ON']['latency'], 'median_ns', backend=backend, path='basic', bytes=size)]
             for size in (16, 64, 256, 4096, 65536) for backend in BACKENDS
         ]
         tables[f"pressure-{platform}"] = [
             [BACKEND_LABELS[backend], "Native" if path == "native" else "UniMemory",
-             *[f"{resident_delta(datasets[platform, backend, 'OFF']['pressure'], 'rss', backend=backend, path=path, phase=phase):.2f}"
+             *[formatted_delta(datasets[platform, backend, 'OFF']['pressure'], 'rss', backend=backend, path=path, phase=phase)
                for phase in PHASES]]
             for backend in BACKENDS for path in ("native", "disabled")
         ]
@@ -178,22 +240,22 @@ def sdk_tables(datasets, manifests):
             for heap in (("no",) if backend == "standard" else ("no", "yes")):
                 dimensions = dict(backend=backend, statistics="disabled", heap=heap)
                 footprint.append([label, BACKEND_LABELS[backend], "Heap" if heap == "yes" else "Global",
-                                  *[f"{resident_delta(data['footprint'], field, **dimensions):.2f}"
+                                  *[formatted_delta(data['footprint'], field, **dimensions)
                                     for field in ("live_rss", "freed_rss")],
-                                  f"{resident_delta(data['footprint'], 'collected_rss', **dimensions):.2f}" if heap == "yes" else "\u2014"])
+                                  formatted_delta(data['footprint'], 'collected_rss', **dimensions) if heap == "yes" else "\u2014"])
             for path in ("native", "disabled"):
                 samples = select(data["pressure"], backend=backend, path=path, phase="dense")
                 if backend == "standard" or any(not row.get("usable_bytes") for row in samples):
                     overhead = "\u2014"
                 else:
-                    overhead = f"{median_trial(samples, lambda row: (float(row['usable_bytes']) / float(row['requested_bytes']) - 1) * 100):.2f}%"
+                    overhead = formatted_values(samples, lambda row: (float(row['usable_bytes']) / float(row['requested_bytes']) - 1) * 100, 2, percent=True)
                 rounding.append([label, BACKEND_LABELS[backend], "Native" if path == "native" else "UniMemory", overhead])
         for threads in (2, 4, 8):
             cross_thread.append([label, str(threads), *[
-                f"{metric(datasets[platform, backend, 'OFF']['full'], 'median_ns_per_operation', backend=backend, workload='cross_thread', bytes=64, alignment=16, threads=threads, statistics='disabled', heap='no'):.1f}"
+                formatted_metric(datasets[platform, backend, 'OFF']['full'], 'median_ns_per_operation', backend=backend, workload='cross_thread', bytes=64, alignment=16, threads=threads, statistics='disabled', heap='no')
                 for backend in BACKENDS]])
         for size in (64, 4096):
-            stack.append([label, str(size), f"{metric(datasets[platform, 'standard', 'OFF']['full'], 'median_ns_per_operation', backend='fixed_buffer', workload='stack_mark_rewind', bytes=size, alignment=16, threads=1, statistics='disabled', heap='no'):.2f}"])
+            stack.append([label, str(size), formatted_metric(datasets[platform, 'standard', 'OFF']['full'], 'median_ns_per_operation', 2, backend='fixed_buffer', workload='stack_mark_rewind', bytes=size, alignment=16, threads=1, statistics='disabled', heap='no')])
         # Manifests follow platform/backend/mode order; type sizes must agree
         # across all six build profiles on the platform.
         index = [item[0] for item in PLATFORMS].index(platform) * 6
@@ -211,22 +273,39 @@ def sdk_tables(datasets, manifests):
     return tables
 
 
-def source_line(manifest, native=False):
+def source_line(manifest, native=False, language="en"):
     revision = manifest["source_revision"]
     date = manifest["measured_at_utc"][:10]
     run_url = manifest["run_url"]
     raw = "../results/current/native-applications/README.md" if native else "../results/current/README.md"
-    return f"{date} \u00b7 [{revision[:7]}]({run_url}) \u00b7 [CSV]({raw})"
+    source = f"{date} \u00b7 [{revision[:7]}]({run_url}) \u00b7 [CSV]({raw})"
+    if manifest["schema"] == 3:
+        count = manifest["trials"]
+        description = (f"{count} fresh processes; mean [min, max], sample CV. All trials retained; sample SD and bootstrap 95% CI in raw summary.json."
+                       if language == "en" else f"{count} \u8f6e\u72ec\u7acb\u8fdb\u7a0b\uff1b\u5e73\u5747\u503c [\u6700\u5c0f, \u6700\u5927]\u3001\u6837\u672c CV\u3002\u4fdd\u7559\u5168\u90e8\u6d4b\u91cf\uff1b\u6837\u672c\u6807\u51c6\u5dee\u548c bootstrap 95% \u7f6e\u4fe1\u533a\u95f4\u89c1\u539f\u59cb summary.json\u3002")
+    else:
+        description = (f"Legacy median of {manifest['trials']} processes." if language == "en" else
+                       f"\u5386\u53f2 {manifest['trials']} \u8f6e\u72ec\u7acb\u8fdb\u7a0b\u7684\u4e2d\u4f4d\u6570\u3002")
+    return source + "\n\n" + description
 
 
 def import_native(root, directory, sdk_manifest):
     rows = read_csv(directory / "results.csv")
-    native_summary(rows)
-    manifest = json.loads((directory / "environment.json").read_text(encoding="utf-8"))
+    manifest = read_json(directory / "environment.json")
+    for key in ("source_revision", "run_id", "run_url"):
+        if key in manifest and str(manifest[key]) != str(sdk_manifest[key]):
+            raise ValueError("Native artifact does not match the trusted SDK source and run")
     manifest.update({key: sdk_manifest[key] for key in ("source_revision", "run_id", "run_url")})
-    manifest["schema"] = 1
-    manifest["measured_at_utc"] = sdk_manifest["measured_at_utc"][:10]
-    manifest["measurement_date_source"] = "workflow run date; native artifact has no per-process timestamp"
+    manifest.setdefault("schema", 1)
+    if "measured_at_utc" not in manifest:
+        manifest["measured_at_utc"] = sdk_manifest["measured_at_utc"][:10]
+        manifest["measurement_date_source"] = "workflow run date; native artifact has no per-process timestamp"
+    if manifest["schema"] == 3 and manifest.get("controlled_suite") != sdk_manifest.get("controlled_suite"):
+        raise ValueError("Native and SDK artifacts were not measured on the same controlled host")
+    count = report_tool().trial_count(manifest)
+    native_summary(rows, count, manifest["schema"] == 3)
+    if manifest["schema"] == 3:
+        report_tool().validate_summary(directory, native=True)
     manifest["artifact_name"] = "native-application-comparison"
     destination = root / "docs/results/current/native-applications"
     destination.mkdir(parents=True, exist_ok=True)
@@ -236,12 +315,15 @@ def import_native(root, directory, sdk_manifest):
         writer.writerows(rows)
     (destination / "environment.json").write_text(
         json.dumps(sanitize_publication(manifest), indent=2) + "\n", encoding="utf-8", newline="\n")
+    if manifest["schema"] == 3:
+        summary = sanitize_publication(read_json(directory / "summary.json"))
+        (destination / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8", newline="\n")
     (destination / "README.md").write_text(
         "# Native application results\n\n"
         f"Run date: {manifest['measured_at_utc']} \u00b7 [workflow run]({manifest['run_url']}) "
         f"\u00b7 UniMemory workflow source `{manifest['source_revision'][:7]}`.\n\n"
-        "[results.csv](results.csv) retains all 144 successful process runs: 16 programs, "
-        "three native allocators and three trials. "
+        f"[results.csv.gz](results.csv.gz) retains all {48 * count} successful process runs: 16 programs, "
+        f"three native allocators and {count} trials. "
         "[environment.json](environment.json) records commands and the pinned mimalloc-bench revision.\n\n"
         "These programs use native malloc/new through LD_PRELOAD; they do not measure the UniMemory API. "
         "Elapsed seconds include startup. Peak RSS is recorded in KiB. "
@@ -306,15 +388,18 @@ def refresh_tables(root, native_input=None):
     datasets, manifests = sdk_inputs(root)
     tables = sdk_tables(datasets, manifests)
     if native_input is not None:
-        import_native(root, Path(native_input), manifests[0])
+        linux_index = next(index for index, (platform, _) in enumerate(PLATFORMS) if platform == "linux-x64") * 6
+        import_native(root, Path(native_input), manifests[linux_index])
     native_directory = root / "docs/results/current/native-applications"
-    native = native_summary(read_csv(native_directory / "results.csv"))
     native_manifest = validate_native_data(native_directory)
+    native_rows = [{**row, "_schema": native_manifest["schema"], "_trials": native_manifest["trials"]}
+                   for row in read_csv(native_directory / "results.csv")]
+    native = native_summary(native_rows, native_manifest["trials"], native_manifest["schema"] == 3)
     tables["applications-elapsed"] = [
-        [program, *[("\u2014" if program in FIXED_DURATION else f"{native[program, backend][0]:.3f}")
+        [program, *[("\u2014" if program in FIXED_DURATION else formatted_metric(native_rows, "elapsed_seconds", 3, backend=backend, workload=program))
                     for backend in BACKENDS]] for program in PROGRAMS]
     tables["applications-memory"] = [
-        [program, *[f"{native[program, backend][1]:.2f}" for backend in BACKENDS]]
+        [program, *[formatted_metric(native_rows, "peak_rss_kib", 2, factor=1024, backend=backend, workload=program) for backend in BACKENDS]]
         for program in PROGRAMS]
     changed = []
     expected = {
@@ -328,7 +413,7 @@ def refresh_tables(root, native_input=None):
             original = path.read_text(encoding="utf-8")
             updated = replace_blocks(original, tables,
                                      source_line(native_manifest if name == "applications" else manifests[0],
-                                                 native=name == "applications"), expected=expected[name],
+                                                 native=name == "applications", language="zh-CN" if suffix == ".zh-CN.md" else "en"), expected=expected[name],
                                      language="zh-CN" if suffix == ".zh-CN.md" else "en")
             if updated != original:
                 path.write_text(updated, encoding="utf-8", newline="\n")

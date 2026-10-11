@@ -1,7 +1,5 @@
 #pragma once
 
-#include <unimem/config.h>
-
 #include <cstdint>
 #include <optional>
 
@@ -59,11 +57,6 @@ struct BackendStatistics {
     std::optional<std::uint64_t> resident_bytes;
     std::optional<std::uint64_t> reserved_bytes;
 };
-
-namespace detail {
-struct BackendOps;
-struct TrackingContext;
-}
 
 }
 

@@ -1,5 +1,6 @@
 """Publish trusted complete results using a scoped bot branch and reviewed PR."""
 import argparse
+import gzip
 import importlib.util
 import json
 import os
@@ -8,9 +9,6 @@ import re
 import shutil
 import subprocess
 import time
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from publication_metadata import sanitize_publication
 
 WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
 REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
@@ -80,6 +78,18 @@ def read_pr_files(repository, number):
     return [item for page in pages for item in page]
 
 
+def compress_results(directory):
+    """Keep every raw observation in deterministic, lossless gzip files."""
+    for path in sorted(directory.rglob("*")):
+        if path.is_file() and (path.suffix == ".csv" or path.name in ("summary.json", "controlled-suite.json", "tail-traces.json")):
+            original = path.read_bytes()
+            compressed = gzip.compress(original, compresslevel=9, mtime=0)
+            if gzip.decompress(compressed) != original:
+                raise RuntimeError("Result compression failed round-trip verification")
+            path.with_name(path.name + ".gz").write_bytes(compressed)
+            path.unlink()
+
+
 def run(*command):
     return subprocess.check_output(command, text=True).strip()
 
@@ -103,35 +113,16 @@ def main():
     previous = run("git", "ls-remote", "--heads", "origin", branch)
     lease = previous.split()[0] if previous else ""
     run("git", "switch", "-c", branch)
-    for platform_label in ("linux-x64", "windows-x64", "macos-arm64"):
-        for backend in report.BACKENDS:
-            for statistics_mode in ("OFF", "ON"):
-                label = f"{platform_label}/{backend}/{statistics_mode}"
-                directory = args.artifacts / f"performance-{platform_label}-{backend}-{statistics_mode}"
-                data = directory / "results"
-                manifest = report.validate(data)
-                if manifest["source_revision"] != revision or str(manifest["run_id"]) != os.environ["GITHUB_RUN_ID"]:
-                    raise RuntimeError("Artifact provenance does not match the trusted workflow")
-                charts = root / "docs/images/performance" / label
-                subprocess.run(["python3", str(root / "tools/ci/performance-report.py"), str(data), str(charts), "--label", label], check=True)
-                destination = root / "docs/results/current" / label
-                destination.mkdir(parents=True, exist_ok=True)
-                for name in ("environment.json", "scaling.csv", "tails.csv", "latency.csv", "pressure.csv", "footprint.csv", "heap.csv", "full.csv", "sweep-environment.json"):
-                    if name.endswith(".json"):
-                        published = sanitize_publication(json.loads((data / name).read_text(encoding="utf-8")))
-                        (destination / name).write_text(json.dumps(published, indent=2) + "\n", encoding="utf-8")
-                    else:
-                        shutil.copyfile(data / name, destination / name)
-                for path in charts.glob("*.json"):
-                    published = sanitize_publication(json.loads(path.read_text(encoding="utf-8")))
-                    path.write_text(json.dumps(published, indent=2) + "\n", encoding="utf-8")
-    report.refresh_reports(root / "docs/results/current", root / "docs/images/performance", revision)
     def load_refresh(name):
         spec = importlib.util.spec_from_file_location(name.replace("-", "_"), root / "tools/ci" / (name + ".py"))
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
     overview = load_refresh("refresh-performance-overview")
+    overview.stage_artifacts(root, args.artifacts, revision, expected_run_id=os.environ["GITHUB_RUN_ID"])
+    load_refresh("refresh-performance-tables").refresh_tables(root, args.native_input)
+    compress_results(root / "docs/results/current")
+    report.refresh_reports(root / "docs/results/current", root / "docs/images/performance", revision)
     expected = overview.refresh_overview(root, root / "build/publication-overview.json", revision)
     rendered = args.artifacts / "performance-overview"
     actual = json.loads((rendered / "comparison.json").read_text(encoding="utf-8"))
@@ -142,7 +133,6 @@ def main():
         if not source.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"):
             raise RuntimeError("Invalid rendered PNG figure")
         shutil.copyfile(source, root / "docs/images" / name)
-    load_refresh("refresh-performance-tables").refresh_tables(root, args.native_input)
     allowed = GENERATED_PATHS
     changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
     if any(line and not generated_path(line[3:]) for line in changed):
@@ -159,7 +149,7 @@ def main():
     run("git", "commit", "-m", f"Update performance results for {revision[:12]}")
     run("git", "push", f"--force-with-lease=refs/heads/{branch}:{lease}", "origin", f"HEAD:refs/heads/{branch}")
     existing = json.loads(run("gh", "pr", "list", "--head", branch, "--base", args.base, "--json", "number"))
-    body = f"Generated from trusted source {revision}. All measurements and report validation passed. Raw individual samples remain in workflow artifacts for 14 days.\n\nRun: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n"
+    body = f"Generated from trusted source {revision}. All measurements and report validation passed. Every process-trial observation and statistical summary is retained losslessly in docs/results/current. Individual operation traces and build evidence remain in workflow artifacts for 90 days; traces were validated before publication.\n\nRun: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n"
     body_file = root / "build/publication-body.txt"
     body_file.write_text(body, encoding="utf-8")
     if existing:

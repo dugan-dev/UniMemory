@@ -8,11 +8,12 @@ The latest measurements are grouped by platform, backend and statistics setting.
 | --- | --- |
 | `<platform>/<backend>/OFF` | Native calls and UniMemory with statistics off |
 | `<platform>/<backend>/ON` | Native calls and UniMemory with statistics on |
-| `full.csv` | Objects, containers, resizing, heaps and stack operations |
-| `latency.csv`, `tails.csv` | Allocation/free timing and individual latency samples |
-| `scaling.csv` | Same-thread and cross-thread workloads, 1–16 threads |
-| `pressure.csv`, `footprint.csv` | Memory during allocation, release and collection |
+| `full.csv.gz` | Objects, containers, resizing, heaps and stack operations |
+| `latency.csv.gz`, `tails.csv.gz` | Allocation/free timing and individual latency samples |
+| `scaling.csv.gz` | Same-thread and cross-thread workloads, 1–16 threads |
+| `pressure.csv.gz`, `footprint.csv.gz` | Memory during allocation, release and collection |
 | `environment.json`, `sweep-environment.json` | Hardware, compiler, SDK and measured executable provenance |
-| [Native applications](native-applications/) | 144 runs across 16 standalone programs; native allocators only |
+| `summary.json.gz`, `controlled-suite.json.gz` | Independent-trial statistics and the controlled measurement schedule |
+| [Native applications](native-applications/) | 16 standalone programs; native allocators only |
 
-Each profile retains three process trials. Backends and statistics settings run separately; hardware and SDK builds may differ. Compare Native and UniMemory within the same profile when evaluating wrapper cost.
+All process-trial observations are retained losslessly. Individual operation traces and build evidence are available in the linked workflow artifacts for 90 days under the current protocol. Check each environment file for the measured source, protocol and trial count. The current protocol runs every backend on the same platform runner, with at least ten independent process trials; legacy measurements explicitly retain their original protocol.

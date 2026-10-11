@@ -10,6 +10,29 @@
 
 namespace unimem {
 
+class Memory::Mark final {
+public:
+    Mark(const Mark&) = default;
+    Mark& operator=(const Mark&) = default;
+
+private:
+    friend class Memory;
+    Mark(const Memory* owner, std::size_t used, std::uint64_t generation) noexcept;
+
+    const Memory* owner_;
+    std::size_t used_;
+    std::uint64_t generation_;
+};
+
+inline Memory::Storage::Storage(Backend value) noexcept : backend(value) {}
+
+inline Memory::Storage::Storage(void* buffer, std::size_t capacity) noexcept
+    : stack{static_cast<std::byte*>(buffer), capacity} {}
+
+inline void* OwnedBlock::data() const noexcept { return pointer_; }
+inline std::size_t OwnedBlock::size() const noexcept { return bytes_; }
+inline std::size_t OwnedBlock::alignment() const noexcept { return alignment_; }
+
 namespace detail {
 
 struct TypedStorage {

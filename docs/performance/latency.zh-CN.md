@@ -2,7 +2,7 @@
 
 [性能](../performance.zh-CN.md) · [English](latency.md) · **简体中文**
 
-**纳秒/完整操作，越小越快。** 三个独立进程取中位数；Global，统计关闭，Release 构建。
+**纳秒/完整操作，越小越快。** Global，统计关闭，Release 构建。轮数与统计方法见下方。
 
 <!-- performance-source -->
 2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)

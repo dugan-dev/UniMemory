@@ -24,6 +24,10 @@
 #include <unimem/allocator.h>
 #endif
 
+#include <unimem/common.h>
+#include <unimem/owned_block.h>
+#include <unimem/version.h>
+
 int main() {
     auto& memory = unimem::Memory::global();
     auto allocator = memory.allocator<int>();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unimem/detail/configuration.inl>
 #include <limits>
 #include <stdexcept>
 #include <unimem/detail/inline.h>
@@ -14,7 +15,7 @@
 namespace unimem {
 
 inline bool available(Backend backend) noexcept {
-    return backend == static_cast<Backend>(UNIMEMORY_CONFIG_BACKEND);
+    return backend == detail::build_backend;
 }
 
 inline BackendCapabilities capabilities(Backend backend) noexcept {

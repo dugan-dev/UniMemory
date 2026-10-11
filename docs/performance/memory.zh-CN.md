@@ -2,7 +2,7 @@
 
 [性能](../performance.zh-CN.md) · [English](memory.md) · **简体中文**
 
-**进程常驻内存相对基线的增量，MiB。** 每次测量先减去该进程基线，再对三个独立进程取中位数；统计关闭。
+**进程常驻内存相对基线的增量，MiB。** 每次测量先减去该进程基线，再汇总；统计关闭。
 
 <!-- performance-source -->
 2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)

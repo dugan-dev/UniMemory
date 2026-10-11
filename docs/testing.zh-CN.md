@@ -1,125 +1,25 @@
-# 测试
+# 验证
 
-[目录](README.zh-CN.md) · [English](testing.md) · **简体中文**
+[文档](README.zh-CN.md) · [English](testing.md) · **简体中文**
 
-下方结果对应原实测源码修订，包含旧的多后端编译库配置；保留为历史证据，不宣称它们是新纯头文件配置的测试计数。当前配置见[构建指南](getting-started.zh-CN.md)。
+当前纯头文件库在 Windows、Linux、macOS 持续验证。每个源码修订的结果见[最新 Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)。
 
-## 纯头文件验收 · 2026-10-11
-
-源码 `33df39d` 的核心、安装与诊断矩阵已全部通过。安装消费者有九项实际运行测试，包含三个翻译单元、PMR 静态生命周期和六种头文件顺序。后续 CMake 修正移除了消费者 PIC 限制，并显式验证 PIC OFF；最终运行记录见 [dev Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)。
-
-| 流程 | 结果与范围 |
+| 范围 | 检查内容 |
 | --- | --- |
-| [构建](https://github.com/dugan-dev/UniMemory/actions/runs/38100027933) | 25/25 项；三平台 × 三 SDK × 两种统计配置、Debug/Release、检查开关和安装消费者 |
-| [编译器矩阵](https://github.com/dugan-dev/UniMemory/actions/runs/38100027832) | 53/53 项；52 项编译配置与总验收 |
-| [错误检测](https://github.com/dugan-dev/UniMemory/actions/runs/38100027817) | 21/21 项；严格 ASan/UBSan/TSan、可选后端、原生 mimalloc、静态分析和覆盖率 |
-| [发布](https://github.com/dugan-dev/UniMemory/actions/runs/38100027804) | 4/4 项；原生分配器正确性、压力与打包验证 |
-| [性能排查](https://github.com/dugan-dev/UniMemory/actions/runs/38100027867) | 11/11 项；配对因素与报告工具验证 |
+| 内存分配 | 零大小、对齐、溢出、扩容和失败回滚 |
+| 对象与所有权 | 构造、析构、数组、共享/弱引用及跨线程释放 |
+| 标准容器 | Allocator、PMR、复制、移动、嵌套容器和 PMR 零大小请求 |
+| 堆与栈 | 归属、回收/重置、容量、标记与回退 |
+| 并发 | 全局初始化、线程间交接和精确请求计数 |
+| 项目接入 | 单入口头文件、六种包含顺序、多翻译单元、安装配置和 PIC 选择 |
+| 错误检测 | ASan、遇错终止的 UBSan、TSan、静态分析与覆盖率 |
 
-Basic 计数、PMR 零大小归一化、构造与 OOM 回滚、初始化失败重试、跨线程弱引用释放、安装配置冲突都保留强制验证。性能采集通过不代表每个负载都达到原生的 90%。[测量控制](performance/header-only.zh-CN.md)
-
-### 当前检测明细
-
-| 配置 | 行覆盖 | 分支覆盖 | 覆盖率 CTest | ASan + UBSan | TSan |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Standard OFF | 337/477 · 70.65% | 1548/3535 · 43.79% | 667 | 668 | 666 |
-| Standard ON | 381/487 · 78.23% | 1920/4253 · 45.14% | 669 | 670 | 667 |
-| mimalloc OFF | 391/518 · 75.48% | 1362/2955 · 46.09% | 712 | 713 | 712 |
-| mimalloc ON | 470/528 · 89.02% | 1799/3673 · 48.98% | 751 | 752 | 750 |
-| jemalloc OFF | 465/595 · 78.15% | 1461/3271 · 44.67% | 722 | 723 | 722 |
-| jemalloc ON | 543/605 · 89.75% | 1886/3989 · 47.28% | 760 | 761 | 759 |
-
-所有注册测试均通过。原生 mimalloc 另通过三项 UBSan、三项 TSan；六组 Clang 18.1.3 静态分析全部通过。GCC 13.3.0 使用 `--coverage -O0 -g`，只统计 `include/unimem/**`。各配置不能累加为一个源码覆盖率，SDK 内部不计入；gcov 分支槽包含编译器控制流。未覆盖部分仍保留在报告中，不宣称覆盖完整。[可复现流程](../.github/workflows/diagnostics.yml)
-
-## 远程验收 · 2026-10-10
-
-扩展验收对应源码 `ca4919f`。[原生矩阵](remote-validation.md#platform-and-compiler-matrix)
-覆盖 26 项 Debug/Release 编译器配置，包括要求的六种平台/架构组合，并验证安装消费者。
-
-| 证据 | 范围 |
-| --- | --- |
-| [构建](https://github.com/dugan-dev/UniMemory/actions/runs/38027100987) | Standard、可选后端、共享库、示例、安装与文档 |
-| [平台矩阵](https://github.com/dugan-dev/UniMemory/actions/runs/38027100962) | 实际编译器版本、二进制架构、Debug/Release |
-| [错误检测](https://github.com/dugan-dev/UniMemory/actions/runs/38027100952) | 严格 UBSan 探针、封装/原生检测、静态分析与覆盖率 |
-| [发布验证](https://github.com/dugan-dev/UniMemory/actions/runs/38027100940) | 现有原生套件、错误检测与压力验证 |
-| [性能](https://github.com/dugan-dev/UniMemory/actions/runs/38027100953) | 三平台完整测量、报告回归测试与图表自动发布 |
-
-GCC 覆盖率配置执行 1,673 项注册测试。已插桩项目代码覆盖 **604/635 行（95.12%）**、
-**337/475 分支（70.95%）**，包含未执行的编译单元。该结果对应具体配置，不代表所有
-模板实例和路径均已覆盖；源码报告列出剩余的分配失败、能力判断等分支。
-
-Clang TSan 执行 1,671 项；两项与其全局 new 替换不兼容的失败注入仍在普通构建和兼容
-ASan 配置中要求通过。jemalloc 内部仍未插桩。[检测范围与压力规模](remote-validation.md#detection-and-pressure)
-
-报告回归测试先在 `568cc2b` 远程复现末尾空行与统计柱形难以区分的问题；修复后
-`6738c77` 的 17 项工具测试全部通过，覆盖首次/不同基线、场景缺失拒绝和 SVG 有效性。
-最终工具套件共 23 项全部通过，包含发布身份、文件范围和完整分页检查。
-[图表 PR #5](https://github.com/dugan-dev/UniMemory/pull/5) 的五项真实 PR 验收成功后才自动合并。
-18 张 SVG 均标识测量源码 `ca4919f`，未使用手动派发检查代替 PR 验收。
-
-## 2026-10-08 至 2026-10-09 审查修复验收
-
-| 配置 | 通过 / 注册项 | 安装消费者 |
-| --- | --- | --- |
-| Windows / MSVC，静态，三后端，Release | **1666/1666** | **7/7** |
-| Windows / MSVC，静态，三后端，Debug | **1666/1666** | **7/7** |
-| Windows / MSVC，共享，三后端，Release | **1664/1664** | **7/7** |
-| Linux / GCC，静态，三后端，Release | **1667/1667** | **7/7** |
-| Linux / GCC，共享，三后端，Release | **1666/1666** | **7/7** |
-| Linux / Clang，Standard，ASan + UBSan + 泄漏检测 | **715/715** | **7/7** |
-
-全部零失败。数量包含参数化、包发现、头文件顺序和压力测试，重复配置不算新增功能。
-共享库中依赖 executable-level allocation interception 的测试数量不同。
-GitHub 于 2026-10-09 验证修复提交 `65c4a46`：全部 13 项
-[跨平台构建任务](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097)和全部 5 项
-[发布验收任务](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066)通过，包含 macOS、ASan 和 ThreadSanitizer。
-下表的旧数值仍为历史结果。
-[审查结论与接口约束](review-2026-10-08.md)
-
-后续文档修订 `08d97f0` 也通过全部 13 项[构建任务](https://github.com/dugan-dev/UniMemory/actions/runs/37873043811)。各链接只验证该任务记录的修订，不代表更早的 `v0.0.1` 发布或此后每个 main 提交都已通过。
-
-## 2026-09-28 的 0.0.1 历史验证
-
-| 构建 | 结果 |
-| --- | --- |
-| Windows x64 / MSVC，三种 Backend | Release **1626/1626**，Debug **1626/1626** |
-| Linux x64 / GCC / WSL，三种 Backend | **1627/1627** |
-| macOS / Apple Clang，三种 Backend | GitHub CI **1626/1626**；安装包使用程序通过 |
-| Linux Standard / Stack，ASan + UBSan | **681/681**，未发现 Sanitizer 错误 |
-| Linux Standard / Stack，ThreadSanitizer | **678/678**，未发现竞争；关闭示例 |
-| Windows、Linux 安装包 | 包查找、版本检查、程序编译运行通过 |
-| 独立 GitHub 克隆 | README 构建、Standard **681/681**；静态/共享安装包使用各 **2/2** |
-| 文档示例 | 18 个 README 示例 + 2 个 PMR 程序；Linux 单后端与三后端构建，**40/40** 次运行通过 |
-
-Backend 版本：mimalloc 3.4.3、jemalloc 5.3.1。以上验证针对统一 Memory 接口。
-
-## 覆盖范围
-
-| 主题 | 验证内容 |
-| --- | --- |
-| 分配与扩容 | 零大小、对齐、溢出、内容保留、清零增长、失败回滚 |
-| 对象与智能指针 | 构造、析构、数组、接管、共享与弱引用 |
-| 容器 | Allocator、PMR、复制、移动、交换 |
-| 堆与栈 | 归属、整体释放、标记回退、容量不足 |
-| 并发与统计 | 多线程分配释放、实例获取、请求计数 |
-| 压力测试 | 大量循环分配、随机操作、所有权交接 |
-
-错误配对、失效指针、reset 后继续使用、无同步的对象写入仍由调用方避免。Shared Array 的标准库限制见[兼容性指南](compatibility.zh-CN.md#标准库行为)。
-
-## 运行
+核心测试覆盖 Debug/Release 与统计开关，可选后端分别验证。消毒器检查已执行路径；覆盖率报告展示尚未执行的行与分支。
 
 ```sh
-cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ctest --preset release
 ```
 
-后端与统计模式必须在构建时选择。上述命令选择 Standard/OFF，其他后端/ON/OFF 配置使用独立构建目录，并提供所选 SDK。[配置方法](guides/backends.zh-CN.md)
-
-## 自动化验证
-
-[跨平台构建](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml)检查平台、后端和安装包；[发布验证](https://github.com/dugan-dev/UniMemory/actions/workflows/release-validation.yml)检查 Sanitizer、压力测试和上游测试。
-
-Android/iOS 尚未设备验证。上述结果仅适用于列出的配置与场景。
-
-[详细验证记录](upstream-validation.md) · [性能对比](performance.zh-CN.md)
+[构建选项](getting-started.zh-CN.md#构建选项) · [原生套件](upstream-validation.md) · [性能](performance.zh-CN.md)

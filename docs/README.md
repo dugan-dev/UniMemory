@@ -48,33 +48,10 @@ flowchart LR
 | [Test results](testing.md) | Verified platforms and coverage |
 | [Remote validation](remote-validation.md) | Native compiler matrix, detection and chart automation |
 
-[Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Upstream validation](upstream-validation.md)
+[Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/current/README.md) · [Upstream validation](upstream-validation.md)
 
-## 5 · Validation and maintenance
+## 5 · Validation
 
-Historical repair verification from **2026-10-08 to 2026-10-09**; these earlier library-build counts do not describe the current header-only profiles.
+Correctness, exceptions, boundaries, concurrency and installed consumers are checked on Windows, Linux and macOS. [Test coverage](testing.md) · [Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)
 
-| Validation | Recorded result |
-| --- | --- |
-| Windows: three backends + examples | **1666/1666** in Release and Debug |
-| Linux: three backends + examples | **1667/1667**, installed consumers **7/7** |
-| macOS: three backends + examples | [GitHub CI passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859097) |
-| ASan / UBSan, Standard and Stack | **715/715**, leak detection enabled |
-| ThreadSanitizer, Standard and Stack | [Release validation passed](https://github.com/dugan-dev/UniMemory/actions/runs/37871859066) |
-
-Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](testing.md)
-
-The header-only fixed-profile source described here is on `dev`; the earlier stable implementation is on `main`.
-The [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)
-is distributed without tags or Releases. The library version remains **0.0.1**;
-use matching headers, generated configuration and SDK libraries and identify deliveries by source revision.
-[Current performance reports](performance.md#overview) record their
-measured revision; September measurements remain as historical data.
-
-[Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Repair review](review-2026-10-08.md)
-
-Before publishing documentation, run:
-
-```sh
-python tools/check-docs.py
-```
+[Contributing](../CONTRIBUTING.md) · [Security](../SECURITY.md)

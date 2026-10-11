@@ -24,6 +24,6 @@ An installed package retains its jemalloc dependency. If discovery or symbol val
 
 Global/Heap creation, capability queries and runtime-option changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and runtime-option changes report failure by exception; noexcept capability lookup reports no detailed statistics. `available()` describes compiled support, not a successful initialization probe.
 
-The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Cold-start evidence](../review-2026-10-08.md#concurrent-jemalloc-initialization)
+The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Thread requirements](../compatibility.md)
 
 Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public declarations](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc_protos.h.in), [validation](../upstream-validation.md). Platform evidence: [test results](../testing.md).

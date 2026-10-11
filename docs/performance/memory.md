@@ -2,7 +2,7 @@
 
 [Performance](../performance.md) · **English** · [简体中文](memory.zh-CN.md)
 
-**Resident process memory above baseline, MiB.** Subtract each process baseline before taking the median of three fresh processes; counters off.
+**Resident process memory above baseline, MiB.** Subtract each process baseline before aggregation; counters off.
 
 <!-- performance-source -->
 2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)

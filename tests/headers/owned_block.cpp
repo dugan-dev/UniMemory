@@ -1,4 +1,4 @@
-#include <unimem/memory.h>
+#include <unimem/owned_block.h>
 
 #include <cstdint>
 #include <utility>

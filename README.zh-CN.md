@@ -256,7 +256,7 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 ## 性能
 
-Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。取三次测量的中位数，单位 **ns/次，越小越快**。
+Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。历史 3 轮测量的中位数，单位 **ns/次，越小越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |

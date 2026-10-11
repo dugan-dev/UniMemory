@@ -74,7 +74,7 @@ add_subdirectory(UniMemory)
 
 源码构建或配置安装消费者时使用 `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF` 可移除该目标传递的 `/Ob3`，自行选择内联选项。安装包以消费者目标属性控制该选择；它与固定的后端/统计/检查契约不同。项目不会自动开启全局 IPO/LTO。
 
-[实测控制与限制](performance/header-only.zh-CN.md)记录 SDK/API 双方同选项的结果；`/Ob3` 仍是编译器启发式，不保证每个函数都内联或所有负载最快。
+[测量方法](benchmarking.zh-CN.md)保持 SDK/API 编译选项一致；`/Ob3` 仍是编译器启发式，不保证每个函数都内联或所有负载最快。
 
 ## 部署程序
 

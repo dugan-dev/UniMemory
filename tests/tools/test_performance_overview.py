@@ -1,7 +1,10 @@
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("overview", ROOT / "tools/ci/refresh-performance-overview.py")
@@ -10,6 +13,33 @@ spec.loader.exec_module(overview)
 
 
 class OverviewTests(unittest.TestCase):
+    def test_trusted_run_mismatch_rejects_all_artifacts_before_any_copy(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "repo"
+            artifacts = Path(temporary) / "artifacts"
+            for platform in ("linux-x64", "windows-x64", "macos-arm64"):
+                for backend in overview.BACKENDS:
+                    for mode in ("OFF", "ON"):
+                        directory = artifacts / f"performance-{platform}-{backend}-{mode}" / "results"
+                        directory.mkdir(parents=True)
+                        run_id = "other" if (platform, backend, mode) == ("macos-arm64", "jemalloc", "ON") else "123"
+                        (directory / "environment.json").write_text(json.dumps({"source_revision": "a" * 40, "run_id": run_id}), encoding="utf-8")
+            fake = SimpleNamespace(validate=lambda path, **kwargs: json.loads((path / "environment.json").read_text(encoding="utf-8")))
+            with mock.patch.object(overview, "load_tool", return_value=fake):
+                with self.assertRaisesRegex(ValueError, "trusted run ID"):
+                    overview.stage_artifacts(root, artifacts, "a" * 40, expected_run_id="123")
+            self.assertFalse((root / "docs").exists())
+
+    def test_repeated_mean_selects_per_process_means_and_retains_outlier(self):
+        rows = [{"trial": str(trial), "workload": "create_destroy", "bytes": "64",
+                 "alignment": "1", "threads": "1", "statistics": "disabled", "heap": "no",
+                 "median_ns_per_operation": "999", "mean_ns_per_operation": str(value)}
+                for trial, value in enumerate([1] * 9 + [100], 1)]
+        self.assertEqual(overview.selected_median(rows, ("create_destroy", 64, 1, 1), 10, True), 10.9)
+        for changed in (rows[:-1], rows[:-1] + [rows[0]]):
+            with self.assertRaisesRegex(ValueError, "Incomplete"):
+                overview.selected_median(changed, ("create_destroy", 64, 1, 1), 10, True)
+
     def test_three_trials_selected_without_heap_or_counter_results(self):
         def row(trial, value, **extra):
             return {"trial": str(trial), "workload": "create_destroy", "bytes": "64",
@@ -37,7 +67,7 @@ class OverviewTests(unittest.TestCase):
             self.assertEqual(profile["environment"]["source_revision"], data["source_revision"])
             self.assertEqual(profile["environment"]["build_profile"]["statistics"], "OFF")
             values = data["platforms"]["windows"]["overview"][backend]
-            table = (ROOT / "README.md").read_text()
+            table = (ROOT / "README.md").read_text(encoding="utf-8")
             performance = table.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
             for value in values:
                 self.assertIn(f"{value:.1f}", performance)

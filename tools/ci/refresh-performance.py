@@ -1,4 +1,4 @@
-"""Refresh aggregate and profile SVGs from the complete recorded source matrix."""
+"""Refresh 36 aggregate SVGs from the complete recorded source matrix."""
 import argparse
 import importlib.util
 import json
@@ -11,11 +11,12 @@ def main():
     parser.add_argument("--current", type=Path, default=root / "docs/results/current")
     parser.add_argument("--images", type=Path, default=root / "docs/images/performance")
     parser.add_argument("--source-revision", help="Reject measurements from any other source revision")
+    parser.add_argument("--profile-charts", action="store_true", help="Also generate per-profile SVGs for an explicit diagnostic export")
     args = parser.parse_args()
     spec = importlib.util.spec_from_file_location("performance_report", root / "tools/ci/performance-report.py")
     report = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(report)
-    print(json.dumps(report.refresh_reports(args.current, args.images, args.source_revision), sort_keys=True))
+    print(json.dumps(report.refresh_reports(args.current, args.images, args.source_revision, args.profile_charts), sort_keys=True))
 
 
 if __name__ == "__main__":

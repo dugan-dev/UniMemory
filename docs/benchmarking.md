@@ -2,99 +2,37 @@
 
 [Index](README.md) · **English** · [简体中文](benchmarking.zh-CN.md) · [Results](performance.md)
 
-Measure your workload. [mimalloc-bench](https://github.com/daanx/mimalloc-bench) provides application and synthetic workloads; it is a benchmark collection, not an industry certification.
+Compare allocators on the same machine with the same compiler, runtime and optimization settings. Results from different CPU models cannot rank backends.
 
-## 1 · Build
+## Build
 
 ```sh
 cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_BENCHMARKS=ON
 cmake --build build/bench --config Release
 ```
 
-Optional backends need their [build options and dependencies](guides/backends.md). Standard requires no allocator dependency.
+Build each backend/statistics combination separately. Optional SDK setup is described in the [backend guide](guides/backends.md).
 
-## 2 · Measure
+## Measurements
 
-Linux / macOS:
-
-```sh
-build/bench/UniMemoryDeliveryBenchmark standard latency native 64
-build/bench/UniMemoryDeliveryBenchmark standard latency disabled 64
-build/bench/UniMemoryBenchmark --full
-```
-
-Windows: use `python` and executables under `build/bench/Release/` with the `.exe` suffix. Select the backend matching that executable. Build each backend/statistics profile separately; use the `basic` path and `--basic` sweep only for ON builds, and the `disabled` path only for OFF builds. The legacy multi-backend drivers used by the historical reports must not be used to switch a fixed Global profile.
-
-| Probe | Workload | Output |
-| --- | --- | --- |
-| Native / API / Basic | 16–65536 B, alignment 16, allocation/free pairs | latency.csv |
-| Memory usage | 16384 × 4096 B, fully touched; live/free/collect | footprint.csv |
-| Mixed sizes | 16384 Blocks, sparse survivors, eight refill/free cycles | pressure.csv |
-| Heap controls | owns, collect, allocate 64 B + reset | heap.csv |
-| API sweep | Bytes, Objects, Arrays, Containers, ownership, handoff, diagnostics, Stack | full.csv |
-| Environment | Native versions, type sizes, source/executable SHA-256 | environment.json, sweep-environment.json |
-
-Global Disabled and Basic now require separate OFF/ON builds, not a runtime change or just a new process. Basic Heap scenarios also require an ON build. Keep Native/API SDK versions, link profile, compiler flags, sizes, alignment, touching and timing protocol matched. The workload/output table and counts below describe the recorded earlier report protocol; they are not current fixed-profile coverage totals.
-
-## 3 · Method
-
-| Probe | Repetition |
+| Dimension | Scope |
 | --- | --- |
-| Raw latency | Warmup; nine × 200000 operations per process; three fresh process trials |
-| Full sweep | Warmup; seven repetitions, shuffled Backend order; three fresh process trials |
-| Memory | Three fresh processes; page writes and live-content checks |
+| Allocation | 16–65536 B, matching size and alignment, direct Native/API calls |
+| Objects and containers | Construction/destruction, arrays, vector, PMR and ownership |
+| Concurrent work | Same-thread and cross-thread allocation/free, 1–16 workers |
+| Memory | Live requests, resident memory, release and collection |
+| Native applications | 16 programs from the pinned mimalloc-bench collection |
 
-An operation is the complete named workload. A vector case grows and destroys 32 elements; resize allocates, resizes and frees. Handoff allocates on one thread and frees on 2/4/8 workers; worker creation is outside timing, completion is inside. Heap creation is outside ordinary allocation timing; the reset probe includes replacement Heap setup.
+The controlled protocol builds all backends on one runner per platform, warms each path, calibrates meaningful timing intervals, alternates execution order and retains at least ten fresh-process trials. Matched Native/API paths use the same operation count and SDK binary.
 
-The mixed-size trace uses seed `0xC0FFEE`, sizes 17/33/65/129/257/513/1025/2049/4097/8193 B, alignment 16 and 1024 persistent Blocks. It checks content, alignment, counts and native usable capacity. Diagnostics are outside timed allocation loops. RSS includes allocator caches, metadata and process state; retention is not a fragmentation rate.
+Reports include the arithmetic mean, median, minimum, maximum, sample standard deviation, coefficient of variation and bootstrap 95% interval. Every sample is retained. Large variation is reported, not removed or treated as an allocator improvement. RSS phase values are reduced only after subtracting each trial's baseline.
 
-The native-statistics workload measures the diagnostic call, including an empty
-result for an unsupported Memory. Consult instance capabilities; an empty-result
-call is not equivalent to collecting native metrics.
+Process-trial data and summaries are stored losslessly in the repository. Individual operation traces and build evidence remain in the linked workflow artifacts for 90 days; traces are checked before publication.
 
-## 4 · Keep backends separate
+## Relation to mimalloc's benchmarks
 
-mimalloc: `MI_OVERRIDE=OFF`, Windows `MI_WIN_REDIRECT=OFF`. Windows children also set and verify `MIMALLOC_DISABLE_REDIRECT=1`.
+[mimalloc's official report](https://github.com/microsoft/mimalloc#performance) uses ten-run averages over a broad application and synthetic suite. [mimalloc-bench](https://github.com/daanx/mimalloc-bench) is the source of the native program subset used here.
 
-Unix jemalloc: `--with-jemalloc-prefix=je_ --disable-cxx`. A prefix alone can still replace global C++ new/delete. CMake inspects symbols; the benchmark verifies the Unix global-new provider. Native Standard uses throwing aligned new; the API uses nothrow aligned new and translates failure. Successful size/alignment match; failure behavior differs.
+UniMemory also measures C++ objects, containers and context handling. Standard uses C++ allocation APIs; it is not the same baseline as the official glibc malloc comparison. Process-wide native allocator replacement measures allocator behavior, not wrapper cost. No allocator is fastest for every workload.
 
-## 5 · Reproduce tables and figures
-
-```sh
-python3 tools/summarize-benchmarks.py docs/results/0.0.1 --output build/comparisons.json
-```
-
-The summary validates the published two-platform, three-backend matrix. All Python scripts use the standard library.
-
-Optional figure export uses Windows .NET Framework's chart library:
-
-```powershell
-powershell -NoProfile -File tools/render-benchmarks.ps1 -InputJson build/comparisons.json -OutputDirectory build/charts
-```
-
-Batch measurements above do not estimate individual-operation p95/p99. CPU affinity
-is unpinned; small differences may be noise. They do not establish NUMA scaling,
-long-running fragmentation or mobile performance.
-
-## 6 · Current automated reports
-
-The recorded reports use the change-triggered [performance workflow](../.github/workflows/performance.yml)
-builds all three backends on Linux x64, Windows x64 and macOS ARM64. It runs the
-existing probes plus matched Native/API/Basic scaling and individual-operation
-latency samples, then validates the complete API sweep before publishing SVGs.
-
-| Measurement per platform | Scale |
-| --- | --- |
-| Scaling | 810 cases: three trials, three backends, three paths, two release patterns, three sizes, five thread counts |
-| Tail latency | 135 cases, 8,192 allocate/free samples each; clock overhead recorded |
-| API sweep | 1,001 scenarios per trial, three trials |
-| External native applications | Linux: 16 programs, three allocators, three trials |
-
-Each scaling thread performs 4,096 pairs in eight batches of 512. Requests and
-touching match across paths; the largest scaling payload is 512 MiB. Tail percentiles
-describe individual intervals, including clock overhead. RSS includes process and
-allocator state. Compare workloads within one recorded environment.
-
-[Reports](performance.md#overview) · [Protocol and publication](remote-validation.md#performance-and-charts)
-
-[Raw measurements](results/0.0.1/README.md) · [Native suites and applications](upstream-validation.md)
+[Data and environments](results/current/README.md) · [Validation](testing.md)

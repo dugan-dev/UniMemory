@@ -1,5 +1,6 @@
 """Check text format, delivery links and source/example language with Python stdlib."""
 from pathlib import Path
+import gzip
 import os
 import re
 import subprocess
@@ -9,6 +10,12 @@ from urllib.parse import unquote, urlsplit
 
 def check_text_format(path, root, errors):
     data = path.read_bytes()
+    if path.suffix == ".gz":
+        try:
+            data = gzip.decompress(data)
+        except (OSError, EOFError) as error:
+            errors.append(f"{path.relative_to(root)}: invalid gzip data: {error}")
+            return
     name = path.relative_to(root)
     try:
         content = data.decode("utf-8")
@@ -46,6 +53,11 @@ def heading_ids(text):
 
 def check_publication_content(path, root, errors):
     content = path.read_bytes()
+    if path.suffix == ".gz":
+        try:
+            content = gzip.decompress(content)
+        except (OSError, EOFError):
+            return  # The format check reports corrupted compressed data.
     patterns = {
         "local user path": rb"(?:[A-Z]:[\\/]+(?:Users|Documents and Settings)[\\/]+|/(?:home|Users)/[A-Za-z0-9_.-]+/)",
         "private key": rb"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----",

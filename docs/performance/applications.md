@@ -10,7 +10,7 @@ Separate Linux programs from mimalloc-bench, using process-wide allocator replac
 
 [Pinned benchmark collection](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86)
 
-16 programs × 3 allocators × 3 processes: 144 successful runs. Each row is the median of three processes; the system allocator is glibc and threaded workloads use four workers.
+16 programs × 3 allocators. The system allocator is glibc; threaded workloads use four workers. Trial counts and statistics are recorded above.
 
 ## Elapsed time
 
@@ -68,4 +68,4 @@ Allocator results vary across workloads; faster need not mean less memory. Choos
 
 Elapsed time uses a monotonic clock and includes process startup. Peak RSS comes from GNU time and differs from phase snapshots in the memory report.
 
-[All 144 raw runs](../results/current/native-applications/README.md) · [Reproduce](../benchmarking.md)
+[All raw runs](../results/current/native-applications/README.md) · [Reproduce](../benchmarking.md)

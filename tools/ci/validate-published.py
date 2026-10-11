@@ -15,10 +15,13 @@ if not directories:
 for manifest in directories:
     report.validate(manifest.parent)
     print("Validated published result:", manifest.parent.name)
+if directories:
+    for platform in report.PLATFORM_LABELS:
+        report.load_combined(root / "docs/results/current" / platform)
 native = root / "docs/results/current/native-applications"
 if native.exists():
     spec = importlib.util.spec_from_file_location("tables", root / "tools/ci/refresh-performance-tables.py")
     tables = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(tables)
-    tables.validate_native_data(native)
-    print("Validated 144 native application runs")
+    manifest = tables.validate_native_data(native)
+    print(f"Validated {48 * manifest['trials']} native application runs")

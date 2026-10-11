@@ -74,7 +74,7 @@ An installed package retains its selected backend/statistics/check policy and ge
 
 Set `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF` when configuring either a source build or an installed-package consumer to remove the target's `/Ob3` and choose your own inlining settings. The installed target uses a consumer-controlled property; this preference differs from the fixed backend/statistics/check-policy contract. Global IPO/LTO is not enabled automatically.
 
-[Measured controls and limits](performance/header-only.md) keep SDK/API compiler settings matched. `/Ob3` remains a compiler heuristic, not a promise to inline every function or make every workload fastest.
+[Measurement method](benchmarking.md) keeps SDK/API compiler settings matched. `/Ob3` remains a compiler heuristic, not a promise to inline every function or make every workload fastest.
 
 ## Deploy your application
 

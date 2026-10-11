@@ -4,7 +4,7 @@
 
 ## Overview
 
-Three process trials, medians shown. Compare results within each workload; backends and statistics settings are measured in separate runs.
+Compare results within each workload. Each figure records its measured source and aggregation method; detailed tables include variation across independent process trials.
 
 | Legend | Meaning |
 | --- | --- |
@@ -118,6 +118,6 @@ Standard = 1 within each workload; shorter bars are faster.
 
 ## Data and method
 
-[Measurements and environment](results/current/) · [Method](benchmarking.md) · [Optimization controls](performance/header-only.md)
+[Measurements and environment](results/current/) · [Method](benchmarking.md)
 
 Figures update with new measurements. Performance varies with hardware and workload.

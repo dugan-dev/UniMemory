@@ -11,6 +11,9 @@ $data = Get-Content -LiteralPath $InputJson -Raw | ConvertFrom-Json
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $palette = @('#94A3B8', '#0284C7', '#0D9488')
 $backends = @('standard', 'mimalloc', 'jemalloc')
+$aggregation = if ($data.statistics.aggregation -eq 'mean') { 'Mean' } else { 'Median' }
+$trials = if ($data.statistics.trials) { [int]$data.statistics.trials } else { 3 }
+$sampling = "$aggregation of $trials fresh processes"
 
 function New-Chart([string]$Title, [string]$Subtitle, [int]$Height) {
     $chart = New-Object System.Windows.Forms.DataVisualization.Charting.Chart
@@ -47,7 +50,7 @@ function New-Area($Chart, [string]$Name, [float]$Left, [float]$Width) {
     return $area
 }
 
-$chart = New-Chart 'Allocation time by Backend' 'Standard = 1 within each workload. Shorter is faster. Statistics off. Separate runs.' 950
+$chart = New-Chart 'Allocation time by Backend' "Standard = 1 within each workload. Shorter is faster. Statistics off. $sampling." 950
 try {
     for ($panel = 0; $panel -lt 2; ++$panel) {
         $platform = @('windows', 'linux')[$panel]
@@ -83,7 +86,7 @@ try {
     $chart.SaveImage((Join-Path $OutputDirectory 'workload-comparison.png'), 'Png')
 } finally { $chart.Dispose() }
 
-$chart = New-Chart 'Memory during allocation and free' 'Windows x64. RSS above baseline, MiB. Median of 3 processes; no explicit collect.' 650
+$chart = New-Chart 'Memory during allocation and free' "Windows x64. RSS above baseline, MiB. $sampling; no explicit collect." 650
 try {
     $memoryMaximum = 0.0
     foreach ($row in $data.platforms.windows.pressure) {

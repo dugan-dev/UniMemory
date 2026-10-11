@@ -1,6 +1,8 @@
 import copy
+import gzip
 import importlib.util
 from pathlib import Path
+import tempfile
 import unittest
 from unittest import mock
 
@@ -87,6 +89,25 @@ class PublicationTests(unittest.TestCase):
             files = publisher.read_pr_files(self.repository, 4)
         self.assertEqual([item["filename"] for item in files], ["README.md", "docs/results/current/data.csv"])
         command.assert_called_once_with("gh", "api", "--paginate", "--slurp", "repos/example/project/pulls/4/files")
+
+    def test_publication_retains_all_raw_observations_losslessly(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            files = {"full.csv": b"trial,value\n1,2\n10,99\n", "summary.json": b'{"n":10}\n',
+                     "controlled-suite.json": b'{"order":[2,1]}\n', "environment.json": b'{"schema":3}\n'}
+            for name, content in files.items():
+                (root / name).write_bytes(content)
+            publisher.compress_results(root)
+            first = (root / "full.csv.gz").read_bytes()
+            for name, content in files.items():
+                if name == "environment.json":
+                    self.assertEqual((root / name).read_bytes(), content)
+                else:
+                    self.assertFalse((root / name).exists())
+                    self.assertEqual(gzip.decompress((root / (name + ".gz")).read_bytes()), content)
+            (root / "full.csv").write_bytes(files["full.csv"])
+            publisher.compress_results(root)
+            self.assertEqual((root / "full.csv.gz").read_bytes(), first)
 
 
 if __name__ == "__main__":

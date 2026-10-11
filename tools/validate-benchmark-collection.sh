@@ -4,6 +4,7 @@ set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 work=${1:?Pass the native-validation work directory}
 work=$(cd "$work" && pwd)
+suite=${2:-}
 if [ ! -d "$work/benchmark-collection/.git" ]; then
   git clone https://github.com/daanx/mimalloc-bench.git "$work/benchmark-collection"
 fi
@@ -25,5 +26,7 @@ mkdir -p "$work/je-override"
   "$work/jemalloc-5.3.1/configure" > "$work/je-override-config.log"
   make -j8 > "$work/je-override-build.log"
 )
+flags=(--trials 10)
+if [ -n "$suite" ]; then flags+=(--controlled-suite "$suite"); fi
 python3 "$root/tools/run-upstream-benchmarks.py" "$work/collection-build" "$work/benchmark-collection/bench" "$work/collection-results" \
-  --mimalloc "$work/mi-override/libmimalloc.so" --jemalloc "$work/je-override/lib/libjemalloc.so"
+  --mimalloc "$work/mi-override/libmimalloc.so" --jemalloc "$work/je-override/lib/libjemalloc.so" "${flags[@]}"

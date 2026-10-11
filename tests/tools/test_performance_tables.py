@@ -12,6 +12,30 @@ spec.loader.exec_module(tables)
 
 
 class PerformanceTableTests(unittest.TestCase):
+    def test_repeated_cells_show_mean_min_max_and_sample_cv(self):
+        rows = [{"trial": str(trial), "_schema": 3, "_trials": 10,
+                 "median_ns": "999", "mean_ns": str(value),
+                 "rss": str((trial + value) * tables.MIB), "baseline_rss": str(trial * tables.MIB)}
+                for trial, value in enumerate([1] * 9 + [100], 1)]
+        self.assertEqual(tables.metric(rows, "median_ns"), 10.9)
+        self.assertEqual(tables.resident_delta(rows, "rss"), 10.9)
+        cell = tables.formatted_metric(rows, "median_ns")
+        self.assertTrue(cell.startswith("10.9 [1.0, 100.0], CV "))
+        self.assertIn("10.90 [1.00, 100.00]", tables.formatted_delta(rows, "rss"))
+        for changed in (rows[:-1], rows[:-1] + [rows[0]]):
+            with self.assertRaisesRegex(ValueError, "10 trials"):
+                tables.metric(changed, "median_ns")
+
+    def test_native_ten_process_matrix_uses_480_real_observations(self):
+        rows = [{"trial": str(trial), "backend": backend, "workload": program,
+                 "elapsed_seconds": str(100 if trial == 10 else 1), "peak_rss_kib": str(trial * 1024),
+                 "user_seconds": "0", "system_seconds": "0", "exit_code": "0"}
+                for trial in range(1, 11) for backend in tables.BACKENDS for program in tables.PROGRAMS]
+        self.assertEqual(tables.native_summary(rows, 10, True)["cfrac", "mimalloc"], (10.9, 5.5))
+        for changed in (rows[:-1], rows[:-1] + [rows[0]]):
+            with self.assertRaisesRegex(ValueError, "480 unique"):
+                tables.native_summary(changed, 10, True)
+
     def native_rows(self):
         return [{"trial": str(trial), "backend": backend, "workload": program,
                  "elapsed_seconds": str(trial), "peak_rss_kib": str(trial * 1024),
@@ -29,7 +53,7 @@ class PerformanceTableTests(unittest.TestCase):
     def test_complete_three_process_trials_required(self):
         rows = [{"trial": "1", "value": "1"}, {"trial": "1", "value": "2"},
                 {"trial": "3", "value": "3"}]
-        with self.assertRaisesRegex(ValueError, "three trials"):
+        with self.assertRaisesRegex(ValueError, "3 trials"):
             tables.metric(rows, "value")
 
     def test_native_matrix_rejects_missing_duplicate_and_failed_runs(self):

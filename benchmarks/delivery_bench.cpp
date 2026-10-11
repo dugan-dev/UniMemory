@@ -7,6 +7,7 @@
 #include <chrono>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -95,6 +96,24 @@ void environment() {
               << library.substr(library.find_last_of('/') + 1) << '\"';
 #endif
 #ifdef _WIN32
+    HMODULE provider = nullptr;
+    const auto allocate = static_cast<void* (*)(std::size_t)>(&::operator new);
+    if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          reinterpret_cast<LPCWSTR>(allocate), &provider)) {
+        throw std::runtime_error("global new provider query failed");
+    }
+    std::array<wchar_t, 32768> provider_path{};
+    const auto length = GetModuleFileNameW(provider, provider_path.data(), static_cast<DWORD>(provider_path.size()));
+    if (!length || length == provider_path.size()) { throw std::runtime_error("global new provider path query failed"); }
+    const std::wstring library(provider_path.data(), length);
+    const auto filename = library.substr(library.find_last_of(L"/\\") + 1);
+    const auto utf8_size = WideCharToMultiByte(CP_UTF8, 0, filename.data(), static_cast<int>(filename.size()), nullptr, 0, nullptr, nullptr);
+    if (!utf8_size) { throw std::runtime_error("global new provider name conversion failed"); }
+    std::string utf8(static_cast<std::size_t>(utf8_size), '\0');
+    if (!WideCharToMultiByte(CP_UTF8, 0, filename.data(), static_cast<int>(filename.size()), utf8.data(), utf8_size, nullptr, nullptr)) {
+        throw std::runtime_error("global new provider name conversion failed");
+    }
+    std::cout << ",\"standard_new_provider\":\"" << utf8 << '\"';
     std::cout << ",\"resident_measurement\":\"GetProcessMemoryInfo working set\"";
 #elif defined(__APPLE__)
     std::cout << ",\"resident_measurement\":\"Mach task resident_size\"";
@@ -190,6 +209,11 @@ template<class A> void tails(A& allocator, const std::string& backend,
         allocation[index] = std::chrono::duration<double, std::nano>(allocated - start).count();
         release[index] = std::chrono::duration<double, std::nano>(freed - free_start).count();
     }
+    if constexpr (std::is_same_v<A, Unified>) {
+        if (const auto stats = allocator.memory.statistics(); stats && stats->live_bytes != 0) {
+            throw std::runtime_error("tail workload leaked bytes");
+        }
+    }
     // Raw operation samples are retained separately by the remote runner.
     std::cout << "backend,path,bytes,sample,allocate_ns,free_ns,clock_ns\n";
     for (std::size_t index = 0; index < count; ++index) {
@@ -200,11 +224,12 @@ template<class A> void tails(A& allocator, const std::string& backend,
 
 template<class A> void scaling(A& allocator, const std::string& backend,
                               const std::string& path, std::size_t bytes,
-                              unsigned threads, bool handoff) {
+                              unsigned threads, bool handoff, std::size_t rounds) {
     if (threads == 0 || threads > 16) { throw std::invalid_argument("threads must be 1..16"); }
-    // Keep 4096 pairs/thread while amortizing scheduler/barrier overhead.
+    if (rounds == 0) { throw std::invalid_argument("nonzero scaling rounds required"); }
+    // The driver calibrates one common round count for every Native/API SDK.
     // Maximum configured live payload: 16 * 512 * 65536 = 512 MiB.
-    constexpr unsigned batch = 512, rounds = 8;
+    constexpr unsigned batch = 512;
     // Initialize every Native/API path on the main thread before worker startup.
     auto* initial = allocator.allocate(bytes);
     if (!initial) { throw std::bad_alloc(); }
@@ -215,7 +240,9 @@ template<class A> void scaling(A& allocator, const std::string& backend,
     std::barrier phase(static_cast<std::ptrdiff_t>(threads));
     std::barrier start(static_cast<std::ptrdiff_t>(threads + 1));
     std::barrier ready(static_cast<std::ptrdiff_t>(threads + 1));
+    std::barrier finish(static_cast<std::ptrdiff_t>(threads + 1));
     std::atomic<bool> failed{false};
+    std::vector<std::uint64_t> checksums(threads);
     for (unsigned id = 0; id < threads; ++id) {
         workers.emplace_back([&, id] {
             try {
@@ -228,7 +255,7 @@ template<class A> void scaling(A& allocator, const std::string& backend,
             } catch (...) { failed.store(true); }
             ready.arrive_and_wait();
             start.arrive_and_wait();
-            for (unsigned round = 0; round < rounds; ++round) {
+            for (std::size_t round = 0; round < rounds; ++round) {
                 for (auto& pointer : pointers[id]) {
                     try {
                         pointer = allocator.allocate(bytes);
@@ -242,49 +269,77 @@ template<class A> void scaling(A& allocator, const std::string& backend,
                     if (!pointer) { continue; }
                     const auto* data = static_cast<const unsigned char*>(pointer);
                     if (data[0] != owner + 1 || data[bytes - 1] != owner + 1) { failed.store(true); }
+                    checksums[id] += data[0];
                     allocator.deallocate(pointer, bytes);
                 }
                 phase.arrive_and_wait();
             }
+            finish.arrive_and_wait();
         });
     }
     ready.arrive_and_wait();
     const auto before_rss = rss();
     const auto begin = Clock::now();
     start.arrive_and_wait();
-    for (auto& worker : workers) { worker.join(); }
+    finish.arrive_and_wait();
     const auto seconds = std::chrono::duration<double>(Clock::now() - begin).count();
+    for (auto& worker : workers) { worker.join(); }
     if (failed.load()) { throw std::runtime_error("scaling allocation or content failure"); }
-    std::cout << "backend,path,workload,bytes,threads,operations,seconds,operations_per_second,baseline_rss,final_rss,peak_rss\n"
+    std::uint64_t checksum = 0;
+    for (auto value : checksums) { checksum += value; }
+    if (checksum != batch * rounds * threads * (threads + 1) / 2) {
+        throw std::runtime_error("scaling checksum mismatch");
+    }
+    if constexpr (std::is_same_v<A, Unified>) {
+        if (const auto stats = allocator.memory.statistics(); stats && stats->live_bytes != 0) {
+            throw std::runtime_error("scaling leaked bytes");
+        }
+    }
+    std::cout << "backend,path,workload,bytes,threads,operations,seconds,operations_per_second,baseline_rss,final_rss,peak_rss,rounds,batch,checksum\n"
               << backend << ',' << path << ',' << (handoff ? "handoff" : "same_thread") << ','
               << bytes << ',' << threads << ',' << threads * batch * rounds << ',' << seconds << ','
-              << (threads * batch * rounds / seconds) << ',' << before_rss << ',' << rss() << ',' << peak_rss() << '\n';
+              << (threads * batch * rounds / seconds) << ',' << before_rss << ',' << rss() << ',' << peak_rss()
+              << ',' << rounds << ',' << batch << ',' << checksum << '\n';
 }
 
 template<class A> void latency(A& allocator, const std::string& backend,
-                               const std::string& path, std::size_t bytes) {
-    constexpr unsigned repetitions = 9;
-    constexpr std::size_t operations = 200000;
+                               const std::string& path, std::size_t bytes, std::size_t operations) {
+    constexpr unsigned repetitions = 1;
+    if (operations == 0) { throw std::invalid_argument("nonzero latency operations required"); }
     std::vector<double> samples;
+    std::uint64_t checksum = 0;
     for (unsigned repeat = 0; repeat <= repetitions; ++repeat) {
+        const auto count = repeat == 0 ? (std::min)(operations, std::size_t{1024}) : operations;
         const auto start = Clock::now();
-        for (std::size_t i = 0; i < operations; ++i) {
+        std::uint64_t current_checksum = 0;
+        for (std::size_t i = 0; i < count; ++i) {
             void* p = allocator.allocate(bytes);
             if (!p) { throw std::bad_alloc(); }
             // Keep the byte touch observable on native and unified paths alike.
             static_cast<volatile unsigned char*>(p)[0] = static_cast<unsigned char>(i);
+            current_checksum += static_cast<volatile unsigned char*>(p)[0];
             // Observable address escape prevents allocation/deallocation elision.
             observed = reinterpret_cast<std::uintptr_t>(p);
             allocator.deallocate(p, bytes);
         }
         const auto ns = std::chrono::duration<double, std::nano>(Clock::now() - start).count();
-        if (repeat != 0) { samples.push_back(ns / operations); }
+        if (repeat != 0) { samples.push_back(ns / operations); checksum = current_checksum; }
+    }
+    const auto remainder = operations % 256;
+    if (checksum != (operations / 256) * 32640 + remainder * (remainder - (remainder != 0)) / 2) {
+        throw std::runtime_error("latency checksum mismatch");
+    }
+    if constexpr (std::is_same_v<A, Unified>) {
+        if (const auto stats = allocator.memory.statistics(); stats && stats->live_bytes != 0) {
+            throw std::runtime_error("latency leaked bytes");
+        }
     }
     std::sort(samples.begin(), samples.end());
-    std::cout << "backend,path,bytes,repetitions,operations,min_ns,median_ns,max_ns\n"
+    std::cout << "backend,path,bytes,repetitions,operations,min_ns,median_ns,max_ns,mean_ns,samples_ns,checksum,seconds\n"
               << backend << ',' << path << ',' << bytes << ',' << repetitions << ','
               << operations << ',' << samples.front() << ',' << samples[samples.size()/2]
-              << ',' << samples.back() << '\n';
+              << ',' << samples.back() << ',' << samples[0] << ',' << samples[0] << ','
+              << checksum << ',' << samples[0] * operations / 1e9 << '\n';
 }
 
 void footprint(Backend backend, const std::string& name, StatisticsMode mode, bool dedicated) {
@@ -305,6 +360,9 @@ void footprint(Backend backend, const std::string& name, StatisticsMode mode, bo
     }
     for (auto p : pointers) { memory.deallocate(p, bytes, 16); }
     const auto freed = rss();
+    if (const auto stats = memory.statistics(); stats && stats->live_bytes != 0) {
+        throw std::runtime_error("footprint leaked bytes");
+    }
     if (dedicated) { heap->collect(); }
     const auto collected = rss();
     std::cout << "backend,statistics,heap,requested_bytes,baseline_rss,live_rss,freed_rss,collected_rss,peak_rss\n"
@@ -425,15 +483,17 @@ void pressure(A& allocator, Backend backend, const std::string& name,
     if (requested != 0) { throw std::runtime_error("pressure probe leaked requests"); }
 }
 
-void heap_operations(Backend backend, const std::string& name) {
+void heap_operations(Backend backend, const std::string& name,
+                     const std::string& selected, std::size_t count) {
     Memory heap = Memory::heap(backend);
     auto block = heap.make_block(64);
+    std::cout << "backend,operation,operations,median_ns,min_ns,mean_ns,max_ns,samples_ns,seconds\n";
     for (auto operation : {"owns", "collect", "reset"}) {
-        const unsigned count = std::string(operation) == "owns" ? 200000 : 2000;
+        if (!selected.empty() && selected != operation) { continue; }
         if (std::string(operation) == "reset") { block.resize(0); }
         std::vector<double> samples;
         const auto measure = [&](auto&& function) {
-            for (unsigned repeat = 0; repeat < 9; ++repeat) {
+            for (unsigned repeat = 0; repeat < 1; ++repeat) {
                 const auto start = Clock::now();
                 for (unsigned i = 0; i < count; ++i) { function(); }
                 samples.push_back(std::chrono::duration<double, std::nano>(
@@ -450,13 +510,16 @@ void heap_operations(Backend backend, const std::string& name) {
             measure([&] { heap.allocate(64); heap.reset(); });
         }
         std::sort(samples.begin(), samples.end());
-        std::cout << name << ',' << operation << ',' << count << ',' << samples[4] << '\n';
+        std::cout << name << ',' << operation << ',' << count << ',' << samples[0]
+                  << ',' << samples[0] << ',' << samples[0] << ',' << samples[0]
+                  << ',' << samples[0] << ',' << samples[0] * count / 1e9 << '\n';
     }
 }
 }
 
 int main(int argc, char** argv) {
     try {
+        std::cout << std::setprecision(17);
         if (argc < 4) { throw std::invalid_argument("backend workload path [bytes/heap] required"); }
         const std::string name = argv[1], workload = argv[2], path = argv[3];
         if (path != "native" && path != "disabled" && path != "basic") {
@@ -471,7 +534,9 @@ int main(int argc, char** argv) {
         const auto mode = path == "basic" ? StatisticsMode::Basic : StatisticsMode::Disabled;
         if (workload == "environment") { environment(); }
         else if (workload == "footprint") { footprint(backend, name, mode, argc > 4 && std::string(argv[4]) == "heap"); }
-        else if (workload == "heap") { heap_operations(backend, name); }
+        else if (workload == "heap") {
+            heap_operations(backend, name, argc > 4 ? argv[4] : "", argc > 5 ? std::stoull(argv[5]) : 2000);
+        }
         else if (workload == "latency" || workload == "pressure" || workload == "tails" ||
                  workload == "scaling" || workload == "handoff") {
             const auto bytes = argc > 4 ? std::stoull(argv[4]) : 64;
@@ -482,9 +547,9 @@ int main(int argc, char** argv) {
                 else if (workload == "scaling" || workload == "handoff") {
                     scaling(allocator, name, path, bytes,
                             argc > 5 ? static_cast<unsigned>(std::stoul(argv[5])) : 1,
-                            workload == "handoff");
+                            workload == "handoff", argc > 6 ? std::stoull(argv[6]) : 8);
                 }
-                else { latency(allocator, name, path, bytes); }
+                else { latency(allocator, name, path, bytes, argc > 5 ? std::stoull(argv[5]) : 200000); }
             };
             if (path != "native") { Unified allocator(backend, mode); measure(allocator); }
             else if (backend == Backend::Standard) { NativeStandard allocator; measure(allocator); }

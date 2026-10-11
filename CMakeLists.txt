@@ -504,6 +504,10 @@ install(FILES
     include/unimem/version.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem)
 install(FILES include/unimem/detail/memory.inl
+    include/unimem/detail/memory_members.inl
+    include/unimem/detail/owned_block_members.inl
+    include/unimem/detail/allocator.inl
+    include/unimem/detail/configuration.inl
     include/unimem/detail/inline.h
     include/unimem/detail/backend.h
     include/unimem/detail/backend_system.inl

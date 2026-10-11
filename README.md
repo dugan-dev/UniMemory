@@ -256,7 +256,7 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 ## Performance
 
-Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Median of three trials, **ns/operation; lower is faster.**
+Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Legacy median of 3 trials, **ns/operation; lower is faster.**
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |

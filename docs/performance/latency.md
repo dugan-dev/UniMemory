@@ -2,7 +2,7 @@
 
 [Performance](../performance.md) · **English** · [简体中文](latency.zh-CN.md)
 
-**Nanoseconds per complete operation; lower is faster.** Median of three fresh processes; Global, counters off, Release builds.
+**Nanoseconds per complete operation; lower is faster.** Global, counters off, Release builds. Trial count and aggregation are recorded below.
 
 <!-- performance-source -->
 2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)

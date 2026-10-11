@@ -10,7 +10,7 @@
 
 [固定版本的基准集合](https://github.com/daanx/mimalloc-bench/tree/ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86)
 
-16 个程序 × 3 个分配器 × 3 个进程，共 144 次成功运行。每行取三次中位数；系统分配器为 glibc，线程场景使用 4 个工作线程。
+16 个程序 × 3 个分配器。系统分配器为 glibc，线程场景使用 4 个工作线程；轮数与统计方法见上方。
 
 ## 耗时
 
@@ -68,4 +68,4 @@
 
 耗时使用单调时钟，包含进程启动；峰值 RSS 来自 GNU time 的系统计量，与内存报告的阶段快照不同。
 
-[全部 144 次原始数据](../results/current/native-applications/README.md) · [复现](../benchmarking.zh-CN.md)
+[全部原始数据](../results/current/native-applications/README.md) · [复现](../benchmarking.zh-CN.md)
