@@ -1,0 +1,4 @@
+trial,backend,statistics,heap,requested_bytes,baseline_rss,live_rss,freed_rss,collected_rss,peak_rss
+1,standard,basic,no,67108864,3825664,76795904,4120576,4120576,76800000
+2,standard,basic,no,67108864,3833856,76820480,4132864,4132864,76824576
+3,standard,basic,no,67108864,3829760,76800000,4124672,4124672,76804096

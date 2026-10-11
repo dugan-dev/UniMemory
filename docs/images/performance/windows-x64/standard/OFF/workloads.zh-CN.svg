@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>API 负载 · 绝对耗时</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">API 负载 · 绝对耗时</text>
+<text x="92" y="66" font-size="14" fill="#475569">每次负载操作纳秒数 · 越低越好</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">1.4e+02</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">2.8e+02</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">4.1e+02</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">5.5e+02</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">6.9e+02</text>
+<text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">分配与释放</text>
+<text x="282.0" y="465" text-anchor="middle" font-size="14">清零分配</text>
+<text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">扩容</text>
+<text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">创建对象</text>
+<text x="662.0" y="465" text-anchor="middle" font-size="14">共享对象</text>
+<text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">vector 容器</text>
+<rect data-path="disabled" x="137.60000000000002" y="417.93156317089966" width="35.46666666666666" height="24.068436829100335" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="264.26666666666665" y="416.2936565803864" width="35.46666666666666" height="25.706343419613574" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="390.93333333333334" y="391.6318406448738" width="35.46666666666666" height="50.36815935512618" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="517.5999999999999" y="419.16774010612875" width="35.46666666666666" height="22.832259893871253" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="644.2666666666667" y="416.9055677077004" width="35.46666666666666" height="25.094432292299587" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
+<text x="880" y="133" font-size="12">Standard / UniMemory 封装</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">操作</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/standard/OFF · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
+</g></svg>
