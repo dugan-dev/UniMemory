@@ -11,6 +11,11 @@ template<bool Zero>
 UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
     std::size_t bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard) {
     if constexpr (selected_backend == Backend::Standard) {
+        // Supported allocators cannot represent an object beyond PTRDIFF_MAX.
+        // Reject it before sanitizer throwing-new interceptors abort on OOM.
+        if (bytes > static_cast<std::size_t>((std::numeric_limits<std::ptrdiff_t>::max)())) {
+            throw std::bad_alloc();
+        }
         void* pointer = alignment > alignof(void*)
             ? ::operator new(bytes, std::align_val_t(alignment))
             : ::operator new(bytes);
