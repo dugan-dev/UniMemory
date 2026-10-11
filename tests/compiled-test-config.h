@@ -1,10 +1,11 @@
 #pragma once
 #include <unimem/memory.h>
+#include "headers/memory_api_contract.h"
 #include <array>
 #include <stdexcept>
 namespace compiled_test {
-inline constexpr auto backend = unimem::Memory::selected_backend;
-inline constexpr auto global_mode = unimem::Memory::selected_statistics;
+inline constexpr auto backend = unimem::detail::build_backend;
+inline constexpr auto global_mode = unimem::detail::build_statistics;
 inline constexpr bool supports_statistics = global_mode == unimem::StatisticsMode::Basic;
 inline constexpr auto heap_mode = supports_statistics ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled;
 inline auto heap_modes() {
@@ -21,21 +22,9 @@ inline void test_configuration(unimem::Backend requested, unimem::StatisticsMode
 }
 inline void verify_configuration() {
     auto& memory = unimem::Memory::global();
-    if (&memory != &unimem::Memory::global(backend) || memory.backend() != backend ||
+    if (&memory != &unimem::Memory::global() || memory.backend() != backend ||
         memory.statistics().has_value() != supports_statistics) {
         throw std::runtime_error("fixed Global configuration/identity mismatch");
-    }
-    for (auto other : {unimem::Backend::Standard, unimem::Backend::Mimalloc,
-                      unimem::Backend::Jemalloc, static_cast<unimem::Backend>(99)}) {
-        if (unimem::available(other) != (other == backend)) { throw std::runtime_error("availability mismatch"); }
-        if (other == backend) { continue; }
-        bool rejected = false;
-        try { (void)unimem::Memory::global(other); } catch (const std::invalid_argument&) { rejected = true; }
-        if (!rejected) { throw std::runtime_error("unselected Global backend accepted"); }
-        rejected = false;
-        try { (void)unimem::Memory::heap(other, unimem::StatisticsMode::Disabled); }
-        catch (const std::invalid_argument&) { rejected = true; }
-        if (!rejected) { throw std::runtime_error("unselected Heap backend accepted"); }
     }
 }
 }

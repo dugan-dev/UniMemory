@@ -10,7 +10,7 @@ Tested: **3.4.3**. UniMemory requires v3.4.3+ for its statistics API, matching h
 | Alignment | `mi_malloc_aligned`, `mi_realloc_aligned` | Uniform alignment parameter |
 | Zero initialization | `mi_zalloc`, `mi_rezalloc` | Uniform request-range zeroing; avoid native old-block preconditions |
 | Typed / constant-size helpers | Typed macros, `mi_malloc_csize`, `mi_free_csize` | C++ object templates; no promised constant-size fast path |
-| Independent heap | `mi_heap_new`, heap allocation, `mi_heap_destroy` | Memory::heap(Backend::Mimalloc) |
+| Independent heap | `mi_heap_new`, heap allocation, `mi_heap_destroy` | Memory::heap() in a mimalloc build |
 | Collect and membership | `mi_heap_collect`, `mi_heap_contains` | Heap collect/owns |
 | Detailed statistics | `mi_stats_get` | Process committed/reserved only; independent Heap details unavailable |
 | Runtime options | `mi_option_set`, `mi_option_get` | Advisory purge delay only |

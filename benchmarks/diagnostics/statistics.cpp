@@ -531,7 +531,7 @@ void run_backend(std::ostream& output, const std::string& backend_name,
         const bool basic = variant == "api_basic";
         compiled_benchmark_configuration(backend, basic ? unimem::StatisticsMode::Basic
                                                        : unimem::StatisticsMode::Disabled);
-        auto& memory = unimem::Memory::global(backend);
+        auto& memory = unimem::Memory::global();
         require(memory.capabilities().thread_safe,
                 "statistics diagnostic requires shared thread-safe Global Memory");
         const auto before = memory.statistics();

@@ -16,11 +16,11 @@
 
 This table describes evidence, not a guarantee for all architectures or operating-system versions. [Exact versions and results →](../testing.md)
 
-## Select an enabled backend
+## Select the build backend
 
-Set `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF` explicitly when configuring. One build contains one selected allocation backend; `Memory` remains a non-template class. `Memory::global()` returns its shared Global instance. Explicit `global(backend)` and `heap(backend)` must match `Memory::selected_backend`, otherwise they throw `std::invalid_argument`; there is no fallback. `available(backend)` is true only for that selected backend, including when Standard is not selected.
+Set `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF` explicitly when configuring. CMake selects one allocation backend for the build; `Memory` remains a non-template class. `Memory::global()` returns its shared Global instance, and `Memory::heap()` uses the same backend. Query `capabilities()` for its optional features and `memory.backend()` for read-only backend identity.
 
-Heap creates an independent group where supported. Statistics ON fixes Global Basic and permits Heap Disabled/Basic; OFF fixes Global Disabled and rejects Heap Basic. Stack has no backend or statistics. [Statistics](statistics.md)
+Heap creates an independent group where supported and defaults to Disabled statistics. Statistics ON fixes Global Basic and permits Heap Disabled/Basic; OFF fixes Global Disabled and rejects Heap Basic. Stack has no backend or statistics. [Statistics](statistics.md)
 
 ## Enable optional dependencies
 

@@ -153,11 +153,9 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### 堆
 
 ```cpp
-constexpr unimem::Backend backend = unimem::Memory::selected_backend;
-
 // 支持时创建堆
-if (unimem::available(backend) && unimem::capabilities(backend).heap) {
-    unimem::Memory heap = unimem::Memory::heap(backend);
+if (unimem::capabilities().heap) {
+    unimem::Memory heap = unimem::Memory::heap();
 
     // 检查归属并释放
     void* bytes = heap.allocate(1024);
@@ -220,13 +218,12 @@ if (details && details->committed_bytes) {
 ### 运行时选项
 
 ```cpp
-constexpr unimem::Backend backend = unimem::Memory::selected_backend;
 const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
 
 // 正常分配前设置后端级选项
-if (unimem::supports(backend, option)) {
+if (unimem::supports(option)) {
     // 将闲置页释放延迟设为 1000 毫秒
-    bool configured = unimem::set_runtime_option(backend, option, 1000);
+    bool configured = unimem::set_runtime_option(option, 1000);
 }
 ```
 

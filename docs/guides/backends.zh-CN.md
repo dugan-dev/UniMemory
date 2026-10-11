@@ -18,9 +18,9 @@
 
 ## 选择与构建
 
-配置时必须显式设置 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` 与 `UNIMEMORY_STATISTICS=ON|OFF`。每次构建仅选择一个分配后端，`Memory` 仍是非模板类。`Memory::global()` 返回该配置的共享 Global；显式 `global(backend)`、`heap(backend)` 必须匹配 `Memory::selected_backend`，否则抛 `std::invalid_argument`。`available(backend)` 仅对所选后端为 true，未选择的 Standard 也不能作为备用后端。
+配置时必须显式设置 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` 与 `UNIMEMORY_STATISTICS=ON|OFF`。CMake 为本次构建选择一个分配后端，`Memory` 仍是非模板类。`Memory::global()` 返回共享 Global，`Memory::heap()` 使用同一后端。`capabilities()` 查询该后端的可选功能，`memory.backend()` 只读查询后端标识。
 
-Heap 按支持情况创建独立分配组。统计 ON 固定 Global Basic，Heap 可选 Disabled/Basic；OFF 固定 Global Disabled，拒绝 Heap Basic。Stack 没有后端或统计。[统计说明](statistics.zh-CN.md)
+Heap 按支持情况创建独立分配组，默认关闭统计。统计 ON 固定 Global Basic，Heap 可选 Disabled/Basic；OFF 固定 Global Disabled，拒绝 Heap Basic。Stack 没有后端或统计。[统计说明](statistics.zh-CN.md)
 
 | 后端 | CMake 配置 | 依赖要求 |
 | --- | --- | --- |

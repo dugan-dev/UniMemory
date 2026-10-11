@@ -49,11 +49,10 @@ int main() {
     scratch.reset();
     if (scratch.used() != 0 || !scratch.capabilities().checkpoints) { return 9; }
 
-    const auto cap = unimem::capabilities(unimem::Memory::selected_backend);
-    if (!cap.available || cap.heap != (unimem::Memory::selected_backend != unimem::Backend::Standard)) { return 3; }
-    for (auto backend : {unimem::Backend::Mimalloc, unimem::Backend::Jemalloc}) {
-        if (!unimem::capabilities(backend).heap) { continue; }
-        unimem::Memory arena = unimem::Memory::heap(backend, compiled_test::heap_mode);
+    const auto cap = unimem::capabilities();
+    if (cap.heap != (memory.backend() != unimem::Backend::Standard)) { return 3; }
+    if (cap.heap) {
+        unimem::Memory arena = unimem::Memory::heap(compiled_test::heap_mode);
         {
             auto value = arena.make_unique<int>(23);
             std::pmr::vector<int> items(arena.resource());

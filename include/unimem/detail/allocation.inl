@@ -9,8 +9,8 @@ UNIMEMORY_FORCE_INLINE bool Memory::is_global() const noexcept {
 
 template<bool Zero>
 UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
-    std::size_t bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard) {
-    if constexpr (selected_backend == Backend::Standard) {
+    std::size_t bytes, std::size_t alignment) noexcept(detail::build_backend != Backend::Standard) {
+    if constexpr (detail::build_backend == Backend::Standard) {
         // Supported allocators cannot represent an object beyond PTRDIFF_MAX.
         // Reject it before sanitizer throwing-new interceptors abort on OOM.
         if (bytes > static_cast<std::size_t>((std::numeric_limits<std::ptrdiff_t>::max)())) {
@@ -23,7 +23,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
         return pointer;
     }
 #ifdef UNIMEMORY_WITH_MIMALLOC
-    else if constexpr (selected_backend == Backend::Mimalloc) {
+    else if constexpr (detail::build_backend == Backend::Mimalloc) {
         if constexpr (Zero) {
             return alignment > alignof(void*) ? mi_zalloc_aligned(bytes, alignment) : mi_zalloc(bytes);
         } else {
@@ -32,7 +32,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
     }
 #endif
 #ifdef UNIMEMORY_WITH_JEMALLOC
-    else if constexpr (selected_backend == Backend::Jemalloc) {
+    else if constexpr (detail::build_backend == Backend::Jemalloc) {
         return alignment > static_cast<std::size_t>(INT_MAX) ? nullptr
             : je_mallocx(bytes, MALLOCX_ALIGN(alignment) | (Zero ? MALLOCX_ZERO : 0));
     }
@@ -42,21 +42,21 @@ UNIMEMORY_FORCE_INLINE void* Memory::global_allocate_raw(
 
 UNIMEMORY_FORCE_INLINE void Memory::global_deallocate_raw(
     void* pointer, std::size_t alignment) noexcept {
-    if constexpr (selected_backend == Backend::Standard) {
+    if constexpr (detail::build_backend == Backend::Standard) {
         if (alignment > alignof(void*)) { ::operator delete(pointer, std::align_val_t(alignment)); }
         else { ::operator delete(pointer); }
     }
 #ifdef UNIMEMORY_WITH_MIMALLOC
-    else if constexpr (selected_backend == Backend::Mimalloc) { mi_free(pointer); }
+    else if constexpr (detail::build_backend == Backend::Mimalloc) { mi_free(pointer); }
 #endif
 #ifdef UNIMEMORY_WITH_JEMALLOC
-    else if constexpr (selected_backend == Backend::Jemalloc) { je_dallocx(pointer, 0); }
+    else if constexpr (detail::build_backend == Backend::Jemalloc) { je_dallocx(pointer, 0); }
 #endif
 }
 
 UNIMEMORY_FORCE_INLINE void* Memory::global_reallocate_raw(
-    void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard) {
-    if constexpr (selected_backend == Backend::Standard) {
+    void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) noexcept(detail::build_backend != Backend::Standard) {
+    if constexpr (detail::build_backend == Backend::Standard) {
         // Bypass public tracked allocate/free: successful realloc changes only
         // reallocations/live/peak, including when the old/new sizes are equal.
         void* next = global_allocate_raw<false>(new_bytes, alignment);
@@ -67,12 +67,12 @@ UNIMEMORY_FORCE_INLINE void* Memory::global_reallocate_raw(
         return next;
     }
 #ifdef UNIMEMORY_WITH_MIMALLOC
-    else if constexpr (selected_backend == Backend::Mimalloc) {
+    else if constexpr (detail::build_backend == Backend::Mimalloc) {
         return mi_realloc_aligned(pointer, new_bytes, alignment);
     }
 #endif
 #ifdef UNIMEMORY_WITH_JEMALLOC
-    else if constexpr (selected_backend == Backend::Jemalloc) {
+    else if constexpr (detail::build_backend == Backend::Jemalloc) {
         return alignment > static_cast<std::size_t>(INT_MAX) ? nullptr
             : je_rallocx(pointer, new_bytes, MALLOCX_ALIGN(alignment));
     }
@@ -139,7 +139,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::allocate(std::size_t bytes, std::size_t ali
     void* pointer = global ? global_allocate_raw<false>(bytes, alignment)
                           : cold_allocate(bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
-    if constexpr (selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         if (global) { memory_impl::record_allocation(tracking_, bytes); }
     }
     return pointer;
@@ -156,7 +156,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::allocate_zeroed(std::size_t bytes, std::siz
     void* pointer = global ? global_allocate_raw<true>(bytes, alignment)
                           : cold_allocate_zeroed(bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
-    if constexpr (selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         if (global) { memory_impl::record_allocation(tracking_, bytes); }
     }
     return pointer;
@@ -175,7 +175,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::reallocate(
     void* next = global ? global_reallocate_raw(pointer, old_bytes, new_bytes, alignment)
                        : cold_reallocate(pointer, old_bytes, new_bytes, alignment);
     if (next == nullptr) { throw std::bad_alloc(); }
-    if constexpr (selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         if (global) { memory_impl::record_reallocation(tracking_, old_bytes, new_bytes); }
     }
     return next;
@@ -196,7 +196,7 @@ UNIMEMORY_FORCE_INLINE void Memory::deallocate(
     if (pointer == nullptr) { return; }
     if (is_global()) {
         global_deallocate_raw(pointer, alignment);
-        if constexpr (selected_statistics == StatisticsMode::Basic) {
+        if constexpr (detail::build_statistics == StatisticsMode::Basic) {
             memory_impl::record_deallocation(tracking_, bytes);
         }
         return;

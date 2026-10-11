@@ -46,14 +46,13 @@ struct ThrowingObject {
 };
 
 void smoke(unimem::Backend backend) {
-    const auto cap = unimem::capabilities(backend);
-    check(cap.available && cap.heap == (backend != unimem::Backend::Standard),
+    const auto cap = unimem::capabilities();
+    check(cap.heap == (backend != unimem::Backend::Standard),
           "backend capability");
-    check(cap.release_delay == unimem::supports(
-        backend, unimem::RuntimeOption::UnusedPageReleaseDelayMs),
+    check(cap.release_delay == unimem::supports(unimem::RuntimeOption::UnusedPageReleaseDelayMs),
         "runtime capability");
 
-    unimem::Memory& memory = unimem::Memory::global(backend);
+    unimem::Memory& memory = unimem::Memory::global();
     auto* object = memory.create<WideObject>();
     check(aligned(object, alignof(WideObject)), "object alignment");
     object->value = 91;
@@ -95,7 +94,7 @@ void smoke(unimem::Backend backend) {
     }
 
     if (cap.heap) {
-        unimem::Memory arena = unimem::Memory::heap(backend, compiled_test::heap_mode);
+        unimem::Memory arena = unimem::Memory::heap(compiled_test::heap_mode);
         auto& scoped = arena;
         auto block = scoped.make_block(256, 64);
         check(block.size() == 256 && aligned(block.data(), 64), "arena block");
@@ -111,27 +110,24 @@ void smoke(unimem::Backend backend) {
         }
 
     } else {
-        check_throws<std::runtime_error>([&] { unimem::Memory unsupported = unimem::Memory::heap(backend); },
+        check_throws<std::runtime_error>([&] { unimem::Memory unsupported = unimem::Memory::heap(); },
                                         "unsupported arena must throw");
     }
 
     if (cap.release_delay) {
-        check(unimem::set_runtime_option(
-                  backend, unimem::RuntimeOption::UnusedPageReleaseDelayMs, 10),
+        check(unimem::set_runtime_option(unimem::RuntimeOption::UnusedPageReleaseDelayMs, 10),
               "set release delay");
         check_throws<std::invalid_argument>([&] {
-            unimem::set_runtime_option(
-                backend, unimem::RuntimeOption::UnusedPageReleaseDelayMs, -2);
+            unimem::set_runtime_option(unimem::RuntimeOption::UnusedPageReleaseDelayMs, -2);
         }, "invalid release delay");
     } else {
-        check(!unimem::set_runtime_option(
-                  backend, unimem::RuntimeOption::UnusedPageReleaseDelayMs, 10),
+        check(!unimem::set_runtime_option(unimem::RuntimeOption::UnusedPageReleaseDelayMs, 10),
               "unsupported release delay");
     }
 }
 
-void boundaries(unimem::Backend backend) {
-    unimem::Memory& memory = unimem::Memory::global(backend);
+void boundaries() {
+    unimem::Memory& memory = unimem::Memory::global();
     check(memory.allocate(0) == nullptr, "zero size");
 #if UNIMEMORY_CHECKS
     check_throws<std::invalid_argument>([&] { memory.allocate(4, 3); },
@@ -160,8 +156,8 @@ void boundaries(unimem::Backend backend) {
     block.resize(0);
     check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "all bytes released");
 
-    if (!unimem::capabilities(backend).heap) { return; }
-    unimem::Memory arena = unimem::Memory::heap(backend);
+    if (!unimem::capabilities().heap) { return; }
+    unimem::Memory arena = unimem::Memory::heap();
     auto* pointer = arena.allocate_zeroed(33, 64);
     for (std::size_t i = 0; i < 33; ++i) {
         check(static_cast<unsigned char*>(pointer)[i] == 0, "arena zeroing");
@@ -169,7 +165,7 @@ void boundaries(unimem::Backend backend) {
     arena.deallocate(pointer, 33, 64);
 }
 
-void matrix(unimem::Backend backend, unsigned index) {
+void matrix(unsigned index) {
     check(index < 240, "case index");
     constexpr std::array<std::size_t, 8> sizes{
         0, 1, 7, 16, 64, 512, 4096, 65536};
@@ -177,7 +173,7 @@ void matrix(unimem::Backend backend, unsigned index) {
     const auto size = sizes[index % sizes.size()];
     const auto alignment = alignments[(index / sizes.size()) % alignments.size()];
     const auto path = index / (sizes.size() * alignments.size());
-    const bool use_arena = path >= 3 && unimem::capabilities(backend).heap;
+    const bool use_arena = path >= 3 && unimem::capabilities().heap;
     const bool zeroed = path == 1 || path == 4;
     const bool owned = path == 2 || path == 5;
     const bool tracked = use_arena
@@ -186,10 +182,9 @@ void matrix(unimem::Backend backend, unsigned index) {
 
     std::unique_ptr<unimem::Memory> heap;
     if (use_arena) {
-        heap.reset(new unimem::Memory(unimem::Memory::heap(backend,
-            tracked ? compiled_test::heap_mode : unimem::StatisticsMode::Disabled)));
+        heap.reset(new unimem::Memory(unimem::Memory::heap(tracked ? compiled_test::heap_mode : unimem::StatisticsMode::Disabled)));
     }
-    auto& target = use_arena ? *heap : unimem::Memory::global(backend);
+    auto& target = use_arena ? *heap : unimem::Memory::global();
 
     // Every registered case is a repeated allocation/reallocation/free workload.
     for (unsigned cycle = 0; cycle < 64; ++cycle) {
@@ -259,15 +254,14 @@ void matrix(unimem::Backend backend, unsigned index) {
     }
 }
 
-void stress(unimem::Backend backend) {
+void stress() {
     for (bool dedicated : {false, true}) {
-        if (dedicated && !unimem::capabilities(backend).heap) { continue; }
+        if (dedicated && !unimem::capabilities().heap) { continue; }
         std::unique_ptr<unimem::Memory> heap;
         if (dedicated) {
-            heap.reset(new unimem::Memory(unimem::Memory::heap(
-                backend, compiled_test::heap_mode)));
+            heap.reset(new unimem::Memory(unimem::Memory::heap(compiled_test::heap_mode)));
         }
-        auto& target = dedicated ? *heap : unimem::Memory::global(backend);
+        auto& target = dedicated ? *heap : unimem::Memory::global();
         std::atomic<bool> okay{true};
         std::array<std::thread, 8> workers;
         for (unsigned worker = 0; worker < workers.size(); ++worker) {
@@ -309,21 +303,15 @@ int main(int argc, char** argv) {
     try {
         if (argc < 3) { throw std::invalid_argument("mode backend [index]"); }
         const auto backend = parse_backend(argv[2]);
-        check(unimem::available(backend), "backend is unavailable");
         const std::string mode = argv[1];
-        bool basic = true;
-        if (mode == "matrix" && argc == 4) {
-            const auto index = std::stoul(argv[3]);
-            basic = backend == unimem::Backend::Standard ? index / 40 >= 3 : index % 4 == 0;
-        }
         compiled_test::test_configuration(backend, compiled_test::global_mode);
         if (mode == "smoke") { smoke(backend); }
-        else if (mode == "boundary") { boundaries(backend); }
-        else if (mode == "stress") { stress(backend); }
+        else if (mode == "boundary") { boundaries(); }
+        else if (mode == "stress") { stress(); }
         else if (mode == "matrix" && argc == 4) {
             const auto index = std::stoul(argv[3]);
             check(index < 240, "case index exceeds matrix");
-            matrix(backend, static_cast<unsigned>(index));
+            matrix(static_cast<unsigned>(index));
         } else { throw std::invalid_argument("invalid test mode"); }
         return 0;
     } catch (const std::exception& error) {

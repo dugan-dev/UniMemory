@@ -9,7 +9,7 @@ Tested: **5.3.1** with explicit `je_` exports. Enable `UNIMEMORY_BACKEND=jemallo
 | Allocation / alignment / zeroing | `je_mallocx`, ALIGN/ZERO flags | Common byte APIs |
 | Resize | `je_rallocx`, `je_xallocx` | Reallocate contract; in-place xallocx not exposed |
 | Sizes / sized free | `je_sallocx`, `je_nallocx`, `je_sdallocx` | Not public; size parameter retained, current free uses dallocx |
-| Independent region | `arenas.create`, arena allocation/reset/destroy | Memory::heap(Backend::Jemalloc), per-group tcache disabled |
+| Independent region | `arenas.create`, arena allocation/reset/destroy | Memory::heap() in a jemalloc build, per-group tcache disabled |
 | Membership / reclaim | `arenas.lookup`, arena purge | Heap owns/collect |
 | Thread caches / extent hooks | tcache controls, extent callbacks | Not public |
 | Controls | `je_mallctl` and MIB variants | Uniform reclaim-delay defaults only |
@@ -22,7 +22,7 @@ An installed package retains its jemalloc dependency. If discovery or symbol val
 
 ## Initialization
 
-Global/Heap creation, capability queries and runtime-option changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and runtime-option changes report failure by exception; noexcept capability lookup reports no detailed statistics. `available()` describes compiled support, not a successful initialization probe.
+Global/Heap creation, capability queries and runtime-option changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and runtime-option changes report failure by exception; noexcept capability lookup reports no detailed statistics.
 
 The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Thread requirements](../compatibility.md)
 

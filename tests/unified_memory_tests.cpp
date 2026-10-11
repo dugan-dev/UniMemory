@@ -49,12 +49,11 @@ struct alignas(256) Object {
 };
 
 bool shutdown_enabled = false;
-Backend shutdown_backend = Backend::Standard;
 struct ShutdownProbe {
     ~ShutdownProbe() noexcept {
         if (!shutdown_enabled) { return; }
         try {
-            Memory& memory = Memory::global(shutdown_backend);
+            Memory& memory = Memory::global();
             auto object = memory.make_unique<Object>();
             auto block = memory.make_block(128, 64);
             if (object->value != 42 || block.size() != 128) { std::abort(); }
@@ -67,7 +66,7 @@ void global_test(Backend backend, StatisticsMode mode) {
     std::array<Memory*, 16> addresses{};
     std::array<std::thread, 16> workers;
     for (std::size_t i = 0; i < workers.size(); ++i) {
-        workers[i] = std::thread([&, i] { addresses[i] = &Memory::global(backend); });
+        workers[i] = std::thread([&, i] { addresses[i] = &Memory::global(); });
     }
     for (auto& worker : workers) { worker.join(); }
     Memory& memory = *addresses[0];
@@ -76,7 +75,7 @@ void global_test(Backend backend, StatisticsMode mode) {
     const auto caps = memory.capabilities();
     check(caps.basic_statistics == compiled_test::supports_statistics && caps.thread_safe && caps.individual_reclaim &&
           !caps.reset && !caps.collect && !caps.owns && !caps.checkpoints, "global capabilities");
-    check(caps.detailed_statistics == capabilities(backend).detailed_statistics, "native capability");
+    check(caps.detailed_statistics == capabilities().detailed_statistics, "native capability");
     check(memory.statistics().has_value() == (mode == StatisticsMode::Basic), "statistics mode");
     compiled_test::verify_configuration();
     throws<std::logic_error>([&] { memory.reset(); });
@@ -88,18 +87,11 @@ void global_test(Backend backend, StatisticsMode mode) {
     std::byte buffer[16];
     Memory scratch = Memory::stack(buffer);
     throws<std::logic_error>([&] { memory.rewind(scratch.mark()); });
-    throws<std::invalid_argument>([] { Memory::global(static_cast<Backend>(99)); });
-    for (auto candidate : {Backend::Mimalloc, Backend::Jemalloc}) {
-        if (!available(candidate)) {
-            throws<std::invalid_argument>([&] { Memory::global(candidate); });
-            throws<std::invalid_argument>([&] { Memory::heap(candidate); });
-        }
-    }
 
     const auto before = memory.statistics();
     for (unsigned i = 0; i < 4096; ++i) {
-        Memory& first = Memory::global(backend);
-        Memory& second = Memory::global(backend);
+        Memory& first = Memory::global();
+        Memory& second = Memory::global();
         auto* pointer = first.allocate_objects<unsigned>();
         *pointer = i;
         check(*pointer == i, "global content");
@@ -110,7 +102,7 @@ void global_test(Backend backend, StatisticsMode mode) {
         worker = std::thread([&] {
             try {
                 for (unsigned i = 0; i < 2048; ++i) {
-                    auto owner = Memory::global(backend).make_unique<unsigned>(i);
+                    auto owner = Memory::global().make_unique<unsigned>(i);
                     if (*owner != i) { failed.store(true); }
                 }
             } catch (...) { failed.store(true); }
@@ -133,8 +125,8 @@ void global_test(Backend backend, StatisticsMode mode) {
               nested.front().get_allocator().resource() == memory.resource(), "global adapters");
     }
     check(Object::alive == 0, "global Object lifetime");
-    if (capabilities(backend).heap) {
-        Memory heap = Memory::heap(backend, mode);
+    if (capabilities().heap) {
+        Memory heap = Memory::heap(mode);
         check(heap.kind() == MemoryKind::Heap && heap.backend() == backend, "heap identity");
         const auto cap = heap.capabilities();
         check(cap.reset && cap.collect && cap.owns && !cap.checkpoints, "heap capabilities");
@@ -153,9 +145,8 @@ void global_test(Backend backend, StatisticsMode mode) {
             check( (!compiled_test::supports_statistics || (heap.statistics()->allocations == 0)) , "heap statistics epoch");
         }
     } else {
-        throws<std::runtime_error>([&] { Memory::heap(backend); });
+        throws<std::runtime_error>([&] { Memory::heap(); });
     }
-    shutdown_backend = backend;
     shutdown_enabled = true;
 }
 

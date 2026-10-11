@@ -643,7 +643,7 @@ void run_backend(std::ostream& output, const std::string& backend_name,
         result = run_workload(access, allocator, &resource, selection.workload, iterations);
     } else {
         compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
-        auto& memory = unimem::Memory::global(backend);
+        auto& memory = unimem::Memory::global();
         require(memory.kind() == unimem::MemoryKind::Global &&
                     memory.backend() == backend && !memory.statistics().has_value(),
                 "api diagnostic requires cached statistics-disabled Global Memory");

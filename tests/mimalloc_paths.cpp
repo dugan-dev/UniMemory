@@ -57,8 +57,8 @@ void exercise(Memory& memory, mi_heap_t* heap) {
 
 void defaults() {
     for (auto mode : {compiled_test::global_mode}) {
-        Memory& first = Memory::global(Backend::Mimalloc);
-        Memory& second = Memory::global(Backend::Mimalloc);
+        Memory& first = Memory::global();
+        Memory& second = Memory::global();
         for (unsigned round = 0; round < 16; ++round) {
             exercise(first, mi_heap_main());
             exercise(second, mi_heap_main());
@@ -79,8 +79,8 @@ void defaults() {
 void arenas() {
     for (auto mode : compiled_test::heap_modes()) {
         for (unsigned round = 0; round < 16; ++round) {
-            Memory first = Memory::heap(Backend::Mimalloc, mode);
-            Memory second = Memory::heap(Backend::Mimalloc, mode);
+            Memory first = Memory::heap(mode);
+            Memory second = Memory::heap(mode);
             auto a = first.make_block(32);
             auto b = second.make_block(32);
             auto* heap_a = mi_heap_of(a.data());
@@ -94,13 +94,13 @@ void arenas() {
                   "unsupported native Heap metrics must remain unavailable");
         }
     }
-    Memory& ordinary = Memory::global(Backend::Mimalloc);
+    Memory& ordinary = Memory::global();
     exercise(ordinary, mi_heap_main());
 }
 
 void counters() {
-    Memory& first = Memory::global(Backend::Mimalloc);
-    Memory& second = Memory::global(Backend::Mimalloc);
+    Memory& first = Memory::global();
+    Memory& second = Memory::global();
     auto a = first.make_block(100);
     auto b = second.make_block(200);
     check(mi_heap_of(a.data()) == mi_heap_of(b.data()), "ordinary memories must share defaults");
@@ -129,9 +129,9 @@ void counters() {
 }
 
 void threads() {
-    Memory& first = Memory::global(Backend::Mimalloc);
-    Memory& second = Memory::global(Backend::Mimalloc);
-    Memory arena = Memory::heap(Backend::Mimalloc, compiled_test::heap_mode);
+    Memory& first = Memory::global();
+    Memory& second = Memory::global();
+    Memory arena = Memory::heap(compiled_test::heap_mode);
     auto anchor = arena.make_block(32);
     auto* arena_heap = mi_heap_of(anchor.data());
     std::atomic<bool> failed{false};

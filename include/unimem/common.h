@@ -10,19 +10,17 @@ class Memory;
 enum class Backend { Standard, Mimalloc, Jemalloc };
 
 struct BackendCapabilities {
-    bool available = false;
     bool detailed_statistics = false;
     bool release_delay = false;
     bool heap = false;
 };
 
-bool available(Backend backend) noexcept;
-BackendCapabilities capabilities(Backend backend) noexcept;
+BackendCapabilities capabilities() noexcept;
 
 enum class RuntimeOption { UnusedPageReleaseDelayMs };
 
-bool supports(Backend backend, RuntimeOption option) noexcept;
-bool set_runtime_option(Backend backend, RuntimeOption option, std::int64_t value);
+bool supports(RuntimeOption option) noexcept;
+bool set_runtime_option(RuntimeOption option, std::int64_t value);
 
 enum class MemoryKind { Global, Heap, Stack };
 

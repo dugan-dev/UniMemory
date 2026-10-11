@@ -14,9 +14,9 @@
 
 ## 统计配置
 
-`UNIMEMORY_STATISTICS` 必须在配置时设置。`ON` 固定 Global Basic，`OFF` 固定 Global Disabled；`Memory::selected_statistics` 表示该编译期选择。Global 不提供运行时重新配置函数。
+`UNIMEMORY_STATISTICS` 必须在配置时设置。`ON` 固定 Global Basic，`OFF` 固定 Global Disabled；Global 直接使用该构建设置。
 
-受支持的 Heap 使用 `Memory::heap(Memory::selected_backend)` 时默认 Disabled；只有 ON 构建允许传入 `StatisticsMode::Basic`，OFF 构建会抛 `std::invalid_argument`。Stack 始终没有计数。
+受支持的 Heap 使用 `Memory::heap()` 时默认 Disabled；只有 ON 构建允许 `Memory::heap(StatisticsMode::Basic)`，OFF 构建会抛 `std::invalid_argument`。Stack 始终没有计数。
 
 ```sh
 cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON

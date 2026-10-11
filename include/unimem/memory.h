@@ -15,11 +15,8 @@ namespace unimem {
 
 class Memory final {
 public:
-    static constexpr Backend selected_backend = detail::build_backend;
-    static constexpr StatisticsMode selected_statistics = detail::build_statistics;
-    static Memory& global(Backend backend = selected_backend);
-    static Memory heap(Backend backend,
-                       StatisticsMode statistics = StatisticsMode::Disabled);
+    static Memory& global();
+    static Memory heap(StatisticsMode statistics = StatisticsMode::Disabled);
     static Memory stack(void* buffer, std::size_t capacity);
     static Memory stack(std::span<std::byte> buffer);
 

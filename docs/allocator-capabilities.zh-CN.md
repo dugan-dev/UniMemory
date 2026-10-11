@@ -4,7 +4,7 @@
 
 后端配置见[平台与后端](guides/backends.zh-CN.md)。
 
-UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和可选调优接口**。能力查询会暴露支持状态；不把不同 Backend 的物理行为说成完全相同。
+UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和可选调优接口**。`capabilities()` 查询 CMake 所选后端的可选功能；各分配器保留自己的物理行为。
 
 | 能力 | Standard C++ | mimalloc | jemalloc | UniMemory 接口 |
 | --- | --- | --- | --- | --- |
@@ -22,7 +22,7 @@ UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和�
 
 ```mermaid
 flowchart LR
-    A[单个 Memory 的请求] --> B[所选显式后端]
+    A[单个 Memory 的请求] --> B[CMake 所选后端]
     C[可选详细统计/运行选项] --> D[按能力查询与作用范围解释]
     E[Stack] --> F[调用方提供的固定缓冲区]
 ```
@@ -31,8 +31,8 @@ flowchart LR
 | --- | --- |
 | **请求字节** | 传给某个 `Memory` 的大小；不等于可用容量、已提交页或进程 RSS |
 | **Heap** | `Memory::heap()` 创建；动态增长，不保证连续或物理隔离 |
-| **mimalloc heap** | 独立 Heap 的内部实现；`Memory::global(Backend::Mimalloc)` 使用默认分配接口；OS arena 是另一层大型内存区域 |
-| **jemalloc arena** | 独立 Heap 的内部实现；`Memory::global(Backend::Jemalloc)` 使用共享路径 |
+| **mimalloc heap** | mimalloc 构建的独立 Heap 实现；`Memory::global()` 使用默认分配接口；OS arena 是另一层大型内存区域 |
+| **jemalloc arena** | jemalloc 构建的独立 Heap 实现；`Memory::global()` 使用共享路径 |
 | **Stack Memory** | 固定缓冲区上的线性回退；不是线程调用栈，也不析构 C++ Object |
 
 ## 证据与版本

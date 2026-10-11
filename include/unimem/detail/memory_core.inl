@@ -157,16 +157,13 @@ inline const detail::BackendOps tracked_ops{tracked_allocate, tracked_allocate_z
 // The placement-created PMR object itself is never automatically destroyed.
 inline constinit Memory::GlobalResourceStorage Memory::global_resource_storage_{};
 
-UNIMEMORY_FORCE_INLINE Memory& Memory::global(Backend backend) {
-    if (backend != selected_backend) {
-        throw std::invalid_argument("UniMemory: backend differs from this build's selected backend");
-    }
+UNIMEMORY_FORCE_INLINE Memory& Memory::global() {
     auto& slot = memory_impl::global_slot();
     if (slot.instance.load(std::memory_order_acquire) == nullptr) {
         std::lock_guard lock(slot.mutex);
         if (slot.instance.load(std::memory_order_relaxed) == nullptr) {
             Memory* instance = ::new (detail::global_storage.bytes)
-                Memory(selected_backend, selected_statistics, MemoryKind::Global);
+                Memory(detail::build_statistics, MemoryKind::Global);
             // Memory/SDK/tracking are live; the noexcept stateless PMR ctor
             // only establishes its vptr, and precedes release publication.
             (void)::new (global_resource_storage_.bytes) GlobalResource;
@@ -177,20 +174,17 @@ UNIMEMORY_FORCE_INLINE Memory& Memory::global(Backend backend) {
     return *std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
 }
 
-inline Memory Memory::heap(Backend backend, StatisticsMode statistics) {
-    return Memory(backend, statistics, MemoryKind::Heap);
+inline Memory Memory::heap(StatisticsMode statistics) {
+    return Memory(statistics, MemoryKind::Heap);
 }
 
 inline Memory Memory::stack(void* buffer, std::size_t capacity) {
     return Memory(buffer, capacity);
 }
 
-inline Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kind)
-    : kind_(kind), storage_(backend), resource_(*this) {
-    if (backend != selected_backend) {
-        throw std::invalid_argument("UniMemory: backend differs from this build's selected backend");
-    }
-    if constexpr (selected_statistics == StatisticsMode::Disabled) {
+inline Memory::Memory(StatisticsMode statistics, MemoryKind kind)
+    : kind_(kind), storage_(detail::build_backend), resource_(*this) {
+    if constexpr (detail::build_statistics == StatisticsMode::Disabled) {
         if (statistics == StatisticsMode::Basic) {
             throw std::invalid_argument("UniMemory: Basic statistics are disabled in this build");
         }
@@ -201,21 +195,16 @@ inline Memory::Memory(Backend backend, StatisticsMode statistics, MemoryKind kin
         throw std::invalid_argument("UniMemory: invalid statistics mode");
     }
     detail::BackendHandle handle{};
-    switch (backend) {
-    case Backend::Standard: handle = detail::system_backend(dedicated_arena); break;
-    case Backend::Mimalloc:
+    if constexpr (detail::build_backend == Backend::Standard) {
+        handle = detail::system_backend(dedicated_arena);
+    } else if constexpr (detail::build_backend == Backend::Mimalloc) {
 #ifdef UNIMEMORY_WITH_MIMALLOC
-        handle = detail::mimalloc_backend(dedicated_arena); break;
-#else
-        throw std::runtime_error("UniMemory: mimalloc is not enabled");
+        handle = detail::mimalloc_backend(dedicated_arena);
 #endif
-    case Backend::Jemalloc:
+    } else if constexpr (detail::build_backend == Backend::Jemalloc) {
 #ifdef UNIMEMORY_WITH_JEMALLOC
-        handle = detail::jemalloc_backend(dedicated_arena); break;
-#else
-        throw std::runtime_error("UniMemory: jemalloc is not enabled");
+        handle = detail::jemalloc_backend(dedicated_arena);
 #endif
-    default: throw std::invalid_argument("UniMemory: invalid backend");
     }
     if (statistics == StatisticsMode::Basic) {
         try {
@@ -280,10 +269,10 @@ inline void Memory::stack_destroy(void*) noexcept {}
 inline MemoryCapabilities Memory::capabilities() const noexcept {
     MemoryCapabilities result;
     const auto* native_ops = tracking_ == nullptr ? ops_ : tracking_->base.ops;
-    result.basic_statistics = selected_statistics == StatisticsMode::Basic && kind_ != MemoryKind::Stack;
+    result.basic_statistics = detail::build_statistics == StatisticsMode::Basic && kind_ != MemoryKind::Stack;
     result.detailed_statistics = kind_ != MemoryKind::Stack &&
         native_ops->statistics != nullptr &&
-        unimem::capabilities(storage_.backend).detailed_statistics;
+        unimem::capabilities().detailed_statistics;
     result.reset = kind_ != MemoryKind::Global;
     result.collect = result.owns = kind_ == MemoryKind::Heap;
     result.checkpoints = kind_ == MemoryKind::Stack;
@@ -366,7 +355,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::global_shared_allocate(std::size_t bytes, s
     const auto effective_bytes = bytes == 0 ? 1 : bytes;
     void* pointer = Memory::global_allocate_raw<false>(effective_bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
-    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
         memory_impl::record_allocation(memory->tracking_, effective_bytes);
     }
@@ -377,7 +366,7 @@ UNIMEMORY_FORCE_INLINE void Memory::global_shared_deallocate(
     void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
     if (pointer == nullptr) { return; }
     Memory::global_deallocate_raw(pointer, alignment);
-    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
         memory_impl::record_deallocation(memory->tracking_, bytes == 0 ? 1 : bytes);
     }
@@ -393,7 +382,7 @@ UNIMEMORY_FORCE_INLINE void* Memory::GlobalResource::do_allocate(std::size_t byt
     const auto effective_bytes = bytes == 0 ? 1 : bytes;
     void* pointer = Memory::global_allocate_raw<false>(effective_bytes, alignment);
     if (pointer == nullptr) { throw std::bad_alloc(); }
-    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
         memory_impl::record_allocation(memory->tracking_, effective_bytes);
     }
@@ -404,7 +393,7 @@ UNIMEMORY_FORCE_INLINE void Memory::GlobalResource::do_deallocate(
     void* pointer, std::size_t bytes, std::size_t alignment) {
     if (pointer == nullptr) { return; }
     Memory::global_deallocate_raw(pointer, alignment);
-    if constexpr (Memory::selected_statistics == StatisticsMode::Basic) {
+    if constexpr (detail::build_statistics == StatisticsMode::Basic) {
         auto* memory = std::launder(reinterpret_cast<Memory*>(detail::global_storage.bytes));
         memory_impl::record_deallocation(memory->tracking_, bytes == 0 ? 1 : bytes);
     }

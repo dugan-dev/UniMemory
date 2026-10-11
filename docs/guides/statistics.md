@@ -14,9 +14,9 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Counter configuration
 
-`UNIMEMORY_STATISTICS` is required at configuration time. `ON` fixes Global to Basic; `OFF` fixes it to Disabled. `Memory::selected_statistics` exposes that compile-time choice. Global has no runtime reconfiguration function.
+`UNIMEMORY_STATISTICS` is required at configuration time. `ON` fixes Global to Basic; `OFF` fixes it to Disabled. Global uses that build setting.
 
-For a supported Heap, `Memory::heap(Memory::selected_backend)` defaults to Disabled. Pass `StatisticsMode::Basic` only in an ON build; OFF rejects it with `std::invalid_argument`. Stack never enables counters.
+For a supported Heap, `Memory::heap()` defaults to Disabled. Use `Memory::heap(StatisticsMode::Basic)` only in an ON build; OFF rejects it with `std::invalid_argument`. Stack never enables counters.
 
 ```sh
 cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON

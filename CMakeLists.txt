@@ -340,8 +340,10 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
     target_compile_features(UniMemoryConformance PRIVATE cxx_std_20)
     add_executable(UniMemoryHeapTests tests/heap_tests.cpp)
     target_link_libraries(UniMemoryHeapTests PRIVATE UniMemory::UniMemory Threads::Threads)
-    add_test(NAME UniMemory.standard.arena_rejected
-        COMMAND UniMemoryHeapTests standard rejected)
+    if(UNIMEMORY_BACKEND STREQUAL "standard")
+        add_test(NAME UniMemory.standard.arena_rejected
+            COMMAND UniMemoryHeapTests standard rejected)
+    endif()
     add_executable(UniMemoryProductionTests tests/production_tests.cpp)
     target_link_libraries(UniMemoryProductionTests PRIVATE UniMemory::UniMemory Threads::Threads)
     add_executable(UniMemoryExtendedStress tests/extended_stress.cpp)

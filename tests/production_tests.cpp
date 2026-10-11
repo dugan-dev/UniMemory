@@ -108,11 +108,11 @@ void trace(Memory& memory, Memory* arena, unsigned seed, unsigned steps) {
     if (arena) { arena->reset(); }
 }
 
-void random_test(Backend backend, unsigned seed, unsigned steps) {
-    trace(Memory::global(backend), nullptr, seed, steps);
+void random_test(unsigned seed, unsigned steps) {
+    trace(Memory::global(), nullptr, seed, steps);
     for (auto mode : compiled_test::heap_modes()) {
-        if (capabilities(backend).heap) {
-            Memory arena = Memory::heap(backend, mode);
+        if (capabilities().heap) {
+            Memory arena = Memory::heap(mode);
             trace(arena, &arena, seed, steps);
         }
     }
@@ -126,8 +126,8 @@ struct Object {
     }
     ~Object() noexcept { --alive; }
 };
-void objects(Backend backend) {
-    Memory& memory = Memory::global(backend);
+void objects() {
+    Memory& memory = Memory::global();
     for (unsigned fail = 1; fail <= 64; ++fail) {
         Object::attempts = Object::alive = 0;
         Object::fail_at = fail;
@@ -151,11 +151,11 @@ void objects(Backend backend) {
     }
 }
 
-void containers(Backend backend) {
-    Memory& first = Memory::global(backend);
+void containers() {
+    Memory& first = Memory::global();
     std::array<std::byte, 65536> buffer{};
     Memory second = [&]() -> Memory {
-        if (capabilities(backend).heap) { return Memory::heap(backend, compiled_test::heap_mode); }
+        if (capabilities().heap) { return Memory::heap(compiled_test::heap_mode); }
         return Memory::stack(buffer);
     }();
     for (unsigned round = 0; round < 64; ++round) {
@@ -185,8 +185,8 @@ void containers(Backend backend) {
     }
 }
 
-void boundaries(Backend backend) {
-    Memory& memory = Memory::global(backend);
+void boundaries() {
+    Memory& memory = Memory::global();
 #if UNIMEMORY_CHECKS
     for (const auto alignment : {std::size_t{0}, std::size_t{3}, std::size_t{63},
                                  std::numeric_limits<std::size_t>::max()}) {
@@ -212,14 +212,13 @@ void boundaries(Backend backend) {
         moved = std::move(same);
         check(moved.data() == original, "self move changed ownership");
     }
-    throws<std::invalid_argument>([] { Memory& memory = Memory::global(static_cast<Backend>(99)); });
     compiled_test::verify_configuration();
 }
 
-void handoff(Backend backend) {
+void handoff() {
     constexpr unsigned count = 4, batch = 64, rounds = 2048;
     std::array<Memory*, count> memories;
-    for (auto& memory : memories) { memory = &Memory::global(backend); }
+    for (auto& memory : memories) { memory = &Memory::global(); }
     std::array<std::array<void*, batch>, count> pointers{};
     std::barrier phase(count);
     std::atomic<bool> failed{false};
@@ -281,13 +280,13 @@ int main(int argc, char** argv) {
         compiled_test::test_configuration(backend, compiled_test::global_mode);
         if (mode == "trace") {
             if (argc != 4) { throw std::invalid_argument("trace seed required"); }
-            random_test(backend, static_cast<unsigned>(std::stoul(argv[3])), 4096);
+            random_test(static_cast<unsigned>(std::stoul(argv[3])), 4096);
         }
-        else if (mode == "soak") { random_test(backend, 0x024CAFE, 250000); }
-        else if (mode == "objects") { objects(backend); }
-        else if (mode == "containers") { containers(backend); }
-        else if (mode == "boundaries") { boundaries(backend); }
-        else if (mode == "handoff") { handoff(backend); }
+        else if (mode == "soak") { random_test(0x024CAFE, 250000); }
+        else if (mode == "objects") { objects(); }
+        else if (mode == "containers") { containers(); }
+        else if (mode == "boundaries") { boundaries(); }
+        else if (mode == "handoff") { handoff(); }
         else if (mode == "stack") { stack(); }
         else { throw std::invalid_argument("unknown test mode"); }
         return 0;

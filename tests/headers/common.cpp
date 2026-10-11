@@ -1,13 +1,11 @@
 #include <unimem/common.h>
-#include <initializer_list>
+#include "common_api_contract.h"
 bool header_common() {
-    unsigned enabled=0;
-    for (auto backend : {unimem::Backend::Standard,unimem::Backend::Mimalloc,unimem::Backend::Jemalloc}) {
-        const auto cap=unimem::capabilities(backend);
-        if (cap.available != unimem::available(backend)) { return false; }
-        enabled += cap.available;
-    }
+    const auto cap = unimem::capabilities();
     unimem::MemoryStatistics statistics;
     unimem::BackendStatistics native;
-    return enabled==1 && statistics.live_bytes==0 && !native.requested_bytes;
+    return cap.heap == (unimem::detail::build_backend != unimem::Backend::Standard) &&
+           cap.release_delay == unimem::supports(unimem::RuntimeOption::UnusedPageReleaseDelayMs) &&
+           !unimem::supports(static_cast<unimem::RuntimeOption>(99)) &&
+           statistics.live_bytes == 0 && !native.requested_bytes;
 }

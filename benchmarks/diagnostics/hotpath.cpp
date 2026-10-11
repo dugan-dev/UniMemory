@@ -156,14 +156,13 @@ struct BitsAdapter {
 
 template<bool Lookup>
 struct Actual {
-    Backend backend;
     Memory& memory;
     void* allocate(std::size_t bytes, std::size_t alignment) {
-        if constexpr (Lookup) { return Memory::global(backend).allocate(bytes, alignment); }
+        if constexpr (Lookup) { return Memory::global().allocate(bytes, alignment); }
         else { return memory.allocate(bytes, alignment); }
     }
     void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
-        if constexpr (Lookup) { Memory::global(backend).deallocate(pointer, bytes, alignment); }
+        if constexpr (Lookup) { Memory::global().deallocate(pointer, bytes, alignment); }
         else { memory.deallocate(pointer, bytes, alignment); }
     }
 };
@@ -252,14 +251,14 @@ void selected(std::ostream& out, const std::string& backend, const std::string& 
     else if (variant == "handle_checked_constant") { kernel<HandlePolicy<true,false>,true>(out,backend,variant,HandlePolicy<true,false>{real_handle(B)},iterations,64,touch); }
     else if (variant == "api_cached" || variant == "api_lookup") {
         compiled_benchmark_configuration(B,StatisticsMode::Disabled);
-        auto& memory = Memory::global(B);
-        if (variant == "api_cached") { kernel(out,backend,variant,Actual<false>{B,memory},iterations,bytes,touch); }
-        else { kernel(out,backend,variant,Actual<true>{B,memory},iterations,bytes,touch); }
+        auto& memory = Memory::global();
+        if (variant == "api_cached") { kernel(out,backend,variant,Actual<false>{memory},iterations,bytes,touch); }
+        else { kernel(out,backend,variant,Actual<true>{memory},iterations,bytes,touch); }
     }
     else if (variant=="native_batch") { batched(out,backend,variant,Native<B>{},iterations,bytes); }
     else if (variant=="api_batch") {
         compiled_benchmark_configuration(B,StatisticsMode::Disabled);
-        batched(out,backend,variant,Actual<false>{B,Memory::global(B)},iterations,bytes);
+        batched(out,backend,variant,Actual<false>{Memory::global()},iterations,bytes);
     }
     else { throw std::invalid_argument("unknown hotpath variant"); }
 }
@@ -269,7 +268,7 @@ void run_hotpath(std::ostream& out, const std::string& backend, const std::strin
                  std::size_t iterations, std::size_t bytes, bool touch) {
     if (iterations == 0 || bytes == 0 || bytes > 65536) { throw std::invalid_argument("invalid work size"); }
     const auto selected_backend = parse_backend(backend);
-    if (!unimem::available(selected_backend)) { throw std::invalid_argument("disabled backend"); }
+    compiled_benchmark_backend(selected_backend);
     switch (selected_backend) {
     case Backend::Standard: selected<Backend::Standard>(out,backend,variant,iterations,bytes,touch); break;
     case Backend::Mimalloc: selected<Backend::Mimalloc>(out,backend,variant,iterations,bytes,touch); break;

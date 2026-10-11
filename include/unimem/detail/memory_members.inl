@@ -8,10 +8,10 @@
 
     bool is_global() const noexcept;
     template<bool Zero>
-    static void* global_allocate_raw(std::size_t bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard);
+    static void* global_allocate_raw(std::size_t bytes, std::size_t alignment) noexcept(detail::build_backend != Backend::Standard);
     static void global_deallocate_raw(void* pointer, std::size_t alignment) noexcept;
     static void* global_reallocate_raw(void* pointer, std::size_t old_bytes,
-                                         std::size_t new_bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard);
+                                         std::size_t new_bytes, std::size_t alignment) noexcept(detail::build_backend != Backend::Standard);
 
     void* cold_allocate(std::size_t bytes, std::size_t alignment) noexcept;
     void* cold_allocate_zeroed(std::size_t bytes, std::size_t alignment) noexcept;
@@ -19,7 +19,7 @@
                           std::size_t new_bytes, std::size_t alignment) noexcept;
     void cold_deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept;
 
-    Memory(Backend backend, StatisticsMode statistics, MemoryKind kind);
+    Memory(StatisticsMode statistics, MemoryKind kind);
     Memory(void* buffer, std::size_t capacity);
 
     void require_stack() const;

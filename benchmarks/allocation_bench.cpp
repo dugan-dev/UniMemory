@@ -312,12 +312,13 @@ struct Scenario {
 
 double run(const BackendName& backend, const Scenario& scenario,
            std::size_t operations) {
+    compiled_benchmark_backend(backend.value);
     std::unique_ptr<unimem::Memory> heap;
     if (scenario.heap) {
         heap.reset(new unimem::Memory(unimem::Memory::heap(
-            backend.value, scenario.statistics)));
+            scenario.statistics)));
     }
-    auto& target = scenario.heap ? *heap : unimem::Memory::global(backend.value);
+    auto& target = scenario.heap ? *heap : unimem::Memory::global();
     measure(target, scenario.workload, scenario.bytes,
             scenario.alignment, (std::min)(operations / 4 + 1, std::size_t{1024}), scenario.threads);
     const auto result = measure(target, scenario.workload, scenario.bytes,
@@ -374,13 +375,13 @@ std::vector<Scenario> scenarios(bool full) {
         for (const auto heap : {false, true}) {
             result.push_back({Workload::CrossThread, 64, 16, threads,
                               heap ? unimem::StatisticsMode::Disabled
-                                   : unimem::Memory::selected_statistics, heap});
+                                   : unimem::detail::build_statistics, heap});
         }
     }
     for (const auto heap : {false, true}) {
         result.push_back({Workload::DetailedStatistics, 0, 0, 1,
                           heap ? unimem::StatisticsMode::Disabled
-                               : unimem::Memory::selected_statistics, heap});
+                               : unimem::detail::build_statistics, heap});
     }
     return result;
 }
@@ -491,7 +492,7 @@ int main(int argc, char** argv) {
         std::size_t effective_cpus = (std::max)(1U, std::thread::hardware_concurrency());
         std::map<std::string, std::size_t> counts;
         std::cout << std::setprecision(17);
-        constexpr bool basic = unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic;
+        constexpr bool basic = unimem::detail::build_statistics == unimem::StatisticsMode::Basic;
         for (int i = 1; i < argc; ++i) {
             const std::string argument = argv[i];
             if (argument == "--full") { full = true; }
@@ -520,7 +521,7 @@ int main(int argc, char** argv) {
             else { throw std::invalid_argument("unknown benchmark argument"); }
         }
         for (const auto backend : backends) {
-            if (unimem::available(backend.value)) {
+            if (backend.value == unimem::detail::build_backend) {
                 compiled_benchmark_configuration(backend.value, basic
                     ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
             }
@@ -546,10 +547,10 @@ int main(int argc, char** argv) {
             }
             std::vector<BackendName> enabled;
             for (const auto backend : backends) {
-                if (unimem::available(backend.value) &&
-                    (!scenario.heap || unimem::capabilities(backend.value).heap) &&
+                if (backend.value == unimem::detail::build_backend &&
+                    (!scenario.heap || unimem::capabilities().heap) &&
                     (scenario.workload != Workload::DetailedStatistics ||
-                     unimem::capabilities(backend.value).detailed_statistics)) {
+                     unimem::capabilities().detailed_statistics)) {
                     enabled.push_back(backend);
                 }
             }

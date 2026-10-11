@@ -153,11 +153,9 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### Heap
 
 ```cpp
-constexpr unimem::Backend backend = unimem::Memory::selected_backend;
-
 // Create a Heap when supported
-if (unimem::available(backend) && unimem::capabilities(backend).heap) {
-    unimem::Memory heap = unimem::Memory::heap(backend);
+if (unimem::capabilities().heap) {
+    unimem::Memory heap = unimem::Memory::heap();
 
     // Check membership and free
     void* bytes = heap.allocate(1024);
@@ -220,13 +218,12 @@ if (details && details->committed_bytes) {
 ### Runtime Options
 
 ```cpp
-constexpr unimem::Backend backend = unimem::Memory::selected_backend;
 const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
 
 // Set backend-wide options before normal allocations
-if (unimem::supports(backend, option)) {
+if (unimem::supports(option)) {
     // Delay unused-page release by 1000 ms
-    bool configured = unimem::set_runtime_option(backend, option, 1000);
+    bool configured = unimem::set_runtime_option(option, 1000);
 }
 ```
 

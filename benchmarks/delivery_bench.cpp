@@ -58,7 +58,7 @@ struct Unified {
     Memory& memory;
     static Memory& get(Backend backend, StatisticsMode mode) {
         compiled_benchmark_configuration(backend, mode);
-        return Memory::global(backend);
+        return Memory::global();
     }
     Unified(Backend backend, StatisticsMode mode) : memory(get(backend, mode)) {}
     void* allocate(std::size_t n) { return memory.allocate(n, 16); }
@@ -83,7 +83,7 @@ void environment() {
               << ",\"allocator_bytes\":" << sizeof(Allocator<int>)
               << ",\"core\":\"header-only\",\"selected_backend\":\"" << UNIMEMORY_CONFIG_BACKEND_NAME
               << "\",\"selected_statistics\":\""
-              << (Memory::selected_statistics == StatisticsMode::Basic ? "basic" : "disabled")
+              << (detail::build_statistics == StatisticsMode::Basic ? "basic" : "disabled")
               << "\",\"checks\":" << UNIMEMORY_CHECKS;
 #ifndef _WIN32
     Dl_info provider{};
@@ -343,10 +343,11 @@ template<class A> void latency(A& allocator, const std::string& backend,
 }
 
 void footprint(Backend backend, const std::string& name, StatisticsMode mode, bool dedicated) {
+    compiled_benchmark_backend(backend);
     std::unique_ptr<Memory> heap;
-    if (dedicated) { heap.reset(new Memory(Memory::heap(backend, mode))); }
+    if (dedicated) { heap.reset(new Memory(Memory::heap(mode))); }
     else { compiled_benchmark_configuration(backend, mode); }
-    auto& memory = dedicated ? *heap : Memory::global(backend);
+    auto& memory = dedicated ? *heap : Memory::global();
     constexpr std::size_t count = 16384, bytes = 4096;
     std::vector<void*> pointers(count);
     const auto baseline = rss();
@@ -485,7 +486,8 @@ void pressure(A& allocator, Backend backend, const std::string& name,
 
 void heap_operations(Backend backend, const std::string& name,
                      const std::string& selected, std::size_t count) {
-    Memory heap = Memory::heap(backend);
+    compiled_benchmark_backend(backend);
+    Memory heap = Memory::heap();
     auto block = heap.make_block(64);
     std::cout << "backend,operation,operations,median_ns,min_ns,mean_ns,max_ns,samples_ns,seconds\n";
     for (auto operation : {"owns", "collect", "reset"}) {
@@ -530,7 +532,7 @@ int main(int argc, char** argv) {
         else if (name == "mimalloc") { backend = Backend::Mimalloc; }
         else if (name == "jemalloc") { backend = Backend::Jemalloc; }
         else { throw std::invalid_argument("unknown backend"); }
-        if (!available(backend)) { throw std::runtime_error("backend unavailable"); }
+        compiled_benchmark_backend(backend);
         const auto mode = path == "basic" ? StatisticsMode::Basic : StatisticsMode::Disabled;
         if (workload == "environment") { environment(); }
         else if (workload == "footprint") { footprint(backend, name, mode, argc > 4 && std::string(argv[4]) == "heap"); }

@@ -47,7 +47,7 @@ struct Tracked {
 };
 
 void test_backend(unimem::Backend backend) {
-    unimem::Memory& memory = unimem::Memory::global(backend);
+    unimem::Memory& memory = unimem::Memory::global();
     {
         auto scalar = memory.make_unique<const int>(42);
         auto object = memory.make_unique<const OverAligned>();
@@ -217,9 +217,9 @@ void test_backend(unimem::Backend backend) {
     CHECK(completed == 4);
 }
 
-void test_statistics(unimem::Backend backend) {
+void test_statistics() {
 
-    unimem::Memory& tracked = unimem::Memory::global(backend);
+    unimem::Memory& tracked = unimem::Memory::global();
     const auto baseline = tracked.statistics();
     CHECK( (!compiled_test::supports_statistics || (baseline->live_bytes == 0)) );
     CHECK(tracked.allocate(0) == nullptr);
@@ -316,9 +316,8 @@ void test_stack_arena() {
 }
 
 int main() {
-    CHECK(unimem::available(compiled_test::backend));
     compiled_test::verify_configuration();
     test_backend(compiled_test::backend);
-    test_statistics(compiled_test::backend);
+    test_statistics();
     test_stack_arena();
 }

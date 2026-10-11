@@ -4,7 +4,7 @@
 
 示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
-`UnusedPageReleaseDelayMs` 调整闲置内存归还系统的等待时间。分配器可能缓存已释放空间以供复用。先用 `supports()` 查询支持情况。
+`UnusedPageReleaseDelayMs` 调整闲置内存归还系统的等待时间。分配器可能缓存已释放空间以供复用。先用 `supports(option)` 查询，再调用 `set_runtime_option(option, value)` 设置 CMake 所选后端。
 
 ## 选项值
 

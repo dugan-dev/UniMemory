@@ -147,20 +147,16 @@ int main() {
     try {
         reuse_stack();
         low_alignment();
-        for (auto backend : {unimem::Backend::Standard, unimem::Backend::Mimalloc,
-                             unimem::Backend::Jemalloc}) {
-            if (!unimem::available(backend)) { continue; }
-            compiled_test::test_configuration(backend, compiled_test::global_mode);
-            auto& memory = unimem::Memory::global(backend);
-            array_storage(memory, false);
-            array_storage(memory, true);
-            boundaries(memory);
-            if (unimem::capabilities(backend).heap) {
-                auto heap = unimem::Memory::heap(backend, compiled_test::heap_mode);
-                array_storage(heap, false);
-                array_storage(heap, true);
-                boundaries(heap);
-            }
+        compiled_test::verify_configuration();
+        auto& memory = unimem::Memory::global();
+        array_storage(memory, false);
+        array_storage(memory, true);
+        boundaries(memory);
+        if (unimem::capabilities().heap) {
+            auto heap = unimem::Memory::heap(compiled_test::heap_mode);
+            array_storage(heap, false);
+            array_storage(heap, true);
+            boundaries(heap);
         }
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

@@ -43,10 +43,10 @@ struct Context {
     std::vector<std::byte> buffer;
     std::unique_ptr<Memory> owned;
     Memory* memory = nullptr;
-    Context(Backend backend, const std::string& kind, StatisticsMode mode) {
-        if (kind == "global") { memory = &Memory::global(backend); }
+    Context(const std::string& kind, StatisticsMode mode) {
+        if (kind == "global") { memory = &Memory::global(); }
         else if (kind == "heap") {
-            owned.reset(new Memory(Memory::heap(backend, mode)));
+            owned.reset(new Memory(Memory::heap(mode)));
             memory = owned.get();
         } else if (kind == "stack") {
             buffer.resize(4 * 1024 * 1024);
@@ -517,7 +517,7 @@ void global_config(Backend backend, unsigned scenario, StatisticsMode mode) {
     parallel(count, [&](unsigned id) {
         try {
             for (unsigned round = 0; round < 64; ++round) {
-                addresses[id] = &Memory::global(backend);
+                addresses[id] = &Memory::global();
                 check(addresses[id]->statistics().has_value() == compiled_test::supports_statistics,
                       "compiled Global statistics");
             }
@@ -783,7 +783,7 @@ int main(int argc, char** argv) {
             throw std::invalid_argument("usage: backend kind mode [seed] [steps] [basic|disabled]");
         }
         const auto backend = parse_backend(argv[1]);
-        check(available(backend), "backend unavailable");
+        check(backend == compiled_test::backend, "test backend differs from compiled profile");
         const std::string kind = argv[2], mode = argv[3];
         const auto seed = argc >= 5 ? static_cast<unsigned>(std::stoul(argv[4])) : 0;
         const auto steps = argc >= 6 ? static_cast<unsigned>(std::stoul(argv[5])) : 1024;
@@ -797,14 +797,14 @@ int main(int argc, char** argv) {
             global_config(backend, seed, tracking);
             return 0;
         }
-        if (kind == "global") { compiled_test::test_configuration(backend, compiled_test::global_mode); }
-        Context context(backend, kind, tracking);
+        if (kind == "global") { compiled_test::test_configuration(backend, tracking); }
+        Context context(kind, tracking);
         auto& memory = *context.memory;
         if (mode == "trace") { trace(memory, seed, steps); }
         else if (mode == "marks") { marks(memory); }
         else if (mode == "handoff") { handoff(memory); }
         else {
-            Context peer(backend, kind == "heap" ? "heap" : "stack", tracking);
+            Context peer(kind == "heap" ? "heap" : "stack", tracking);
             if (mode == "owners") { owners(memory, *peer.memory); }
             else if (mode == "objects") { objects(memory, *peer.memory); }
             else if (mode == "allocators") { allocators(memory, *peer.memory); }

@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
         if (argc != 3) { throw std::invalid_argument("backend and mode required"); }
         const auto selected = backend(argv[1]);
         compiled_test::test_configuration(selected, compiled_test::global_mode);
-        auto& memory = unimem::Memory::global(selected);
+        auto& memory = unimem::Memory::global();
         const std::string mode = argv[2];
         if (mode == "churn") { churn(memory, false); }
         else if (mode == "asymmetric") { churn(memory, true); }

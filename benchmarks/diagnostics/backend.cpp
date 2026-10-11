@@ -258,13 +258,14 @@ struct ApiAllocator {
 
     ApiAllocator(unimem::Backend selected, bool is_heap)
         : backend(selected), dedicated(is_heap) {
+        compiled_benchmark_backend(backend);
         if (dedicated) {
             heap.reset(new unimem::Memory(unimem::Memory::heap(
-                backend, unimem::StatisticsMode::Disabled)));
+                unimem::StatisticsMode::Disabled)));
             memory = heap.get();
         } else {
             compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
-            memory = &unimem::Memory::global(backend);
+            memory = &unimem::Memory::global();
         }
     }
     void* allocate(std::size_t bytes) { return memory->allocate(bytes, alignment); }

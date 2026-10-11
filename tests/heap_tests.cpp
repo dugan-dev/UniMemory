@@ -29,9 +29,9 @@ Backend backend_of(std::string_view name) {
 constexpr std::array<std::size_t, 6> sizes{1, 7, 64, 4096, 65536, 1048576};
 constexpr std::array<std::size_t, 5> alignments{1, 8, 16, 256, 4096};
 
-void reset_test(Backend backend) {
+void reset_test() {
     for (auto mode : compiled_test::heap_modes()) {
-        Memory arena = Memory::heap(backend, mode);
+        Memory arena = Memory::heap(mode);
         auto& memory = arena;
         auto* resource = memory.resource();
         for (unsigned round = 0; round < 64; ++round) {
@@ -58,8 +58,8 @@ void reset_test(Backend backend) {
     }
 }
 
-void collect_test(Backend backend) {
-    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
+void collect_test() {
+    Memory arena = Memory::heap(compiled_test::heap_mode);
     arena.collect();
     for (unsigned round = 0; round < 64; ++round) {
         for (auto bytes : sizes) {
@@ -83,10 +83,10 @@ void collect_test(Backend backend) {
     arena.collect();
 }
 
-void owns_test(Backend backend) {
-    Memory first = Memory::heap(backend);
-    Memory second = Memory::heap(backend);
-    Memory& ordinary = Memory::global(backend);
+void owns_test() {
+    Memory first = Memory::heap();
+    Memory second = Memory::heap();
+    Memory& ordinary = Memory::global();
     check(!first.owns(nullptr), "null ownership");
     check(!first.owns(first.allocate(0)), "zero size ownership");
     for (unsigned round = 0; round < 32; ++round) {
@@ -107,8 +107,8 @@ void owns_test(Backend backend) {
     }
 }
 
-void containers_test(Backend backend) {
-    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
+void containers_test() {
+    Memory arena = Memory::heap(compiled_test::heap_mode);
     for (unsigned round = 0; round < 128; ++round) {
         {
             auto& memory = arena;
@@ -133,8 +133,8 @@ void containers_test(Backend backend) {
     }
 }
 
-void threads_test(Backend backend) {
-    Memory arena = Memory::heap(backend, compiled_test::heap_mode);
+void threads_test() {
+    Memory arena = Memory::heap(compiled_test::heap_mode);
     for (unsigned epoch = 0; epoch < 8; ++epoch) {
         std::atomic<bool> failed{false};
         std::array<std::thread, 4> workers;
@@ -171,10 +171,10 @@ struct DestructorProbe {
     ~DestructorProbe() noexcept { ++*destroyed; }
 };
 
-void lifetime_test(Backend backend) {
+void lifetime_test() {
     unsigned destroyed = 0;
     for (unsigned round = 0; round < 128; ++round) {
-        Memory arena = Memory::heap(backend);
+        Memory arena = Memory::heap();
         auto* object = arena.create<DestructorProbe>(&destroyed);
         // No implicit C++ destructor is promised by bulk release.
         arena.reset();
@@ -188,14 +188,9 @@ void lifetime_test(Backend backend) {
 }
 
 void rejected() {
-    check(!capabilities(Backend::Standard).heap, "Standard arena advertised");
-    try { Memory arena = Memory::heap(Backend::Standard); }
-    catch (const std::invalid_argument&) {
-        check(compiled_test::backend != Backend::Standard, "selected Standard mismatch classification");
-        return;
-    }
+    check(!capabilities().heap, "Standard arena advertised");
+    try { Memory arena = Memory::heap(); }
     catch (const std::runtime_error&) {
-        check(compiled_test::backend == Backend::Standard, "unselected Standard mismatch classification");
         return;
     }
     throw std::runtime_error("Standard Arena accepted");
@@ -206,14 +201,15 @@ int main(int argc, char** argv) {
     try {
         if (argc != 3) { throw std::invalid_argument("backend and mode required"); }
         const auto backend = backend_of(argv[1]);
+        compiled_test::test_configuration(backend, compiled_test::global_mode);
         const std::string_view mode = argv[2];
         if (mode == "rejected") { rejected(); }
-        else if (mode == "reset") { reset_test(backend); }
-        else if (mode == "collect") { collect_test(backend); }
-        else if (mode == "owns") { owns_test(backend); }
-        else if (mode == "containers") { containers_test(backend); }
-        else if (mode == "threads") { threads_test(backend); }
-        else if (mode == "lifetime") { lifetime_test(backend); }
+        else if (mode == "reset") { reset_test(); }
+        else if (mode == "collect") { collect_test(); }
+        else if (mode == "owns") { owns_test(); }
+        else if (mode == "containers") { containers_test(); }
+        else if (mode == "threads") { threads_test(); }
+        else if (mode == "lifetime") { lifetime_test(); }
         else { throw std::invalid_argument("unknown mode"); }
         return 0;
     } catch (const std::exception& error) {

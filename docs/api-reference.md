@@ -8,8 +8,8 @@ Namespace: `unimem`. Include `<unimem/memory.h>` for the complete header-only al
 
 | Signature | Result / contract |
 | --- | --- |
-| `Memory::global(Backend = selected_backend)` | `Memory&`; one library-managed Global; explicit backend must match this build |
-| `Memory::heap(Backend, StatisticsMode = Disabled)` | `Memory`; selected backend only; Basic requires statistics ON; Standard unsupported |
+| `Memory::global()` | `Memory&`; one library-managed Global using the CMake-selected backend |
+| `Memory::heap(StatisticsMode = StatisticsMode::Disabled)` | `Memory`; independent Heap using the same backend; Basic requires statistics ON; Standard unsupported |
 | `Memory::stack(span<byte>)` | `Memory`; fixed borrowed Buffer, single-threaded |
 | `Memory::stack(void*, size_t)` | Pointer/size form of the same Buffer strategy |
 
@@ -19,18 +19,16 @@ Memory cannot be copied or moved; store global instances by pointer or reference
 
 | Interface | Result |
 | --- | --- |
-| `Backend::{Standard, Mimalloc, Jemalloc}` | Backend values; choose one through CMake |
-| `Memory::selected_backend` / `selected_statistics` | `static constexpr` configuration values |
+| `Backend::{Standard, Mimalloc, Jemalloc}` | Backend identifiers; the backend is fixed by CMake |
 | `MemoryKind::{Global, Heap, Stack}` / `kind()` | Allocation mode |
-| `backend()` | `optional<Backend>`; empty for Stack |
-| `available(backend)` | True only for the selected backend |
-| `capabilities(backend)` | `available`, `heap`, `detailed_statistics`, `release_delay` |
+| `backend()` | Read-only `optional<Backend>`; empty for Stack |
+| `capabilities()` | `BackendCapabilities` for this build: `heap`, `detailed_statistics`, `release_delay` |
 | `memory.capabilities()` | `basic_statistics`, `detailed_statistics`, `reset`, `collect`, `owns`, `checkpoints`, `thread_safe`, `individual_reclaim` |
-| `supports(backend, RuntimeOption)` | Runtime-option support |
-| `set_runtime_option(backend, option, int64_t)` | Unsupported returns false; invalid values/native failure throw |
+| `supports(RuntimeOption)` | Runtime-option support for this build |
+| `set_runtime_option(RuntimeOption, std::int64_t)` | Unsupported returns false; invalid values/native failure throw |
 | `statistics()` / `backend_statistics()` | Optional [statistics](guides/statistics.md) |
 
-The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. ON means Global Basic; OFF means Global Disabled and rejects Heap Basic. Stack has no counters. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
+The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. Backend selection happens once in CMake; allocation and capability APIs use that choice. ON means Global Basic and permits Heap Basic; OFF means Global Disabled and rejects Heap Basic. Heap defaults to Disabled; Stack has no counters. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
 
 Current RuntimeOption: `UnusedPageReleaseDelayMs`, milliseconds, Backend-wide.
 Capability support is distinct from enabled counters. Global lookup does not replace
@@ -90,7 +88,7 @@ or native metrics. Unsupported mode-specific operations throw `logic_error`.
 | --- | --- |
 | Allocation/capacity failure | `bad_alloc`; resize preserves old storage |
 | Invalid allocation alignment | `invalid_argument` with checks enabled; a caller precondition when checks are OFF |
-| Backend mismatch, invalid statistics mode, Heap Basic in an OFF build, invalid Buffer or Mark | `invalid_argument` |
+| Invalid statistics mode, Heap Basic in an OFF build, invalid Buffer or Mark | `invalid_argument` |
 | Element-count or mark-counter overflow | `length_error` |
 | Unsupported Heap / native control failure | `runtime_error` |
 | Unsupported operation / moved-from Block resize | `logic_error` |

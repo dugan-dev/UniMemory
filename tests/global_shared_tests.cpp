@@ -110,7 +110,7 @@ void snapshot(unimem::Memory& memory, const unimem::MemoryStatistics& baseline,
 void run(bool require_stateless_shape) {
     auto& memory = unimem::Memory::global();
     const auto initial = memory.statistics();
-    check(initial.has_value() == (unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic),
+    check(initial.has_value() == (unimem::detail::build_statistics == unimem::StatisticsMode::Basic),
           "Global statistics mode mismatch");
     check(!initial || initial->live_bytes == 0, "fixture requires an isolated Global ledger");
     if (require_stateless_shape && !initial) {

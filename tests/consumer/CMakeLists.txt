@@ -68,13 +68,9 @@ endif()
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile.h" [=[
 #pragma once
-#include <unimem/memory.h>
-template<class T> concept HasConfigureGlobal = requires {
-    T::configure_global(T::selected_backend, T::selected_statistics);
-};
-static_assert(!HasConfigureGlobal<unimem::Memory>);
-static_assert(static_cast<int>(unimem::Memory::selected_backend) == UNIMEMORY_CONFIG_BACKEND);
-static_assert(static_cast<int>(unimem::Memory::selected_statistics) == UNIMEMORY_CONFIG_STATISTICS);
+#include "memory_api_contract.h"
+static_assert(static_cast<int>(unimem::detail::build_backend) == UNIMEMORY_CONFIG_BACKEND);
+static_assert(static_cast<int>(unimem::detail::build_statistics) == UNIMEMORY_CONFIG_STATISTICS);
 unimem::Memory* profile_a();
 unimem::Memory* profile_b();
 ]=])
@@ -84,7 +80,7 @@ unimem::Memory* profile_a() { return &unimem::Memory::global(); }
 ]=])
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-b.cpp" [=[
 #include "profile.h"
-unimem::Memory* profile_b() { return &unimem::Memory::global(unimem::Memory::selected_backend); }
+unimem::Memory* profile_b() { return &unimem::Memory::global(); }
 ]=])
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-main.cpp" [=[
 #include "profile.h"
@@ -94,13 +90,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-main.cpp" [=[
 int main() {
     auto& memory = unimem::Memory::global();
     if (profile_a() != &memory || profile_b() != &memory) return 1;
-    for (auto backend : {unimem::Backend::Standard, unimem::Backend::Mimalloc, unimem::Backend::Jemalloc}) {
-        if (unimem::available(backend) != (backend == unimem::Memory::selected_backend)) return 2;
-        if (backend != unimem::Memory::selected_backend) {
-            try { (void)unimem::Memory::global(backend); return 3; }
-            catch (const std::invalid_argument&) {}
-        }
-    }
+    if (memory.backend() != unimem::detail::build_backend) return 2;
     const auto before = memory.statistics();
     {
         std::vector<int, unimem::Allocator<int>> values{unimem::Allocator<int>{memory}};
@@ -113,7 +103,7 @@ int main() {
         if (*unique != 42 || *shared != 43 || block.data() == nullptr) return 4;
     }
     const auto after = profile_b()->statistics();
-    if constexpr (unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic) {
+    if constexpr (unimem::detail::build_statistics == unimem::StatisticsMode::Basic) {
         if (!before || !after || after->live_bytes != before->live_bytes ||
             after->allocations - before->allocations != after->deallocations - before->deallocations) return 5;
         if (after->allocations <= before->allocations) return 6;
@@ -125,6 +115,7 @@ add_executable(UniMemoryInstalledProfile
     "${CMAKE_CURRENT_BINARY_DIR}/profile-a.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/profile-b.cpp")
 target_link_libraries(UniMemoryInstalledProfile PRIVATE UniMemory::UniMemory)
+target_include_directories(UniMemoryInstalledProfile PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../headers")
 target_compile_features(UniMemoryInstalledProfile PRIVATE cxx_std_20)
 set_target_properties(UniMemoryInstalledProfile PROPERTIES CXX_EXTENSIONS OFF)
 add_executable(UniMemoryInstalledConsumer main.cpp

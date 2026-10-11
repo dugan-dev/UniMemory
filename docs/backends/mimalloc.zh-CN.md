@@ -17,7 +17,7 @@ UniMemory 将基础分配、对齐、清零、Object 生命周期、分配范围
 | [类型宏](https://microsoft.github.io/mimalloc/group__typed.html) | `mi_malloc_tp`、`mi_free_tp` | C 宏便利层；C++ 业务用模板 Object 接口 |
 | [固定大小](https://microsoft.github.io/mimalloc/group__constantsize.html) | `mi_malloc_csize`、`mi_free_csize` | 不提供独立快速路径，统一释放接口保留大小 |
 | [清零重分配](https://microsoft.github.io/mimalloc/group__zeroinit.html) | `mi_rezalloc`、`mi_heap_rezalloc_aligned` | 原生形式对旧块有清零前提；`reallocate_zeroed` 统一为只清零新增请求字节 |
-| [Heap](https://microsoft.github.io/mimalloc/group__heap.html) | `mi_heap_new`、`mi_heap_malloc`、`mi_heap_delete`、`mi_heap_destroy` | 仅 `Memory::heap(Backend::Mimalloc)` 创建并管理独立 heap |
+| [Heap](https://microsoft.github.io/mimalloc/group__heap.html) | `mi_heap_new`、`mi_heap_malloc`、`mi_heap_delete`、`mi_heap_destroy` | mimalloc 构建的 `Memory::heap()` 创建并管理独立 heap |
 | [Heap 遍历](https://microsoft.github.io/mimalloc/group__analysis.html) | `mi_heap_visit_blocks` | 扫描成本高，不作为统一接口 |
 | [OS Arena](https://microsoft.github.io/mimalloc/group__arenas.html) | `mi_reserve_os_memory_ex`、`mi_heap_new_in_arena` | 大型 OS 内存区域，不等于 UniMemory `Memory::heap()` 或 `Stack Memory` |
 | [Subprocess](https://microsoft.github.io/mimalloc/group__subproc.html) | `mi_subproc_new`、`mi_subproc_add_current_thread` | 具有线程归属规则；不是 `Memory` 的 Backend 切换 |
@@ -42,6 +42,6 @@ Heap 页计数记录在 subprocess 范围。因此仅映射 Process 已提交/�
 
 ## 使用统一接口
 
-业务代码只包含 `<unimem/memory.h>`；查询 `capabilities(Backend::Mimalloc)` 后使用 `Memory::heap()`、`backend_statistics()` 和 `set_runtime_option()`。Backend 统计可能同步或扫描，应与分配热路径分开测量。
+业务代码只包含 `<unimem/memory.h>`；查询 `capabilities()` 后使用 `Memory::heap()`、`backend_statistics()` 和 `set_runtime_option(option, value)`。这些接口直接使用 CMake 所选后端。Backend 统计可能同步或扫描，应与分配热路径分开测量。
 
 原生诊断快照要求暂停对应范围的分配、释放和线程清理。mimalloc 3.4.3 复制统计时没有保护整个快照的锁（[源码](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L536)）；这一共同使用约定不表示 jemalloc 的原生统计也缺少同步。

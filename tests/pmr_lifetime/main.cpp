@@ -16,7 +16,7 @@ int main() {
         check(a.memory == &memory && b.memory == &memory && a.resource == b.resource &&
               a.resource == memory.resource() && a.resource->is_equal(*b.resource), "three-TU Global/PMR identity diverged");
         const auto before = memory.statistics();
-        check(before.has_value() == (unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic), "statistics profile mismatch");
+        check(before.has_value() == (unimem::detail::build_statistics == unimem::StatisticsMode::Basic), "statistics profile mismatch");
         void* block = pmr_allocate_a(31, 16);
         void* zero = a.resource->allocate(0, 16);
         check(block && zero, "PMR zero normalization failed");
