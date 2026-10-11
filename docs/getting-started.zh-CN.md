@@ -7,7 +7,7 @@
 下载 [dev 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，或克隆仓库：
 
 ```sh
-git clone --branch dev https://github.com/dugan-dev/UniMemory.git
+git clone https://github.com/dugan-dev/UniMemory.git
 ```
 
 在包含 `CMakeLists.txt` 的源码目录执行构建命令。库版本由 `CMakeLists.txt` 声明；头文件、生成配置和 SDK 库须使用匹配的修订。

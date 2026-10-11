@@ -7,7 +7,7 @@
 Download the [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip), or clone the repository:
 
 ```sh
-git clone --branch dev https://github.com/dugan-dev/UniMemory.git
+git clone https://github.com/dugan-dev/UniMemory.git
 ```
 
 Run the build commands from the directory containing `CMakeLists.txt`. The library version is declared there; use headers, generated configuration and SDK libraries from matching revisions.
