@@ -1,6 +1,6 @@
 {
+  "schema": 3,
   "version": "0.0.1",
-  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
   "build_profile": {
     "backend": "mimalloc",
     "statistics": "OFF",
@@ -30,27 +30,33 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "6c19968a89b8582374faadcc496956517ba6e95711adf58956bd4d47a6f7cb2f"
+        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "92a104924066f67ee551cca0681b9d91eca201043655d965537aa477bb6401bb",
+    "cmake_cache_sha256": "2d1195f7d1b6ebb8fd393339264f137f86d5bb820913c3d81a56b3dcf9e0d145",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "trials": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
   "scenarios_per_trial": 214,
-  "affinity_pinned": false,
+  "affinity_pinned": true,
   "sequential_processes": true,
-  "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:35:43.133260+00:00",
-  "executable_sha256": "540712826d63b1eb54bb7d66565e280c2a330dd8182d07170854b99963786e96",
-  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
-  "source_hash_line_endings": "LF"
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "b2b143dea74b247608da338b3d53cbc6a428013cd9b43333e96c227d56cb9ebc",
+  "measured_at_utc": "2026-10-11T10:01:30.935038+00:00",
+  "executable_sha256": "b113032aeaf557a22399f1c3f3309f46ded7b5e2323af9f6d0d1d82c4c5c32ca",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "a951622e9c93e0d03d7f95f5fce6b158bab5b5ed32dbd094c968d9872c70f16a"
 }

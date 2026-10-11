@@ -1,6 +1,6 @@
 {
+  "schema": 3,
   "version": "0.0.1",
-  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
   "build_profile": {
     "backend": "standard",
     "statistics": "ON",
@@ -30,18 +30,24 @@
     "sdk_binaries": {},
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "0223a4e17d3e57373072ceac44c95cb153573dbfbdbe59f4c320801884250b04",
+    "cmake_cache_sha256": "165dd59b022e252c03795d129c7031c49237cc0bedae1b81d1ea64b5f6e7416d",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "trials": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
   "scenarios_per_trial": 112,
-  "affinity_pinned": false,
+  "affinity_pinned": true,
   "sequential_processes": true,
-  "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:44:25.197644+00:00",
-  "executable_sha256": "a0cbd87c7d70f2f58e3a85b7aaa41c0b55147c1404c956b4df916132307e8b4a",
-  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
-  "source_hash_line_endings": "LF"
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "3331f01152a84ca223ab6ed0712e902067aefd30e0ad31ec93d67fc66147ef5a",
+  "measured_at_utc": "2026-10-11T10:02:34.173273+00:00",
+  "executable_sha256": "e0c4d0438b97ce7b1a77e34259d122161a8a209cf9982dc6fd0e007fe520a9d3",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "18c0dac60aa64a46de0ec5e31e1a255f646fe2b52832418660b6dc7f76c8c42f"
 }

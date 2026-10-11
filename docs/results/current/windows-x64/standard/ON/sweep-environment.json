@@ -1,6 +1,6 @@
 {
+  "schema": 3,
   "version": "0.0.1",
-  "platform": "Windows-2022Server-10.0.20348-SP0",
   "build_profile": {
     "backend": "standard",
     "statistics": "ON",
@@ -30,18 +30,24 @@
     "sdk_binaries": {},
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "1caa985d7b37c2bd74ee802b917279bc9eafa595bfe599b074b9d03955891c37",
+    "cmake_cache_sha256": "595f80a4df91efe64a2601efef63839d4ba0fa0d8db5221c220ce2870604bea9",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "trials": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
   "scenarios_per_trial": 112,
-  "affinity_pinned": false,
+  "affinity_pinned": true,
   "sequential_processes": true,
-  "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:37:36.158496+00:00",
-  "executable_sha256": "1dbe89e7851c47c26cd7184dac125ff438d112094f514b0df57af97200dedaf9",
-  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
-  "source_hash_line_endings": "LF"
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "ff91154771e586e44ce70fca94b8adafd25887290df8a41ec1b6f12f4e5fda27",
+  "measured_at_utc": "2026-10-11T10:14:31.926777+00:00",
+  "executable_sha256": "b834bf3a29aef14f635f5f8dbfb6eb0e42c057751dfe6e56eb9eece8e7994704",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "ceb2c5bc3f290eb3472fba11e8c42bc752774c0e2cb89bfd902bc913598ce737"
 }

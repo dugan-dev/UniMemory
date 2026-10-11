@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
 <title>混合生命周期 · 释放后内存</title>
-<metadata>{&quot;aggregation&quot;: &quot;median of per-trial RSS deltas&quot;, &quot;chart&quot;: &quot;retention&quot;, &quot;comparison_scope&quot;: &quot;Independent profile builds/runners; hardware and SDK binaries may differ. Descriptive comparison, not causal overhead.&quot;, &quot;data_file&quot;: &quot;pressure.csv&quot;, &quot;measurement_protocol&quot;: &quot;native-api-scaling-tails-v2&quot;, &quot;measurement_schema&quot;: 2, &quot;metric&quot;: &quot;rss_minus_baseline_rss&quot;, &quot;path_profiles&quot;: {&quot;basic&quot;: &quot;ON&quot;, &quot;disabled&quot;: &quot;OFF&quot;, &quot;native&quot;: &quot;OFF&quot;}, &quot;platform&quot;: &quot;macos-arm64&quot;, &quot;pressure_protocol&quot;: &quot;mixed-size-retention-v1&quot;, &quot;profiles&quot;: {&quot;jemalloc/OFF&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/sweep-environment.json&quot;}, &quot;jemalloc/ON&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/sweep-environment.json&quot;}, &quot;mimalloc/OFF&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/sweep-environment.json&quot;}, &quot;mimalloc/ON&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/sweep-environment.json&quot;}, &quot;standard/OFF&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/sweep-environment.json&quot;}, &quot;standard/ON&quot;: {&quot;source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/environment.json&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/sweep-environment.json&quot;}}, &quot;runs&quot;: [&quot;https://github.com/dugan-dev/UniMemory/actions/runs/38101997387&quot;], &quot;series&quot;: [{&quot;backend&quot;: &quot;standard&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;standard/OFF&quot;, &quot;values&quot;: [28.609375, 28.609375, 34.4375, 34.4375, 18.4375]}, {&quot;backend&quot;: &quot;standard&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;standard/OFF&quot;, &quot;values&quot;: [28.609375, 28.609375, 36.46875, 36.46875, 20.46875]}, {&quot;backend&quot;: &quot;mimalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;mimalloc/OFF&quot;, &quot;values&quot;: [33.3125, 33.3125, 48.546875, 48.546875, 48.546875]}, {&quot;backend&quot;: &quot;mimalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;mimalloc/OFF&quot;, &quot;values&quot;: [33.3125, 33.3125, 48.546875, 48.546875, 48.546875]}, {&quot;backend&quot;: &quot;jemalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;jemalloc/OFF&quot;, &quot;values&quot;: [31.796875, 31.796875, 33.125, 33.125, 33.125]}, {&quot;backend&quot;: &quot;jemalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;jemalloc/OFF&quot;, &quot;values&quot;: [31.78125, 31.78125, 33.09375, 33.09375, 33.09375]}], &quot;source_revision&quot;: &quot;e758dc2a847603b8fbd0cd3125f69012388aaf82&quot;, &quot;trials&quot;: 3, &quot;unit&quot;: &quot;MiB&quot;, &quot;x_values&quot;: [&quot;dense&quot;, &quot;sparse&quot;, &quot;churn_dense&quot;, &quot;churn_sparse&quot;, &quot;freed&quot;]}</metadata>
+<metadata>{&quot;aggregation&quot;: &quot;arithmetic mean of per-trial RSS deltas&quot;, &quot;calibration_scope&quot;: &quot;Native/API counts match within each profile; SDK/statistics profiles may use different bounded counts. Time and throughput are normalized per operation.&quot;, &quot;chart&quot;: &quot;retention&quot;, &quot;comparison_scope&quot;: &quot;One controlled host per platform; all profiles share the recorded schedule and SDK binaries. Statistics ON includes feature cost.&quot;, &quot;data_file&quot;: &quot;pressure.csv&quot;, &quot;measurement_protocol&quot;: &quot;native-api-sustained-v4&quot;, &quot;measurement_schema&quot;: 3, &quot;metric&quot;: &quot;rss_minus_baseline_rss&quot;, &quot;path_profiles&quot;: {&quot;basic&quot;: &quot;ON&quot;, &quot;disabled&quot;: &quot;OFF&quot;, &quot;native&quot;: &quot;OFF&quot;}, &quot;platform&quot;: &quot;macos-arm64&quot;, &quot;pressure_protocol&quot;: &quot;mixed-size-retention-v1&quot;, &quot;profiles&quot;: {&quot;jemalloc/OFF&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/tail-traces.json.gz&quot;}, &quot;jemalloc/ON&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/ON/tail-traces.json.gz&quot;}, &quot;mimalloc/OFF&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/tail-traces.json.gz&quot;}, &quot;mimalloc/ON&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/ON/tail-traces.json.gz&quot;}, &quot;standard/OFF&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/tail-traces.json.gz&quot;}, &quot;standard/ON&quot;: {&quot;calibration_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/calibration-pilots.json.gz&quot;, &quot;controlled_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/controlled-suite.json.gz&quot;, &quot;full_calibration_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/full-calibration.json.gz&quot;, &quot;source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/environment.json&quot;, &quot;summary_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/summary.json.gz&quot;, &quot;sweep_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/sweep-environment.json&quot;, &quot;trace_source&quot;: &quot;docs/results/current/macos-arm64/standard/ON/tail-traces.json.gz&quot;}}, &quot;runs&quot;: [&quot;https://github.com/dugan-dev/UniMemory/actions/runs/38122935359&quot;], &quot;series&quot;: [{&quot;backend&quot;: &quot;standard&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;standard/OFF&quot;, &quot;values&quot;: [28.6296875, 28.63125, 37.584375, 37.584375, 21.584375]}, {&quot;backend&quot;: &quot;standard&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/standard/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;standard/OFF&quot;, &quot;values&quot;: [28.609375, 28.609375, 41.6828125, 41.6828125, 28.8828125]}, {&quot;backend&quot;: &quot;mimalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;mimalloc/OFF&quot;, &quot;values&quot;: [33.3015625, 33.3234375, 48.559375, 48.559375, 48.559375]}, {&quot;backend&quot;: &quot;mimalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/mimalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;mimalloc/OFF&quot;, &quot;values&quot;: [33.3, 33.3, 48.5359375, 48.5359375, 48.5359375]}, {&quot;backend&quot;: &quot;jemalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;native&quot;, &quot;profile&quot;: &quot;jemalloc/OFF&quot;, &quot;values&quot;: [31.79375, 31.809375, 33.13125, 33.13125, 33.13125]}, {&quot;backend&quot;: &quot;jemalloc&quot;, &quot;data_source&quot;: &quot;docs/results/current/macos-arm64/jemalloc/OFF/pressure.csv.gz&quot;, &quot;path&quot;: &quot;disabled&quot;, &quot;profile&quot;: &quot;jemalloc/OFF&quot;, &quot;values&quot;: [31.778125, 31.778125, 33.1, 33.1, 33.1]}], &quot;source_revision&quot;: &quot;59537619fa4fdd2c0abe0645ba378c766377cbd0&quot;, &quot;trials&quot;: 10, &quot;unit&quot;: &quot;MiB&quot;, &quot;x_values&quot;: [&quot;dense&quot;, &quot;sparse&quot;, &quot;churn_dense&quot;, &quot;churn_sparse&quot;, &quot;freed&quot;]}</metadata>
 <rect width="1100" height="560" fill="#ffffff"/>
 <g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
 <text x="92" y="40" font-size="25" font-weight="650">混合生命周期 · 释放后内存</text>
@@ -14,7 +14,7 @@
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
 <text x="80" y="237.0" text-anchor="end" font-size="13">33</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">43</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">44</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
 <text x="80" y="97.0" text-anchor="end" font-size="13">54</text>
 <text x="168.0" y="465" text-anchor="middle" font-size="14">全量分配</text>
@@ -22,55 +22,55 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">循环分配</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">循环释放</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">全部释放</text>
-<circle cx="168.0" cy="257.83923398776955" r="3.5" fill="#64748b"/>
-<circle cx="320.0" cy="257.83923398776955" r="3.5" fill="#64748b"/>
-<circle cx="472.0" cy="220.32314129385261" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="220.32314129385261" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="323.31638236240747" r="3.5" fill="#64748b"/>
-<polyline points="168.0,257.83923398776955 320.0,257.83923398776955 472.0,220.32314129385261 624.0,220.32314129385261 776.0,323.31638236240747" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="257.7559205869104" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="257.7458652422936" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="200.12874058819745" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="200.12874058819745" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="303.0954694639295" r="3.5" fill="#64748b"/>
+<polyline points="168.0,257.7559205869104 320.0,257.7458652422936 472.0,200.12874058819745 624.0,200.12874058819745 776.0,303.0954694639295" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">Standard / 原生接口</text>
-<circle cx="168.0" cy="257.83923398776955" r="3.5" fill="#64748b"/>
-<circle cx="320.0" cy="257.83923398776955" r="3.5" fill="#64748b"/>
-<circle cx="472.0" cy="207.24782748632123" r="3.5" fill="#64748b"/>
-<circle cx="624.0" cy="207.24782748632123" r="3.5" fill="#64748b"/>
-<circle cx="776.0" cy="310.2410685548761" r="3.5" fill="#64748b"/>
-<polyline points="168.0,257.83923398776955 320.0,257.83923398776955 472.0,207.24782748632123 624.0,207.24782748632123 776.0,310.2410685548761" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<circle cx="168.0" cy="257.8866400669284" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="257.8866400669284" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="173.7535716584079" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="173.7535716584079" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="256.1269547589935" r="3.5" fill="#64748b"/>
+<polyline points="168.0,257.8866400669284 320.0,257.8866400669284 472.0,173.7535716584079 624.0,173.7535716584079 776.0,256.1269547589935" fill="none" stroke="#64748b" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
 <text x="880" y="167" font-size="12">Standard / UniMemory 封装</text>
-<circle cx="168.0" cy="227.56485355648536" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="227.56485355648536" r="3.5" fill="#0284c7"/>
+<circle cx="168.0" cy="227.69044018276594" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="227.5496653581312" r="3.5" fill="#0284c7"/>
 <circle cx="472.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
 <circle cx="624.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
 <circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,227.56485355648536 320.0,227.56485355648536 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<polyline points="168.0,227.69044018276594 320.0,227.5496653581312 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,183h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="201" font-size="12">mimalloc / 原生接口</text>
-<circle cx="168.0" cy="227.56485355648536" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="227.56485355648536" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,227.56485355648536 320.0,227.56485355648536 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<circle cx="168.0" cy="227.70049552738277" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="227.70049552738277" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="129.65083016925155" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="129.65083016925155" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.65083016925155" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,227.70049552738277 320.0,227.70049552738277 472.0,129.65083016925155 624.0,129.65083016925155 776.0,129.65083016925155" fill="none" stroke="#0284c7" stroke-width="2.5"/>
 <path d="M880,217h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="235" font-size="12">mimalloc / UniMemory 封装</text>
-<circle cx="168.0" cy="237.32104924364342" r="3.5" fill="#d97706"/>
-<circle cx="320.0" cy="237.32104924364342" r="3.5" fill="#d97706"/>
-<circle cx="472.0" cy="228.7718056002575" r="3.5" fill="#d97706"/>
-<circle cx="624.0" cy="228.7718056002575" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="228.7718056002575" r="3.5" fill="#d97706"/>
-<polyline points="168.0,237.32104924364342 320.0,237.32104924364342 472.0,228.7718056002575 624.0,228.7718056002575 776.0,228.7718056002575" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="237.3938477379497" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="237.293294291782" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="228.78647274599396" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="228.78647274599396" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="228.78647274599396" r="3.5" fill="#d97706"/>
+<polyline points="168.0,237.3938477379497 320.0,237.293294291782 472.0,228.78647274599396 624.0,228.78647274599396 776.0,228.78647274599396" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,251h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="269" font-size="12">jemalloc / 原生接口</text>
-<circle cx="168.0" cy="237.4216285806244" r="3.5" fill="#d97706"/>
-<circle cx="320.0" cy="237.4216285806244" r="3.5" fill="#d97706"/>
-<circle cx="472.0" cy="228.97296427421952" r="3.5" fill="#d97706"/>
-<circle cx="624.0" cy="228.97296427421952" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="228.97296427421952" r="3.5" fill="#d97706"/>
-<polyline points="168.0,237.4216285806244 320.0,237.4216285806244 472.0,228.97296427421952 624.0,228.97296427421952 776.0,228.97296427421952" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<circle cx="168.0" cy="237.4944011841174" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="237.4944011841174" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="228.98757963832935" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="228.98757963832935" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="228.98757963832935" r="3.5" fill="#d97706"/>
+<polyline points="168.0,237.4944011841174 320.0,237.4944011841174 472.0,228.98757963832935 624.0,228.98757963832935 776.0,228.98757963832935" fill="none" stroke="#d97706" stroke-width="2.5"/>
 <path d="M880,285h28" stroke="#d97706" stroke-width="3"/>
 <text x="880" y="303" font-size="12">jemalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">内存阶段</text>
-<text x="92" y="505" font-size="13" fill="#475569">macOS · e758dc2a8476 · 统计关闭；各后端独立构建与机器，硬件和 SDK 可不同</text>
-<text x="92" y="528" font-size="12" fill="#64748b">历史 3 轮独立进程，展示中位数；环境与范围见原始数据。</text>
+<text x="92" y="505" font-size="13" fill="#475569">macOS · 59537619fa4f · 同一受控主机 · 独立进程测量的算术平均值</text>
+<text x="92" y="528" font-size="12" fill="#64748b">10 轮独立进程，展示算术平均值；最小值、最大值和波动见原始统计摘要。</text>
 </g></svg>
