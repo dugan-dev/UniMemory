@@ -21,6 +21,7 @@ import benchmark_statistics
 from result_io import read_csv, read_json, resolve_path
 
 BUILD_COMPARISON_FIELDS = ("compiler", "msvc_runtime", "flags", "release_flags", "ipo", "compile_options")
+SUSTAINED_PROTOCOL = "native-api-sustained-v4"
 
 
 def validate_timestamp(value):
@@ -152,14 +153,146 @@ def validate_controlled_suite(directory, manifest):
     if any(selected.get(key) != profile.get("build_parameters", {}).get(key) for key in BUILD_COMPARISON_FIELDS):
         raise ValueError("Controlled build flags or CRT disagree with executable provenance")
     calibration = manifest.get("calibration", {})
-    if (any(calibration.get(table) != suite.get("calibration", {}).get(table) for table in ("latency", "scaling")) or
-            calibration.get("heap") != selected.get("heap_operation_counts")):
+    if manifest["measurement_protocol"] == SUSTAINED_PROTOCOL:
+        if calibration != selected.get("delivery_calibration"):
+            raise ValueError("Executable operation counts differ from its selected profile calibration")
+        validate_calibration_pilots(directory, manifest, selected)
+    elif (any(calibration.get(table) != suite.get("calibration", {}).get(table) for table in ("latency", "scaling")) or
+          calibration.get("heap") != selected.get("heap_operation_counts")):
         raise ValueError("Executable operation counts differ from controlled calibration")
     affinity = suite.get("affinity", {})
     if (not isinstance(affinity.get("pinned"), bool) or not affinity.get("method") or
             not isinstance(affinity.get("cpus"), list) or (affinity["pinned"] and not affinity["cpus"])):
         raise ValueError("Missing controlled CPU affinity provenance")
     return suite
+
+
+def canonical_json_sha(value):
+    payload = json.dumps(sanitize_publication(value), sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def validate_calibration_pilots(directory, manifest, selected):
+    evidence = read_json(directory / "calibration-pilots.json")
+    if canonical_json_sha(evidence) != selected.get("calibration_sha256"):
+        raise ValueError("Delivery calibration pilot hash differs from controlled provenance")
+    constants = {"schema": 1, "protocol": SUSTAINED_PROTOCOL, "sustained_target_seconds": .125,
+                 "measurement_target_seconds": .35, "pilot_repetitions": 3, "pilot_timeout_seconds": 30,
+                 "predicted_case_budget_seconds": 2, "normal_scaling_round_limit": 131072,
+                 "oversubscribed_scaling_round_limit": 32}
+    if any(evidence.get(key) != value for key, value in constants.items()) or not evidence.get("strategy"):
+        raise ValueError("Unsupported sustained calibration method or bounds")
+    effective_cpus = manifest["controlled_suite"].get("effective_cpus", manifest["logical_cpus"])
+    if evidence.get("effective_cpus") != effective_cpus:
+        raise ValueError("Calibration CPU capacity differs from controlled host")
+    calibration = manifest["calibration"]
+    expected_cases = {"latency": {str(size) for size in (16, 64, 256, 4096, 65536)},
+                      "scaling": {f"{workload}:{size}:{threads}" for workload, size, threads in itertools.product(("scaling", "handoff"), (64, 4096, 65536), THREADS)},
+                      "heap": set() if manifest["build_profile"]["backend"] == "standard" else {"owns", "collect", "reset"}}
+    if set(calibration) != set(expected_cases) or any(set(calibration[kind]) != cases for kind, cases in expected_cases.items()):
+        raise ValueError("Missing or unexpected profile calibration workload")
+    expected = {(kind, case): count for kind, cases in calibration.items() for case, count in cases.items()}
+    decisions = evidence.get("decisions", [])
+    keys = [(item.get("kind"), item.get("case")) for item in decisions]
+    if len(keys) != len(expected) or set(keys) != set(expected):
+        raise ValueError("Missing or duplicate delivery calibration decisions")
+    for decision in decisions:
+        count, limit = decision.get("count"), decision.get("count_limit")
+        if (type(count) is not int or type(limit) is not int or not 0 < count <= limit or
+                count != expected[decision["kind"], decision["case"]] or
+                any(type(decision.get(key)) is not bool for key in ("oversubscribed", "sustained_goal_met", "capped", "short_interval_expected"))):
+            raise ValueError("Invalid selected delivery calibration count or quality flags")
+        if decision["kind"] == "scaling":
+            if decision["oversubscribed"] != (int(decision["case"].split(":")[-1]) > effective_cpus):
+                raise ValueError("Scaling oversubscription disclosure differs from controlled CPU capacity")
+            cap = evidence["oversubscribed_scaling_round_limit" if decision["oversubscribed"] else "normal_scaling_round_limit"]
+            if limit != cap:
+                raise ValueError("Scaling calibration round limit differs from recorded bound")
+        estimates = decision.get("estimated_seconds", {})
+        if not estimates or any(not math.isfinite(float(value)) or float(value) <= 0 for value in estimates.values()):
+            raise ValueError("Invalid sustained calibration duration estimate")
+    records, failures = evidence.get("records", []), evidence.get("failures", [])
+    if not isinstance(records, list) or not isinstance(failures, list):
+        raise ValueError("Invalid retained calibration records or failures")
+    seen, covered, groups = set(), set(), defaultdict(list)
+    for record in records:
+        kind, case, path, count, repeat = (record.get(key) for key in ("kind", "case", "path", "count", "repeat"))
+        key = kind, case, path, count, repeat
+        if key in seen or (kind, case) not in expected or type(count) is not int or count <= 0 or type(repeat) is not int:
+            raise ValueError("Missing, duplicate or unexpected sustained calibration pilot")
+        seen.add(key)
+        covered.add((kind, case))
+        groups[kind, case, path, count].append(record)
+        row = record["row"]
+        seconds, operations = float(row["seconds"]), int(row["operations"])
+        if not math.isfinite(seconds) or seconds <= 0 or operations <= 0 or row["backend"] != manifest["build_profile"]["backend"]:
+            raise ValueError("Invalid sustained calibration observation")
+        if kind == "scaling":
+            workload, size, threads = case.split(":")
+            if (int(row["rounds"]) != count or operations != int(threads) * 512 * count or
+                    row["path"] != path or row["bytes"] != size or row["threads"] != threads or
+                    row["workload"] != ("same_thread" if workload == "scaling" else "handoff") or
+                    not math.isclose(operations / seconds, float(row["operations_per_second"]), rel_tol=1e-5, abs_tol=1e-6)):
+                raise ValueError("Scaling pilot count, workload or throughput disagrees with raw observation")
+        elif (operations != count or
+              (kind == "latency" and (row["path"] != path or row["bytes"] != case)) or
+              (kind == "heap" and row["operation"] != case) or
+              not math.isclose(float(row["mean_ns"]) * operations / 1e9, seconds, rel_tol=1e-5, abs_tol=1e-12)):
+            raise ValueError("Latency/heap pilot count or elapsed interval disagrees with raw observation")
+    if covered != set(expected):
+        raise ValueError("Incomplete sustained calibration pilot coverage")
+    for (kind, case, path, count), records in groups.items():
+        if {item["repeat"] for item in records} != {1, 2, 3} or len(records) != 3:
+            raise ValueError("Expected three retained repetitions of each sustained pilot")
+    for kind, case in expected:
+        paths = {key[2] for key in groups if key[:2] == (kind, case)}
+        wanted = {"disabled"} if kind == "heap" else {"native", manifest["build_profile"]["api_path"]}
+        if paths != wanted:
+            raise ValueError("Missing paired Native/API calibration path")
+        decision = next(item for item in decisions if (item["kind"], item["case"]) == (kind, case))
+        oversubscribed = kind == "scaling" and int(case.split(":")[-1]) > effective_cpus
+        limit = (32 if oversubscribed else 131072) if kind == "scaling" else 100000000
+        if decision["count_limit"] != limit or decision["oversubscribed"] != oversubscribed:
+            raise ValueError("Calibration safety bound differs from controlled CPU capacity")
+        counts = sorted({key[3] for key in groups if key[:2] == (kind, case)})
+        initial = {"latency": 20000, "scaling": 8, "heap": 2000}[kind]
+        if counts[0] != min(initial, limit):
+            raise ValueError("Sustained pilot progression has an invalid initial count")
+        for index, count in enumerate(counts):
+            if index and count != min(counts[index - 1] * 2, limit):
+                raise ValueError("Sustained pilot counts must follow the retained geometric progression")
+            if any((kind, case, path, count) not in groups for path in wanted):
+                raise ValueError("Native/API sustained pilot counts differ within the profile")
+            durations = {path: [float(item["row"]["seconds"]) for item in groups[kind, case, path, count]] for path in wanted}
+            fastest = min(value for values in durations.values() for value in values)
+            slowest = max(value for values in durations.values() for value in values)
+            stopped = fastest >= .125 or count == limit or slowest >= 2
+            if stopped != (index == len(counts) - 1):
+                raise ValueError("Sustained pilot stopping decision disagrees with retained observations")
+        requested = max(count, math.ceil(count * .35 / fastest))
+        budget = max(1, math.floor(count * 2 / slowest))
+        chosen = min(requested, limit, budget)
+        estimates = {path: max(values) * chosen / count for path, values in durations.items()}
+        if (decision["count"] != chosen or decision["sustained_goal_met"] != (fastest >= .125) or
+                decision["capped"] != (chosen < requested) or
+                decision["short_interval_expected"] != (min(estimates.values()) < .25) or
+                set(decision["estimated_seconds"]) != set(estimates) or
+                any(not math.isclose(float(decision["estimated_seconds"][path]), seconds, rel_tol=1e-10, abs_tol=1e-12) for path, seconds in estimates.items())):
+            raise ValueError("Selected calibration count or quality flags disagree with all retained pilots")
+        audit_fields = {"requested_count": requested, "budget_count": budget,
+                        "pilot_seconds_min": fastest, "pilot_seconds_max": slowest}
+        if any(key in decision and not math.isclose(float(decision[key]), value, rel_tol=1e-10, abs_tol=1e-12)
+               for key, value in audit_fields.items()):
+            raise ValueError("Calibration request, budget or duration extrema disagree with retained pilots")
+    for failure in failures:
+        if (failure.get("kind"), failure.get("case")) not in expected or not failure.get("reason"):
+            raise ValueError("Invalid retained calibration failure provenance")
+    return evidence
+
+
+def validate_short_interval(row):
+    if row.get("short_interval") != ("true" if float(row["seconds"]) < .25 else "false"):
+        raise ValueError("Short measurement interval disclosure disagrees with elapsed time")
 
 
 @lru_cache(maxsize=8192)
@@ -188,6 +321,8 @@ def validate_interval_rows(rows, name, manifest):
                 key = row["bytes"] if name == "latency" else row["operation"]
                 if operations != manifest["calibration"][name][key]:
                     raise ValueError(f"Calibrated {name} operation count differs from controlled suite")
+            if manifest.get("measurement_protocol") == SUSTAINED_PROTOCOL:
+                validate_short_interval(row)
             expected = (min(samples), statistics.mean(samples), statistics.median(samples), max(samples))
             if any(not math.isclose(actual, wanted, rel_tol=1e-5, abs_tol=1e-6) for actual, wanted in zip(values, expected)):
                 raise ValueError(f"Recorded {name} statistics disagree with raw interval samples")
@@ -223,6 +358,65 @@ def validate_sweep_provenance(directory, manifest, sweep_manifest, rows):
         raise ValueError("Full sweep calibration scenario coverage differs")
     if any(int(row["operations"]) != counts[":".join(row[field] for field in ("workload", "bytes", "alignment", "threads", "heap"))] for row in rows):
         raise ValueError("Full sweep used different operation counts than recorded calibration")
+    if manifest["measurement_protocol"] == SUSTAINED_PROTOCOL:
+        validate_full_calibration(directory, manifest, selected, sweep_manifest, counts)
+
+
+def validate_full_calibration(directory, manifest, selected, sweep_manifest, counts):
+    evidence = read_json(directory / "full-calibration.json")
+    digest = canonical_json_sha(evidence)
+    if digest != selected.get("full_calibration_sha256") or digest != sweep_manifest.get("full_calibration_sha256"):
+        raise ValueError("Full calibration pilot hash differs from controlled provenance")
+    effective_cpus = manifest["controlled_suite"].get("effective_cpus", manifest["logical_cpus"])
+    if (evidence.get("schema") != 1 or evidence.get("protocol") != SUSTAINED_PROTOCOL or evidence.get("counts") != counts or
+            evidence.get("effective_cpus") != effective_cpus):
+        raise ValueError("Full calibration method or selected counts disagree")
+    records = evidence.get("records", [])
+    fields = ("backend", "workload", "bytes", "alignment", "threads", "statistics", "heap")
+    keys = [tuple(row[field] for field in fields) for row in records]
+    expected = sweep_scenarios(manifest["build_profile"])
+    if len(keys) != len(expected) or set(keys) != expected:
+        raise ValueError("Missing or duplicate full calibration scenario")
+    grouped = defaultdict(list)
+    for record in records:
+        key = ":".join(record[field] for field in ("workload", "bytes", "alignment", "threads", "heap"))
+        count, limit = int(record["operations"]), int(record["count_limit"])
+        history_counts = [int(value) for value in record["pilot_operations"].split(";")]
+        history_seconds = [float(value) for value in record["pilot_seconds"].split(";")]
+        if (not 0 < count <= limit or not history_counts or len(history_counts) != len(history_seconds) or
+                len(history_counts) % 3 or any(value <= 0 for value in history_counts) or
+                any(not math.isfinite(value) or value <= 0 for value in history_seconds)):
+            raise ValueError("Invalid retained full calibration repetitions or bound")
+        if any(record.get(field) not in ("true", "false") for field in ("sustained_goal_met", "capped", "oversubscribed")):
+            raise ValueError("Missing full calibration quality disclosure")
+        estimated = float(record["estimated_seconds"])
+        if not math.isfinite(estimated) or estimated <= 0:
+            raise ValueError("Invalid full calibration duration estimate")
+        oversubscribed = int(record["threads"]) > effective_cpus
+        expected_limit = 8192 * 32 if record["workload"] == "cross_thread" and oversubscribed else 100000000
+        if limit != expected_limit or record["oversubscribed"] != str(oversubscribed).lower():
+            raise ValueError("Full calibration safety bound differs from controlled CPU capacity")
+        previous = None
+        for offset in range(0, len(history_counts), 3):
+            pilot_count = history_counts[offset]
+            if len(set(history_counts[offset:offset + 3])) != 1 or pilot_count != (256 if previous is None else min(previous * 2, limit)):
+                raise ValueError("Full sustained pilot counts must retain all three repetitions and geometric progression")
+            seconds = history_seconds[offset:offset + 3]
+            fastest, slowest = min(seconds), max(seconds)
+            stopped = fastest >= .125 or pilot_count == limit or slowest >= 2
+            if stopped != (offset == len(history_counts) - 3):
+                raise ValueError("Full sustained pilot stopping decision disagrees with retained observations")
+            previous = pilot_count
+        desired = max(pilot_count, int(pilot_count * .35 / fastest) + 1)
+        budget = max(64, int(pilot_count * 2 / slowest) // 64 * 64)
+        chosen = min((desired + 63) // 64 * 64, limit, budget)
+        if (count != chosen or record["sustained_goal_met"] != str(fastest >= .125).lower() or
+                record["capped"] != str(chosen < desired).lower() or
+                not math.isclose(estimated, slowest * chosen / pilot_count, rel_tol=1e-10, abs_tol=1e-12)):
+            raise ValueError("Full calibration chosen count or quality flags disagree with all retained pilots")
+        grouped[key].append(count)
+    if any(counts[key] != min(values) for key, values in grouped.items()):
+        raise ValueError("Full calibration shared scenario counts must preserve the smallest bounded choice")
 
 
 def validate_tail_traces(directory, manifest, strict_artifact=False):
@@ -367,10 +561,12 @@ def validate(directory, strict_artifact=False):
             if name == "scaling" and manifest["schema"] == 3:
                 for row in rows:
                     workload = "scaling" if row["workload"] == "same_thread" else "handoff"
-                    rounds = manifest["controlled_suite"]["calibration"]["scaling"][f"{workload}:{row['bytes']}:{row['threads']}"]
+                    rounds = manifest["calibration"]["scaling"][f"{workload}:{row['bytes']}:{row['threads']}"]
                     if (int(row["rounds"]) != rounds or rounds <= 0 or
                             not math.isclose(float(row["operations"]) / float(row["seconds"]), float(row["operations_per_second"]), rel_tol=1e-5, abs_tol=1e-6)):
                         raise ValueError("Scaling count, duration or throughput differs from controlled calibration")
+                    if manifest["measurement_protocol"] == SUSTAINED_PROTOCOL:
+                        validate_short_interval(row)
             if name == "tails" and any(not (float(row["allocate_p50_ns"]) <= float(row["allocate_p95_ns"]) <=
                                             float(row["allocate_p99_ns"]) <= float(row["allocate_p999_ns"]) <=
                                             float(row["allocate_max_ns"])) for row in rows):
@@ -581,6 +777,8 @@ def load_combined(directory, expected_revision=None):
             **({"summary_source": f"docs/results/current/{directory.name}/{backend}/{mode}/{resolve_path(profile_directory / 'summary.json').name}",
                 "controlled_source": f"docs/results/current/{directory.name}/{backend}/{mode}/{resolve_path(profile_directory / 'controlled-suite.json').name}",
                 "trace_source": f"docs/results/current/{directory.name}/{backend}/{mode}/{resolve_path(profile_directory / 'tail-traces.json').name}"} if manifest["schema"] == 3 else {}),
+            **({"calibration_source": f"docs/results/current/{directory.name}/{backend}/{mode}/{resolve_path(profile_directory / 'calibration-pilots.json').name}",
+                "full_calibration_source": f"docs/results/current/{directory.name}/{backend}/{mode}/{resolve_path(profile_directory / 'full-calibration.json').name}"} if manifest.get("measurement_protocol") == SUSTAINED_PROTOCOL else {}),
         }
         for name in COMBINED_TABLES:
             if mode == "OFF":
@@ -595,6 +793,10 @@ def load_combined(directory, expected_revision=None):
                        "platform": directory.name, "profiles": profiles,
                        "comparison_scope": ("One controlled host per platform; all profiles share the recorded schedule and SDK binaries. Statistics ON includes feature cost."
                                             if contract[4] == 3 else "Independent profile builds/runners; hardware and SDK binaries may differ. Descriptive comparison, not causal overhead."),
+                       "calibration_scope": ("Native/API counts match within each profile; SDK/statistics profiles may use different bounded counts. Time and throughput are normalized per operation."
+                                             if contract[1] == SUSTAINED_PROTOCOL else
+                                             "Recorded shared Delivery counts; full sweep and heap use profile-specific calibration." if contract[4] == 3 else
+                                             "Legacy fixed-count trials on independent profiles; hardware and SDK binaries may differ."),
                        "path_profiles": {"native": "OFF", "disabled": "OFF", "basic": "ON"}},
     }
 

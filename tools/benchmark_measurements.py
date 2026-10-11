@@ -15,12 +15,13 @@ import subprocess
 from datetime import datetime, timezone
 from benchmark_profile import read_profile, environment_for
 from benchmark_host import cpu_model
+from benchmark_calibration import (PROTOCOL, TARGET_SECONDS, PILOT_TIMEOUT_SECONDS,
+                                   NORMAL_ROUND_LIMIT, OVERSUBSCRIBED_ROUND_LIMIT,
+                                   OPERATION_LIMIT, calibrate_pair, new_evidence, failure_record)
 
 TRIALS = 10
 SIZES = (16, 64, 256, 4096, 65536)
 THREADS = (1, 2, 4, 8, 16)
-TARGET_SECONDS = .35
-PROTOCOL = 'native-api-calibrated-v3'
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -30,11 +31,11 @@ def percentile(values, fraction):
     return sorted(values)[math.ceil(len(values) * fraction) - 1]
 
 
-def measure(executable, backend, workload, path, *parameters):
+def measure(executable, backend, workload, path, *parameters, timeout=600):
     profile = read_profile(executable)
     result = subprocess.run([str(executable), backend, workload, path, *map(str, parameters)],
                             env=environment_for(profile), capture_output=True, text=True,
-                            check=True, timeout=600)
+                            check=True, timeout=timeout)
     rows = list(csv.DictReader(io.StringIO(result.stdout)))
     if not rows:
         raise RuntimeError('Benchmark produced no records')
@@ -58,27 +59,66 @@ def write_rows(path, rows, append=False, fields=None):
         writer.writerows(rows)
 
 
-def calibrate_delivery(executable):
+def calibration_path(output):
+    return Path(output) / 'calibration-pilots.json'
+
+
+def scaling_canary(executable, output, effective_cpus):
+    output = Path(output)
+    output.mkdir(parents=True, exist_ok=True)
+    profile = read_profile(executable)
+    evidence = new_evidence(effective_cpus)
+    evidence['canary_records'] = []
+    path = calibration_path(output)
+    for api_path in ('native', profile['api_path']):
+        identity = dict(kind='canary', case='scaling:64:8', path=api_path, count=32, repeat=1)
+        try:
+            row = measure(executable, profile['backend'], 'scaling', api_path, 64, 8, 32,
+                          timeout=PILOT_TIMEOUT_SECONDS)[0]
+            evidence['canary_records'].append(dict(identity, row=row))
+        except Exception as error:
+            evidence['failures'].append(failure_record(error, **identity))
+            path.write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+            raise
+    path.write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+
+
+def calibrate_delivery(executable, output=None, effective_cpus=None):
     profile = read_profile(executable)
     backend, paths = profile['backend'], ('native', profile['api_path'])
     result = {'latency': {}, 'scaling': {}, 'heap': {}}
+    effective_cpus = effective_cpus or os.cpu_count() or 1
+    path = calibration_path(output) if output else None
+    evidence = json.loads(path.read_text()) if path and path.exists() else new_evidence(effective_cpus)
+    if path:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    def save():
+        if path:
+            path.write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
     for size in SIZES:
-        for path in paths:
-            row = measure(executable, backend, 'latency', path, size, 20000)[0]
-            count = max(20000, math.ceil(TARGET_SECONDS * 1e9 / float(row['mean_ns'])))
-            result['latency'][str(size)] = max(result['latency'].get(str(size), 0), count)
+        decision = calibrate_pair('latency', str(size), paths,
+            lambda api_path, count, repeat: measure(executable, backend, 'latency', api_path, size, count,
+                                                   timeout=PILOT_TIMEOUT_SECONDS)[0],
+            initial=20000, count_limit=OPERATION_LIMIT, evidence=evidence, save=save)
+        result['latency'][str(size)] = decision['count']
     for workload in ('scaling', 'handoff'):
         for size in (64, 4096, 65536):
             for threads in THREADS:
                 key = f'{workload}:{size}:{threads}'
-                for path in paths:
-                    row = measure(executable, backend, workload, path, size, threads, 8)[0]
-                    rounds = max(8, math.ceil(8 * TARGET_SECONDS / float(row['seconds'])))
-                    result['scaling'][key] = max(result['scaling'].get(key, 0), rounds)
+                oversubscribed = threads > effective_cpus
+                limit = OVERSUBSCRIBED_ROUND_LIMIT if oversubscribed else NORMAL_ROUND_LIMIT
+                decision = calibrate_pair('scaling', key, paths,
+                    lambda api_path, count, repeat: measure(executable, backend, workload, api_path,
+                                                           size, threads, count, timeout=PILOT_TIMEOUT_SECONDS)[0],
+                    initial=8, count_limit=limit, oversubscribed=oversubscribed, evidence=evidence, save=save)
+                result['scaling'][key] = decision['count']
     if backend != 'standard':
         for operation in ('owns', 'collect', 'reset'):
-            row = measure(executable, backend, 'heap', 'disabled', operation, 2000)[0]
-            result['heap'][operation] = max(2000, math.ceil(TARGET_SECONDS * 1e9 / float(row['mean_ns'])))
+            decision = calibrate_pair('heap', operation, ('disabled',),
+                lambda api_path, count, repeat: measure(executable, backend, 'heap', api_path,
+                                                       operation, count, timeout=PILOT_TIMEOUT_SECONDS)[0],
+                initial=2000, count_limit=OPERATION_LIMIT, evidence=evidence, save=save)
+            result['heap'][operation] = decision['count']
     return result
 
 
@@ -114,7 +154,7 @@ def record_environment(executable, output, total_trials, calibration, suite=None
                     paths=['native', profile['api_path']], tail_samples=8192,
                     tail_method='8192 individual allocate/free intervals; clock overhead retained separately',
                     trace_storage=dict(location='workflow artifacts', retention_days=90),
-                    scaling_method='Calibrated common rounds; synchronized batches of512;512MiB maximum live payload; thread creation,warmup,join excluded',
+                    scaling_method='Per-profile paired rounds; sustained3-pilot calibration; disclosed safety caps; synchronized512-block batches;512MiB maximum live payload; thread creation,warmup,join excluded',
                     performance_gate='Report only; all trials retained, short intervals disclosed',
                     statistic='Arithmetic mean of independent process intervals; no sample removal')
     if suite:
@@ -134,6 +174,22 @@ def measure_environment(executable, profile):
     return details
 
 
+def measured_rows(executable, output, trial, backend, workload, api_path, *parameters):
+    try:
+        rows = measure(executable, backend, workload, api_path, *parameters, timeout=30 if workload in ('scaling', 'handoff') else 600)
+    except Exception as error:
+        path = Path(output) / 'measurement-failures.json'
+        failures = json.loads(path.read_text()) if path.exists() else []
+        failures.append(failure_record(error, trial=trial, backend=backend, workload=workload,
+                                       path=api_path, parameters=list(parameters)))
+        path.write_text(json.dumps(failures, indent=2) + '\n', encoding='utf-8')
+        raise
+    for row in rows:
+        if 'seconds' in row:
+            row['short_interval'] = str(float(row['seconds']) < .25).lower()
+    return rows
+
+
 def finalize_traces(output):
     output = Path(output)
     manifest_path = output / 'environment.json'
@@ -151,51 +207,50 @@ def finalize_traces(output):
 def run_base(executable, output, trials=TRIALS, offset=0, append=False, calibration=None, total_trials=None, suite=None):
     executable, output = Path(executable).resolve(), Path(output)
     output.mkdir(parents=True, exist_ok=True)
-    calibration = calibration or calibrate_delivery(executable)
+    calibration = calibration or calibrate_delivery(executable, output)
     profile = read_profile(executable)
     if not append or not (output / 'environment.json').exists():
         record_environment(executable, output, total_trials or trials, calibration, suite)
     backend, paths = profile['backend'], ('native', profile['api_path'])
     for trial in range(offset + 1, offset + trials + 1):
+        written = set()
+        def persist(table, rows, fields=None):
+            write_rows(output / f'{table}.csv', [dict(trial=trial, **row) for row in rows],
+                       append or trial > offset + 1 or table in written, fields)
+            written.add(table)
         rng = random.Random(0x20261011 + trial)
         sizes = list(SIZES)
         rng.shuffle(sizes)
         ordered_paths = paths if trial % 2 else tuple(reversed(paths))
         cases = [(path, size) for size in sizes for path in ordered_paths]
-        latency = []
         for path, size in cases:
-            latency.extend(dict(trial=trial, **row) for row in measure(executable, backend, 'latency', path,
-                                                                      size, calibration['latency'][str(size)]))
-        write_rows(output / 'latency.csv', latency, append or trial > offset + 1)
-        footprints = []
+            persist('latency', measured_rows(executable, output, trial, backend, 'latency', path,
+                                            size, calibration['latency'][str(size)]))
         modes = [profile['api_path']] if backend == 'standard' else (
             ['disabled', 'basic'] if profile['statistics'] == 'ON' else ['disabled'])
         cases = [(mode, domain) for mode in modes for domain in (
             ['plain'] if backend == 'standard' else ['plain', 'heap'] if mode == profile['api_path'] else ['heap'])]
         rng.shuffle(cases)
         for mode, domain in cases:
-            footprints.extend(dict(trial=trial, **row) for row in measure(executable, backend, 'footprint', mode, domain))
-        write_rows(output / 'footprint.csv', footprints, append or trial > offset + 1)
-        heaps = []
+            persist('footprint', measured_rows(executable, output, trial, backend, 'footprint', mode, domain))
         operations = ['owns', 'collect', 'reset']
         rng.shuffle(operations)
         if backend != 'standard':
             for operation in operations:
-                heaps.extend(dict(trial=trial, **row) for row in measure(executable, backend, 'heap', 'disabled',
-                                                                       operation, calibration['heap'][operation]))
-        write_rows(output / 'heap.csv', heaps, append or trial > offset + 1,
-                   ['trial', 'backend', 'operation', 'operations', 'median_ns', 'min_ns', 'mean_ns', 'max_ns', 'samples_ns', 'seconds'])
-        pressure = []
+                persist('heap', measured_rows(executable, output, trial, backend, 'heap', 'disabled',
+                                             operation, calibration['heap'][operation]))
+        else:
+            persist('heap', [], ['trial', 'backend', 'operation', 'operations', 'median_ns', 'min_ns', 'mean_ns',
+                                 'max_ns', 'samples_ns', 'seconds', 'short_interval'])
         ordered_paths = list(paths)
         rng.shuffle(ordered_paths)
         for path in ordered_paths:
-            pressure.extend(dict(trial=trial, **row) for row in measure(executable, backend, 'pressure', path))
-        write_rows(output / 'pressure.csv', pressure, append or trial > offset + 1)
+            persist('pressure', measured_rows(executable, output, trial, backend, 'pressure', path))
 
 
 def run_scaling_tails(executable, output, trials=TRIALS, offset=0, append=False, calibration=None):
     executable, output = Path(executable).resolve(), Path(output)
-    calibration = calibration or calibrate_delivery(executable)
+    calibration = calibration or calibrate_delivery(executable, output)
     profile = read_profile(executable)
     backend, paths = profile['backend'], ('native', profile['api_path'])
     raw = output / 'raw'
@@ -207,20 +262,19 @@ def run_scaling_tails(executable, output, trials=TRIALS, offset=0, append=False,
         rng.shuffle(groups)
         ordered_paths = paths if trial % 2 else tuple(reversed(paths))
         cases = [(path, workload, size, threads) for workload, size, threads in groups for path in ordered_paths]
-        scaling = []
-        for path, workload, size, threads in cases:
+        for case_index, (path, workload, size, threads) in enumerate(cases):
             rounds = calibration['scaling'][f'{workload}:{size}:{threads}']
-            rows = measure(executable, backend, workload, path, size, threads, rounds)
+            rows = measured_rows(executable, output, trial, backend, workload, path, size, threads, rounds)
+            write_rows(output / 'scaling.csv', [dict(trial=trial, **row) for row in rows],
+                       append or trial > offset + 1 or case_index > 0)
             if len(rows) != 1 or int(rows[0]['operations']) != threads * 512 * rounds:
                 raise ValueError('Scaling changed its calibrated operation count')
-            scaling.append(dict(trial=trial, **rows[0]))
-        write_rows(output / 'scaling.csv', scaling, append or trial > offset + 1)
         sizes = list(SIZES)
         rng.shuffle(sizes)
         cases = [(path, size) for size in sizes for path in ordered_paths]
         tails = []
         for path, size in cases:
-            rows = measure(executable, backend, 'tails', path, size)
+            rows = measured_rows(executable, output, trial, backend, 'tails', path, size)
             if len(rows) != 8192:
                 raise ValueError('Incomplete individual-operation samples')
             buffer = io.StringIO()

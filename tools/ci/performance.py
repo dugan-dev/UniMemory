@@ -18,7 +18,7 @@ def main():
     args = parser.parse_args()
     if args.trials < 10:
         parser.error('--trials must provide at least ten independent process samples')
-    calibration = json.loads(args.calibration.read_text()) if args.calibration else calibrate_delivery(args.executable)
+    calibration = json.loads(args.calibration.read_text()) if args.calibration else calibrate_delivery(args.executable, args.output)
     run_base(args.executable, args.output, args.trials, calibration=calibration)
     run_scaling_tails(args.executable, args.output, args.trials, calibration=calibration)
     finalize_traces(args.output)

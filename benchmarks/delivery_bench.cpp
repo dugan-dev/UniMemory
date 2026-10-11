@@ -227,7 +227,7 @@ template<class A> void scaling(A& allocator, const std::string& backend,
                               unsigned threads, bool handoff, std::size_t rounds) {
     if (threads == 0 || threads > 16) { throw std::invalid_argument("threads must be 1..16"); }
     if (rounds == 0) { throw std::invalid_argument("nonzero scaling rounds required"); }
-    // The driver calibrates one common round count for every Native/API SDK.
+    // The driver calibrates one equal Native/API round count per build profile.
     // Maximum configured live payload: 16 * 512 * 65536 = 512 MiB.
     constexpr unsigned batch = 512;
     // Initialize every Native/API path on the main thread before worker startup.

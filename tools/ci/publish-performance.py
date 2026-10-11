@@ -81,7 +81,9 @@ def read_pr_files(repository, number):
 def compress_results(directory):
     """Keep every raw observation in deterministic, lossless gzip files."""
     for path in sorted(directory.rglob("*")):
-        if path.is_file() and (path.suffix == ".csv" or path.name in ("summary.json", "controlled-suite.json", "tail-traces.json")):
+        if path.is_file() and (path.suffix == ".csv" or path.name in (
+                "summary.json", "controlled-suite.json", "tail-traces.json",
+                "calibration-pilots.json", "full-calibration.json", "measurement-failures.json")):
             original = path.read_bytes()
             compressed = gzip.compress(original, compresslevel=9, mtime=0)
             if gzip.decompress(compressed) != original:

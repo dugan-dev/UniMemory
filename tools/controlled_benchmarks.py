@@ -9,7 +9,8 @@ import subprocess
 import sys
 from benchmark_host import control_host
 from benchmark_measurements import (calibrate_delivery, run_base, run_scaling_tails,
-                                    finalize_traces, PROTOCOL, TRIALS)
+                                    finalize_traces, scaling_canary, PROTOCOL, TRIALS)
+from benchmark_calibration import semantic_hash
 from benchmark_profile import read_profile, environment_for
 from benchmark_statistics import write_summary
 
@@ -93,22 +94,28 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     pairs, evidence = executables(args.build_root.resolve())
     host = control_host()
+    canary_output = args.output / 'profiles' / 'standard-ON'
+    print('Early bounded Native/API canary: standard/ON64B8threads32rounds', flush=True)
+    scaling_canary(pairs['standard', 'ON'][0], canary_output, host['effective_cpus'])
     delivery_calibrations, full_files = {}, {}
     for key, (delivery, sweep) in pairs.items():
-        print(f'Calibrating common operation counts: {key}', flush=True)
-        delivery_calibrations[key] = calibrate_delivery(delivery)
-        counts = sweep_driver.calibrate_sweep(sweep)
         directory = args.output / 'profiles' / f'{key[0]}-{key[1]}'
         directory.mkdir(parents=True, exist_ok=True)
+        print(f'Calibrating per-profile paired operation counts: {key}', flush=True)
+        delivery_calibrations[key] = calibrate_delivery(delivery, directory, host['effective_cpus'])
+        counts = sweep_driver.calibrate_sweep(sweep, directory, host['effective_cpus'])
         full_file = directory / 'sweep-operations.txt'
         full_file.write_text(''.join(f'{case},{count}\n' for case, count in sorted(counts.items())), encoding='utf-8')
         full_files[key] = full_file
         next(item for item in evidence if (item['backend'], item['statistics']) == key)['full_operations_sha256'] = hashlib.sha256(full_file.read_bytes()).hexdigest()
         next(item for item in evidence if (item['backend'], item['statistics']) == key)['heap_operation_counts'] = delivery_calibrations[key]['heap']
-    calibration = {table: merge_calibration(record[table] for record in delivery_calibrations.values())
-                   for table in ('latency', 'scaling')}
+        selected = next(item for item in evidence if (item['backend'], item['statistics']) == key)
+        selected['delivery_calibration'] = delivery_calibrations[key]
+        selected['calibration_sha256'] = semantic_hash(json.loads((directory / 'calibration-pilots.json').read_text()))
+        selected['full_calibration_sha256'] = semantic_hash(json.loads((directory / 'full-calibration.json').read_text()))
     suite = dict(schema=3, protocol=PROTOCOL, trials=args.trials, seed=args.seed, profiles=evidence,
-                 schedule=schedule(pairs, args.trials, args.seed), calibration=calibration,
+                 schedule=schedule(pairs, args.trials, args.seed),
+                 calibration_strategy='Sustained per-profile paired Native/API counts; disclosed caps and short intervals; cross-SDK rates normalized per operation',
                  full_calibration='Per SDK/statistics profile; calibrated interval normalized per complete operation',
                  calibrated_on_all_profiles=True, target_interval_seconds=.25,
                  short_intervals='Retained and disclosed; calibration cannot remove hosted runner noise',
@@ -118,10 +125,10 @@ def main():
         trial, backend, mode = item['trial'], item['backend'], item['statistics']
         delivery, sweep = pairs[backend, mode]
         output = args.output / 'profiles' / f'{backend}-{mode}'
-        profile_calibration = dict(calibration, heap=delivery_calibrations[backend, mode]['heap'])
+        profile_calibration = delivery_calibrations[backend, mode]
         print(f"Controlled trial{trial}/{args.trials}: {backend}/{mode}", flush=True)
         run_base(delivery, output, 1, trial - 1, trial > 1, profile_calibration, args.trials, suite)
-        run_scaling_tails(delivery, output, 1, trial - 1, trial > 1, calibration)
+        run_scaling_tails(delivery, output, 1, trial - 1, trial > 1, profile_calibration)
         sweep_driver.run_sweep(sweep, output, 1, trial - 1, trial > 1, full_files[backend, mode], args.trials, suite)
     for key, (delivery, _) in pairs.items():
         output = args.output / 'profiles' / f'{key[0]}-{key[1]}'

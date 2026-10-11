@@ -92,6 +92,8 @@ def stage_artifacts(root, artifacts, revision, expected_run_id=None):
                  "scaling.csv", "tails.csv", "pressure.csv", "footprint.csv", "heap.csv"]
         if read_json(source / "environment.json")["schema"] == 3:
             files.extend(("summary.json", "controlled-suite.json", "sweep-operations.txt"))
+        if read_json(source / "environment.json").get("measurement_protocol") == report.SUSTAINED_PROTOCOL:
+            files.extend(("calibration-pilots.json", "full-calibration.json"))
         for name in files:
             actual = resolve_path(source / name)
             target = destination / (name if name.endswith(".json") else actual.name)

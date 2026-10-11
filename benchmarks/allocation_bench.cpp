@@ -413,20 +413,60 @@ std::string scenario_key(const Scenario& scenario) {
         + ":" + (scenario.heap ? "yes" : "no");
 }
 
+struct Calibration {
+    std::size_t count = 0, limit = 0;
+    std::vector<std::pair<std::size_t, double>> pilots;
+    bool sustained = false, capped = false;
+    double estimated_seconds = 0;
+};
+
 template<class Measure>
-std::size_t calibrate(Measure&& measure, std::size_t count, std::size_t maximum) {
+Calibration calibrate(Measure&& measure, std::size_t count, std::size_t maximum, const std::string& key) {
     // Calibrate complete operations for this SDK/statistics profile. Python
     // retains these per-profile counts for every reported process trial.
+    Calibration result;
+    result.limit = maximum;
+    double fastest = 0, slowest = 0;
     for (;;) {
-        const auto per_operation = measure(count);
-        const auto seconds = per_operation * count / 1e9;
-        if (seconds >= .035 || count == maximum) {
-            auto desired = static_cast<std::size_t>(.35e9 / (std::max)(per_operation, .001));
-            desired = (std::max)(count, (std::min)(desired, maximum));
-            return (desired + 63) / 64 * 64;
+        fastest = 1e100;
+        slowest = 0;
+        for (unsigned repeat = 0; repeat < 3; ++repeat) {
+            std::cerr << "CALIBRATION_START," << key << ',' << count << ',' << repeat + 1 << '\n';
+            const auto seconds = measure(count) * count / 1e9;
+            if (!(seconds > 0)) { throw std::runtime_error("nonpositive full calibration duration"); }
+            result.pilots.emplace_back(count, seconds);
+            std::cerr << "CALIBRATION_PILOT," << key << ',' << count << ',' << repeat + 1 << ',' << seconds << '\n';
+            fastest = (std::min)(fastest, seconds);
+            slowest = (std::max)(slowest, seconds);
         }
-        count = (std::min)(count * 4, maximum);
+        if (fastest >= .125 || count == maximum || slowest >= 2) { break; }
+        count = (std::min)(count * 2, maximum);
     }
+    const auto desired = (std::max)(count, static_cast<std::size_t>(count * .35 / fastest) + 1);
+    const auto budget = (std::max)(std::size_t{64}, static_cast<std::size_t>(count * 2 / slowest) / 64 * 64);
+    result.count = (std::min)((desired + 63) / 64 * 64, (std::min)(maximum, budget));
+    result.sustained = fastest >= .125;
+    result.capped = result.count < desired;
+    result.estimated_seconds = slowest * result.count / count;
+    return result;
+}
+
+void emit_calibration(const char* backend, const Scenario& scenario, const Calibration& sample, bool oversubscribed) {
+    std::cout << backend << ',' << name(scenario.workload) << ',' << scenario.bytes << ',' << scenario.alignment << ','
+              << scenario.threads << ',' << (scenario.statistics == unimem::StatisticsMode::Basic ? "basic" : "disabled")
+              << ',' << (scenario.heap ? "yes" : "no") << ',' << sample.count << ',';
+    for (std::size_t i = 0; i < sample.pilots.size(); ++i) {
+        if (i) { std::cout << ';'; }
+        std::cout << sample.pilots[i].first;
+    }
+    std::cout << ',';
+    for (std::size_t i = 0; i < sample.pilots.size(); ++i) {
+        if (i) { std::cout << ';'; }
+        std::cout << sample.pilots[i].second;
+    }
+    std::cout << ',' << (sample.sustained ? "true" : "false") << ',' << (sample.capped ? "true" : "false")
+              << ',' << sample.limit << ',' << (oversubscribed ? "true" : "false") << ',' << sample.estimated_seconds << '\n';
+    std::cout.flush();
 }
 
 void emit(const char* backend, const Scenario& scenario, std::size_t count, double time, bool calibration = false) {
@@ -438,6 +478,7 @@ void emit(const char* backend, const Scenario& scenario, std::size_t count, doub
     if (calibration) { std::cout << ',' << count << '\n'; return; }
     std::cout << ",1," << count << ',' << time << ',' << time << ',' << time << ','
               << time << ',' << time << ',' << time * count / 1e9 << ',' << last_checksum << '\n';
+    std::cout.flush();
 }
 
 }
@@ -447,6 +488,7 @@ int main(int argc, char** argv) {
         bool full = false;
         bool calibration = false;
         unsigned seed = 0xC0FFEE;
+        std::size_t effective_cpus = (std::max)(1U, std::thread::hardware_concurrency());
         std::map<std::string, std::size_t> counts;
         std::cout << std::setprecision(17);
         constexpr bool basic = unimem::Memory::selected_statistics == unimem::StatisticsMode::Basic;
@@ -455,6 +497,10 @@ int main(int argc, char** argv) {
             if (argument == "--full") { full = true; }
             else if (argument == "--calibrate") { calibration = true; }
             else if (argument == "--seed" && i + 1 < argc) { seed = static_cast<unsigned>(std::stoul(argv[++i])); }
+            else if (argument == "--effective-cpus" && i + 1 < argc) {
+                effective_cpus = std::stoull(argv[++i]);
+                if (!effective_cpus) { throw std::invalid_argument("nonzero effective CPU capacity required"); }
+            }
             else if (argument == "--operations-file" && i + 1 < argc) {
                 std::ifstream input(argv[++i]);
                 if (!input) { throw std::invalid_argument("cannot read shared operations file"); }
@@ -481,7 +527,9 @@ int main(int argc, char** argv) {
         }
         const auto operations = full ? 8192U : 2048U;
         std::cout << "backend,workload,bytes,alignment,threads,statistics,heap,";
-        if (calibration) { std::cout << "operations\n"; }
+        if (calibration) {
+            std::cout << "operations,pilot_operations,pilot_seconds,sustained_goal_met,capped,count_limit,oversubscribed,estimated_seconds\n";
+        }
         else {
             std::cout << "repetitions,operations,median_ns_per_operation,min_ns_per_operation,mean_ns_per_operation,"
                          "max_ns_per_operation,samples_ns_per_operation,seconds,checksum\n";
@@ -508,8 +556,14 @@ int main(int argc, char** argv) {
             for (const auto& backend : enabled) {
                 auto count = std::size_t{operations};
                 if (calibration) {
-                    const auto maximum = std::size_t{1} << 31;
-                    count = calibrate([&](auto current) { return run(backend, scenario, current); }, 256, maximum);
+                    const auto oversubscribed = scenario.threads > effective_cpus;
+                    const auto maximum = scenario.workload == Workload::CrossThread && oversubscribed
+                        ? std::size_t{8192} * 32 : std::size_t{100000000};
+                    const auto sample = calibrate([&](auto current) { return run(backend, scenario, current); }, 256, maximum,
+                                                  std::string(backend.name) + ':' + scenario_key(scenario) + ':' +
+                                                  (scenario.statistics == unimem::StatisticsMode::Basic ? "basic" : "disabled"));
+                    emit_calibration(backend.name, scenario, sample, oversubscribed);
+                    continue;
                 } else if (!counts.empty()) {
                     count = counts.at(scenario_key(scenario));
                 }
@@ -524,20 +578,25 @@ int main(int argc, char** argv) {
                 const auto key = "stack_mark_rewind:" + std::to_string(bytes) + ":" + std::to_string(alignment) + ":1:no";
                 auto count = std::size_t{operations};
                 if (calibration) {
-                    count = calibrate([&](auto current) { return stack_mark_rewind(bytes, alignment, current); }, 256,
-                                      std::size_t{1} << 31);
-                } else if (!counts.empty()) { count = counts.at(key); }
-                if (calibration) {
-                    std::cout << "fixed_buffer,stack_mark_rewind," << bytes << ',' << alignment
-                              << ",1,disabled,no," << count << '\n';
+                    const auto sample = calibrate([&](auto current) { return stack_mark_rewind(bytes, alignment, current); }, 256,
+                                                  std::size_t{100000000}, "fixed_buffer:" + key);
+                    // Reuse the same calibration CSV layout for the fixed-buffer scenario.
+                    std::cout << "fixed_buffer,stack_mark_rewind," << bytes << ',' << alignment << ",1,disabled,no," << sample.count << ',';
+                    for (std::size_t i = 0; i < sample.pilots.size(); ++i) { if (i) { std::cout << ';'; } std::cout << sample.pilots[i].first; }
+                    std::cout << ',';
+                    for (std::size_t i = 0; i < sample.pilots.size(); ++i) { if (i) { std::cout << ';'; } std::cout << sample.pilots[i].second; }
+                    std::cout << ',' << (sample.sustained ? "true" : "false") << ',' << (sample.capped ? "true" : "false")
+                              << ',' << sample.limit << ",false," << sample.estimated_seconds << '\n';
+                    std::cout.flush();
                     continue;
-                }
+                } else if (!counts.empty()) { count = counts.at(key); }
                 stack_mark_rewind(bytes, alignment, (std::min)(count, std::size_t{1024}));
                 const auto time = stack_mark_rewind(bytes, alignment, calibration ? 256 : count);
                 std::cout << "fixed_buffer,stack_mark_rewind," << bytes << ','
                           << alignment << ",1,disabled,no,1," << count << ',' << time << ',' << time << ','
                           << time << ',' << time << ',' << time << ',' << time * count / 1e9 << ','
                           << last_checksum << '\n';
+                std::cout.flush();
             }
         }
         return 0;

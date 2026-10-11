@@ -25,6 +25,8 @@ Build each backend/statistics combination separately. Optional SDK setup is desc
 
 The controlled protocol builds all backends on one runner per platform, warms each path, calibrates meaningful timing intervals, alternates execution order and retains at least ten fresh-process trials. Matched Native/API paths use the same operation count and SDK binary.
 
+Each profile uses three sustained calibration pilots. Oversubscribed scaling is capped at 32 rounds; shorter intervals and calibration limits are disclosed. Scaling includes synchronization costs, so thread counts above runner capacity are pressure scenarios.
+
 Reports include the arithmetic mean, median, minimum, maximum, sample standard deviation, coefficient of variation and bootstrap 95% interval. Every sample is retained. Large variation is reported, not removed or treated as an allocator improvement. RSS phase values are reduced only after subtracting each trial's baseline.
 
 Process-trial data and summaries are stored losslessly in the repository. Individual operation traces and build evidence remain in the linked workflow artifacts for 90 days; traces are checked before publication.

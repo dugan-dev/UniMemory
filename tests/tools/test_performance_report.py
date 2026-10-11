@@ -539,6 +539,96 @@ class RepeatedReportTests(unittest.TestCase):
         (self.directory / "environment.json").write_text(json.dumps(manifest), encoding="utf-8")
         return manifest
 
+    def make_sustained_calibration(self):
+        from benchmark_calibration import new_evidence, calibrate_pair
+        manifest = report.read_json(self.directory / "environment.json")
+        suite = manifest["controlled_suite"]
+        manifest["measurement_protocol"] = suite["protocol"] = report.SUSTAINED_PROTOCOL
+        suite.pop("calibration", None)
+        evidence = new_evidence(manifest["logical_cpus"])
+        calibration = {"latency": {}, "scaling": {}, "heap": {}}
+        for kind, cases in manifest["calibration"].items():
+            for case, target in cases.items():
+                def probe(path, count, repeat):
+                    seconds = .35 * count / target
+                    row = {"backend": "standard", "path": path, "seconds": str(seconds)}
+                    if kind == "scaling":
+                        work, size, threads = case.split(":")
+                        operations = int(threads) * 512 * count
+                        row.update(bytes=size, threads=threads, workload="same_thread" if work == "scaling" else "handoff",
+                                   rounds=str(count), operations=str(operations), operations_per_second=str(operations / seconds))
+                    else:
+                        row.update(bytes=case, operations=str(count), mean_ns=str(seconds * 1e9 / count))
+                    return row
+                oversubscribed = kind == "scaling" and int(case.split(":")[-1]) > manifest["logical_cpus"]
+                decision = calibrate_pair(kind, case, ("native", "disabled"), probe,
+                                          initial=8 if kind == "scaling" else 20000,
+                                          count_limit=(32 if oversubscribed else 131072) if kind == "scaling" else 100000000,
+                                          evidence=evidence, oversubscribed=oversubscribed)
+                calibration[kind][case] = decision["count"]
+        manifest["calibration"] = calibration
+        for row_name in ("latency", "scaling", "full"):
+            rows = report.read(self.directory / (row_name + ".csv"))
+            for row in rows:
+                if row_name == "latency":
+                    row["operations"] = str(calibration["latency"][row["bytes"]])
+                    row["seconds"] = str(float(row["mean_ns"]) * int(row["operations"]) / 1e9)
+                if row_name == "full":
+                    row["operations"] = "320"
+                    row["seconds"] = str(float(row["mean_ns_per_operation"]) * 320 / 1e9)
+                row["short_interval"] = str(float(row["seconds"]) < .25).lower()
+            measurement.write_rows(self.directory / (row_name + ".csv"), rows)
+        full_rows = [row for row in report.read(self.directory / "full.csv") if row["trial"] == "1"]
+        counts = {":".join(row[field] for field in ("workload", "bytes", "alignment", "threads", "heap")): 320 for row in full_rows}
+        full = {"schema": 1, "protocol": report.SUSTAINED_PROTOCOL, "effective_cpus": manifest["logical_cpus"], "counts": counts, "records": []}
+        for row in full_rows:
+            oversubscribed = int(row["threads"]) > manifest["logical_cpus"]
+            full["records"].append({**{key: row[key] for key in ("backend", "workload", "bytes", "alignment", "threads", "statistics", "heap")},
+                                    "operations": "320", "pilot_operations": "256;256;256", "pilot_seconds": "0.35;0.35;0.35",
+                                    "sustained_goal_met": "true", "capped": "false", "count_limit": "262144" if oversubscribed else "100000000",
+                                    "oversubscribed": str(oversubscribed).lower(), "estimated_seconds": "0.4375"})
+        operation_file = self.directory / "sweep-operations.txt"
+        operation_file.write_text("".join(f"{key},{count}\n" for key, count in sorted(counts.items())), encoding="utf-8")
+        sweep = report.read_json(self.directory / "sweep-environment.json")
+        sweep.update(measurement_protocol=report.SUSTAINED_PROTOCOL, operations_file_sha256=hashlib.sha256(operation_file.read_bytes()).hexdigest(),
+                     full_calibration_sha256=report.canonical_json_sha(full))
+        for profile in suite["profiles"]:
+            profile.update(delivery_calibration=calibration, calibration_sha256=report.canonical_json_sha(evidence),
+                           full_calibration_sha256=report.canonical_json_sha(full), full_operations_sha256=sweep["operations_file_sha256"])
+        for name, value in (("environment.json", manifest), ("controlled-suite.json", suite), ("sweep-environment.json", sweep),
+                            ("calibration-pilots.json", evidence), ("full-calibration.json", full)):
+            (self.directory / name).write_text(json.dumps(value), encoding="utf-8")
+        report.benchmark_statistics.write_summary(self.directory)
+        return manifest, evidence
+
+    def test_sustained_per_profile_calibration_and_short_intervals_validate(self):
+        self.make_sustained_calibration()
+        self.assertEqual(report.validate(self.directory)["measurement_protocol"], report.SUSTAINED_PROTOCOL)
+
+    def test_sustained_pilot_decisions_must_replay_all_observations(self):
+        manifest, evidence = self.make_sustained_calibration()
+        decision = next(item for item in evidence["decisions"] if item["kind"] == "scaling" and item["case"] == "scaling:64:8")
+        decision.update(count=100, count_limit=131072, oversubscribed=False, estimated_seconds={"native": .35, "disabled": .35})
+        manifest["calibration"]["scaling"]["scaling:64:8"] = 100
+        selected = {"calibration_sha256": report.canonical_json_sha(evidence)}
+        (self.directory / "calibration-pilots.json").write_text(json.dumps(evidence), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "oversubscription|safety bound"):
+            report.validate_calibration_pilots(self.directory, manifest, selected)
+
+    def test_sustained_pilot_selection_rejects_a_false_duration_budget(self):
+        manifest, evidence = self.make_sustained_calibration()
+        for record in evidence["records"]:
+            if record["kind"] == "scaling" and record["case"] == "scaling:64:8":
+                record["row"]["seconds"] = "1"
+                record["row"]["operations_per_second"] = record["row"]["operations"]
+        decision = next(item for item in evidence["decisions"] if item["kind"] == "scaling" and item["case"] == "scaling:64:8")
+        decision.update(count=32, estimated_seconds={"native": .35, "disabled": .35})
+        manifest["calibration"]["scaling"]["scaling:64:8"] = 32
+        selected = {"calibration_sha256": report.canonical_json_sha(evidence)}
+        (self.directory / "calibration-pilots.json").write_text(json.dumps(evidence), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "all retained pilots"):
+            report.validate_calibration_pilots(self.directory, manifest, selected)
+
     def test_ten_process_matrix_and_all_scenario_statistics_validate(self):
         self.assertEqual(report.validate(self.directory)["trials"], 10)
         summary = report.validate_summary(self.directory)
