@@ -86,7 +86,9 @@ int main(int argc, char** argv) {
             }
         }
         if (threads>16 || bytes>65536 || (affinity!="none" && affinity!="single")) { throw std::invalid_argument("unsupported configuration"); }
-        if (backend != UNIMEMORY_CONFIG_BACKEND_NAME) { throw std::invalid_argument("benchmark requires the compiled backend"); }
+        if (backend != UNIMEMORY_CONFIG_BACKEND_NAME && (suite != "clock" || backend != "none")) {
+            throw std::invalid_argument("benchmark requires the compiled backend");
+        }
         if (affinity=="single" && !pin_single()) { throw std::runtime_error("requested CPU affinity unavailable"); }
         std::cout << "suite,backend,variant,bytes,threads,operations,seconds,value,unit,checksum\n";
         if (suite=="hotpath") { unimem_diagnostics::run_hotpath(std::cout,backend,variant,iterations,bytes,touch); }

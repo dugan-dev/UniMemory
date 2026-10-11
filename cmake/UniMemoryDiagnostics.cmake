@@ -31,6 +31,13 @@ if(UNIMEMORY_DIAGNOSTIC_ALIGN_LOOPS)
     target_compile_options(UniMemoryDiagnostic PRIVATE -falign-loops=64)
 endif()
 target_link_libraries(UniMemoryDiagnostic PRIVATE UniMemoryDiagnosticAdapters ${CMAKE_DL_LIBS})
+if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
+    add_test(NAME UniMemory.diagnostic.clock_selector
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:UniMemoryDiagnostic>"
+            "-DBACKEND=${UNIMEMORY_BACKEND}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/diagnostic_cli.cmake")
+endif()
 if(WIN32)
     target_link_libraries(UniMemoryDiagnostic PRIVATE psapi)
     target_link_options(UniMemoryDiagnostic PRIVATE /MAP)
