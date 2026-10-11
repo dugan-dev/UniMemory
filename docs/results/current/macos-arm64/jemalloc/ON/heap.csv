@@ -1,0 +1,10 @@
+trial,backend,operation,operations,median_ns
+1,jemalloc,owns,200000,153.722
+1,jemalloc,collect,2000,174.105
+1,jemalloc,reset,2000,494.646
+2,jemalloc,owns,200000,152.517
+2,jemalloc,collect,2000,180.188
+2,jemalloc,reset,2000,619.188
+3,jemalloc,owns,200000,146.185
+3,jemalloc,collect,2000,193.896
+3,jemalloc,reset,2000,567.292

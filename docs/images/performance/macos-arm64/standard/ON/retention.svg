@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en" viewBox="0 0 1100 560" role="img">
+<title>Mixed-lifetime memory retention</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">Mixed-lifetime memory retention</text>
+<text x="92" y="66" font-size="14" fill="#475569">Resident MiB · not a fragmentation or leak rate</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">8.1</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">16</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">24</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">32</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">40</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">dense</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">sparse</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">churn_dense</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">churn_sparse</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">freed</text>
+<circle cx="168.0" cy="180.09136284722229" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="180.09136284722229" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="129.50000000000006" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="129.50000000000006" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="268.3888888888889" r="3.5" fill="#64748b"/>
+<polyline points="168.0,180.09136284722229 320.0,180.09136284722229 472.0,129.50000000000006 624.0,129.50000000000006 776.0,268.3888888888889" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">Standard / Native</text>
+<circle cx="168.0" cy="180.09136284722229" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="180.09136284722229" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="129.50000000000006" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="129.50000000000006" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="268.3888888888889" r="3.5" fill="#64748b"/>
+<polyline points="168.0,180.09136284722229 320.0,180.09136284722229 472.0,129.50000000000006 624.0,129.50000000000006 776.0,268.3888888888889" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
+<text x="880" y="167" font-size="12">Standard / API + stats</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">Memory phase</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/standard/ON · e355001f2ad8 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

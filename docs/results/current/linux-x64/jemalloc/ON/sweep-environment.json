@@ -1,0 +1,56 @@
+{
+  "version": "0.0.1",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "build_profile": {
+    "backend": "jemalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "jemalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "GNU 13.3.0",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
+      "compile_options": "",
+      "sdk_target": "unimemory_jemalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+        "sha256": "74cdb05f6f32821239083de42b064c95adf6f7528a713f846875837ce0f3e27d"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+        "sha256": "74cdb05f6f32821239083de42b064c95adf6f7528a713f846875837ce0f3e27d"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "6c14b62686774069077ac7c29808dd3ad4bcb8b80de90856bcb58802b9b06fba",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 4,
+  "trials": 3,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-10-11T00:25:58.233356+00:00",
+  "executable_sha256": "76891914ee5614818dd57c3abb471a1f25e4288ca75b3465f7be00308b582a65",
+  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
+  "source_hash_line_endings": "LF"
+}

@@ -1,0 +1,124 @@
+{
+  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "processor": "arm",
+  "trials": 3,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 3,
+  "executable_sha256": "2da61c6fcd2584431ae1fd108cad7d9407a647cef52a97bf34d217a6e4eb28a6",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "core": "header-only",
+    "selected_backend": "mimalloc",
+    "selected_statistics": "disabled",
+    "checks": 0,
+    "standard_new_provider": "libc++abi.dylib",
+    "resident_measurement": "Mach task resident_size",
+    "mimalloc_version": 30403,
+    "mimalloc_redirected": false
+  },
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "OFF",
+    "checks": "AUTO",
+    "api_path": "disabled",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "OFF",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "AppleClang 17.0.0.17000013",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+        "sha256": "ff3647cdc95f2b2173aaf73c05bf8283cf841bf5441260be133661dcf6e32848"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+        "sha256": "ff3647cdc95f2b2173aaf73c05bf8283cf841bf5441260be133661dcf6e32848"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "6dc8dcdfa0ccf32b896772c7365ef304683ac46bfe333b5798e7457b2eaa7154",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-11T00:24:21.818462+00:00",
+  "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
+  "source_hash_line_endings": "LF",
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "schema": 2,
+  "source_revision": "e355001f2ad885add2447bd085e199206c7a4096",
+  "run_id": "38097248244",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38097248244",
+  "architecture": "arm64",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "AppleClang",
+    "CMAKE_CXX_COMPILER_VERSION": "17.0.0.17000013"
+  },
+  "cpu_model": "Apple M1 (Virtual)",
+  "measurement_protocol": "native-api-scaling-tails-v2",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "mimalloc"
+  ],
+  "paths": [
+    "native",
+    "disabled"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
+  "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
+  "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
+  "benchmark_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a"
+}

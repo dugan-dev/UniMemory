@@ -1,0 +1,56 @@
+{
+  "version": "0.0.1",
+  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "AppleClang 17.0.0.17000013",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
+        "sha256": "a25e4258ab18da224279ca25a32bba958f160a4b99c10790000c8f1c4750a168"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "79dde091291fe563f8804b3f9f33dfb6dcfc5ff4d97e8289ba1b1e2e5f8a5faa",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 3,
+  "trials": 3,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-10-11T00:28:33.569772+00:00",
+  "executable_sha256": "f67a9aa99d290437149508c94721950276ea29ec306eb5a89ea96543bc8e8621",
+  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
+  "source_hash_line_endings": "LF"
+}
