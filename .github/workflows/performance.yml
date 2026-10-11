@@ -139,9 +139,35 @@ jobs:
         with:
           name: native-application-comparison
           path: build/collection-results/
+  overview:
+    needs: [changes, report-tests, measure, external]
+    if: needs.changes.outputs.measure == 'true'
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: performance-*
+          path: build/downloads
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-application-comparison
+          path: build/native-applications
+      - name: Refresh overview tables and original PNG figures
+        shell: powershell
+        run: |
+          python tools/ci/refresh-performance-overview.py --artifacts build/downloads --native-input build/native-applications --source-revision '${{ github.sha }}' --output build/overview/comparison.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tools/render-benchmarks.ps1 -InputJson build/overview/comparison.json -OutputDirectory build/overview
+          Copy-Item -LiteralPath README.md,README.zh-CN.md -Destination build/overview
+      - uses: actions/upload-artifact@v4
+        with:
+          name: performance-overview
+          path: build/overview/
   acceptance:
     name: performance acceptance
-    needs: [changes, report-tests, measure, external]
+    needs: [changes, report-tests, measure, external, overview]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -153,7 +179,7 @@ jobs:
           jobs = json.loads(os.environ['RESULTS'])
           assert jobs['changes']['result'] == jobs['report-tests']['result'] == 'success'
           measuring = jobs['changes']['outputs']['measure'] == 'true'
-          assert all(jobs[name]['result'] == ('success' if measuring else 'skipped') for name in ('measure', 'external')), 'Incomplete performance validation'
+          assert all(jobs[name]['result'] == ('success' if measuring else 'skipped') for name in ('measure', 'external', 'overview')), 'Incomplete performance validation'
           print('Full measurements passed' if measuring else 'No benchmark rerun needed for generated/documentation-only changes')
           PY
   publish:
@@ -171,7 +197,11 @@ jobs:
         with:
           pattern: performance-*
           path: build/downloads
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-application-comparison
+          path: build/native-applications
       - name: Open generated-results PR
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tools/ci/publish-performance.py build/downloads '${{ github.ref_name }}'
+        run: python3 tools/ci/publish-performance.py build/downloads '${{ github.ref_name }}' --native-input build/native-applications

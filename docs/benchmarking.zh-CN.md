@@ -90,6 +90,6 @@ Windows x64、macOS ARM64 构建三种后端。现有探针之外，增加 Nativ
 一致，最大存活负载 512 MiB。尾延迟来自包含时钟开销的逐操作间隔；RSS 包含进程
 和分配器状态。应在同一测量环境内比较负载。
 
-[报告](performance.zh-CN.md#当前远程报告) · [协议与自动发布](remote-validation.md#performance-and-charts)
+[报告](performance.zh-CN.md#概览) · [协议与自动发布](remote-validation.md#performance-and-charts)
 
 [原始数据](results/0.0.1/README.md) · [原生测试与应用](upstream-validation.md)

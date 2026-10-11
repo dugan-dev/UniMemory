@@ -2,23 +2,15 @@
 
 [UniMemory](../README.zh-CN.md) · [English](performance.md) · **简体中文**
 
-## 纯头文件控制 · 2026-10-11
+## 概览
 
-[Windows完整23组控制](performance/header-only.zh-CN.md)列出默认、IPO、`/Ob3`的 SDK/API绝对时间、Global shared请求大小及尚未解决的云端限制。
-
-## 当前远程报告
-
-这些图表保留各自记录的源码修订与协议，早于当前纯头文件固定配置；不把旧结果作为新配置的性能保证。不同后端与 ON/OFF 现在分别构建，比较需匹配 SDK、编译选项和计时条件。
-
-对比 Standard、mimalloc、jemalloc 的原生接口与 UniMemory 封装。三轮独立进程测量，取中位数；不同平台分别比较。
+三轮独立进程测量，取中位数。各后端、统计开关分别测量；只在同一负载内比较。
 
 | 图例 | 含义 |
 | --- | --- |
 | 原生接口 | 直接调用分配器 |
-| UniMemory 封装 | 统一接口，关闭统计 |
-| 封装＋统计 | 统一接口，开启 Basic 统计 |
-
-吞吐量图标注逻辑 CPU 数；超过该数量的线程包含超额调度开销。每张图标注平台和测量修订。
+| UniMemory 封装 | 关闭统计 |
+| 封装＋统计 | 开启统计 |
 
 ## 1 · 吞吐量
 
@@ -32,7 +24,7 @@
 
 ![Windows 跨线程吞吐量](images/performance/windows-x64/throughput.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 跨线程吞吐量](images/performance/macos-arm64/throughput.zh-CN.svg)
 
@@ -48,7 +40,7 @@
 
 ![Windows 峰值驻留内存](images/performance/windows-x64/memory.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 峰值驻留内存](images/performance/macos-arm64/memory.zh-CN.svg)
 
@@ -64,13 +56,13 @@
 
 ![Windows 单次分配 P99 延迟](images/performance/windows-x64/latency.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 单次分配 P99 延迟](images/performance/macos-arm64/latency.zh-CN.svg)
 
 ## 4 · 统计开销
 
-**看开启统计增加多少延迟。** 同一后端、同一大小内比较；纹理柱表示开启统计。
+**看统计开关下的分配延迟，越低越好。** 纹理柱表示开启统计；两种配置独立测量，不直接当作增量。
 
 ### Linux x64
 
@@ -80,7 +72,7 @@
 
 ![Windows 统计开销](images/performance/windows-x64/statistics.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 统计开销](images/performance/macos-arm64/statistics.zh-CN.svg)
 
@@ -96,7 +88,7 @@
 
 ![Windows 混合生命周期内存](images/performance/windows-x64/retention.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 混合生命周期内存](images/performance/macos-arm64/retention.zh-CN.svg)
 
@@ -112,20 +104,20 @@
 
 ![Windows 常用操作相对耗时](images/performance/windows-x64/workloads.zh-CN.svg)
 
-### macOS ARM64
+### macOS
 
 ![macOS 常用操作相对耗时](images/performance/macos-arm64/workloads.zh-CN.svg)
 
-## 历史报告 · 2026-09-28
+## 常用场景
 
-下图保留 Windows/Linux 的历史使用场景对比。Standard 为 1，条形越短越快；测量环境与当前远程报告不同。
+同组 Standard = 1，条形越短越快。
 
-![Windows 与 Linux 历史耗时对比](images/workload-comparison.png)
+![Windows 与 Linux 耗时对比](images/workload-comparison.png)
 
-[历史耗时](performance/latency.zh-CN.md) · [历史内存](performance/memory.zh-CN.md) · [原生应用](performance/applications.zh-CN.md)
+[操作耗时](performance/latency.zh-CN.md) · [内存占用](performance/memory.zh-CN.md) · [原生应用](performance/applications.zh-CN.md)
 
 ## 数据与方法
 
-[当前 CSV 与环境](results/current/) · [历史数据](results/0.0.1/README.md) · [测量方法](benchmarking.zh-CN.md)
+[实测数据与环境](results/current/) · [测量方法](benchmarking.zh-CN.md) · [优化对照](performance/header-only.zh-CN.md)
 
-代码变更后自动更新图表。逐操作样本在 Actions 产物中保留 14 天，汇总数据保存在仓库。共享机器的小幅波动不作为绝对速度门槛；这些结果不代表长期碎片、NUMA 或移动设备性能。
+图表随新测量更新。实际表现取决于设备和使用场景。

@@ -67,7 +67,7 @@ flowchart LR
 此处介绍的纯头文件固定配置位于 `dev`；原稳定实现保留在 `main`。
 通过 [dev 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)
 提供下载，不使用 tag 或 Release。库版本仍为 **0.0.1**，以源码修订标识交付，
-头文件、生成配置与 SDK 库应来自同一修订。[当前性能报告](performance.zh-CN.md#当前远程报告)
+头文件、生成配置与 SDK 库应来自同一修订。[当前性能报告](performance.zh-CN.md#概览)
 记录各自测量修订；九月数据作为历史报告保留。
 
 [贡献指南](../CONTRIBUTING.md) · [安全政策](../SECURITY.md) · [修复审查](review-2026-10-08.md)

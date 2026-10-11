@@ -21,7 +21,7 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 ## Features
 
 - **🚀 Modern C++20**: Typed construction and standard library integration.
-- **🔄 Unified backends**: One non-template Memory API; choose Standard, mimalloc or jemalloc for each build.
+- **🔄 Unified backends**: One API for Standard, mimalloc and jemalloc.
 - **🧱 Object and Array**: Create and destroy typed objects with constructor failure cleanup.
 - **🔒 Smart Pointer**: Create unique and shared pointers; adopt existing objects.
 - **📦 Standard Container**: Allocator and PMR adapters for existing C++ containers.
@@ -197,11 +197,11 @@ scratch.reset();
 ### Initialization and Statistics
 
 ```cpp
-// Select request counters at build time with UNIMEMORY_STATISTICS=ON/OFF
+// Enable request counters with UNIMEMORY_STATISTICS=ON
 unimem::Memory& memory = unimem::Memory::global();
 unimem::OwnedBlock block = memory.make_block(1024);
 
-// ON: Global Basic counters; OFF: no request statistics
+// Query counts and bytes; empty when counters are off
 std::optional<unimem::MemoryStatistics> stats = memory.statistics();
 if (stats) {
     std::uint64_t live = stats->live_bytes;
@@ -234,15 +234,12 @@ if (unimem::supports(backend, option)) {
 
 | Platform | Standard | mimalloc | jemalloc | Compiler |
 | --- | :---: | :---: | :---: | --- |
-| Windows x64 | ✔ | ✔ | ✔ | MSVC, clang-cl, MinGW-w64 GCC |
-| Windows ARM64 | ✔ | — | — | MSVC, clang-cl |
-| Linux x64 | ✔ | ✔ | ✔ | GCC 13/14, Clang 18 |
-| Linux ARM64 | ✔ | — | — | GCC 13/14, Clang 18 |
-| macOS Apple Silicon | ✔ | ✔ | ✔ | AppleClang |
-| macOS Intel | ✔ | — | — | AppleClang |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC |
+| Linux x64 | ✔ | ✔ | ✔ | GCC / Clang |
+| macOS | ✔ | ✔ | ✔ | Apple Clang |
 | Android / iOS | — | — | — | Not device-validated |
 
-✔ CI-validated; — awaiting validation. Optional SDKs use the default compiler for each platform. [Platform details](docs/guides/backends.md)
+✔ Supported; — awaiting validation. [Platform details](docs/guides/backends.md)
 
 ## Capabilities
 
@@ -255,36 +252,34 @@ if (unimem::supports(backend, option)) {
 | Unused memory release delay | — | ✔ | ✔ |
 | Extra dependency | None | SDK | SDK |
 
-Each build selects one backend. Standard needs no allocator dependency; selecting mimalloc or jemalloc requires its SDK, linked through the interface target. [Configuration guide](docs/guides/backends.md)
+Standard needs no extra allocator dependency; mimalloc and jemalloc require their SDK. [Configuration guide](docs/guides/backends.md)
 
 ## Performance
 
-Windows x64 · MSVC 19.44 · statistics off · 2026-09-28. **ns/operation; lower is faster.**
-
-Historical measurements from the earlier implementation; they do not describe the current header-only build.
+Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Median of three trials, **ns/operation; lower is faster.**
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| Create and destroy an object, 64 B | 46.4 | 12.2 | 36.0 |
-| Grow and destroy a vector, 32 integers | 590.3 | 237.4 | 488.5 |
-| Allocate, resize and free, 4 → 8 KiB | 168.5 | 139.8 | 149.4 |
-| Allocate on one thread, free on eight | 105.4 | 59.8 | 166.6 |
+| Create and destroy an object, 64 B | 43.5 | 7.6 | 31.4 |
+| Grow and destroy a vector, 32 `uint64_t` values | 611.7 | 174.6 | 428.7 |
+| Allocate, resize and free, 4 → 8 KiB | 162.9 | 104.5 | 132.8 |
+| Allocate on one thread, free on eight | 92.2 | 51.0 | 106.2 |
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-Standard = 1 in the chart; shorter bars are faster. [Full performance report](docs/performance.md)
+Backends are measured separately. Standard = 1 in the chart; shorter bars are faster. [Full performance report](docs/performance.md)
 
 ## Build and Install
 
 Requires **C++20** and **CMake 3.25+**. Download the [source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip), then run from the extracted source directory:
 
 ```sh
-cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-The headers and CMake `INTERFACE` target are installed to `build/installed`; UniMemory has no separately compiled library. `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` must be explicit. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in Release. `UNIMEMORY_AGGRESSIVE_INLINING=ON` uses `/Ob3` for MSVC Release consumer translation units; set it to `OFF` to retain your own inlining options. [Build options](docs/getting-started.md#build-options)
+The headers are installed to `build/installed`. The release preset selects Standard with statistics off; see [build options](docs/getting-started.md#build-options) to change them.
 
 ## Integration
 
@@ -299,7 +294,7 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`; the installed target carries its backend, statistics and check policy. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
+Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
 
 ## Documentation
 

@@ -95,6 +95,6 @@ touching match across paths; the largest scaling payload is 512 MiB. Tail percen
 describe individual intervals, including clock overhead. RSS includes process and
 allocator state. Compare workloads within one recorded environment.
 
-[Reports](performance.md#current-remote-reports) · [Protocol and publication](remote-validation.md#performance-and-charts)
+[Reports](performance.md#overview) · [Protocol and publication](remote-validation.md#performance-and-charts)
 
 [Raw measurements](results/0.0.1/README.md) · [Native suites and applications](upstream-validation.md)

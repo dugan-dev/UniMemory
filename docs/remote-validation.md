@@ -84,7 +84,7 @@ titles, axes, legends and captions; both languages use identical measurements.
 Per-platform latency, statistics cost, retention and workload charts provide
 more detail, embedded by dimension and platform directly in the report page.
 Source revision and remote-run provenance accompany every report. Publication only
-updates generated reports and measurements; it cannot replace README content.
+updates charts, measurements and the marked performance table/source blocks. README prose and scenario labels are checked against the source and remain unchanged. The original PNG layout is rendered from the same verified current measurements.
 
 Only trusted successful push runs can publish. A scoped bot branch opens a PR.
 Before approving its real PR workflows, the publisher verifies repository, bot

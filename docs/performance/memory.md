@@ -2,85 +2,140 @@
 
 [Performance](../performance.md) · **English** · [简体中文](memory.zh-CN.md)
 
-**Resident process memory above baseline, MiB.** Median of three fresh processes, counters off.
+**Resident process memory above baseline, MiB.** Subtract each process baseline before taking the median of three fresh processes; counters off.
 
-Requested bytes are storage the application still needs. Resident memory is physical memory held by the process, including allocator-managed storage and metadata. A free ends the application's use of a Block; its storage may remain in the allocator for reuse.
+<!-- performance-source -->
+2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)
+<!-- /performance-source -->
 
-## 1 · Mixed sizes and lifetimes
+Requested bytes are storage the application still needs. Resident memory also includes allocator caches and metadata. Freed storage can remain available for reuse.
 
-16384 Blocks, ten sizes from 17–8193 B, eight refill/free cycles. Initial requests: 25.18 MiB; 1024 survivors request 1.61 MiB; final live requests are zero. All requested pages are touched.
+## Mixed sizes and lifetimes
 
-Snapshots follow the operations without an intentional wait or collection. This checks immediate memory retention after a burst of allocations, not long-term memory usage.
+16384 Blocks, ten sizes from 17–8193 B, eight refill/free cycles; keep 1024 Blocks. All requested pages are touched.
 
-```mermaid
-flowchart LR
-    A[Fill 16384 Blocks] --> B[Keep 1024]
-    B --> C[Refill and free: 8 cycles]
-    C --> D[Keep 1024]
-    D --> E[Free all]
-```
+Snapshots immediately follow operations, without an intentional wait or collection. Columns show initial fill, first survivors, final refill, final survivors and free all.
+
+Live requested storage, MiB; the same workload runs on all platforms:
+
+<!-- performance-table:pressure-requested -->
+| Fill | Keep 1024 | Refill | Keep again | Free all |
+| --- | --- | --- | --- | --- |
+| 25.18 | 1.61 | 25.81 | 1.61 | 0.00 |
+<!-- /performance-table -->
 
 ### Windows
 
-| Backend | Path | Fill | Keep 1024 | Free all |
-| --- | --- | --- | --- | --- |
-| Standard | Native | 27.87 | 25.93 | 1.45 |
-| Standard | UniMemory | 27.86 | 25.92 | 1.45 |
-| mimalloc | Native | 31.71 | 46.43 | 46.44 |
-| mimalloc | UniMemory | 31.70 | 46.43 | 46.43 |
-| jemalloc | Native | 32.23 | 33.49 | 33.49 |
-| jemalloc | UniMemory | 32.21 | 33.46 | 33.46 |
+<!-- performance-table:pressure-windows-x64 -->
+| Backend | Path | Fill | Keep 1024 | Refill | Keep again | Free all |
+| --- | --- | --- | --- | --- | --- | --- |
+| Standard | Native | 27.89 | 26.27 | 28.90 | 26.41 | 1.47 |
+| Standard | UniMemory | 27.89 | 26.26 | 28.90 | 26.42 | 1.47 |
+| mimalloc | Native | 31.73 | 31.79 | 46.46 | 46.46 | 46.46 |
+| mimalloc | UniMemory | 31.72 | 31.78 | 46.45 | 46.45 | 46.45 |
+| jemalloc | Native | 32.42 | 32.49 | 33.68 | 33.68 | 33.68 |
+| jemalloc | UniMemory | 32.40 | 32.46 | 33.73 | 33.73 | 33.73 |
+<!-- /performance-table -->
 
-### Linux / WSL
+### Linux
 
-| Backend | Path | Fill | Keep 1024 | Free all |
-| --- | --- | --- | --- | --- |
-| Standard | Native | 25.59 | 26.37 | 26.37 |
-| Standard | UniMemory | 25.59 | 26.37 | 26.37 |
-| mimalloc | Native | 34.19 | 50.32 | 50.32 |
-| mimalloc | UniMemory | 34.19 | 50.32 | 50.32 |
-| jemalloc | Native | 31.97 | 33.30 | 33.30 |
-| jemalloc | UniMemory | 31.97 | 33.30 | 33.30 |
+<!-- performance-table:pressure-linux-x64 -->
+| Backend | Path | Fill | Keep 1024 | Refill | Keep again | Free all |
+| --- | --- | --- | --- | --- | --- | --- |
+| Standard | Native | 25.67 | 25.86 | 26.50 | 26.50 | 26.50 |
+| Standard | UniMemory | 25.67 | 25.86 | 26.50 | 26.50 | 26.50 |
+| mimalloc | Native | 34.20 | 34.39 | 50.39 | 50.39 | 50.39 |
+| mimalloc | UniMemory | 34.20 | 34.39 | 50.39 | 50.39 | 50.39 |
+| jemalloc | Native | 31.20 | 31.32 | 31.32 | 31.32 | 31.32 |
+| jemalloc | UniMemory | 31.20 | 31.32 | 31.32 | 31.32 | 31.32 |
+<!-- /performance-table -->
 
-![Native and UniMemory memory usage](../images/memory-retention.png)
+### macOS
 
-The chart connects phase snapshots, not a continuous time series. Freed storage may remain cached. RSS includes metadata and process state; retention alone is not a leak or fragmentation rate.
+<!-- performance-table:pressure-macos-arm64 -->
+| Backend | Path | Fill | Keep 1024 | Refill | Keep again | Free all |
+| --- | --- | --- | --- | --- | --- | --- |
+| Standard | Native | 28.61 | 28.61 | 34.44 | 34.44 | 18.44 |
+| Standard | UniMemory | 28.61 | 28.61 | 36.47 | 36.47 | 20.47 |
+| mimalloc | Native | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
+| mimalloc | UniMemory | 33.31 | 33.31 | 48.55 | 48.55 | 48.55 |
+| jemalloc | Native | 31.80 | 31.80 | 33.12 | 33.12 | 33.12 |
+| jemalloc | UniMemory | 31.78 | 31.78 | 33.09 | 33.09 | 33.09 |
+<!-- /performance-table -->
 
-In this Windows workload, Standard retains less immediately after free. Native and UniMemory measurements are close; the layer adds no substantial memory usage in this trace. This measurement does not separate caches, metadata and pages awaiting return.
+![Windows mixed-lifetime memory](../images/memory-retention.png)
 
-## 2 · Size rounding
+![Linux mixed-lifetime memory](../images/performance/linux-x64/retention.svg)
 
-Usable capacity can exceed the request. For these deliberately selected sizes, mimalloc and jemalloc Native/API usable capacity both exceed requests by **25.04%**. Standard has no portable capacity query. This excludes metadata/caches and is not an external-fragmentation rate.
+![macOS mixed-lifetime memory](../images/performance/macos-arm64/retention.svg)
 
-## 3 · Heap collect
+Charts connect phase snapshots, not continuous samples. Freed storage can remain resident; retention alone is not a leak or fragmentation rate.
 
-16384 × 4096 B: 64 MiB, fully touched. Free each Block, then call collect() only on independent Heap.
+## Size rounding
 
+Extra usable capacity relative to requested bytes at initial fill. Standard has no portable capacity query. This excludes metadata and caches.
+
+<!-- performance-table:rounding -->
+| Platform | Backend | Path | Extra usable capacity |
+| --- | --- | --- | --- |
+| Windows | Standard | Native | — |
+| Windows | Standard | UniMemory | — |
+| Windows | mimalloc | Native | 25.04% |
+| Windows | mimalloc | UniMemory | 25.04% |
+| Windows | jemalloc | Native | 25.04% |
+| Windows | jemalloc | UniMemory | 25.04% |
+| Linux | Standard | Native | — |
+| Linux | Standard | UniMemory | — |
+| Linux | mimalloc | Native | 25.04% |
+| Linux | mimalloc | UniMemory | 25.04% |
+| Linux | jemalloc | Native | 25.04% |
+| Linux | jemalloc | UniMemory | 25.04% |
+| macOS | Standard | Native | — |
+| macOS | Standard | UniMemory | — |
+| macOS | mimalloc | Native | 25.04% |
+| macOS | mimalloc | UniMemory | 25.04% |
+| macOS | jemalloc | Native | 25.04% |
+| macOS | jemalloc | UniMemory | 25.04% |
+<!-- /performance-table -->
+
+## Heap collect
+
+16384 × 4096 B: 64 MiB, fully touched. Free each Block, then call collect() on independent Heap.
+
+<!-- performance-table:footprint -->
 | Platform | Backend | Kind | Live | Free | Collect |
 | --- | --- | --- | --- | --- | --- |
 | Windows | Standard | Global | 69.61 | 0.29 | — |
 | Windows | mimalloc | Global | 64.31 | 64.32 | — |
-| Windows | mimalloc | Heap | 64.29 | 64.29 | 0.29 |
-| Windows | jemalloc | Global | 70.52 | 70.52 | — |
-| Windows | jemalloc | Heap | 70.09 | 70.09 | 6.12 |
+| Windows | mimalloc | Heap | 64.29 | 64.29 | 0.30 |
+| Windows | jemalloc | Global | 72.05 | 72.05 | — |
+| Windows | jemalloc | Heap | 72.09 | 72.09 | 8.18 |
 | Linux | Standard | Global | 64.38 | 0.25 | — |
 | Linux | mimalloc | Global | 66.14 | 66.14 | — |
 | Linux | mimalloc | Heap | 66.13 | 66.13 | 2.13 |
-| Linux | jemalloc | Global | 66.32 | 66.32 | — |
-| Linux | jemalloc | Heap | 66.32 | 66.32 | 2.43 |
+| Linux | jemalloc | Global | 65.12 | 65.12 | — |
+| Linux | jemalloc | Heap | 67.12 | 67.12 | 3.25 |
+| macOS | Standard | Global | 64.28 | 8.28 | — |
+| macOS | mimalloc | Global | 64.34 | 64.34 | — |
+| macOS | mimalloc | Heap | 64.30 | 64.30 | 64.30 |
+| macOS | jemalloc | Global | 65.53 | 65.53 | — |
+| macOS | jemalloc | Heap | 65.55 | 65.55 | 1.55 |
+<!-- /performance-table -->
 
-collect() reclaims eligible idle resources; it does not destroy live Objects or guarantee an immediate memory decrease.
+collect() reclaims eligible idle resources; it does not destroy live objects or guarantee an immediate memory decrease.
 
-## 4 · Library storage
+## Library storage
 
-| Type | x64 bytes |
-| --- | --- |
-| Memory | 80 |
-| OwnedBlock | 32 |
-| Allocator<T> | 8 |
+<!-- performance-table:storage -->
+| Platform | Memory / B | OwnedBlock / B | `Allocator<T>` / B |
+| --- | --- | --- | --- |
+| Windows | 80 | 32 | 8 |
+| Linux | 80 | 32 | 8 |
+| macOS | 80 | 32 | 8 |
+<!-- /performance-table -->
 
-Stack setup requires no separate state allocation. This table excludes Global shared state, Basic counters and native allocator metadata. Sizes depend on ABI.
+Type sizes come from the measured builds. They exclude Global shared state, Basic counters and native metadata. Stack setup requires no separate state allocation.
 
-Linux uses smaps_rollup RSS; Windows uses the working set. OS peak-memory counters differ from phase RSS snapshots.
+Linux uses smaps_rollup RSS, Windows uses the working set, and macOS uses resident size. OS peak counters differ from phase snapshots.
 
-[Method](../benchmarking.md) · [Raw data](../results/0.0.1/README.md) · [Native programs](applications.md)
+[Method](../benchmarking.md) · [Raw data](../results/current/README.md) · [Native programs](applications.md)

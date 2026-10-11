@@ -8,7 +8,7 @@
   "Statistics cost · allocation p99": "统计开销 · 分配 P99 延迟",
   "Nanoseconds · lower is better": "延迟（纳秒）· 越低越好",
   "Mixed-lifetime memory retention": "混合生命周期 · 释放后内存",
-  "Resident MiB · not a fragmentation or leak rate": "驻留内存（MiB）· 不代表碎片率或泄漏率",
+  "Resident MiB above baseline · not a fragmentation or leak rate": "基线以上驻留内存（MiB）· 不代表碎片率或泄漏率",
   "API workloads · normalized time": "常用操作 · 相对耗时",
   "Relative to UniMemory Standard = 1 · lower is better": "以 UniMemory Standard 为 1 · 越低越好",
   "Threads": "线程数",
@@ -37,5 +37,8 @@
   "Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.": "三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。",
   "API workloads · absolute time": "API 负载 · 绝对耗时",
   "Nanoseconds per workload operation · lower is better": "每次负载操作纳秒数 · 越低越好",
-  "{platform} · {revision} · selected API statistics mode · compare within each workload": "{platform} · {revision} · 当前 API 统计模式 · 仅在同一负载内比较"
+  "{platform} · {revision} · selected API statistics mode · compare within each workload": "{platform} · {revision} · 当前 API 统计模式 · 仅在同一负载内比较",
+  "{platform} · {revision} · Native/API: OFF; API + stats: ON · independent builds/runners; no causal cost": "{platform} · {revision} · 原生/封装取 OFF，封装＋统计取 ON；独立构建与机器，不代表统计的因果开销",
+  "{platform} · {revision} · Standard = 1 · independent OFF builds/runners; not a controlled ranking": "{platform} · {revision} · Standard = 1；各后端 OFF 独立构建与机器，不代表受控排名",
+  "{platform} · {revision} · OFF baselines · independent builds/runners; hardware and SDKs may differ": "{platform} · {revision} · 统计关闭；各后端独立构建与机器，硬件和 SDK 可不同"
 }

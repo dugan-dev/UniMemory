@@ -1,0 +1,103 @@
+{
+  "source": "https://github.com/daanx/mimalloc-bench",
+  "revision": "ce2df0bcf27ddcc0a690ae777788d1dfcb5fae86",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "threads": 4,
+  "trials": 3,
+  "commands": {
+    "cfrac": [
+      "17545186520507317056371138836327483792789528"
+    ],
+    "espresso": [
+      "espresso/largest.espresso"
+    ],
+    "barnes": [],
+    "larson": [
+      "5",
+      "8",
+      "1000",
+      "5000",
+      "100",
+      "4141",
+      "4"
+    ],
+    "larson-sized": [
+      "5",
+      "8",
+      "1000",
+      "5000",
+      "100",
+      "4141",
+      "4"
+    ],
+    "alloc-test": [
+      "4"
+    ],
+    "cache-scratch": [
+      "4",
+      "1000",
+      "1",
+      "2000000",
+      "4"
+    ],
+    "cache-thrash": [
+      "4",
+      "1000",
+      "1",
+      "2000000",
+      "4"
+    ],
+    "xmalloc-test": [
+      "-w",
+      "4",
+      "-t",
+      "5",
+      "-s",
+      "64"
+    ],
+    "malloc-large-old": [],
+    "malloc-large": [],
+    "mstress": [
+      "4",
+      "50",
+      "25"
+    ],
+    "mleak": [
+      "1"
+    ],
+    "rptest": [
+      "4",
+      "0",
+      "1",
+      "2",
+      "500",
+      "1000",
+      "100",
+      "8",
+      "16000"
+    ],
+    "glibc-simple": [],
+    "glibc-thread": [
+      "4"
+    ]
+  },
+  "interface": "native malloc/new through LD_PRELOAD",
+  "elapsed_clock": "Python perf_counter_ns (monotonic, includes process startup)",
+  "excluded": {
+    "sh6bench/sh8bench": "Licensed sources not distributed in the collection.",
+    "security": "Intentional undefined behavior; not valid allocation workloads.",
+    "externally downloaded applications": "Require additional dependencies outside this suite."
+  },
+  "libraries": {
+    "standard": null,
+    "mimalloc": "libmimalloc.so.3.4",
+    "jemalloc": "libjemalloc.so.2"
+  },
+  "source_revision": "e758dc2a847603b8fbd0cd3125f69012388aaf82",
+  "run_id": "38101997387",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38101997387",
+  "schema": 1,
+  "measured_at_utc": "2026-10-11",
+  "measurement_date_source": "workflow run date; native artifact has no per-process timestamp",
+  "artifact_name": "native-application-comparison"
+}

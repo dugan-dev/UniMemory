@@ -2,6 +2,8 @@ import importlib.util
 import itertools
 import json
 from pathlib import Path
+import shutil
+import statistics
 import tempfile
 import unittest
 from unittest import mock
@@ -35,7 +37,7 @@ class ReportTests(unittest.TestCase):
         measurement.write_rows(self.directory / "tails.csv", tails)
         latency = [{"trial": t, "backend": b, "path": p, "bytes": s, "min_ns": 1, "median_ns": 2, "max_ns": 3}
                    for t,b,p,s in itertools.product(range(1,4), report.BACKENDS, report.PATHS, (16,64,256,4096,65536))]
-        pressure = [{"trial": t, "backend": b, "path": p, "phase": phase, "rss": 100, "peak_rss": 100,
+        pressure = [{"trial": t, "backend": b, "path": p, "phase": phase, "baseline_rss": 10, "rss": 100, "peak_rss": 100,
                      "requested_bytes": 0 if phase == "freed" else 64, "live_blocks": 0 if phase == "freed" else 1}
                     for t,b,p,phase in itertools.product(range(1,4), report.BACKENDS, report.PATHS,
                                                          ("dense", "sparse", "churn_dense", "churn_sparse", "freed"))]
@@ -209,6 +211,170 @@ class ReportTests(unittest.TestCase):
             matching = [node for node in columns if node.get("data-path") == path]
             self.assertEqual([(node.get("fill"), node.get("opacity")) for node in matching],
                              [(matching[0].get("fill"), matching[0].get("opacity"))]*2)
+
+
+class CombinedReportTests(unittest.TestCase):
+    source = ROOT / "docs/results/current/linux-x64"
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.directory = Path(self.temp.name)
+
+    def copy_profiles(self):
+        destination = self.directory / "linux-x64"
+        for backend in report.BACKENDS:
+            shutil.copytree(self.source / backend, destination / backend)
+        return destination
+
+    def test_missing_profile_rejected_before_writing_any_charts(self):
+        current = self.directory / "current"
+        for platform in report.PLATFORM_LABELS:
+            for backend in report.BACKENDS:
+                shutil.copytree(ROOT / "docs/results/current" / platform / backend, current / platform / backend)
+        (current / "macos-arm64/jemalloc/ON/environment.json").unlink()
+        output = self.directory / "charts"
+        with self.assertRaisesRegex(ValueError, "Missing performance profile"):
+            report.refresh_reports(current, output)
+        self.assertFalse(output.exists())
+
+    def test_stale_source_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Stale source revision"):
+            report.load_combined(self.source, expected_revision="0" * 40)
+
+    def test_complete_refresh_preserves_profile_analysis_and_refreshes_every_chart(self):
+        output = self.directory / "charts"
+        preserved = []
+        for platform, backend, mode in itertools.product(report.PLATFORM_LABELS, report.BACKENDS, ("OFF", "ON")):
+            directory = output / platform / backend / mode
+            directory.mkdir(parents=True)
+            for name, content in (("README.md", "Recorded baseline signals.\n"), ("summary.json", '{"baseline":"recorded"}\n')):
+                path = directory / name
+                path.write_text(content)
+                preserved.append((path, path.read_bytes()))
+        result = report.refresh_reports(ROOT / "docs/results/current", output)
+        self.assertEqual(result["profiles"], 18)
+        self.assertEqual(result["charts"], 252)
+        charts = list(output.rglob("*.svg"))
+        self.assertEqual(len(charts), 252)
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        for path in charts:
+            document = ET.parse(path).getroot()
+            metadata = json.loads(document.find("svg:metadata", namespace).text)
+            self.assertEqual(metadata["source_revision"], result["source_revision"], path)
+            content = path.read_bytes()
+            self.assertTrue(content.endswith(b"\n"), path)
+            self.assertNotIn(b"\r", content, path)
+            self.assertEqual(content, (ROOT / "docs/images/performance" / path.relative_to(output)).read_bytes(), path)
+        for path, content in preserved:
+            self.assertEqual(path.read_bytes(), content)
+
+    def test_different_profile_revisions_or_protocols_rejected(self):
+        for key in ("source_revision", "measurement_protocol", "pressure_protocol"):
+            with self.subTest(key=key):
+                current = self.copy_profiles()
+                path = current / "jemalloc/ON/environment.json"
+                manifest = json.loads(path.read_text())
+                manifest[key] = "different"
+                path.write_text(json.dumps(manifest))
+                with self.assertRaisesRegex(ValueError, "different source revisions, protocols"):
+                    report.load_combined(current)
+                shutil.rmtree(current)
+
+    def test_aggregate_svg_selects_off_baselines_and_on_statistics_with_separate_provenance(self):
+        data = report.load_combined(self.source)
+        output = self.directory / "charts"
+        output.mkdir()
+        for language in report.LANGUAGES:
+            report.render_combined(data, output, "Linux x64", language)
+        self.assertEqual(len(list(output.glob("*.svg"))), 12)
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        document = ET.parse(output / "statistics.svg").getroot()
+        metadata = json.loads(document.find("svg:metadata", namespace).text)
+        self.assertEqual(set(metadata["profiles"]), {f"{backend}/{mode}" for backend in report.BACKENDS for mode in ("OFF", "ON")})
+        self.assertNotIn("executable_sha256", metadata)
+        for entry in metadata["series"]:
+            backend, path = entry["backend"], entry["path"]
+            mode = "ON" if path == "basic" else "OFF"
+            self.assertEqual(entry["profile"], f"{backend}/{mode}")
+            measured = report.read(self.source / backend / mode / "tails.csv")
+            expected = [statistics.median(float(row["allocate_p99_ns"]) for row in measured
+                                          if row["path"] == path and int(row["bytes"]) == size)
+                        for size in (16, 64, 256, 4096, 65536)]
+            self.assertEqual(entry["values"], expected)
+            self.assertEqual(metadata["profiles"][entry["profile"]]["manifest"],
+                             json.loads((self.source / backend / mode / "environment.json").read_text()))
+            self.assertEqual(metadata["profiles"][entry["profile"]]["sweep_manifest"],
+                             json.loads((self.source / backend / mode / "sweep-environment.json").read_text()))
+        text = " ".join(node.text or "" for node in document.findall(".//svg:text", namespace))
+        self.assertIn("independent builds/runners", text)
+        self.assertIn("no causal cost", text)
+        for name in report.CHARTS:
+            english = ET.parse(output / f"{name}.svg").getroot()
+            chinese = ET.parse(output / f"{name}.zh-CN.svg").getroot()
+            self.assertEqual(json.loads(english.find("svg:metadata", namespace).text),
+                             json.loads(chinese.find("svg:metadata", namespace).text))
+
+    def test_normalized_workloads_use_current_off_api_measurements(self):
+        data = report.load_combined(self.source)
+        report.render_combined(data, self.directory, "Linux x64", "en")
+        document = ET.parse(self.directory / "workloads.svg").getroot()
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        metadata = json.loads(document.find("svg:metadata", namespace).text)
+        self.assertEqual(metadata["data_file"], "full.csv")
+        medians = {}
+        for backend in report.BACKENDS:
+            rows = report.read(self.source / backend / "OFF/full.csv")
+            medians[backend] = [statistics.median(float(row["median_ns_per_operation"]) for row in rows
+                                                 if (row["workload"], row["bytes"], row["alignment"]) == scenario
+                                                 and row["statistics"] == "disabled" and row["heap"] == "no" and row["threads"] == "1")
+                                for scenario in report.API_SCENARIOS]
+        for entry in metadata["series"]:
+            self.assertEqual(entry["values"], [value / baseline for value, baseline in
+                                              zip(medians[entry["backend"]], medians["standard"])])
+            self.assertEqual(entry["profile"], f"{entry['backend']}/OFF")
+        text = " ".join(node.text or "" for node in document.findall(".//svg:text", namespace))
+        self.assertIn("independent OFF builds/runners", text)
+
+    def test_retention_subtracts_each_trial_baseline_before_median(self):
+        data = report.load_combined(self.source)
+        baselines = {"1": 10, "2": 100, "3": 30}
+        resident = {"1": 100, "2": 200, "3": 110}
+        for row in data["tables"]["pressure"]:
+            row["baseline_rss"] = baselines[row["trial"]] * 1024**2
+            row["rss"] = resident[row["trial"]] * 1024**2
+        report.render_combined(data, self.directory, "Linux x64", "en")
+        document = ET.parse(self.directory / "retention.svg").getroot()
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        metadata = json.loads(document.find("svg:metadata", namespace).text)
+        self.assertEqual(metadata["metric"], "rss_minus_baseline_rss")
+        self.assertEqual(metadata["unit"], "MiB")
+        for entry in metadata["series"]:
+            self.assertEqual(entry["values"], [90] * 5)
+        text = " ".join(node.text or "" for node in document.findall(".//svg:text", namespace))
+        self.assertIn("Resident MiB above baseline", text)
+
+    def test_checked_in_aggregate_charts_use_current_profile_sources_and_public_platform_labels(self):
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        for platform, label in report.PLATFORM_LABELS.items():
+            source = ROOT / "docs/results/current" / platform
+            expected_revision = json.loads((source / "standard/OFF/environment.json").read_text())["source_revision"]
+            summary = json.loads((ROOT / "docs/images/performance" / platform / "summary.json").read_text())
+            self.assertEqual(summary["source_revision"], expected_revision)
+            analysis = (ROOT / "docs/images/performance" / platform / "README.md").read_text()
+            self.assertIn(expected_revision, analysis)
+            self.assertNotIn("Baseline signals", analysis)
+            for name, language in itertools.product(report.CHARTS, report.LANGUAGES):
+                suffix = "" if language == "en" else ".zh-CN"
+                path = ROOT / "docs/images/performance" / platform / f"{name}{suffix}.svg"
+                document = ET.parse(path).getroot()
+                metadata = json.loads(document.find("svg:metadata", namespace).text)
+                self.assertEqual(metadata["source_revision"], expected_revision, path)
+                for key, profile in metadata["profiles"].items():
+                    self.assertEqual(profile["manifest"], json.loads((source / key / "environment.json").read_text()), path)
+                text = " ".join(node.text or "" for node in document.findall(".//svg:text", namespace))
+                self.assertIn(label, text)
+                self.assertNotIn("arm64", text.lower())
 
 
 if __name__ == "__main__":

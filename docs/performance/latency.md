@@ -2,94 +2,172 @@
 
 [Performance](../performance.md) · **English** · [简体中文](latency.zh-CN.md)
 
-**Nanoseconds per complete operation; lower is faster.** Median of three process trials; Global allocation, counters off.
+**Nanoseconds per complete operation; lower is faster.** Median of three fresh processes; Global, counters off, Release builds.
 
-## 1 · Object / Container / Block
+<!-- performance-source -->
+2026-10-11 · [e758dc2](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387) · [CSV](../results/current/README.md)
+<!-- /performance-source -->
 
-### Windows / MSVC
-
-| Workload | Standard | mimalloc | jemalloc |
-| --- | --- | --- | --- |
-| make_unique, 64 B | 46.4 | 12.2 | 36.0 |
-| make_shared, 64 B | 63.1 | 23.7 | 56.5 |
-| vector, 32 integers | 590.3 | 237.4 | 488.5 |
-| PMR vector, 32 integers | 580.5 | 253.6 | 494.7 |
-| Zeroed Block, 4 KiB | 81.3 | 52.1 | 70.7 |
-| Block resize, 4 to 8 KiB | 168.5 | 139.8 | 149.4 |
-| Mixed lifetimes, 4-16 KiB | 152.0 | 44.9 | 138.5 |
-| Cross-thread free, 8 threads | 105.4 | 59.8 | 166.6 |
-
-### Linux / GCC / WSL
-
-| Workload | Standard | mimalloc | jemalloc |
-| --- | --- | --- | --- |
-| make_unique, 64 B | 18.8 | 10.6 | 20.0 |
-| make_shared, 64 B | 20.8 | 13.3 | 27.3 |
-| vector, 32 integers | 153.2 | 111.5 | 190.4 |
-| PMR vector, 32 integers | 171.8 | 131.6 | 207.0 |
-| Zeroed Block, 4 KiB | 72.0 | 59.9 | 65.1 |
-| Block resize, 4 to 8 KiB | 119.1 | 94.6 | 111.4 |
-| Mixed lifetimes, 4-16 KiB | 134.6 | 35.0 | 93.1 |
-| Cross-thread free, 8 threads | 139.3 | 53.5 | 151.4 |
-
-Object includes construction/destruction; vector includes growth/destruction; resize includes allocation, growth and release. Compare within a row.
-
-![Backend workload comparison](../images/workload-comparison.png)
-
-Standard = 1 within each workload; shorter is faster.
-
-## 2 · Native / API / Basic
-
-One allocation/free pair, alignment 16. Native calls the backend directly; API uses UniMemory with counters off; Basic enables counters.
+## Object, container and block
 
 ### Windows
 
+<!-- performance-table:workloads-windows-x64 -->
+| Workload | Standard | mimalloc | jemalloc |
+| --- | --- | --- | --- |
+| make_unique, 64 B | 43.6 | 8.1 | 31.4 |
+| make_shared, 64 B | 49.9 | 12.4 | 50.7 |
+| vector, 32 uint64_t | 611.7 | 174.6 | 428.7 |
+| PMR vector, 32 uint64_t | 559.3 | 184.3 | 432.3 |
+| Zeroed Block, 4 KiB | 88.1 | 62.4 | 60.4 |
+| Block resize, 4 to 8 KiB | 162.9 | 104.5 | 132.8 |
+| Mixed lifetimes, 4-16 KiB | 114.3 | 29.3 | 127.0 |
+| Cross-thread free, 64 B, 8 threads | 92.2 | 51.0 | 106.2 |
+<!-- /performance-table -->
+
+### Linux
+
+<!-- performance-table:workloads-linux-x64 -->
+| Workload | Standard | mimalloc | jemalloc |
+| --- | --- | --- | --- |
+| make_unique, 64 B | 6.2 | 7.0 | 6.6 |
+| make_shared, 64 B | 7.6 | 11.4 | 11.3 |
+| vector, 32 uint64_t | 57.2 | 79.7 | 80.2 |
+| PMR vector, 32 uint64_t | 62.1 | 86.6 | 88.2 |
+| Zeroed Block, 4 KiB | 44.8 | 89.1 | 37.3 |
+| Block resize, 4 to 8 KiB | 75.0 | 103.2 | 62.2 |
+| Mixed lifetimes, 4-16 KiB | 102.6 | 26.1 | 47.4 |
+| Cross-thread free, 64 B, 8 threads | 75.7 | 36.0 | 38.6 |
+<!-- /performance-table -->
+
+### macOS
+
+<!-- performance-table:workloads-macos-arm64 -->
+| Workload | Standard | mimalloc | jemalloc |
+| --- | --- | --- | --- |
+| make_unique, 64 B | 18.4 | 4.8 | 17.0 |
+| make_shared, 64 B | 19.1 | 10.3 | 20.6 |
+| vector, 32 uint64_t | 141.3 | 69.6 | 170.1 |
+| PMR vector, 32 uint64_t | 144.5 | 88.7 | 185.5 |
+| Zeroed Block, 4 KiB | 66.8 | 62.2 | 76.5 |
+| Block resize, 4 to 8 KiB | 146.6 | 100.9 | 131.5 |
+| Mixed lifetimes, 4-16 KiB | 31.6 | 21.5 | 23.7 |
+| Cross-thread free, 64 B, 8 threads | 28.8 | 15.9 | 58.5 |
+<!-- /performance-table -->
+
+Objects include construction/destruction; vectors grow to 32 uint64_t values; resize includes allocation, growth and release. Compare within each row.
+
+![Object and block allocation time](../images/workload-comparison.png)
+
+![macOS object and block allocation time](../images/performance/macos-arm64/workloads.svg)
+
+Standard = 1; shorter is faster. The macOS chart covers selected API scenarios; all eight workloads are in the tables.
+
+## Native interface and counters
+
+One allocation/free pair, alignment 16. Native calls the backend directly; API uses UniMemory with counters off; Basic enables counters. Native/API share the OFF build; Basic comes from the ON build.
+
+### Windows
+
+<!-- performance-table:latency-windows-x64 -->
 | Bytes | Backend | Native | API | Basic |
 | --- | --- | --- | --- | --- |
-| 64 | Standard | 42.3 | 44.4 | 72.3 |
-| 64 | mimalloc | 7.1 | 11.2 | 33.5 |
-| 64 | jemalloc | 36.2 | 38.5 | 65.6 |
-| 4096 | Standard | 44.7 | 45.4 | 70.8 |
-| 4096 | mimalloc | 28.2 | 32.5 | 54.3 |
-| 4096 | jemalloc | 42.6 | 43.7 | 71.5 |
+| 16 | Standard | 45.6 | 46.2 | 42.7 |
+| 16 | mimalloc | 7.3 | 7.2 | 9.8 |
+| 16 | jemalloc | 32.9 | 33.5 | 43.9 |
+| 64 | Standard | 45.0 | 46.1 | 44.0 |
+| 64 | mimalloc | 6.8 | 7.6 | 10.0 |
+| 64 | jemalloc | 33.2 | 33.0 | 41.6 |
+| 256 | Standard | 47.5 | 48.2 | 46.2 |
+| 256 | mimalloc | 7.8 | 8.5 | 10.9 |
+| 256 | jemalloc | 33.4 | 33.6 | 44.0 |
+| 4096 | Standard | 47.5 | 49.0 | 44.7 |
+| 4096 | mimalloc | 28.7 | 29.4 | 30.6 |
+| 4096 | jemalloc | 35.9 | 36.5 | 46.9 |
+| 65536 | Standard | 125.4 | 128.4 | 100.7 |
+| 65536 | mimalloc | 31.5 | 32.2 | 33.4 |
+| 65536 | jemalloc | 289.7 | 289.6 | 331.5 |
+<!-- /performance-table -->
 
-### Linux / WSL
+### Linux
 
+<!-- performance-table:latency-linux-x64 -->
 | Bytes | Backend | Native | API | Basic |
 | --- | --- | --- | --- | --- |
-| 64 | Standard | 15.9 | 21.0 | 44.1 |
-| 64 | mimalloc | 9.0 | 12.2 | 34.3 |
-| 64 | jemalloc | 18.1 | 24.1 | 44.1 |
-| 4096 | Standard | 28.1 | 34.5 | 54.6 |
-| 4096 | mimalloc | 29.9 | 31.6 | 58.2 |
-| 4096 | jemalloc | 21.0 | 29.5 | 47.9 |
+| 16 | Standard | 8.7 | 8.8 | 26.2 |
+| 16 | mimalloc | 8.4 | 9.4 | 10.4 |
+| 16 | jemalloc | 11.3 | 11.3 | 16.3 |
+| 64 | Standard | 8.5 | 9.0 | 25.9 |
+| 64 | mimalloc | 8.8 | 9.5 | 10.3 |
+| 64 | jemalloc | 10.3 | 10.9 | 16.5 |
+| 256 | Standard | 8.8 | 9.4 | 25.8 |
+| 256 | mimalloc | 9.8 | 10.2 | 10.9 |
+| 256 | jemalloc | 10.4 | 10.8 | 16.7 |
+| 4096 | Standard | 15.9 | 15.9 | 31.4 |
+| 4096 | mimalloc | 24.1 | 24.4 | 24.6 |
+| 4096 | jemalloc | 12.9 | 12.9 | 18.9 |
+| 65536 | Standard | 17.3 | 17.4 | 31.7 |
+| 65536 | mimalloc | 25.3 | 25.3 | 26.5 |
+| 65536 | jemalloc | 193.5 | 192.4 | 253.2 |
+<!-- /performance-table -->
 
-Disabling counters avoids counting overhead; the unified API still adds call overhead. Successful requests match in size/alignment; failure handling differs. See the [measurement method](../benchmarking.md).
+### macOS
 
-## 3 · Cross-thread free
+<!-- performance-table:latency-macos-arm64 -->
+| Bytes | Backend | Native | API | Basic |
+| --- | --- | --- | --- | --- |
+| 16 | Standard | 16.5 | 18.9 | 19.8 |
+| 16 | mimalloc | 5.0 | 5.3 | 6.7 |
+| 16 | jemalloc | 15.2 | 16.7 | 18.1 |
+| 64 | Standard | 19.6 | 20.8 | 24.2 |
+| 64 | mimalloc | 5.2 | 5.7 | 6.9 |
+| 64 | jemalloc | 16.0 | 21.3 | 18.7 |
+| 256 | Standard | 19.5 | 20.7 | 20.2 |
+| 256 | mimalloc | 6.8 | 6.8 | 7.9 |
+| 256 | jemalloc | 16.1 | 15.6 | 23.3 |
+| 4096 | Standard | 22.3 | 22.5 | 26.3 |
+| 4096 | mimalloc | 14.7 | 15.3 | 20.1 |
+| 4096 | jemalloc | 22.3 | 20.8 | 27.2 |
+| 65536 | Standard | 27.4 | 25.4 | 26.5 |
+| 65536 | mimalloc | 16.6 | 16.7 | 30.1 |
+| 65536 | jemalloc | 248.3 | 262.3 | 297.3 |
+<!-- /performance-table -->
 
-One thread allocates; workers free. Worker creation is outside timing; completion is inside.
+Small differences may be measurement noise; counter cost varies by backend and size. Successful requests match in size and alignment.
 
+## Cross-thread free
+
+One thread allocates 64 B blocks; workers free them. Worker creation is outside timing; completion is inside.
+
+<!-- performance-table:cross-thread -->
 | Platform | Workers | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- | --- |
-| Windows | 2 | 118.7 | 53.8 | 81.5 |
-| Windows | 4 | 101.2 | 49.5 | 100.1 |
-| Windows | 8 | 105.4 | 59.8 | 166.6 |
-| Linux | 2 | 125.9 | 48.4 | 54.4 |
-| Linux | 4 | 124.8 | 42.5 | 76.3 |
-| Linux | 8 | 139.3 | 53.5 | 151.4 |
+| Windows | 2 | 63.7 | 30.2 | 80.2 |
+| Windows | 4 | 84.8 | 34.9 | 92.0 |
+| Windows | 8 | 92.2 | 51.0 | 106.2 |
+| Linux | 2 | 65.6 | 22.6 | 21.8 |
+| Linux | 4 | 81.8 | 23.7 | 29.1 |
+| Linux | 8 | 75.7 | 36.0 | 38.6 |
+| macOS | 2 | 26.2 | 14.2 | 49.9 |
+| macOS | 4 | 26.1 | 14.4 | 45.4 |
+| macOS | 8 | 28.8 | 15.9 | 58.5 |
+<!-- /performance-table -->
 
-## 4 · Stack
+## Stack
 
-Prepared Buffer, one mark/allocate/rewind cycle. Writes one byte; this is not an equivalent Heap-allocation workload.
+Prepared Buffer, one mark/allocate/rewind cycle, alignment 16. Writes one byte; its work differs from Heap allocation.
 
+<!-- performance-table:stack -->
 | Platform | Bytes | ns/cycle |
 | --- | --- | --- |
-| Windows | 64 | 3.49 |
-| Windows | 4096 | 3.58 |
-| Linux | 64 | 4.13 |
-| Linux | 4096 | 4.15 |
+| Windows | 64 | 3.39 |
+| Windows | 4096 | 3.39 |
+| Linux | 64 | 3.84 |
+| Linux | 4096 | 3.83 |
+| macOS | 64 | 4.33 |
+| macOS | 4096 | 3.91 |
+<!-- /performance-table -->
 
-CPU affinity is unpinned; small differences may be noise. Raw latency files retain within-process min/median/max and all three trials; these are not p95/p99 results.
+CPU affinity is unpinned. These are complete-operation medians; individual-allocation p95/p99 are on the performance overview.
 
-[Method](../benchmarking.md) · [Raw data](../results/0.0.1/README.md) · [Memory](memory.md)
+[Method](../benchmarking.md) · [Raw data](../results/current/README.md) · [Memory](memory.md)

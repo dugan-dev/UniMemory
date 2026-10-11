@@ -4,6 +4,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import time
@@ -14,7 +15,39 @@ from publication_metadata import sanitize_publication
 WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
 REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
                    "diagnostics acceptance", "performance acceptance"}
-GENERATED_PATHS = ("docs/images/performance/", "docs/results/current/")
+GENERATED_DIRECTORIES = ("docs/images/performance/", "docs/results/current/")
+GENERATED_FILES = {"README.md", "README.zh-CN.md", "docs/images/workload-comparison.png",
+                   "docs/images/memory-retention.png",
+                   *[f"docs/performance/{name}{suffix}" for name in ("latency", "memory", "applications")
+                     for suffix in (".md", ".zh-CN.md")]}
+GENERATED_PATHS = (*GENERATED_DIRECTORIES, *sorted(GENERATED_FILES))
+
+
+def generated_path(path):
+    return path in GENERATED_FILES or path.startswith(GENERATED_DIRECTORIES)
+
+
+def narrative(content, filename):
+    """Ignore generated numbers/source lines while preserving all user prose."""
+    if filename in ("README.md", "README.zh-CN.md"):
+        heading = "## Performance" if filename == "README.md" else "## \u6027\u80fd"
+        begin = content.index(heading + "\n")
+        end = content.index("\n## ", begin + len(heading))
+        lines = content[begin:end].splitlines()
+        for index, line in enumerate(lines):
+            if line.startswith("Windows x64 ·"):
+                lines[index] = "<measurement environment>"
+            elif line.startswith("|"):
+                label = line.split("|")[1].strip()
+                lines[index] = f"| {label} | <measurements> |"
+        return content[:begin] + "\n".join(lines) + content[end:]
+    return re.sub(r"(<!-- performance-(?:table:[^>]+|source) -->)\n.*?\n(<!-- /performance-(?:table|source) -->)",
+                  r"\1\n<measurements>\n\2", content, flags=re.DOTALL)
+
+
+def validate_narrative(before, after, filename):
+    if narrative(before, filename) != narrative(after, filename):
+        raise RuntimeError(f"Publication changed user prose outside performance data: {filename}")
 
 
 def validate_results_pr(pr, files, repository, branch, base, revision, head):
@@ -23,7 +56,7 @@ def validate_results_pr(pr, files, repository, branch, base, revision, head):
             pr["head"]["ref"] != branch or pr["head"]["sha"] != head or
             pr["base"]["ref"] != base or pr["base"]["sha"] != revision):
         raise RuntimeError("Results PR identity or source revision changed")
-    if len(files) != pr["changed_files"] or not files or any(not item["filename"].startswith(GENERATED_PATHS)
+    if len(files) != pr["changed_files"] or not files or any(not generated_path(item["filename"])
                         for item in files):
         raise RuntimeError("Results PR contains changes outside generated paths")
 
@@ -55,6 +88,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("artifacts", type=Path)
     parser.add_argument("base", choices=("dev", "main"))
+    parser.add_argument("--native-input", type=Path)
     args = parser.parse_args()
     revision = os.environ["GITHUB_SHA"]
     root = Path(__file__).resolve().parents[2]
@@ -91,10 +125,34 @@ def main():
                 for path in charts.glob("*.json"):
                     published = sanitize_publication(json.loads(path.read_text(encoding="utf-8")))
                     path.write_text(json.dumps(published, indent=2) + "\n", encoding="utf-8")
+    report.refresh_reports(root / "docs/results/current", root / "docs/images/performance", revision)
+    def load_refresh(name):
+        spec = importlib.util.spec_from_file_location(name.replace("-", "_"), root / "tools/ci" / (name + ".py"))
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    overview = load_refresh("refresh-performance-overview")
+    expected = overview.refresh_overview(root, root / "build/publication-overview.json", revision)
+    rendered = args.artifacts / "performance-overview"
+    actual = json.loads((rendered / "comparison.json").read_text(encoding="utf-8"))
+    if actual != expected:
+        raise RuntimeError("Rendered PNG figures use different measurements")
+    for name in ("workload-comparison.png", "memory-retention.png"):
+        source = rendered / name
+        if not source.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"):
+            raise RuntimeError("Invalid rendered PNG figure")
+        shutil.copyfile(source, root / "docs/images" / name)
+    load_refresh("refresh-performance-tables").refresh_tables(root, args.native_input)
     allowed = GENERATED_PATHS
     changed = subprocess.check_output(["git", "status", "--porcelain=v1", "-z"], text=True).split("\0")
-    if any(line and not line[3:].startswith(allowed) for line in changed):
+    if any(line and not generated_path(line[3:]) for line in changed):
         raise RuntimeError("Publication attempted changes outside generated paths")
+    for item in changed:
+        if item and item[3:] in GENERATED_FILES and item[3:].endswith(".md"):
+            filename = item[3:]
+            before = run("git", "show", f"{revision}:{filename}")
+            after = (root / filename).read_text(encoding="utf-8").strip()
+            validate_narrative(before, after, filename)
     run("git", "config", "user.name", "github-actions[bot]")
     run("git", "config", "user.email", "41898282+github-actions[bot]@users.noreply.github.com")
     run("git", "add", "--", *allowed)

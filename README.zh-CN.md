@@ -21,7 +21,7 @@
 ## 特点
 
 - **🚀 现代 C++20**：类型化构造，与标准库集成。
-- **🔄 统一后端**：Memory 为非模板类，每次构建选择 Standard、mimalloc 或 jemalloc。
+- **🔄 统一后端**：一套 API 使用 Standard、mimalloc 和 jemalloc。
 - **🧱 对象与数组**：创建、销毁对象和数组，构造失败时清理资源。
 - **🔒 智能指针**：创建独占、共享智能指针，支持接管已有对象。
 - **📦 标准容器**：通过 Allocator 和 PMR 接入标准库容器。
@@ -197,11 +197,11 @@ scratch.reset();
 ### 初始化与统计
 
 ```cpp
-// 构建时通过 UNIMEMORY_STATISTICS=ON/OFF 选择请求计数
+// 通过 UNIMEMORY_STATISTICS=ON 启用请求计数
 unimem::Memory& memory = unimem::Memory::global();
 unimem::OwnedBlock block = memory.make_block(1024);
 
-// ON：Global 使用 Basic；OFF：请求统计为空
+// 查询请求次数与字节数；关闭计数时为空
 std::optional<unimem::MemoryStatistics> stats = memory.statistics();
 if (stats) {
     std::uint64_t live = stats->live_bytes;
@@ -234,15 +234,12 @@ if (unimem::supports(backend, option)) {
 
 | 平台 | Standard | mimalloc | jemalloc | 编译器 |
 | --- | :---: | :---: | :---: | --- |
-| Windows x64 | ✔ | ✔ | ✔ | MSVC、clang-cl、MinGW-w64 GCC |
-| Windows ARM64 | ✔ | — | — | MSVC、clang-cl |
-| Linux x64 | ✔ | ✔ | ✔ | GCC 13/14、Clang 18 |
-| Linux ARM64 | ✔ | — | — | GCC 13/14、Clang 18 |
-| macOS Apple Silicon | ✔ | ✔ | ✔ | AppleClang |
-| macOS Intel | ✔ | — | — | AppleClang |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC |
+| Linux x64 | ✔ | ✔ | ✔ | GCC / Clang |
+| macOS | ✔ | ✔ | ✔ | Apple Clang |
 | Android / iOS | — | — | — | 尚未设备验证 |
 
-✔ 已通过 CI；— 尚未验证。可选 SDK 使用各平台默认编译器验证。[平台说明](docs/guides/backends.zh-CN.md)
+✔ 已支持；— 尚待验证。[平台说明](docs/guides/backends.zh-CN.md)
 
 ## 功能
 
@@ -255,36 +252,34 @@ if (unimem::supports(backend, option)) {
 | 闲置内存释放延迟 | — | ✔ | ✔ |
 | 额外依赖 | 无 | SDK | SDK |
 
-每次构建选择一个后端。Standard 无分配器依赖；选择 mimalloc 或 jemalloc 时需要对应 SDK，由接口目标传递链接。[配置指南](docs/guides/backends.zh-CN.md)
+Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。[配置指南](docs/guides/backends.zh-CN.md)
 
 ## 性能
 
-Windows x64 · MSVC 19.44 · 统计关闭 · 2026-09-28。单位 **ns/次，越小越快**。
-
-这些是旧实现的历史测量，不代表当前纯头文件构建。
+Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。取三次测量的中位数，单位 **ns/次，越小越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| 创建并销毁对象，64 B | 46.4 | 12.2 | 36.0 |
-| vector 增长并销毁，32 个整数 | 590.3 | 237.4 | 488.5 |
-| 分配、扩容、释放，4 → 8 KiB | 168.5 | 139.8 | 149.4 |
-| 单线程分配，8 个线程释放 | 105.4 | 59.8 | 166.6 |
+| 创建并销毁对象，64 B | 43.5 | 7.6 | 31.4 |
+| vector 增长并销毁，32 个 `uint64_t` | 611.7 | 174.6 | 428.7 |
+| 分配、扩容、释放，4 → 8 KiB | 162.9 | 104.5 | 132.8 |
+| 单线程分配，8 个线程释放 | 92.2 | 51.0 | 106.2 |
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-图中 Standard = 1，条形越短越快。[完整性能报告](docs/performance.zh-CN.md)
+各后端独立测量；图中 Standard = 1，条形越短越快。[完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 
 需要 **C++20** 和 **CMake 3.25+**。下载[源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，解压后在源码目录执行：
 
 ```sh
-cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-头文件与 CMake `INTERFACE` 目标安装到 `build/installed`，UniMemory 无单独编译的库。`UNIMEMORY_BACKEND`、`UNIMEMORY_STATISTICS` 必须显式设置；`UNIMEMORY_CHECKS=AUTO` 在 Debug 开启前置条件检查、Release 省略。 默认 `UNIMEMORY_AGGRESSIVE_INLINING=ON` 对 MSVC Release 使用 `/Ob3`，影响使用方整个 C++ 翻译单元；设为 `OFF` 可保留自己的内联选项。 [构建选项](docs/getting-started.zh-CN.md#构建选项)
+头文件安装到 `build/installed`。release 预设选择 Standard 并关闭统计，可通过[构建选项](docs/getting-started.zh-CN.md#构建选项)调整。
 
 ## 项目集成
 
@@ -299,7 +294,7 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-配置自己的项目时传入 `-DCMAKE_PREFIX_PATH=<安装目录绝对路径>`，安装目标携带固定的后端、统计和检查策略。源码集成时，在 `add_subdirectory(UniMemory)` 前设置 `UNIMEMORY_BACKEND` 与 `UNIMEMORY_STATISTICS`。[项目集成指南](docs/getting-started.zh-CN.md)
+配置自己的项目时传入 `-DCMAKE_PREFIX_PATH=<安装目录绝对路径>`。源码集成时，在 `add_subdirectory(UniMemory)` 前设置 `UNIMEMORY_BACKEND` 与 `UNIMEMORY_STATISTICS`。[项目集成指南](docs/getting-started.zh-CN.md)
 
 ## 文档
 

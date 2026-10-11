@@ -1,50 +1,27 @@
-# Performance · macos-arm64
+# Performance · macOS
 
-Source: `ca4919fe8a5cebb999991458ef7f660a3ead0820` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38027100953)
+Source: `e758dc2a847603b8fbd0cd3125f69012388aaf82` · [remote run](https://github.com/dugan-dev/UniMemory/actions/runs/38101997387)
 
-Each operation is an allocation/free pair. Ratios below compare matched Native/API processes in this run; they are not cross-machine rankings.
+Statistics OFF. Each row compares Native/API allocation/free pairs from the same measured profile. Backends and ON/OFF profiles use independent builds/runners; hardware and SDK binaries may differ.
 
 | Backend | Size (B) | Native ns/pair | API ns/pair | API / Native |
 | --- | ---: | ---: | ---: | ---: |
-| standard | 16 | 41.24 | 43.98 | 1.066 |
-| standard | 64 | 41.62 | 49.36 | 1.186 |
-| standard | 256 | 53.42 | 49.13 | 0.920 |
-| standard | 4096 | 50.20 | 54.22 | 1.080 |
-| standard | 65536 | 347.31 | 337.34 | 0.971 |
-| mimalloc | 16 | 5.08 | 7.35 | 1.448 |
-| mimalloc | 64 | 5.43 | 7.24 | 1.335 |
-| mimalloc | 256 | 6.37 | 9.25 | 1.452 |
-| mimalloc | 4096 | 14.80 | 17.05 | 1.152 |
-| mimalloc | 65536 | 18.95 | 22.55 | 1.190 |
-| jemalloc | 16 | 15.54 | 19.11 | 1.229 |
-| jemalloc | 64 | 17.07 | 23.41 | 1.371 |
-| jemalloc | 256 | 16.60 | 22.66 | 1.365 |
-| jemalloc | 4096 | 29.55 | 24.20 | 0.819 |
-| jemalloc | 65536 | 328.56 | 288.75 | 0.879 |
+| standard | 16 | 16.46 | 18.90 | 1.149 |
+| standard | 64 | 19.56 | 20.78 | 1.062 |
+| standard | 256 | 19.54 | 20.69 | 1.059 |
+| standard | 4096 | 22.34 | 22.53 | 1.009 |
+| standard | 65536 | 27.36 | 25.41 | 0.929 |
+| mimalloc | 16 | 4.96 | 5.34 | 1.077 |
+| mimalloc | 64 | 5.19 | 5.73 | 1.104 |
+| mimalloc | 256 | 6.82 | 6.81 | 0.998 |
+| mimalloc | 4096 | 14.72 | 15.25 | 1.036 |
+| mimalloc | 65536 | 16.63 | 16.68 | 1.003 |
+| jemalloc | 16 | 15.17 | 16.69 | 1.100 |
+| jemalloc | 64 | 15.99 | 21.26 | 1.329 |
+| jemalloc | 256 | 16.12 | 15.62 | 0.969 |
+| jemalloc | 4096 | 22.29 | 20.83 | 0.935 |
+| jemalloc | 65536 | 248.32 | 262.33 | 1.056 |
 
-## Interpretation
+Tail latency includes clock overhead. Retention shows RSS above each trial's baseline; peak RSS includes process and allocator state. Thread counts above each profile's logical CPU count are oversubscribed.
 
-Tail latency includes measured clock overhead. Peak RSS includes stacks and process state. Threads above the recorded CPU capacity are oversubscribed. Timing regressions on hosted runners are signals requiring repeated measurement, not automatic correctness failures.
-
-
-## Baseline signals
-
-Same recorded CPU/compiler/protocol. These signals require repeated confirmation.
-
-| Backend | Size | API/Native ratio change |
-| --- | ---: | ---: |
-| standard | 16 | -2.1% |
-| standard | 64 | +8.3% |
-| standard | 256 | -14.1% |
-| standard | 4096 | +0.4% |
-| standard | 65536 | -4.1% |
-| mimalloc | 16 | +7.1% |
-| mimalloc | 64 | -3.0% |
-| mimalloc | 256 | +10.6% |
-| mimalloc | 4096 | +5.6% |
-| mimalloc | 65536 | +8.5% |
-| jemalloc | 16 | +9.0% |
-| jemalloc | 64 | +21.0% |
-| jemalloc | 256 | +21.8% |
-| jemalloc | 4096 | -26.8% |
-| jemalloc | 65536 | -14.0% |
+Full profile provenance, including CPUs, executable and SDK hashes, is retained in [summary.json](summary.json). The statistics chart selects OFF Native/API and ON API; those independent runs do not establish causal statistics overhead.

@@ -39,10 +39,33 @@ class PublicationTests(unittest.TestCase):
 
     def test_code_changes_and_empty_scope_rejected(self):
         for files in ([], self.files[:1] + [{"filename": "src/memory.cpp"}],
-                      self.files[:1] + [{"filename": "README.md"}],
-                      self.files[:1] + [{"filename": "README.zh-CN.md"}]):
+                      self.files[:1] + [{"filename": "README.md.backup"}],
+                      self.files[:1] + [{"filename": "docs/performance/new-page.md"}]):
             with self.subTest(files=files), self.assertRaises(RuntimeError):
                 self.validate(files=files)
+
+    def test_exact_overview_files_allowed_without_similar_prefixes(self):
+        for filename in ("README.md", "README.zh-CN.md", "docs/images/workload-comparison.png",
+                         "docs/performance/latency.zh-CN.md"):
+            self.validate(files=self.files[:1] + [{"filename": filename}])
+        self.assertFalse(publisher.generated_path("README.md/memory.cpp"))
+        self.assertFalse(publisher.generated_path("docs/images/workload-comparison.png.cpp"))
+
+    def test_refresh_keeps_readme_user_prose_and_scenario_labels(self):
+        before = "# Library\n\n## Performance\nWindows x64 · 2026-01-01\n| Operation | Native |\n| Create | 1.0 |\n\nSame user guidance.\n\n## Usage\nKeep this."
+        after = before.replace("2026-01-01", "2026-10-11").replace("1.0", "0.8")
+        publisher.validate_narrative(before, after, "README.md")
+        for changed in (after.replace("Keep this", "Changed"), after.replace("Create", "Delete"),
+                        after.replace("Same user guidance", "A different promise")):
+            with self.assertRaises(RuntimeError):
+                publisher.validate_narrative(before, changed, "README.md")
+
+    def test_detail_refresh_only_changes_marked_data(self):
+        before = "# Time\n<!-- performance-table:time -->\n| SDK | 1 |\n<!-- /performance-table -->\nUser guidance."
+        after = before.replace("1", "2")
+        publisher.validate_narrative(before, after, "docs/performance/latency.md")
+        with self.assertRaises(RuntimeError):
+            publisher.validate_narrative(before, after.replace("User guidance", "Different"), "docs/performance/latency.md")
 
     def test_only_real_pr_runs_for_exact_head_and_number_selected(self):
         valid = {"id": 1, "path": ".github/workflows/ci.yml", "event": "pull_request",

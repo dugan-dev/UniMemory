@@ -68,7 +68,7 @@ The header-only fixed-profile source described here is on `dev`; the earlier sta
 The [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)
 is distributed without tags or Releases. The library version remains **0.0.1**;
 use matching headers, generated configuration and SDK libraries and identify deliveries by source revision.
-[Current performance reports](performance.md#current-remote-reports) record their
+[Current performance reports](performance.md#overview) record their
 measured revision; September measurements remain as historical data.
 
 [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Repair review](review-2026-10-08.md)
