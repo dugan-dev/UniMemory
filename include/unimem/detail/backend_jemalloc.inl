@@ -123,12 +123,12 @@ inline bool statistics(void* context, BackendStatistics& result) {
     } else {
         result.scope = BackendStatisticsScope::Memory;
         const auto index = static_cast<ArenaContext*>(context)->index;
-        std::size_t small = 0;
-        std::size_t large = 0;
-        if (!read_arena_size(index, "small.allocated", small) ||
-            !read_arena_size(index, "large.allocated", large)) { return false; }
-        if (large > (std::numeric_limits<std::size_t>::max)() - small) { return false; }
-        result.allocated_bytes = small + large;
+        std::size_t small_allocated = 0;
+        std::size_t large_allocated = 0;
+        if (!read_arena_size(index, "small.allocated", small_allocated) ||
+            !read_arena_size(index, "large.allocated", large_allocated)) { return false; }
+        if (large_allocated > (std::numeric_limits<std::size_t>::max)() - small_allocated) { return false; }
+        result.allocated_bytes = small_allocated + large_allocated;
         if (read_arena_size(index, "resident", value)) {
             result.resident_bytes = value;
         }

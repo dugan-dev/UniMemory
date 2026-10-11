@@ -29,7 +29,7 @@ int main() {
         }
         pmr_free_b(block, 31, 16);
         b.resource->deallocate(zero, 0, 16);
-        b.resource->deallocate(nullptr, 0, 16);
+        memory.deallocate(nullptr, 0, 16);
         const auto after = memory.statistics();
         if (before) {
             check(after && after->allocations == before->allocations + 2 &&

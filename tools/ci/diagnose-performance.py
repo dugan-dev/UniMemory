@@ -342,7 +342,7 @@ def main():
                         (controls if name==baseline_name else changes).append(value)
                         measurements.append(dict(build=name,factor='build_'+build,trial=trial+1,**value))
                 summaries.append(summary_row('build_'+build,build,(case,case),controls,changes))
-        if build.endswith('-strict-adapters'):
+        if build.endswith('-strict-adapters') and 'jemalloc' in backends:
             pair=(specimen('hotpath','jemalloc','adapter_direct',affinity=affinity),
                   specimen('hotpath','jemalloc','adapter_cpp20_bits',affinity=affinity))
             n=calibrate(exe,pair,args.target_seconds)
