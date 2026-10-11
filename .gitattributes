@@ -1,3 +1,4 @@
 * text=auto eol=lf
+docs/results/current/**/sweep-operations.txt -text
 *.png binary
 *.zip binary

@@ -24,7 +24,11 @@ def check_text_format(path, root, errors):
         return
     if data.startswith(b"\xef\xbb\xbf"):
         errors.append(f"{name}: UTF-8 BOM is not allowed")
-    if b"\r" in data:
+    if name.parts[:3] == ("docs", "results", "current") and name.name == "sweep-operations.txt":
+        # Hashed calibration evidence keeps its original bytes. Only the
+        # format-checking view uses LF; decoding and publication scans remain.
+        content = content.replace("\r\n", "\n")
+    if "\r" in content:
         errors.append(f"{name}: use LF line endings")
     if content and not content.endswith("\n"):
         errors.append(f"{name}: missing final newline")

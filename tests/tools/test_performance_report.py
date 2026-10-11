@@ -487,6 +487,7 @@ class RepeatedReportTests(unittest.TestCase):
                         row["seconds"] = str(value * int(row["operations"]) / 1e9)
                     if name == "scaling":
                         row["rounds"] = "8"
+                        row["operations"] = str(int(row["threads"]) * 512 * 8)
                         row["operations_per_second"] = str(int(row["operations"]) / float(row["seconds"]))
                     if name == "pressure":
                         row["baseline_rss"] = str(trial * 1024 ** 2)
@@ -576,6 +577,11 @@ class RepeatedReportTests(unittest.TestCase):
                 if row_name == "full":
                     row["operations"] = "320"
                     row["seconds"] = str(float(row["mean_ns_per_operation"]) * 320 / 1e9)
+                if row_name == "scaling":
+                    work = "scaling" if row["workload"] == "same_thread" else "handoff"
+                    row["rounds"] = str(calibration["scaling"][f"{work}:{row['bytes']}:{row['threads']}"])
+                    row["operations"] = str(int(row["threads"]) * 512 * int(row["rounds"]))
+                    row["operations_per_second"] = str(int(row["operations"]) / float(row["seconds"]))
                 row["short_interval"] = str(float(row["seconds"]) < .25).lower()
             measurement.write_rows(self.directory / (row_name + ".csv"), rows)
         full_rows = [row for row in report.read(self.directory / "full.csv") if row["trial"] == "1"]
