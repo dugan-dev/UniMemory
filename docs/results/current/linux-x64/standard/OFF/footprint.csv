@@ -1,0 +1,4 @@
+trial,backend,statistics,heap,requested_bytes,baseline_rss,live_rss,freed_rss,collected_rss,peak_rss
+1,standard,disabled,no,67108864,3735552,71241728,4001792,4001792,71147520
+2,standard,disabled,no,67108864,3731456,71237632,3997696,3997696,71147520
+3,standard,disabled,no,67108864,3719168,71225344,3985408,3985408,71135232

@@ -1,0 +1,60 @@
+{
+  "version": "0.0.1",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "build_profile": {
+    "backend": "jemalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "jemalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "MSVC 19.44.35229.0",
+      "msvc_runtime": "MultiThreadedDLL",
+      "flags": "/DWIN32 /D_WINDOWS /EHsc",
+      "release_flags": "/O2 /Ob2 /DNDEBUG",
+      "debug_flags": "/Ob0 /Od /RTC1",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
+      "compile_options": "/Ob3",
+      "sdk_target": "unimemory_jemalloc",
+      "sdk_binary": "D:/a/UniMemory/UniMemory/build/performance/vcpkg_installed/x64-windows-unimemory/lib/jemalloc.lib",
+      "sdk_linker_file": "D:/a/UniMemory/UniMemory/build/performance/vcpkg_installed/x64-windows-unimemory/lib/jemalloc.lib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\jemalloc.lib",
+        "sha256": "aef2359cf394178e4ed3c8f583781ce489affa5bee4c47a452460341cf2a6827"
+      },
+      "sdk_linker_file": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\jemalloc.lib",
+        "sha256": "aef2359cf394178e4ed3c8f583781ce489affa5bee4c47a452460341cf2a6827"
+      }
+    },
+    "runtime_dlls": {
+      "jemalloc.dll": "5fb50eb6a519f67d46ee68272cc15c2e732f3046c9bdb284f696673cace64e8e"
+    },
+    "sdk_runtime_files": {
+      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "5fb50eb6a519f67d46ee68272cc15c2e732f3046c9bdb284f696673cace64e8e"
+    },
+    "cmake_cache_sha256": "55090964bbce26a1191289b00f988e6b59a5f65103d75f8c4e6c9d0bb403fc33",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 4,
+  "trials": 3,
+  "scenarios_per_trial": 311,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-10-11T00:32:24.566130+00:00",
+  "executable_sha256": "5faa63dcab00570b1e0513306fb93cdfebdc7d9b13892060d743e1a485b0ba21",
+  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
+  "source_hash_line_endings": "LF"
+}

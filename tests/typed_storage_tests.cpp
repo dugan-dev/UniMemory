@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <array>
@@ -58,9 +59,8 @@ void array_storage(unimem::Memory& memory, bool adapter) {
     check(reinterpret_cast<std::uintptr_t>(values) % 256 == 0,
           "typed allocation lost over-alignment");
     if (before) {
-        const auto after = *memory.statistics();
-        check(after.allocations == before->allocations + 1 &&
-              after.live_bytes == before->live_bytes + 4 * sizeof(Record),
+        const auto after = memory.statistics();
+        check( (!compiled_test::supports_statistics || (after->allocations == before->allocations + 1)) && (!compiled_test::supports_statistics || (after->live_bytes == before->live_bytes + 4 * sizeof(Record))) ,
               "typed allocation performed an extra allocation or requested extra bytes");
     }
     for (int index = 0; index < 4; ++index) { std::construct_at(values + index, index + 17); }
@@ -71,7 +71,7 @@ void array_storage(unimem::Memory& memory, bool adapter) {
     else { memory.deallocate_objects(values, 4); }
     check(Record::alive == 0, "typed objects leaked");
     if (before) {
-        check(memory.statistics()->live_bytes == before->live_bytes,
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == before->live_bytes)) ,
               "typed allocation did not balance its requested bytes");
     }
 }
@@ -92,7 +92,7 @@ void boundaries(unimem::Memory& memory) {
           Throwing::destruction_order == std::array{2, 1},
           "throwing array construction failed to destroy exactly the built elements");
     if (memory.statistics()) {
-        check(memory.statistics()->live_bytes == 0, "failed construction leaked storage");
+        check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "failed construction leaked storage");
     }
 }
 
@@ -150,13 +150,13 @@ int main() {
         for (auto backend : {unimem::Backend::Standard, unimem::Backend::Mimalloc,
                              unimem::Backend::Jemalloc}) {
             if (!unimem::available(backend)) { continue; }
-            unimem::Memory::configure_global(backend, unimem::StatisticsMode::Basic);
+            compiled_test::test_configuration(backend, compiled_test::global_mode);
             auto& memory = unimem::Memory::global(backend);
             array_storage(memory, false);
             array_storage(memory, true);
             boundaries(memory);
             if (unimem::capabilities(backend).heap) {
-                auto heap = unimem::Memory::heap(backend, unimem::StatisticsMode::Basic);
+                auto heap = unimem::Memory::heap(backend, compiled_test::heap_mode);
                 array_storage(heap, false);
                 array_storage(heap, true);
                 boundaries(heap);

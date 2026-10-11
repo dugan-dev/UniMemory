@@ -36,7 +36,7 @@ Discard cached `data()` pointers after successful resizing or ownership replacem
 | `reallocate(nullptr, ..., next)` | Allocation |
 | Resize to zero | Logical release and `nullptr` |
 | `deallocate(nullptr, ...)` | No operation |
-| Invalid alignment | `std::invalid_argument` |
+| Invalid alignment | `std::invalid_argument` with checks ON; caller precondition with checks OFF |
 | Allocation failure | `std::bad_alloc` |
 | Typed count overflow | `std::length_error` |
 | Resize a moved-from OwnedBlock | `std::logic_error` |

@@ -14,7 +14,13 @@
 
 ## 统计配置
 
-默认 Disabled。启用 Basic：Global 在首次 `global()` 前配置，Heap 在创建时传入；初始化后改模式抛 `logic_error`，重复设置同值允许。
+`UNIMEMORY_STATISTICS` 必须在配置时设置。`ON` 固定 Global Basic，`OFF` 固定 Global Disabled；`Memory::selected_statistics` 表示该编译期选择。Global 不提供运行时重新配置函数。
+
+受支持的 Heap 使用 `Memory::heap(Memory::selected_backend)` 时默认 Disabled；只有 ON 构建允许传入 `StatisticsMode::Basic`，OFF 构建会抛 `std::invalid_argument`。Stack 始终没有计数。
+
+```sh
+cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON
+```
 
 只统计通过当前 Memory 的成功请求，不包含直接调用后端的分配。Heap reset 后重新计数；开启统计有计数开销。
 
@@ -32,7 +38,7 @@
 | --- | --- | --- |
 | Standard Global | — | 无 |
 | mimalloc Global | Process | 已提交、已预留 |
-| mimalloc Heap | — | 无；仍可开启 Basic 请求计数 |
+| mimalloc Heap | — | 无；Basic 请求计数需要 ON 构建 |
 | jemalloc Global | Process | 已分配、常驻；需要 `config.stats` |
 | jemalloc Heap | Memory | 已分配、常驻；需要 `config.stats` |
 

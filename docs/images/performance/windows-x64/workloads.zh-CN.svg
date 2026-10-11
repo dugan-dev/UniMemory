@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>常用操作 · 相对耗时</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">常用操作 · 相对耗时</text>
+<text x="92" y="66" font-size="14" fill="#475569">以 UniMemory Standard 为 1 · 越低越好</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">0.25</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">0.5</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">0.75</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">0.99</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">1.2</text>
+<text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">分配与释放</text>
+<text x="282.0" y="465" text-anchor="middle" font-size="14">清零分配</text>
+<text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">扩容</text>
+<text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">创建对象</text>
+<text x="662.0" y="465" text-anchor="middle" font-size="14">共享对象</text>
+<text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">vector 容器</text>
+<rect data-path="disabled" x="119.36" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="246.0266666666667" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="372.6933333333334" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="499.35999999999996" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="626.0266666666666" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="752.6933333333333" y="160.46335602554143" width="21.28" height="281.53664397445857" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
+<text x="880" y="133" font-size="12">Standard / UniMemory 封装</text>
+<rect data-path="disabled" x="144.69333333333333" y="369.8797419886105" width="21.28" height="72.12025801138952" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="271.36" y="245.58638261786066" width="21.28" height="196.41361738213934" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="398.0266666666667" y="354.7810483462279" width="21.28" height="87.21895165377208" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="524.6933333333333" y="374.2718909959898" width="21.28" height="67.72810900401021" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="651.36" y="354.8278234019967" width="21.28" height="87.17217659800332" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="778.0266666666666" y="341.1343633926424" width="21.28" height="100.8656366073576" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#0284c7" opacity="0.9"/>
+<text x="880" y="167" font-size="12">mimalloc / UniMemory 封装</text>
+<rect data-path="disabled" x="170.0266666666667" y="209.68909862004577" width="21.28" height="232.31090137995423" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="296.6933333333333" y="224.0144457377422" width="21.28" height="217.9855542622578" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="423.36" y="129.50000000000003" width="21.28" height="312.5" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="550.0266666666666" y="221.62111815146787" width="21.28" height="220.37888184853213" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="676.6933333333334" y="207.40684370427664" width="21.28" height="234.59315629572336" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="803.36" y="189.5509391983361" width="21.28" height="252.4490608016639" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="178" width="28" height="8" fill="#d97706" opacity="0.9"/>
+<text x="880" y="201" font-size="12">jemalloc / UniMemory 封装</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">操作</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64 · ca4919fe8a5c · 封装接口，统计关闭；不同操作只在同组内比较</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
+</g></svg>

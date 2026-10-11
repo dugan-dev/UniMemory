@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en" viewBox="0 0 1100 560" role="img">
+<title>API workloads · absolute time</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">API workloads · absolute time</text>
+<text x="92" y="66" font-size="14" fill="#475569">Nanoseconds per workload operation · lower is better</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">31</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">62</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">93</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">1.2e+02</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">1.6e+02</text>
+<text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">raw</text>
+<text x="282.0" y="465" text-anchor="middle" font-size="14">zeroed</text>
+<text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">reallocate</text>
+<text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
+<text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
+<text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
+<rect data-path="basic" x="137.60000000000002" y="426.0498170565148" width="35.46666666666666" height="15.950182943485174" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="264.26666666666665" y="419.14891204336016" width="35.46666666666666" height="22.851087956639844" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="390.93333333333334" y="404.8899230127809" width="35.46666666666666" height="37.11007698721909" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="517.5999999999999" y="426.4726492301278" width="35.46666666666666" height="15.527350769872214" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="644.2666666666667" y="405.64402576304326" width="35.46666666666666" height="36.35597423695674" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="770.9333333333333" y="129.50000000000006" width="35.46666666666666" height="312.49999999999994" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="880" y="110" width="28" height="8" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<text x="880" y="133" font-size="12">mimalloc / API + stats</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">Workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/ON · e355001f2ad8 · selected API statistics mode · compare within each workload</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

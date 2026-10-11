@@ -1,0 +1,10 @@
+trial,backend,operation,operations,median_ns
+1,mimalloc,owns,200000,7.62262
+1,mimalloc,collect,2000,412.654
+1,mimalloc,reset,2000,4025.6
+2,mimalloc,owns,200000,7.668
+2,mimalloc,collect,2000,406.426
+2,mimalloc,reset,2000,4021.5
+3,mimalloc,owns,200000,7.59112
+3,mimalloc,collect,2000,413.325
+3,mimalloc,reset,2000,4077.15

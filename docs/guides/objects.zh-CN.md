@@ -24,7 +24,7 @@
 | `adopt_unique()` / `adopt_unique_array()` | 仅接管同一个 Memory 创建的对象，或匹配的智能指针通过 `release()` 交出的对象 |
 | 接管 | 转移清理责任，不分配、不构造 |
 | 空 Unique | 合法，持有对象前先赋予已绑定的所有者 |
-| 非空但未绑定的 Deleter | 终止程序，因为没有可用于清理的 Memory |
+| 非空但未绑定的 Deleter | 违反调用契约；检查 ON 时终止，OFF 时不保证检测 |
 | 数组 `reset(new_pointer)` | 保留旧元素数量，数量变化时重新接管并赋值 |
 | 共享所有权的多态 | 将 `make_shared<Derived>()` 转成 `shared_ptr<Base>`，仍按具体类型清理 |
 | 独占所有权的多态 | 保留 `Unique<Derived>`，`Base*` 仅作为非拥有的访问指针 |

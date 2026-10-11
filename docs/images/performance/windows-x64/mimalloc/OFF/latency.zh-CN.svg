@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>单次分配 P99 延迟</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">单次分配 P99 延迟</text>
+<text x="92" y="66" font-size="14" fill="#475569">延迟（纳秒）· 包含时钟开销 · 越低越好</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">22</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">45</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">67</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">90</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">1.1e+02</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">16</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">64</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">256</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">4096</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">65536</text>
+<rect data-path="native" x="133.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="285.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="437.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="589.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="741.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="880" y="110" width="28" height="8" fill="#0284c7" opacity="0.45"/>
+<text x="880" y="133" font-size="12">mimalloc / 原生接口</text>
+<rect data-path="disabled" x="171.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="323.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="475.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="627.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="779.04" y="129.50000000000003" width="31.919999999999998" height="312.5" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#0284c7" opacity="0.9"/>
+<text x="880" y="167" font-size="12">mimalloc / UniMemory 封装</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">分配大小（字节）</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/OFF · e355001f2ad8 · 逐操作采样，不是批量平均值</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
+</g></svg>

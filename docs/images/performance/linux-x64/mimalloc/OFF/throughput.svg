@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en" viewBox="0 0 1100 560" role="img">
+<title>Cross-thread throughput</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">Cross-thread throughput</text>
+<text x="92" y="66" font-size="14" fill="#475569">Million allocation/free pairs per second · higher is better</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">9.4</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">19</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">28</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">38</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">47</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">1</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">2</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
+<circle cx="168.0" cy="197.91522496309148" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="191.71975169731633" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="221.19957381952312" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="267.02323209158106" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="299.4018399338752" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,197.91522496309148 320.0,191.71975169731633 472.0,221.19957381952312 624.0,267.02323209158106 776.0,299.4018399338752" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">mimalloc / Native</text>
+<circle cx="168.0" cy="188.4260502816518" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="206.23980893545664" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="209.44989871046963" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="284.4390889197854" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.50000000000006" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,188.4260502816518 320.0,206.23980893545664 472.0,209.44989871046963 624.0,284.4390889197854 776.0,129.50000000000006" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
+<text x="880" y="167" font-size="12">mimalloc / UniMemory</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">Threads</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · 4 logical CPUs · e355001f2ad8 · 64 B cross-thread workload</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

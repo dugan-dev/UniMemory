@@ -1,0 +1,126 @@
+name: performance-diagnosis
+on:
+  push:
+    branches: [main, dev]
+    paths: ['benchmarks/diagnostics/**', 'tools/**', 'tests/tools/**', 'cmake/**', 'include/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/performance-diagnosis.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: performance-diagnosis-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+jobs:
+  tools:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: python3 -m unittest discover -s tests/tools -v
+      - run: python3 tools/ci/test-profile-report.py
+  diagnose:
+    needs: tools
+    runs-on: ${{ matrix.platform.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {os: ubuntu-24.04, label: linux-x64}
+          - {os: windows-2022, label: windows-x64}
+          - {os: macos-15, label: macos-arm64}
+        backend: [standard, mimalloc, jemalloc]
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build existing pinned backend dependencies
+        if: runner.os != 'Windows' && matrix.backend != 'standard'
+        run: bash tools/ci/build-backends.sh
+      - name: Prepare existing Windows dependency toolchain
+        if: runner.os == 'Windows' && matrix.backend != 'standard'
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build controlled configurations
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, re, subprocess
+          windows = os.environ['RUNNER_OS'] == 'Windows'
+          root = pathlib.Path.cwd()
+          configurations = {'headers': (False,True), 'headers-ipo': (True,True), 'headers-nopic': (False,False)}
+          if not windows:
+              configurations['headers-strict-adapters']=(False,True)
+          if os.environ['RUNNER_OS']=='Linux':
+              configurations['headers-align64']=(False,True)
+          executables = {}
+          for name, (ipo,pic) in configurations.items():
+              directory = root/'build'/('diagnose-'+name)
+              command = ['cmake','-S','.', '-B',str(directory),'-DCMAKE_BUILD_TYPE=Release', '-DUNIMEMORY_BACKEND=${{ matrix.backend }}','-DUNIMEMORY_STATISTICS=OFF','-DUNIMEMORY_CHECKS=AUTO','-DUNIMEMORY_BUILD_BENCHMARKS=ON','-DUNIMEMORY_BUILD_DIAGNOSTICS=ON', '-DCMAKE_PREFIX_PATH='+str(root/'build/prefix'), '-DUNIMEMORY_DIAGNOSTIC_IPO='+('ON' if ipo else 'OFF'), '-DUNIMEMORY_DIAGNOSTIC_PIC='+('ON' if pic else 'OFF')]
+              command+=['-DCMAKE_EXPORT_COMPILE_COMMANDS=ON']
+              if name=='headers-strict-adapters': command+=['-DUNIMEMORY_DIAGNOSTIC_ADAPTER_EXTENSIONS=OFF']
+              if name=='headers-align64': command+=['-DUNIMEMORY_DIAGNOSTIC_ALIGN_LOOPS=ON']
+              if windows and '${{ matrix.backend }}' != 'standard':
+                  command.append('-DCMAKE_TOOLCHAIN_FILE='+str(root/'build/vcpkg/scripts/buildsystems/vcpkg.cmake'))
+                  command.append('-DVCPKG_TARGET_TRIPLET=x64-windows-unimemory')
+                  command.append('-DVCPKG_OVERLAY_TRIPLETS='+str(root/'cmake/triplets'))
+              subprocess.run(['python3','tools/ci/configure.py','--',*command],check=True)
+              targets=[] if name=='headers' else ['--target','UniMemoryDiagnostic']
+              subprocess.run(['cmake','--build',str(directory),'--config','Release','--parallel','4',*targets],check=True)
+              if name=='headers':
+                  if windows and '${{ matrix.backend }}' != 'standard':
+                      os.environ['PATH']=str(directory/'vcpkg_installed/x64-windows-unimemory/bin')+os.pathsep+os.environ['PATH']
+                  subprocess.run(['ctest','--test-dir',str(directory),'-C','Release','--parallel','4','--output-on-failure','--no-tests=error'],check=True)
+              executable=directory/('Release/UniMemoryDiagnostic.exe' if windows else 'UniMemoryDiagnostic')
+              executables[name]=str(executable)
+              if windows:
+                  files=list(directory.glob('CMakeFiles/*/CMakeCXXCompiler.cmake'))
+                  if len(files)!=1: raise RuntimeError('Actual compiler record missing')
+                  match=re.search(r'set\(CMAKE_CXX_COMPILER "([^"\n]+)"\)',files[0].read_text())
+                  if not match: raise RuntimeError('Actual compiler path missing')
+                  dumpbin=pathlib.Path(match[1]).parent/'dumpbin.exe'
+                  if not dumpbin.is_file(): raise RuntimeError('Actual MSVC disassembly tool missing')
+                  tool=[str(dumpbin),'/DISASM',str(executable)]
+              else:
+                  tool=['otool','-tvV',str(executable)] if os.environ['RUNNER_OS']=='macOS' else ['objdump','-d','-C',str(executable)]
+              with (directory/'disassembly.txt').open('w') as stream:
+                  subprocess.run(tool,stdout=stream,check=True)
+          (root/'build/diagnostic-executables.json').write_text(json.dumps(executables))
+          PY
+      - name: Validate selectors and measure isolated factors
+        shell: bash
+        run: |
+          python3 tools/ci/diagnose-performance.py --backend ${{ matrix.backend }} --builds "$(cat build/diagnostic-executables.json)" --output build/diagnosis-results --trials 5 --target-seconds 0.12
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: causal-diagnosis-${{ matrix.platform.label }}-${{ matrix.backend }}
+          path: |
+            build/diagnosis-results/
+            build/diagnose-*/diagnostic-build-Release.txt
+            build/diagnose-*/benchmark-build-Release.txt
+            build/diagnose-*/disassembly.txt
+            build/diagnose-*/*.disassembly.txt
+            build/diagnose-*/CMakeCache.txt
+            build/diagnose-*/compile_commands.json
+            build/diagnose-*/*.map
+            build/diagnose-*/Release/*.map
+            build/diagnose-*/Testing/Temporary/LastTest.log
+            build/configure.log
+          retention-days: 14
+  acceptance:
+    if: always()
+    needs: [tools, diagnose]
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          jobs=json.loads(os.environ['RESULTS'])
+          assert all(job['result']=='success' for job in jobs.values()), 'Incomplete causal diagnosis'
+          print('All controlled builds, probes and measurements completed')
+          PY

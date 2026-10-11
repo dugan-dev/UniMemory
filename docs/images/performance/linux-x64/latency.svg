@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="en" viewBox="0 0 1100 560" role="img">
+<title>Individual allocation p99</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">Individual allocation p99</text>
+<text x="92" y="66" font-size="14" fill="#475569">Nanoseconds · includes measured clock overhead · lower is better</text>
+<defs>
+<pattern id="standard-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#64748b"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="mimalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#0284c7"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+<pattern id="jemalloc-basic" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#d97706"/><path d="M0,6L6,0" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.2"/></pattern>
+</defs>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">83</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">1.7e+02</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">2.5e+02</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">3.3e+02</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">4.1e+02</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">16</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">64</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">256</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">4096</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">65536</text>
+<rect data-path="native" x="112.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="264.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="416.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="568.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="720.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.45"/>
+<rect data-path="native" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.45"/>
+<text x="880" y="133" font-size="12">Standard / Native</text>
+<rect data-path="disabled" x="131.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="283.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="435.52" y="407.3716216216216" width="15.959999999999999" height="34.628378378378386" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="587.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="739.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="144" width="28" height="8" fill="#64748b" opacity="0.9"/>
+<text x="880" y="167" font-size="12">Standard / UniMemory</text>
+<rect data-path="native" x="150.52" y="399.77027027027026" width="15.959999999999999" height="42.22972972972974" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="302.52" y="391.3243243243243" width="15.959999999999999" height="50.67567567567568" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="454.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="606.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="758.52" y="382.8783783783784" width="15.959999999999999" height="59.121621621621614" fill="#0284c7" opacity="0.45"/>
+<rect data-path="native" x="880" y="178" width="28" height="8" fill="#0284c7" opacity="0.45"/>
+<text x="880" y="201" font-size="12">mimalloc / Native</text>
+<rect data-path="disabled" x="169.52" y="399.77027027027026" width="15.959999999999999" height="42.22972972972974" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="321.52" y="365.9864864864865" width="15.959999999999999" height="76.01351351351349" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="473.52" y="373.5878378378378" width="15.959999999999999" height="68.41216216216219" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="625.52" y="374.43243243243245" width="15.959999999999999" height="67.56756756756755" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="777.52" y="365.9864864864865" width="15.959999999999999" height="76.01351351351349" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="212" width="28" height="8" fill="#0284c7" opacity="0.9"/>
+<text x="880" y="235" font-size="12">mimalloc / UniMemory</text>
+<rect data-path="native" x="188.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="340.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="492.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="644.52" y="391.3243243243243" width="15.959999999999999" height="50.67567567567568" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="796.52" y="129.50000000000003" width="15.959999999999999" height="312.5" fill="#d97706" opacity="0.45"/>
+<rect data-path="native" x="880" y="246" width="28" height="8" fill="#d97706" opacity="0.45"/>
+<text x="880" y="269" font-size="12">jemalloc / Native</text>
+<rect data-path="disabled" x="207.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="359.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="511.52" y="398.9256756756757" width="15.959999999999999" height="43.07432432432432" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="663.52" y="382.8783783783784" width="15.959999999999999" height="59.121621621621614" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="815.52" y="238.45270270270274" width="15.959999999999999" height="203.54729729729726" fill="#d97706" opacity="0.9"/>
+<rect data-path="disabled" x="880" y="280" width="28" height="8" fill="#d97706" opacity="0.9"/>
+<text x="880" y="303" font-size="12">jemalloc / UniMemory</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">Request size (B)</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64 · ca4919fe8a5c · individual operation samples, not batch averages</text>
+<text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
+</g></svg>

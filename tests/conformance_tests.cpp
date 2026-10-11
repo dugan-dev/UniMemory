@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 
 #include <array>
@@ -81,7 +82,7 @@ void smoke(unimem::Backend backend) {
     }
 
     auto stats = memory.statistics();
-    check(stats && stats->live_bytes == 0 && stats->allocations > 0,
+    check( (!compiled_test::supports_statistics || (stats)) && (!compiled_test::supports_statistics || (stats->live_bytes == 0)) && (!compiled_test::supports_statistics || (stats->allocations > 0)) ,
           "request statistics");
     const auto detail = memory.backend_statistics();
     check(detail.has_value() == cap.detailed_statistics,
@@ -94,7 +95,7 @@ void smoke(unimem::Backend backend) {
     }
 
     if (cap.heap) {
-        unimem::Memory arena = unimem::Memory::heap(backend, unimem::StatisticsMode::Basic);
+        unimem::Memory arena = unimem::Memory::heap(backend, compiled_test::heap_mode);
         auto& scoped = arena;
         auto block = scoped.make_block(256, 64);
         check(block.size() == 256 && aligned(block.data(), 64), "arena block");
@@ -102,7 +103,7 @@ void smoke(unimem::Backend backend) {
         check(*inside == 29, "arena object");
         inside.reset();
         block.resize(0);
-        check(scoped.statistics()->live_bytes == 0, "arena lifetime");
+        check( (!compiled_test::supports_statistics || (scoped.statistics()->live_bytes == 0)) , "arena lifetime");
         const auto arena_detail = scoped.backend_statistics();
         if (arena_detail) {
             check(arena_detail->scope == unimem::BackendStatisticsScope::Memory,
@@ -132,17 +133,19 @@ void smoke(unimem::Backend backend) {
 void boundaries(unimem::Backend backend) {
     unimem::Memory& memory = unimem::Memory::global(backend);
     check(memory.allocate(0) == nullptr, "zero size");
+#if UNIMEMORY_CHECKS
     check_throws<std::invalid_argument>([&] { memory.allocate(4, 3); },
                                         "invalid alignment");
     check_throws<std::invalid_argument>([&] { memory.allocate(0, 0); },
                                         "zero alignment");
+#endif
     check_throws<std::length_error>([&] {
         memory.allocate_objects<std::uint64_t>(
             std::numeric_limits<std::size_t>::max());
     }, "object count overflow");
     check_throws<std::runtime_error>([&] { memory.create<ThrowingObject>(); },
                                      "constructor exception");
-    check(memory.statistics()->live_bytes == 0, "constructor rollback");
+    check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "constructor rollback");
 
     auto block = memory.make_block(17, 256);
     std::memset(block.data(), 0x5A, block.size());
@@ -155,7 +158,7 @@ void boundaries(unimem::Backend backend) {
         check(bytes[i] == 0x5A, "failed resize retained bytes");
     }
     block.resize(0);
-    check(memory.statistics()->live_bytes == 0, "all bytes released");
+    check( (!compiled_test::supports_statistics || (memory.statistics()->live_bytes == 0)) , "all bytes released");
 
     if (!unimem::capabilities(backend).heap) { return; }
     unimem::Memory arena = unimem::Memory::heap(backend);
@@ -177,13 +180,14 @@ void matrix(unimem::Backend backend, unsigned index) {
     const bool use_arena = path >= 3 && unimem::capabilities(backend).heap;
     const bool zeroed = path == 1 || path == 4;
     const bool owned = path == 2 || path == 5;
-    const bool tracked = backend == unimem::Backend::Standard
-        ? path >= 3 : index % 4 == 0;
+    const bool tracked = use_arena
+        ? (compiled_test::supports_statistics && index % 4 == 0)
+        : compiled_test::supports_statistics;
 
     std::unique_ptr<unimem::Memory> heap;
     if (use_arena) {
         heap.reset(new unimem::Memory(unimem::Memory::heap(backend,
-            tracked ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled)));
+            tracked ? compiled_test::heap_mode : unimem::StatisticsMode::Disabled)));
     }
     auto& target = use_arena ? *heap : unimem::Memory::global(backend);
 
@@ -249,7 +253,7 @@ void matrix(unimem::Backend backend, unsigned index) {
             }
         }
         if (tracked) {
-            check(target.statistics()->live_bytes == 0,
+            check( (!compiled_test::supports_statistics || (target.statistics()->live_bytes == 0)) ,
                   "matrix leaked requested bytes");
         }
     }
@@ -261,7 +265,7 @@ void stress(unimem::Backend backend) {
         std::unique_ptr<unimem::Memory> heap;
         if (dedicated) {
             heap.reset(new unimem::Memory(unimem::Memory::heap(
-                backend, unimem::StatisticsMode::Basic)));
+                backend, compiled_test::heap_mode)));
         }
         auto& target = dedicated ? *heap : unimem::Memory::global(backend);
         std::atomic<bool> okay{true};
@@ -294,7 +298,7 @@ void stress(unimem::Backend backend) {
         for (auto& worker : workers) { worker.join(); }
         check(okay.load(std::memory_order_relaxed), "stress worker failed");
         const auto stats = target.statistics();
-        check(stats && stats->live_bytes == 0 && stats->peak_live_bytes > 0,
+        check(stats.has_value() == compiled_test::supports_statistics && (!compiled_test::supports_statistics || ((!stats || (stats->live_bytes == 0 && stats->peak_live_bytes > 0)))) ,
               "stress statistics");
     }
 }
@@ -312,8 +316,7 @@ int main(int argc, char** argv) {
             const auto index = std::stoul(argv[3]);
             basic = backend == unimem::Backend::Standard ? index / 40 >= 3 : index % 4 == 0;
         }
-        unimem::Memory::configure_global(backend, basic
-            ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
+        compiled_test::test_configuration(backend, compiled_test::global_mode);
         if (mode == "smoke") { smoke(backend); }
         else if (mode == "boundary") { boundaries(backend); }
         else if (mode == "stress") { stress(backend); }

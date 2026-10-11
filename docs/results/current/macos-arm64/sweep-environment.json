@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "logical_cpus": 3,
+  "trials": 3,
+  "scenarios_per_trial": 1001,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-10-10T05:28:54.433792+00:00",
+  "executable_sha256": "445a45397c2ba1d99f035e1b75773ca8bec483ee2e18a1961a825eab70747904",
+  "benchmark_source_sha256": "10a078729236b74d76edfc9f249a208a35c3196560fb59a2a85969ed9e4481a0",
+  "source_hash_line_endings": "LF"
+}

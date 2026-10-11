@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>跨线程吞吐量</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">跨线程吞吐量</text>
+<text x="92" y="66" font-size="14" fill="#475569">百万组分配/释放每秒 · 越高越好</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">7.8</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">16</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">23</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">31</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">39</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">1</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">2</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">4</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">8</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">16</text>
+<circle cx="168.0" cy="355.9424881273727" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="375.787638754565" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="366.53159057118523" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="386.1901713411378" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="373.18684772724" r="3.5" fill="#64748b"/>
+<polyline points="168.0,355.9424881273727 320.0,375.787638754565 472.0,366.53159057118523 624.0,386.1901713411378 776.0,373.18684772724" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#64748b" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">Standard / 原生接口</text>
+<circle cx="168.0" cy="348.9658761205018" r="3.5" fill="#64748b"/>
+<circle cx="320.0" cy="361.51847294195767" r="3.5" fill="#64748b"/>
+<circle cx="472.0" cy="371.110130346291" r="3.5" fill="#64748b"/>
+<circle cx="624.0" cy="376.2909623684629" r="3.5" fill="#64748b"/>
+<circle cx="776.0" cy="360.4089777270956" r="3.5" fill="#64748b"/>
+<polyline points="168.0,348.9658761205018 320.0,361.51847294195767 472.0,371.110130346291 624.0,376.2909623684629 776.0,360.4089777270956" fill="none" stroke="#64748b" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#64748b" stroke-width="3"/>
+<text x="880" y="167" font-size="12">Standard / UniMemory 封装</text>
+<circle cx="168.0" cy="205.27280338351835" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="174.80453830275565" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="253.51211801896733" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="215.2246993951817" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,205.27280338351835 320.0,174.80453830275565 472.0,253.51211801896733 624.0,215.2246993951817 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,183h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="201" font-size="12">mimalloc / 原生接口</text>
+<circle cx="168.0" cy="202.6664188691774" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="248.32551207471457" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="263.0941221473216" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="217.70207283802708" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="147.24488647025711" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,202.6664188691774 320.0,248.32551207471457 472.0,263.0941221473216 624.0,217.70207283802708 776.0,147.24488647025711" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<path d="M880,217h28" stroke="#0284c7" stroke-width="3"/>
+<text x="880" y="235" font-size="12">mimalloc / UniMemory 封装</text>
+<circle cx="168.0" cy="368.30012486106506" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="342.1264849805852" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="334.52385351559684" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="307.2330499299912" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="291.93305859087434" r="3.5" fill="#d97706"/>
+<polyline points="168.0,368.30012486106506 320.0,342.1264849805852 472.0,334.52385351559684 624.0,307.2330499299912 776.0,291.93305859087434" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,251h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="269" font-size="12">jemalloc / 原生接口</text>
+<circle cx="168.0" cy="371.65333010956016" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="331.0631089683445" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="336.93717251035696" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="313.83516895939493" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="294.5638018389942" r="3.5" fill="#d97706"/>
+<polyline points="168.0,371.65333010956016 320.0,331.0631089683445 472.0,336.93717251035696 624.0,313.83516895939493 776.0,294.5638018389942" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<path d="M880,285h28" stroke="#d97706" stroke-width="3"/>
+<text x="880" y="303" font-size="12">jemalloc / UniMemory 封装</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">线程数</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64 · 4 个逻辑 CPU · ca4919fe8a5c · 64 字节跨线程负载</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
+</g></svg>

@@ -2,46 +2,130 @@
 
 [UniMemory](../README.md) · **English** · [简体中文](performance.zh-CN.md)
 
-Compare time and memory by usage scenario. Results apply to the measured configurations.
+## Header-only controls · 2026-10-11
 
-These are historical measurements from **2026-09-28**, not new measurements of the October repairs. The source and executable hashes in the raw data identify the measured builds even though the library version remains 0.0.1.
+[Complete 23-group Windows control](performance/header-only.md) records default, IPO and `/Ob3` absolute SDK/API times, Global shared request sizes and unresolved cloud limits.
 
-| Topic | Measures |
+## Current remote reports
+
+These charts retain their recorded source revisions and protocols, which precede the current header-only fixed profile. They are not a performance guarantee for the new configuration. Build each backend/ON/OFF profile separately and match SDK, compiler flags and timing conditions when comparing.
+
+Compare Standard, mimalloc and jemalloc native allocation with UniMemory. Three fresh-process trials; medians shown. Compare each platform separately.
+
+| Legend | Meaning |
 | --- | --- |
-| [1 · Time](performance/latency.md) | Objects, containers, resize, cross-thread use and statistics |
-| [2 · Memory](performance/memory.md) | Process memory, retention, Heap collection and type sizes |
-| [3 · Native programs](performance/applications.md) | Standalone native allocator time and peak memory; no UniMemory layer |
+| Native | Direct allocator calls |
+| UniMemory | Unified interface, statistics disabled |
+| API + stats | Unified interface, Basic statistics enabled |
 
-## Environment
+Throughput charts record logical CPU capacity; thread counts above it include oversubscription. Each chart identifies its platform and measured revision.
 
-| Item | Configuration |
-| --- | --- |
-| Version / measured date (UTC) | 0.0.1 / 2026-09-28 |
-| CPU | Xeon w9-3595X, 120 logical CPUs |
-| Windows | x64, MSVC 19.44, Release, no LTO |
-| Linux | Ubuntu 24.04 / WSL2, GCC 13.3, Release, no LTO |
-| Backend | mimalloc 3.4.3; jemalloc 5.3.1 |
-| Statistics | Disabled unless labeled Basic |
+## 1 · Throughput
 
-## Coverage
+**Allocation/free pairs per second as thread count increases; higher is better.** A 64-byte cross-thread release workload.
 
-| Probe | Scope |
-| --- | --- |
-| Allocation/free | Native, counters off and counters on; five sizes |
-| API scenarios | 1001 per platform across 17 workloads |
-| Memory usage | Mixed sizes and lifetimes; 270 phase snapshots |
-| Native programs | 16 programs × 3 native allocators × 3 trials |
+### Linux x64
 
-## Interpretation
+![Linux cross-thread throughput](images/performance/linux-x64/throughput.svg)
 
-| Observation | Meaning |
-| --- | --- |
-| API versus native | The unified interface adds call overhead |
-| Statistics | Enabled counters add work; disabled counters do not update |
-| Backend choice | Allocation speed and memory retention involve tradeoffs |
+### Windows x64
 
-CPU affinity is unpinned; small differences may be noise. No p95/p99, NUMA, long-running fragmentation, macOS or mobile performance claim is made.
+![Windows cross-thread throughput](images/performance/windows-x64/throughput.svg)
 
-There is no repository-wide latency or memory regression budget. Before evaluating a performance change, state the workload, baseline revision, native comparison, compiler/backend settings, acceptable variation and time/memory limits. Rerun that workload and retain raw trials. API fixtures and native benchmark programs do not establish production adoption or prove an optimal backend for an application.
+### macOS ARM64
 
-[Method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Tests](testing.md)
+![macOS cross-thread throughput](images/performance/macos-arm64/throughput.svg)
+
+## 2 · Peak memory
+
+**Resident memory under the same workload; lower is better.** Includes thread stacks, process and allocator state.
+
+### Linux x64
+
+![Linux peak resident memory](images/performance/linux-x64/memory.svg)
+
+### Windows x64
+
+![Windows peak resident memory](images/performance/windows-x64/memory.svg)
+
+### macOS ARM64
+
+![macOS peak resident memory](images/performance/macos-arm64/memory.svg)
+
+## 3 · Tail latency
+
+**Slow allocation requests at each size; lower is better.** P99 means 99% of samples are at or below this latency; clock overhead is included.
+
+### Linux x64
+
+![Linux individual allocation p99](images/performance/linux-x64/latency.svg)
+
+### Windows x64
+
+![Windows individual allocation p99](images/performance/windows-x64/latency.svg)
+
+### macOS ARM64
+
+![macOS individual allocation p99](images/performance/macos-arm64/latency.svg)
+
+## 4 · Statistics cost
+
+**Additional latency with counters enabled.** Compare within the same backend and size; patterned columns enable statistics.
+
+### Linux x64
+
+![Linux statistics cost](images/performance/linux-x64/statistics.svg)
+
+### Windows x64
+
+![Windows statistics cost](images/performance/windows-x64/statistics.svg)
+
+### macOS ARM64
+
+![macOS statistics cost](images/performance/macos-arm64/statistics.svg)
+
+## 5 · Memory after release
+
+**Memory across allocation, survival and release cycles.** The final phase has no live requests; retained resident memory may be cache, not a leak.
+
+### Linux x64
+
+![Linux mixed-lifetime retention](images/performance/linux-x64/retention.svg)
+
+### Windows x64
+
+![Windows mixed-lifetime retention](images/performance/windows-x64/retention.svg)
+
+### macOS ARM64
+
+![macOS mixed-lifetime retention](images/performance/macos-arm64/retention.svg)
+
+## 6 · Common operations
+
+**Relative time for objects, resizing and containers; lower is better.** Standard equals 1 within each group; different operations have different costs.
+
+### Linux x64
+
+![Linux normalized API workloads](images/performance/linux-x64/workloads.svg)
+
+### Windows x64
+
+![Windows normalized API workloads](images/performance/windows-x64/workloads.svg)
+
+### macOS ARM64
+
+![macOS normalized API workloads](images/performance/macos-arm64/workloads.svg)
+
+## Historical report · 2026-09-28
+
+The original Windows/Linux workload comparison is preserved. Standard equals 1; shorter bars are faster. Its environment differs from the current remote reports.
+
+![Historical Windows and Linux comparison](images/workload-comparison.png)
+
+[Historical time](performance/latency.md) · [Historical memory](performance/memory.md) · [Native applications](performance/applications.md)
+
+## Data and method
+
+[Current CSV and environment](results/current/) · [Historical data](results/0.0.1/README.md) · [Measurement method](benchmarking.md)
+
+Source changes automatically update the figures. Individual samples remain in Actions artifacts for 14 days; aggregate data stays in the repository. Small hosted-machine variations are not absolute speed gates. These measurements do not establish long-term fragmentation, NUMA or mobile performance.

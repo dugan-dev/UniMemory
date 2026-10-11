@@ -1,0 +1,12 @@
+{
+  "source_revision": "ca4919fe8a5cebb999991458ef7f660a3ead0820",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38027100953",
+  "scope": "linux-x64",
+  "logical_cpus": 4,
+  "oversubscribed_threads": [
+    8,
+    16
+  ],
+  "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
+  "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded"
+}

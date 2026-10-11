@@ -76,9 +76,17 @@ int main(int argc, char** argv) {
         for (unsigned long round = 0; round < rounds; ++round) {
             std::array<std::exception_ptr, 6> failures;
             {
-                std::array<std::jthread, 6> workers;
+                std::array<std::thread, 6> workers;
+                struct JoinWorkers {
+                    std::array<std::thread, 6>& workers;
+                    ~JoinWorkers() {
+                        for (auto& thread : workers) {
+                            if (thread.joinable()) { thread.join(); }
+                        }
+                    }
+                } join_workers{workers};
                 for (unsigned index = 0; index < workers.size(); ++index) {
-                    workers[index] = std::jthread([&, index] {
+                    workers[index] = std::thread([&, index] {
                         try { worker(mode, shared, index, static_cast<unsigned>(loops)); }
                         catch (...) { failures[index] = std::current_exception(); }
                     });

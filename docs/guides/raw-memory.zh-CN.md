@@ -36,7 +36,7 @@
 | `reallocate(nullptr, ..., next)` | 分配内存 |
 | 调整为零 | 逻辑释放，返回 `nullptr` |
 | `deallocate(nullptr, ...)` | 不执行操作 |
-| 无效对齐 | `std::invalid_argument` |
+| 无效对齐 | 检查 ON 时 `std::invalid_argument`；OFF 时为调用方前置条件 |
 | 分配失败 | `std::bad_alloc` |
 | 类型化数量溢出 | `std::length_error` |
 | 调整已移走所有权的 OwnedBlock | `std::logic_error` |

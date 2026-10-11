@@ -30,7 +30,7 @@ Containers and third-party libraries without allocator injection retain their ow
 #include <unimem/memory.h>
 
 int main() {
-    unimem::Memory& memory = unimem::Memory::global(unimem::Backend::Standard);
+    unimem::Memory& memory = unimem::Memory::global();
 
     // Place a standard PMR resource above UniMemory
     std::pmr::monotonic_buffer_resource pool(memory.resource());

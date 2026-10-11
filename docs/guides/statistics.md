@@ -14,7 +14,13 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Counter configuration
 
-Default: Disabled. Enable Basic before the first `global()` call, or pass it when creating a Heap. Later mode changes throw `logic_error`; repeating the same mode is allowed.
+`UNIMEMORY_STATISTICS` is required at configuration time. `ON` fixes Global to Basic; `OFF` fixes it to Disabled. `Memory::selected_statistics` exposes that compile-time choice. Global has no runtime reconfiguration function.
+
+For a supported Heap, `Memory::heap(Memory::selected_backend)` defaults to Disabled. Pass `StatisticsMode::Basic` only in an ON build; OFF rejects it with `std::invalid_argument`. Stack never enables counters.
+
+```sh
+cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON
+```
 
 Counters cover successful requests through this Memory, excluding direct native calls. Heap reset clears its counters. Enabling statistics adds counting overhead.
 
@@ -32,7 +38,7 @@ Query the instance's `memory.capabilities().detailed_statistics` before using na
 | --- | --- | --- |
 | Standard Global | — | None |
 | mimalloc Global | Process | Committed, reserved |
-| mimalloc Heap | — | None; Basic request counters remain available |
+| mimalloc Heap | — | None; Basic request counters require an ON build |
 | jemalloc Global | Process | Allocated, resident; requires `config.stats` |
 | jemalloc Heap | Memory | Allocated, resident; requires `config.stats` |
 

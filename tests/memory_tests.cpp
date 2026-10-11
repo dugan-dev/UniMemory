@@ -1,3 +1,4 @@
+#include "compiled-test-config.h"
 #include <unimem/memory.h>
 #include <unimem/version.h>
 
@@ -22,7 +23,10 @@ static_assert(UNIMEMORY_VERSION_MAJOR == 0);
 #include <utility>
 #include <vector>
 
-#define CHECK(condition) do { if (!(condition)) { std::abort(); } } while (false)
+inline void check_condition(bool condition) {
+    if (!condition) { std::abort(); }
+}
+#define CHECK(condition) check_condition(static_cast<bool>(condition))
 
 namespace {
 
@@ -187,10 +191,12 @@ void test_backend(unimem::Backend backend) {
     }
     CHECK(Tracked::alive == 0);
 
+#if UNIMEMORY_CHECKS
     threw = false;
     try { (void)memory.allocate(16, 3); }
     catch (const std::invalid_argument&) { threw = true; }
     CHECK(threw);
+#endif
     threw = false;
     try { (void)memory.allocate_objects<int>(std::numeric_limits<std::size_t>::max()); }
     catch (const std::length_error&) { threw = true; }
@@ -214,31 +220,31 @@ void test_backend(unimem::Backend backend) {
 void test_statistics(unimem::Backend backend) {
 
     unimem::Memory& tracked = unimem::Memory::global(backend);
-    const auto baseline = *tracked.statistics();
-    CHECK(baseline.live_bytes == 0);
+    const auto baseline = tracked.statistics();
+    CHECK( (!compiled_test::supports_statistics || (baseline->live_bytes == 0)) );
     CHECK(tracked.allocate(0) == nullptr);
     tracked.deallocate(nullptr, 0);
     void* pointer = tracked.allocate(40);
     pointer = tracked.reallocate(pointer, 40, 80);
-    auto failed_snapshot = *tracked.statistics();
+    auto failed_snapshot = tracked.statistics();
     bool failed = false;
     try { (void)tracked.reallocate(pointer, 80,
                                    std::numeric_limits<std::size_t>::max()); }
     catch (const std::bad_alloc&) { failed = true; }
-    CHECK(failed && tracked.statistics()->reallocations == failed_snapshot.reallocations);
-    CHECK(tracked.statistics()->live_bytes == 80);
+    CHECK(failed && (!compiled_test::supports_statistics || (tracked.statistics()->reallocations == failed_snapshot->reallocations)) );
+    CHECK( (!compiled_test::supports_statistics || (tracked.statistics()->live_bytes == 80)) );
     tracked.deallocate(pointer, 80);
-    auto snapshot = *tracked.statistics();
-    CHECK(snapshot.allocations == baseline.allocations + 1 && snapshot.reallocations == baseline.reallocations + 1);
-    CHECK(snapshot.deallocations == baseline.deallocations + 1 && snapshot.live_bytes == 0);
-    CHECK(snapshot.peak_live_bytes >= 80);
+    auto snapshot = tracked.statistics();
+    CHECK( (!compiled_test::supports_statistics || (snapshot->allocations == baseline->allocations + 1)) && (!compiled_test::supports_statistics || (snapshot->reallocations == baseline->reallocations + 1)) );
+    CHECK( (!compiled_test::supports_statistics || (snapshot->deallocations == baseline->deallocations + 1)) && (!compiled_test::supports_statistics || (snapshot->live_bytes == 0)) );
+    CHECK( (!compiled_test::supports_statistics || (snapshot->peak_live_bytes >= 80)) );
 
     {
         auto block = tracked.make_block(25);
         block.resize(50);
-        CHECK(tracked.statistics()->live_bytes == 50);
+        CHECK( (!compiled_test::supports_statistics || (tracked.statistics()->live_bytes == 50)) );
     }
-    CHECK(tracked.statistics()->live_bytes == 0);
+    CHECK( (!compiled_test::supports_statistics || (tracked.statistics()->live_bytes == 0)) );
 
     std::vector<std::thread> workers;
     for (int t = 0; t < 4; ++t) {
@@ -250,9 +256,9 @@ void test_statistics(unimem::Backend backend) {
         });
     }
     for (auto& worker : workers) { worker.join(); }
-    snapshot = *tracked.statistics();
-    CHECK(snapshot.allocations == snapshot.deallocations);
-    CHECK(snapshot.live_bytes == 0 && snapshot.peak_live_bytes >= 80);
+    snapshot = tracked.statistics();
+    CHECK( (!compiled_test::supports_statistics || (snapshot->allocations == snapshot->deallocations)) );
+    CHECK( (!compiled_test::supports_statistics || (snapshot->live_bytes == 0)) && (!compiled_test::supports_statistics || (snapshot->peak_live_bytes >= 80)) );
 }
 
 void test_stack_arena() {
@@ -288,10 +294,12 @@ void test_stack_arena() {
     try { (void)arena.allocate(257); }
     catch (const std::bad_alloc&) { threw = true; }
     CHECK(threw && arena.used() == 0);
+#if UNIMEMORY_CHECKS
     threw = false;
     try { (void)arena.allocate(1, 3); }
     catch (const std::invalid_argument&) { threw = true; }
     CHECK(threw);
+#endif
 
     unimem::Memory other = unimem::Memory::stack(buffer, sizeof(buffer));
     threw = false;
@@ -308,27 +316,9 @@ void test_stack_arena() {
 }
 
 int main() {
-    CHECK(unimem::available(unimem::Backend::Standard));
-    for (auto backend : {unimem::Backend::Standard, unimem::Backend::Mimalloc, unimem::Backend::Jemalloc}) {
-        if (unimem::available(backend)) {
-            unimem::Memory::configure_global(backend, unimem::StatisticsMode::Basic);
-        }
-    }
-    test_backend(unimem::Backend::Standard);
-    test_statistics(unimem::Backend::Standard);
+    CHECK(unimem::available(compiled_test::backend));
+    compiled_test::verify_configuration();
+    test_backend(compiled_test::backend);
+    test_statistics(compiled_test::backend);
     test_stack_arena();
-#ifdef UNIMEMORY_TEST_MIMALLOC
-    CHECK(unimem::available(unimem::Backend::Mimalloc));
-    test_backend(unimem::Backend::Mimalloc);
-    test_statistics(unimem::Backend::Mimalloc);
-#else
-    CHECK(!unimem::available(unimem::Backend::Mimalloc));
-#endif
-#ifdef UNIMEMORY_TEST_JEMALLOC
-    CHECK(unimem::available(unimem::Backend::Jemalloc));
-    test_backend(unimem::Backend::Jemalloc);
-    test_statistics(unimem::Backend::Jemalloc);
-#else
-    CHECK(!unimem::available(unimem::Backend::Jemalloc));
-#endif
 }

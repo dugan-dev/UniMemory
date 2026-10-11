@@ -23,6 +23,10 @@ void check(bool condition) {
 int main(int argc, char** argv) {
     const std::string_view mode = argc == 2 ? argv[1] : "valid";
     if (mode != "valid") {
+#if !UNIMEMORY_CHECKS
+        std::cerr << "Invalid-owner fixtures require CHECKS=1; no unsafe input executed\n";
+        return 2;
+#else
         std::set_terminate([] { std::_Exit(93); });
         Memory& memory = Memory::global();
         if (mode == "unbound_object") { Deleter<int>{}(memory.create<int>(7)); }
@@ -31,6 +35,7 @@ int main(int argc, char** argv) {
             ArrayDeleter<int>{&memory, 0}(memory.create_array<int>(3));
         } else { return 2; }
         return 3;
+#endif
     }
     try {
         Deleter<int>{}(nullptr);

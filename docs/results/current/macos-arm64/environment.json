@@ -1,0 +1,82 @@
+{
+  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "processor": "arm",
+  "trials": 3,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 3,
+  "executable_sha256": "91ca1f9de5e2d83db391284ab1b88aa6526107b25ddf252dcd71596885edf5f9",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "standard_new_provider": "libc++abi.dylib",
+    "resident_measurement": "Mach task resident_size",
+    "mimalloc_version": 30403,
+    "mimalloc_redirected": false,
+    "jemalloc_header_version": "5.3.1-0-g81034ce1f1373e37dc865038e1bc8eeecf559ce8"
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-10T05:23:58.989086+00:00",
+  "benchmark_source_sha256": "d96a8e10dfedefe56ef7ca16c29e63c49a7dcebaf6eaeef1a51f350a2627c821",
+  "source_hash_line_endings": "LF",
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "schema": 1,
+  "source_revision": "ca4919fe8a5cebb999991458ef7f660a3ead0820",
+  "run_id": "38027100953",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38027100953",
+  "architecture": "arm64",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "AppleClang",
+    "CMAKE_CXX_COMPILER_VERSION": "17.0.0.17000013"
+  },
+  "cpu_model": "Apple M1 (Virtual)",
+  "measurement_protocol": "native-api-scaling-tails-v2",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "standard",
+    "mimalloc",
+    "jemalloc"
+  ],
+  "paths": [
+    "native",
+    "disabled",
+    "basic"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
+  "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
+  "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
+  "benchmark_sha256": "d96a8e10dfedefe56ef7ca16c29e63c49a7dcebaf6eaeef1a51f350a2627c821"
+}

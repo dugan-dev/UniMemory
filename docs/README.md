@@ -15,7 +15,8 @@ flowchart LR
 
 | Topic | Content |
 | --- | --- |
-| [Build and install](getting-started.md) | CMake integration and deployment |
+| [Build and install](getting-started.md) | Header-only CMake integration and deployment |
+| [Configuration migration](migration.md) | Fixed backend/statistics/check policy |
 | [Platforms and backends](guides/backends.md) | Platform support and optional backends |
 | [Runnable examples](../examples/README.md) | Complete programs |
 
@@ -45,12 +46,13 @@ flowchart LR
 | [Lifetime and threads](compatibility.md) | Ownership, concurrency and shared libraries |
 | [Performance](performance.md) | Time and memory comparisons |
 | [Test results](testing.md) | Verified platforms and coverage |
+| [Remote validation](remote-validation.md) | Native compiler matrix, detection and chart automation |
 
 [Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/0.0.1/README.md) · [Upstream validation](upstream-validation.md)
 
 ## 5 · Validation and maintenance
 
-Repair verification from **2026-10-08 to 2026-10-09**; counts identify the configurations actually tested.
+Historical repair verification from **2026-10-08 to 2026-10-09**; these earlier library-build counts do not describe the current header-only profiles.
 
 | Validation | Recorded result |
 | --- | --- |
@@ -62,7 +64,12 @@ Repair verification from **2026-10-08 to 2026-10-09**; counts identify the confi
 
 Shared builds passed **1664/1664** on Windows and **1666/1666** on Linux. All six local configurations passed **7/7** installed consumers. Coverage includes everyday use, typed storage, independent public headers, package discovery, boundaries, exceptions and concurrency. Each CI link verifies its recorded revision. [Full test report](testing.md)
 
-The repository keeps `main` and distributes its [source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/main.zip) without tags or Releases. The library version remains **0.0.1**; identify deliveries by their source revision and use matching headers and libraries. Homepage performance data was measured on **2026-09-28**, before the October repairs.
+The header-only fixed-profile source described here is on `dev`; the earlier stable implementation is on `main`.
+The [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)
+is distributed without tags or Releases. The library version remains **0.0.1**;
+use matching headers, generated configuration and SDK libraries and identify deliveries by source revision.
+[Current performance reports](performance.md#current-remote-reports) record their
+measured revision; September measurements remain as historical data.
 
 [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Repair review](review-2026-10-08.md)
 

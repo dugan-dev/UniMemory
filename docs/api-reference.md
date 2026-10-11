@@ -2,15 +2,14 @@
 
 [Index](README.md) · **English** · [简体中文](api-reference.zh-CN.md)
 
-Namespace: `unimem`. Include `<unimem/memory.h>` for the allocation API.
+Namespace: `unimem`. Include `<unimem/memory.h>` for the complete header-only allocation API; link the CMake `UniMemory::UniMemory` interface target. `Memory` is a non-template class.
 
 ## 1 · Create Memory
 
 | Signature | Result / contract |
 | --- | --- |
-| `Memory::global(Backend = Standard)` | `Memory&`; shared instance, library-managed |
-| `Memory::configure_global(Backend, StatisticsMode)` | Configure before first lookup; mode changes afterward throw |
-| `Memory::heap(Backend, StatisticsMode = Disabled)` | `Memory`; independent native Heap; Standard unsupported |
+| `Memory::global(Backend = selected_backend)` | `Memory&`; one library-managed Global; explicit backend must match this build |
+| `Memory::heap(Backend, StatisticsMode = Disabled)` | `Memory`; selected backend only; Basic requires statistics ON; Standard unsupported |
 | `Memory::stack(span<byte>)` | `Memory`; fixed borrowed Buffer, single-threaded |
 | `Memory::stack(void*, size_t)` | Pointer/size form of the same Buffer strategy |
 
@@ -20,15 +19,18 @@ Memory cannot be copied or moved; store global instances by pointer or reference
 
 | Interface | Result |
 | --- | --- |
-| `Backend::{Standard, Mimalloc, Jemalloc}` | Backend choice |
+| `Backend::{Standard, Mimalloc, Jemalloc}` | Backend values; choose one through CMake |
+| `Memory::selected_backend` / `selected_statistics` | `static constexpr` configuration values |
 | `MemoryKind::{Global, Heap, Stack}` / `kind()` | Allocation mode |
 | `backend()` | `optional<Backend>`; empty for Stack |
-| `available(backend)` | Backend enabled in this build |
+| `available(backend)` | True only for the selected backend |
 | `capabilities(backend)` | `available`, `heap`, `detailed_statistics`, `release_delay` |
 | `memory.capabilities()` | `basic_statistics`, `detailed_statistics`, `reset`, `collect`, `owns`, `checkpoints`, `thread_safe`, `individual_reclaim` |
 | `supports(backend, RuntimeOption)` | Runtime-option support |
 | `set_runtime_option(backend, option, int64_t)` | Unsupported returns false; invalid values/native failure throw |
 | `statistics()` / `backend_statistics()` | Optional [statistics](guides/statistics.md) |
+
+The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. ON means Global Basic; OFF means Global Disabled and rejects Heap Basic. Stack has no counters. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
 
 Current RuntimeOption: `UnusedPageReleaseDelayMs`, milliseconds, Backend-wide.
 Capability support is distinct from enabled counters. Global lookup does not replace
@@ -87,10 +89,11 @@ or native metrics. Unsupported mode-specific operations throw `logic_error`.
 | Condition | Behavior |
 | --- | --- |
 | Allocation/capacity failure | `bad_alloc`; resize preserves old storage |
-| Invalid alignment, enum, Buffer or Mark | `invalid_argument` where validated |
+| Invalid allocation alignment | `invalid_argument` with checks enabled; a caller precondition when checks are OFF |
+| Backend mismatch, invalid statistics mode, Heap Basic in an OFF build, invalid Buffer or Mark | `invalid_argument` |
 | Element-count or mark-counter overflow | `length_error` |
-| Unavailable Backend / unsupported Heap / native control failure | `runtime_error` |
-| Unsupported operation / late Global mode change / moved-from Block resize | `logic_error` |
+| Unsupported Heap / native control failure | `runtime_error` |
+| Unsupported operation / moved-from Block resize | `logic_error` |
 | Invalid pointers, mismatched frees, premature reset/destruction | Caller contract violation; not necessarily detected |
 
 Link `UniMemory::UniMemory`. [Build](getting-started.md) · [Lifetime](compatibility.md).

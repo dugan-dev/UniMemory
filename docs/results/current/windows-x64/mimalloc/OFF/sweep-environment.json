@@ -1,0 +1,60 @@
+{
+  "version": "0.0.1",
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "build_profile": {
+    "backend": "mimalloc",
+    "statistics": "OFF",
+    "checks": "AUTO",
+    "api_path": "disabled",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "mimalloc",
+      "statistics": "OFF",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "MSVC 19.44.35229.0",
+      "msvc_runtime": "MultiThreadedDLL",
+      "flags": "/DWIN32 /D_WINDOWS /EHsc",
+      "release_flags": "/O2 /Ob2 /DNDEBUG",
+      "debug_flags": "/Ob0 /Od /RTC1",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_MIMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_MIMALLOC",
+      "compile_options": "/Ob3",
+      "sdk_target": "mimalloc",
+      "sdk_binary": "D:/a/UniMemory/UniMemory/build/performance/vcpkg_installed/x64-windows-unimemory/bin/mimalloc.dll",
+      "sdk_linker_file": "D:/a/UniMemory/UniMemory/build/performance/vcpkg_installed/x64-windows-unimemory/lib/mimalloc.dll.lib",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
+        "sha256": "58e2f1ffbaaa192205860dc79db09cba679060975dedf6d81eaee0603d330dde"
+      },
+      "sdk_linker_file": {
+        "path": "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
+        "sha256": "d785088891a82b1af135328333d22bc3b30bed6d962c836935b93d7ebe6690b1"
+      }
+    },
+    "runtime_dlls": {
+      "mimalloc.dll": "58e2f1ffbaaa192205860dc79db09cba679060975dedf6d81eaee0603d330dde"
+    },
+    "sdk_runtime_files": {
+      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "58e2f1ffbaaa192205860dc79db09cba679060975dedf6d81eaee0603d330dde"
+    },
+    "cmake_cache_sha256": "3fe6d5ebfcf1c7cdae8d79137cdbdc16401ebd9f440888d580ef408ddb0e73ca",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "logical_cpus": 4,
+  "trials": 3,
+  "scenarios_per_trial": 214,
+  "affinity_pinned": false,
+  "sequential_processes": true,
+  "repetitions": 7,
+  "measured_at_utc": "2026-10-11T00:27:40.080830+00:00",
+  "executable_sha256": "727626eab4079f9ab922f2b3e6c0f930fefe404a79813e158d0dd62fa3d62973",
+  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
+  "source_hash_line_endings": "LF"
+}

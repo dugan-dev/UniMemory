@@ -6,23 +6,31 @@ work=$(cd "$work" && pwd)
 cmake -S "$work/mimalloc" -B "$work/mi-static" -DCMAKE_BUILD_TYPE=Release -DMI_OVERRIDE=OFF -DMI_BUILD_SHARED=OFF -DMI_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX="$work/static-prefix" > "$work/static-config.log"
 cmake --build "$work/mi-static" --parallel 8 > "$work/static-build.log"
 cmake --install "$work/mi-static" > "$work/static-install.log"
-cmake -S "$root" -B "$work/static-unified" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$work/static-prefix" -DUNIMEMORY_WITH_MIMALLOC=ON > "$work/static-unified-config.log"
-cmake --build "$work/static-unified" --parallel 8 > "$work/static-unified-build.log"
-ctest --test-dir "$work/static-unified" --parallel 8 --output-on-failure > "$work/static-unified-test.log"
-cmake --install "$work/static-unified" --prefix "$work/static-installed" > "$work/static-package.log"
-cmake -S "$root/tests/consumer" -B "$work/static-consumer" -DCMAKE_PREFIX_PATH="$work/static-installed;$work/static-prefix" > "$work/static-consumer-config.log"
-cmake --build "$work/static-consumer" --parallel 4 > "$work/static-consumer-build.log"
-ctest --test-dir "$work/static-consumer" --output-on-failure > "$work/static-consumer-test.log"
-cmake -S "$root" -B "$work/shared" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DUNIMEMORY_WITH_MIMALLOC=ON -DUNIMEMORY_WITH_JEMALLOC=ON -DCMAKE_PREFIX_PATH="$work/prefix" > "$work/shared-config.log"
-cmake --build "$work/shared" --parallel 8 > "$work/shared-build.log"
-ctest --test-dir "$work/shared" --parallel 8 --output-on-failure > "$work/shared-test.log"
-cmake --install "$work/shared" --prefix "$work/shared-installed" > "$work/shared-install.log"
-# Deploy optional native runtime libraries in the same private prefix.
-cmake -E copy_directory "$work/prefix" "$work/shared-installed"
-cmake -S "$root/tests/consumer" -B "$work/shared-consumer" -DCMAKE_PREFIX_PATH="$work/shared-installed;$work/prefix" > "$work/shared-consumer-config.log"
-cmake --build "$work/shared-consumer" --parallel 4 > "$work/shared-consumer-build.log"
-ctest --test-dir "$work/shared-consumer" --output-on-failure > "$work/shared-consumer-test.log"
-tail -8 "$work/static-unified-test.log"
-tail -8 "$work/shared-test.log"
-tail -6 "$work/static-consumer-test.log"
-tail -6 "$work/shared-consumer-test.log"
+# UniMemory is INTERFACE in every profile. Shared/static below refer only to SDKs.
+for profile in static-mimalloc shared-mimalloc shared-jemalloc; do
+  backend=${profile#*-}
+  prefix="$work/prefix"
+  if [ "$profile" = static-mimalloc ]; then prefix="$work/static-prefix"; fi
+  for statistics in OFF ON; do
+    directory="$work/$profile-$statistics"
+    installed="$work/$profile-$statistics-installed"
+    consumer="$work/$profile-$statistics-consumer"
+    # Windows CMake needs native paths inside semicolon-separated lists;
+    # MSYS converts a single path but cannot safely convert the whole list.
+    cmake_prefix="$prefix"
+    cmake_installed="$installed"
+    if command -v cygpath >/dev/null 2>&1; then
+      cmake_prefix=$(cygpath -m "$prefix")
+      cmake_installed=$(cygpath -m "$installed")
+    fi
+    cmake -S "$root" -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DCMAKE_PREFIX_PATH="$cmake_prefix" > "$work/$profile-$statistics-config.log"
+    cmake --build "$directory" --parallel 4 > "$work/$profile-$statistics-build.log"
+    ctest --test-dir "$directory" --parallel 4 --output-on-failure --no-tests=error > "$work/$profile-$statistics-test.log"
+    cmake --install "$directory" --prefix "$cmake_installed" > "$work/$profile-$statistics-install.log"
+    cmake -S "$root/tests/consumer" -B "$consumer" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$cmake_installed;$cmake_prefix" -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO > "$work/$profile-$statistics-consumer-config.log"
+    cmake --build "$consumer" --parallel 4 > "$work/$profile-$statistics-consumer-build.log"
+    ctest --test-dir "$consumer" --output-on-failure --no-tests=error > "$work/$profile-$statistics-consumer-test.log"
+    tail -8 "$work/$profile-$statistics-test.log"
+    tail -6 "$work/$profile-$statistics-consumer-test.log"
+  done
+ done

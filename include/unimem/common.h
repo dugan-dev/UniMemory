@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unimem/config.h>
+
 #include <cstdint>
 #include <optional>
 
@@ -64,3 +66,5 @@ struct TrackingContext;
 }
 
 }
+
+#include <unimem/detail/common.inl>

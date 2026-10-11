@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:lang="zh-CN" viewBox="0 0 1100 560" role="img">
+<title>混合生命周期 · 释放后内存</title>
+<rect width="1100" height="560" fill="#ffffff"/>
+<g font-family="system-ui,Segoe UI,Microsoft YaHei,PingFang SC,Noto Sans CJK SC,sans-serif" fill="#0f172a">
+<text x="92" y="40" font-size="25" font-weight="650">混合生命周期 · 释放后内存</text>
+<text x="92" y="66" font-size="14" fill="#475569">驻留内存（MiB）· 不代表碎片率或泄漏率</text>
+<path d="M92,442.0h760" stroke="#e2e8f0"/>
+<text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
+<path d="M92,372.0h760" stroke="#e2e8f0"/>
+<text x="80" y="377.0" text-anchor="end" font-size="13">8.5</text>
+<path d="M92,302.0h760" stroke="#e2e8f0"/>
+<text x="80" y="307.0" text-anchor="end" font-size="13">17</text>
+<path d="M92,232.0h760" stroke="#e2e8f0"/>
+<text x="80" y="237.0" text-anchor="end" font-size="13">26</text>
+<path d="M92,162.0h760" stroke="#e2e8f0"/>
+<text x="80" y="167.0" text-anchor="end" font-size="13">34</text>
+<path d="M92,92.0h760" stroke="#e2e8f0"/>
+<text x="80" y="97.0" text-anchor="end" font-size="13">43</text>
+<text x="168.0" y="465" text-anchor="middle" font-size="14">全量分配</text>
+<text x="320.0" y="465" text-anchor="middle" font-size="14">少量保留</text>
+<text x="472.0" y="465" text-anchor="middle" font-size="14">循环分配</text>
+<text x="624.0" y="465" text-anchor="middle" font-size="14">循环释放</text>
+<text x="776.0" y="465" text-anchor="middle" font-size="14">全部释放</text>
+<circle cx="168.0" cy="142.16502916794596" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="141.68529321461472" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="131.89867976665647" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="131.89867976665647" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="131.89867976665647" r="3.5" fill="#d97706"/>
+<polyline points="168.0,142.16502916794596 320.0,141.68529321461472 472.0,131.89867976665647 624.0,131.89867976665647 776.0,131.89867976665647" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<path d="M880,115h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="880" y="133" font-size="12">jemalloc / 原生接口</text>
+<circle cx="168.0" cy="139.76634940128952" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="139.2546310510695" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="129.50000000000003" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="129.50000000000003" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#d97706"/>
+<polyline points="168.0,139.76634940128952 320.0,139.2546310510695 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<path d="M880,149h28" stroke="#d97706" stroke-width="3"/>
+<text x="880" y="167" font-size="12">jemalloc / 封装＋统计</text>
+<text x="472" y="487" text-anchor="middle" font-size="13">内存阶段</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/jemalloc/ON · e355001f2ad8 · 16,384 个位置，八轮分配/释放；末阶段无存活请求</text>
+<text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
+</g></svg>

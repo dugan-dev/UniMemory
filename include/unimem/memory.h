@@ -17,13 +17,15 @@ namespace unimem {
 
 class Memory final {
 public:
-    static Memory& global(Backend backend = Backend::Standard);
+    static constexpr Backend selected_backend = static_cast<Backend>(UNIMEMORY_CONFIG_BACKEND);
+    static constexpr StatisticsMode selected_statistics = UNIMEMORY_CONFIG_STATISTICS
+        ? StatisticsMode::Basic : StatisticsMode::Disabled;
+    static Memory& global(Backend backend = selected_backend);
     static Memory heap(Backend backend,
                        StatisticsMode statistics = StatisticsMode::Disabled);
     static Memory stack(void* buffer, std::size_t capacity);
     static Memory stack(std::span<std::byte> buffer);
 
-    static void configure_global(Backend backend, StatisticsMode statistics);
 
     ~Memory();
     Memory(const Memory&) = delete;
@@ -121,6 +123,27 @@ public:
     std::size_t capacity() const;
 
 private:
+    template<class T>
+    void construct_array_with_rollback(T* objects, std::size_t count);
+
+    template<class T>
+    class GlobalAllocator;
+    static void* global_shared_allocate(std::size_t bytes, std::size_t alignment);
+    static void global_shared_deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept;
+
+    bool is_global() const noexcept;
+    template<bool Zero>
+    static void* global_allocate_raw(std::size_t bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard);
+    static void global_deallocate_raw(void* pointer, std::size_t alignment) noexcept;
+    static void* global_reallocate_raw(void* pointer, std::size_t old_bytes,
+                                         std::size_t new_bytes, std::size_t alignment) noexcept(selected_backend != Backend::Standard);
+
+    void* cold_allocate(std::size_t bytes, std::size_t alignment) noexcept;
+    void* cold_allocate_zeroed(std::size_t bytes, std::size_t alignment) noexcept;
+    void* cold_reallocate(void* pointer, std::size_t old_bytes,
+                          std::size_t new_bytes, std::size_t alignment) noexcept;
+    void cold_deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept;
+
     Memory(Backend backend, StatisticsMode statistics, MemoryKind kind);
     Memory(void* buffer, std::size_t capacity);
 
@@ -148,6 +171,22 @@ private:
     static void stack_deallocate(void*, void*, std::size_t, std::size_t) noexcept;
     static void stack_destroy(void*) noexcept;
 
+    // Global PMR callbacks add no per-Memory instance data.
+    class GlobalResource final : public std::pmr::memory_resource {
+    public:
+        GlobalResource() noexcept = default;
+    private:
+        void* do_allocate(std::size_t bytes, std::size_t alignment) override;
+        void do_deallocate(void* pointer, std::size_t bytes, std::size_t alignment) override;
+        bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override;
+    };
+    static_assert(sizeof(GlobalResource) == sizeof(std::pmr::memory_resource));
+    static_assert(alignof(GlobalResource) == alignof(std::pmr::memory_resource));
+    struct GlobalResourceStorage {
+        alignas(GlobalResource) std::byte bytes[sizeof(GlobalResource)];
+    };
+    static GlobalResourceStorage global_resource_storage_;
+
     class Resource final : public std::pmr::memory_resource {
     public:
         explicit Resource(Memory& memory) noexcept;
@@ -166,7 +205,7 @@ private:
     const detail::BackendOps* ops_ = nullptr;
     void* context_ = nullptr;
     detail::TrackingContext* tracking_ = nullptr;
-    MemoryKind kind_;
+    const MemoryKind kind_;
     Storage storage_;
     Resource resource_;
 };
@@ -174,3 +213,5 @@ private:
 }
 
 #include <unimem/detail/memory.inl>
+#include <unimem/detail/global_storage.inl>
+#include <unimem/detail/memory_core.inl>

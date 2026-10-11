@@ -2,6 +2,40 @@
 
 [Documentation](README.md) · **English** · [简体中文](testing.zh-CN.md)
 
+The results below identify earlier measured source revisions, including compiled multi-backend library builds. They are retained as historical evidence and do not claim validation counts for the new header-only profile. Current configuration is described in the [build guide](getting-started.md).
+
+## Remote validation · 2026-10-10
+
+The expanded validation targets source `ca4919f`. The [native matrix](remote-validation.md#platform-and-compiler-matrix)
+checks 26 Debug/Release compiler configurations, including all six requested
+platform/architecture combinations, and verifies installed consumers.
+
+| Evidence | Scope |
+| --- | --- |
+| [Build](https://github.com/dugan-dev/UniMemory/actions/runs/38027100987) | Standard, optional backends, shared libraries, examples, installation and documentation |
+| [Portability](https://github.com/dugan-dev/UniMemory/actions/runs/38027100962) | Actual compiler/version and binary architecture; Debug/Release |
+| [Diagnostics](https://github.com/dugan-dev/UniMemory/actions/runs/38027100952) | Strict UBSan control, adapter/native sanitizers, static analysis and coverage |
+| [Release validation](https://github.com/dugan-dev/UniMemory/actions/runs/38027100940) | Existing native suites, sanitizer and pressure validation |
+| [Performance](https://github.com/dugan-dev/UniMemory/actions/runs/38027100953) | Complete three-platform measurements, report regression tests and generated-results publication |
+
+The GCC coverage configuration executes 1,673 registered tests. Its instrumented
+project code reports **604/635 lines (95.12%)** and **337/475 branches (70.95%)**;
+unexecuted translation units are included. This is configuration-specific evidence,
+not complete template instantiation or exhaustive path coverage. Source reports
+identify remaining allocation-failure and capability branches.
+
+Clang TSan runs 1,671 cases; its two incompatible global-new failure-injection
+cases remain required in ordinary and compatible ASan builds. Jemalloc dependency
+internals remain uninstrumented. [Detection scope and stress scale](remote-validation.md#detection-and-pressure)
+
+The report regressions first failed remotely on `568cc2b` for generated EOF format
+and indistinguishable statistics columns. On `6738c77`, all 17 tool tests pass,
+including first/different baselines, incomplete scenarios and SVG validity.
+The final tool suite passes all 23 cases, including publication identity, scope
+and complete file-pagination guards. [Generated-results PR #5](https://github.com/dugan-dev/UniMemory/pull/5)
+passed all five genuine PR acceptance checks before automatic merge. All 18 SVGs
+identify measured source `ca4919f`; no dispatched check substituted for PR validation.
+
 ## Review verification: 2026-10-08 to 2026-10-09
 
 | Configuration | Passed / registered | Installed consumers |
@@ -55,12 +89,12 @@ Callers must avoid mismatched frees, invalid pointers, use after reset and unsyn
 ## Run
 
 ```sh
-cmake --preset release -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --preset release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ctest --preset release
 ```
 
-Standard is enabled by default; optional backends need their build options and dependencies. [Configuration](guides/backends.md)
+The backend and statistics mode are mandatory build choices. The command selects Standard/OFF; use separate build directories for the other backend/ON/OFF profiles and provide the selected SDK. [Configuration](guides/backends.md)
 
 ## Automated verification
 

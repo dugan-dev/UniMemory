@@ -1,0 +1,123 @@
+{
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "processor": "x86_64",
+  "trials": 3,
+  "command": "UniMemoryDeliveryBenchmark",
+  "alignment": 16,
+  "process_isolation": true,
+  "logical_cpus": 4,
+  "executable_sha256": "6360e534e5dccc8f375748d7d7ecb40f1086cc20950158bea4f84efba47cca9a",
+  "allocator_environment": {
+    "memory_bytes": 80,
+    "owned_block_bytes": 32,
+    "allocator_bytes": 8,
+    "core": "header-only",
+    "selected_backend": "jemalloc",
+    "selected_statistics": "basic",
+    "checks": 0,
+    "standard_new_provider": "libstdc++.so.6",
+    "resident_measurement": "smaps_rollup Rss",
+    "jemalloc_header_version": "5.3.1-0-g81034ce1f1373e37dc865038e1bc8eeecf559ce8"
+  },
+  "build_profile": {
+    "backend": "jemalloc",
+    "statistics": "ON",
+    "checks": "AUTO",
+    "api_path": "basic",
+    "core": "header-only",
+    "configuration": "Release",
+    "build_parameters": {
+      "core": "header-only",
+      "backend": "jemalloc",
+      "statistics": "ON",
+      "checks": "AUTO",
+      "configuration": "Release",
+      "compiler": "GNU 13.3.0",
+      "msvc_runtime": "",
+      "flags": "",
+      "release_flags": "-O3 -DNDEBUG",
+      "debug_flags": "-g",
+      "ipo": "",
+      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
+      "compile_options": "",
+      "sdk_target": "unimemory_jemalloc",
+      "sdk_binary": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+      "sdk_linker_file": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+      "target_parameters": "UniMemoryDeliveryBenchmark"
+    },
+    "sdk_binaries": {
+      "sdk_binary": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+        "sha256": "74cdb05f6f32821239083de42b064c95adf6f7528a713f846875837ce0f3e27d"
+      },
+      "sdk_linker_file": {
+        "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.so",
+        "sha256": "74cdb05f6f32821239083de42b064c95adf6f7528a713f846875837ce0f3e27d"
+      }
+    },
+    "runtime_dlls": {},
+    "sdk_runtime_files": {},
+    "cmake_cache_sha256": "6c14b62686774069077ac7c29808dd3ad4bcb8b80de90856bcb58802b9b06fba",
+    "native_api_same_executable": true,
+    "native_api_same_sdk_target": true
+  },
+  "windows_disable_redirect": false,
+  "measured_at_utc": "2026-10-11T00:25:15.406196+00:00",
+  "benchmark_source_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a",
+  "source_hash_line_endings": "LF",
+  "pressure_protocol": "mixed-size-retention-v1",
+  "pressure_sizes": [
+    17,
+    33,
+    65,
+    129,
+    257,
+    513,
+    1025,
+    2049,
+    4097,
+    8193
+  ],
+  "pressure_slots": 16384,
+  "pressure_cycles": 8,
+  "pressure_anchor_stride": 16,
+  "pressure_seed": "0xC0FFEE",
+  "schema": 2,
+  "source_revision": "e355001f2ad885add2447bd085e199206c7a4096",
+  "run_id": "38097248244",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38097248244",
+  "architecture": "x86_64",
+  "compiler": {
+    "CMAKE_CXX_COMPILER_ID": "GNU",
+    "CMAKE_CXX_COMPILER_VERSION": "13.3.0"
+  },
+  "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "measurement_protocol": "native-api-scaling-tails-v2",
+  "threads": [
+    1,
+    2,
+    4,
+    8,
+    16
+  ],
+  "sizes": [
+    16,
+    64,
+    256,
+    4096,
+    65536
+  ],
+  "backends": [
+    "jemalloc"
+  ],
+  "paths": [
+    "native",
+    "basic"
+  ],
+  "tail_samples": 8192,
+  "tail_method": "Individual allocate/free intervals; includes clock overhead, separately recorded",
+  "scaling_method": "4096 pairs/thread; 8 synchronized batches of 512; max configured live payload 512 MiB; thread creation and warmup excluded, join included",
+  "performance_gate": "Report only; hosted hardware noise is not a correctness failure",
+  "benchmark_sha256": "616adac7c09c8ef51008ec0c0d0978a53a7ae2b3dcd76dc90534d7497ff0613a"
+}
