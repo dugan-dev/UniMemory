@@ -1,6 +1,6 @@
 {
+  "schema": 3,
   "version": "0.0.1",
-  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
   "build_profile": {
     "backend": "jemalloc",
     "statistics": "ON",
@@ -30,27 +30,33 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "bff18c5d18943b79ba849c2d5af079abbf9b4d15091b4321815c5a4cd1408559"
+        "sha256": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "bff18c5d18943b79ba849c2d5af079abbf9b4d15091b4321815c5a4cd1408559"
+        "sha256": "f378e301ec9fe19fa2ad7844b9a07f7752829014526c096cce16eebe15b71b69"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "b40bbc27eac9650377134e58c37e51bee00d48b523593bc8559a7526c3edb469",
+    "cmake_cache_sha256": "7925b0cff3d8b4e1d5780902d36540b52a3adef6bba2bad8465e7a9e9afe604e",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 3,
-  "trials": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
   "scenarios_per_trial": 311,
   "affinity_pinned": false,
   "sequential_processes": true,
-  "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:47:00.590230+00:00",
-  "executable_sha256": "20a6d73f97df22e73bb765602a5b7aac1c0603973e665c32295c8f62997f51e5",
-  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
-  "source_hash_line_endings": "LF"
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "c5ea26049d38b636b2743dc48411b563d28830093d740ae9e922e3b19e81590a",
+  "measured_at_utc": "2026-10-11T11:14:34.215529+00:00",
+  "executable_sha256": "823372736817b36f4b44aeec9e3986cda3f00961558b53a2835dbf78c9a34f64",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "f80047f4b1434561280c0510d63783af04dd5a0969b72a25f088a69ceb3fe50c"
 }

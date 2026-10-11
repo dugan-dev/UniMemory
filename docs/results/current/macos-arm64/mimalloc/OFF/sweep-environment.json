@@ -1,6 +1,6 @@
 {
+  "schema": 3,
   "version": "0.0.1",
-  "platform": "macOS-15.7.9-arm64-arm-64bit-Mach-O",
   "build_profile": {
     "backend": "mimalloc",
     "statistics": "OFF",
@@ -30,27 +30,33 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "28688d9a2f77a763bb57a369b493c25d18b378587bb687c5361543d56f58e9a6"
+        "sha256": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.3.4.dylib",
-        "sha256": "28688d9a2f77a763bb57a369b493c25d18b378587bb687c5361543d56f58e9a6"
+        "sha256": "2a64e350672b8273137e0954aa5f0b1bef1ff3bc4f3515dc1f63163bb06c10d6"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "f11f6f967de38b0aae93a55880c141136f08d65856d30b6b7d3694c6310d492f",
+    "cmake_cache_sha256": "8c1c13a134ccf43e3c3fd8d5fc87cd6afa87b0df6f7857bc6183e5507b1f7c65",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 3,
-  "trials": 3,
+  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
+  "run_id": "38122935359",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "trials": 10,
   "scenarios_per_trial": 214,
   "affinity_pinned": false,
   "sequential_processes": true,
-  "repetitions": 7,
-  "measured_at_utc": "2026-10-11T01:35:09.395122+00:00",
-  "executable_sha256": "9bb1d0053c7c79c0654a43a7c9c2939d25fc253d62aee3746ec4ab1a2ffcdfaf",
-  "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
-  "source_hash_line_endings": "LF"
+  "repetitions": 1,
+  "measurement_protocol": "native-api-sustained-v4",
+  "operations_file_sha256": "dd97d67791dac49993378e90046612ffa6369c6baf83a2edadf06fe3f8c03886",
+  "measured_at_utc": "2026-10-11T11:08:59.855347+00:00",
+  "executable_sha256": "983f94b8e72c1ef5755a346aa971e34f838a7a3743782dd8b3ca5419f5343350",
+  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "source_hash_line_endings": "LF",
+  "full_calibration_sha256": "98fe9125910dd622bd2743af9b297cb1c0f0d64d64fdc9dfd578957214cd68e1"
 }
