@@ -30,11 +30,11 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "6cb7ecf8aa5351756b6357e2b4afbd70b7412104c11cce1a9f27f811a6d3255d"
+        "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "6cb7ecf8aa5351756b6357e2b4afbd70b7412104c11cce1a9f27f811a6d3255d"
+        "sha256": "2e5b6cc0700d28d5cd6db51eab718e1ae39d566a258dc1bde0ec93887d02002c"
       }
     },
     "runtime_dlls": {},
@@ -49,7 +49,7 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T00:24:22.979308+00:00",
+  "measured_at_utc": "2026-10-11T01:43:45.594488+00:00",
   "executable_sha256": "39c7f7069e7734b25c1d0460627989f9e18bcac461a03666bca09e8355273ed4",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"

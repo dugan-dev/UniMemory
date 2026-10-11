@@ -38,6 +38,6 @@
 <path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Threads</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · 4 logical CPUs · e355001f2ad8 · 64 B cross-thread workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · 4 logical CPUs · e758dc2a8476 · 64 B cross-thread workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

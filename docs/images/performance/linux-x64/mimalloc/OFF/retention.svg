@@ -21,23 +21,23 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">churn_dense</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">churn_sparse</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">freed</text>
-<circle cx="168.0" cy="219.22472299168976" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="218.1859418282549" r="3.5" fill="#0284c7"/>
-<circle cx="472.0" cy="129.52164127423825" r="3.5" fill="#0284c7"/>
-<circle cx="624.0" cy="129.52164127423825" r="3.5" fill="#0284c7"/>
-<circle cx="776.0" cy="129.52164127423825" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,219.22472299168976 320.0,218.1859418282549 472.0,129.52164127423825 624.0,129.52164127423825 776.0,129.52164127423825" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="219.31401384083048" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="218.27595155709344" r="3.5" fill="#0284c7"/>
+<circle cx="472.0" cy="129.6946366782007" r="3.5" fill="#0284c7"/>
+<circle cx="624.0" cy="129.6946366782007" r="3.5" fill="#0284c7"/>
+<circle cx="776.0" cy="129.6946366782007" r="3.5" fill="#0284c7"/>
+<polyline points="168.0,219.31401384083048 320.0,218.27595155709344 472.0,129.6946366782007 624.0,129.6946366782007 776.0,129.6946366782007" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#0284c7" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">mimalloc / Native</text>
-<circle cx="168.0" cy="219.20308171745154" r="3.5" fill="#0284c7"/>
-<circle cx="320.0" cy="218.16430055401662" r="3.5" fill="#0284c7"/>
+<circle cx="168.0" cy="219.14100346020766" r="3.5" fill="#0284c7"/>
+<circle cx="320.0" cy="218.1029411764706" r="3.5" fill="#0284c7"/>
 <circle cx="472.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
 <circle cx="624.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
 <circle cx="776.0" cy="129.50000000000003" r="3.5" fill="#0284c7"/>
-<polyline points="168.0,219.20308171745154 320.0,218.16430055401662 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+<polyline points="168.0,219.14100346020766 320.0,218.1029411764706 472.0,129.50000000000003 624.0,129.50000000000003 776.0,129.50000000000003" fill="none" stroke="#0284c7" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Memory phase</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · e355001f2ad8 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · e758dc2a8476 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

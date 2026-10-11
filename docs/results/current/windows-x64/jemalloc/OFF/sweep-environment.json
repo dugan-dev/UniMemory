@@ -38,10 +38,10 @@
       }
     },
     "runtime_dlls": {
-      "jemalloc.dll": "f09781d616218a52c1ccc777b91f349201bb4e882a8c3e38b8cfd0db792badb6"
+      "jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
     },
     "sdk_runtime_files": {
-      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "f09781d616218a52c1ccc777b91f349201bb4e882a8c3e38b8cfd0db792badb6"
+      "D:\\a\\UniMemory\\UniMemory\\build\\performance\\vcpkg_installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "11f4ed3c8e70ee9677ae70fdcf61a8ce242023a61e3ca7f8f00f3123c430c7a1"
     },
     "cmake_cache_sha256": "0cca2e5adf314546b4ff67f6fb6a9b369e2ef155f313e80ca7c14782e79b6940",
     "native_api_same_executable": true,
@@ -53,8 +53,8 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T00:29:22.831732+00:00",
-  "executable_sha256": "d88907931b611b06d87e2f975086ed900b4003f3ca3dcb7c6f27c0f113364a8f",
+  "measured_at_utc": "2026-10-11T01:48:42.259681+00:00",
+  "executable_sha256": "65900891b3d397d5d3ed4fa871d7fe8197288b1f2ef2ba4a2eb976b52c952951",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"
 }

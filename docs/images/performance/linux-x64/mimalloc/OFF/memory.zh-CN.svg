@@ -38,6 +38,6 @@
 <path d="M880,149h28" stroke="#0284c7" stroke-width="3"/>
 <text x="880" y="167" font-size="12">mimalloc / UniMemory 封装</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">线程数</text>
-<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · 4 个逻辑 CPU · e355001f2ad8 · 64 字节跨线程负载</text>
+<text x="92" y="505" font-size="13" fill="#475569">linux-x64/mimalloc/OFF · 4 个逻辑 CPU · e758dc2a8476 · 64 字节跨线程负载</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

@@ -14,7 +14,7 @@
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
 <text x="80" y="377.0" text-anchor="end" font-size="13">1.4e+02</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">2.8e+02</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">2.7e+02</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
 <text x="80" y="237.0" text-anchor="end" font-size="13">4.1e+02</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
@@ -27,15 +27,15 @@
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
-<rect data-path="disabled" x="137.60000000000002" y="417.93156317089966" width="35.46666666666666" height="24.068436829100335" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="264.26666666666665" y="416.2936565803864" width="35.46666666666666" height="25.706343419613574" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="390.93333333333334" y="391.6318406448738" width="35.46666666666666" height="50.36815935512618" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="517.5999999999999" y="419.16774010612875" width="35.46666666666666" height="22.832259893871253" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="644.2666666666667" y="416.9055677077004" width="35.46666666666666" height="25.094432292299587" fill="#64748b" opacity="0.9"/>
-<rect data-path="disabled" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="137.60000000000002" y="417.7773288701424" width="35.46666666666666" height="24.222671129857588" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="264.26666666666665" y="414.08528495757514" width="35.46666666666666" height="27.91471504242486" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="390.93333333333334" y="391.10368335867383" width="35.46666666666666" height="50.896316641326166" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="517.5999999999999" y="419.7168959569703" width="35.46666666666666" height="22.28310404302971" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="644.2666666666667" y="416.511327594945" width="35.46666666666666" height="25.488672405055013" fill="#64748b" opacity="0.9"/>
+<rect data-path="disabled" x="770.9333333333333" y="129.50000000000006" width="35.46666666666666" height="312.49999999999994" fill="#64748b" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#64748b" opacity="0.9"/>
 <text x="880" y="133" font-size="12">Standard / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Workload</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/standard/OFF · e355001f2ad8 · selected API statistics mode · compare within each workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/standard/OFF · e758dc2a8476 · selected API statistics mode · compare within each workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

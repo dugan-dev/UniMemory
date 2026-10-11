@@ -12,9 +12,9 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">52</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">53</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">1e+02</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">1.1e+02</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
 <text x="80" y="237.0" text-anchor="end" font-size="13">1.6e+02</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
@@ -27,15 +27,15 @@
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">创建对象</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">共享对象</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">vector 容器</text>
-<rect data-path="basic" x="137.60000000000002" y="428.5635751763289" width="35.46666666666666" height="13.436424823671075" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="264.26666666666665" y="390.452686865646" width="35.46666666666666" height="51.547313134354" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="390.93333333333334" y="399.2462852657836" width="35.46666666666666" height="42.75371473421637" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="517.5999999999999" y="427.43162953724413" width="35.46666666666666" height="14.568370462755865" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="644.2666666666667" y="419.6879408222949" width="35.46666666666666" height="22.312059177705123" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="137.60000000000002" y="428.50268558840537" width="35.46666666666666" height="13.49731441159463" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="264.26666666666665" y="390.9144152094036" width="35.46666666666666" height="51.085584790596386" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="390.93333333333334" y="398.94460096791755" width="35.46666666666666" height="43.05539903208245" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="517.5999999999999" y="426.5396597404144" width="35.46666666666666" height="15.460340259585621" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="644.2666666666667" y="419.85585641139045" width="35.46666666666666" height="22.144143588609552" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="110" width="28" height="8" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <text x="880" y="133" font-size="12">mimalloc / 封装＋统计</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">操作</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/ON · e355001f2ad8 · 当前 API 统计模式 · 仅在同一负载内比较</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/ON · e758dc2a8476 · 当前 API 统计模式 · 仅在同一负载内比较</text>
 <text x="92" y="528" font-size="12" fill="#64748b">三轮独立进程测量，展示中位数；环境与范围见测量方法和原始数据。</text>
 </g></svg>

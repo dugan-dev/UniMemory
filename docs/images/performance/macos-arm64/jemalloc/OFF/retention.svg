@@ -21,23 +21,23 @@
 <text x="472.0" y="465" text-anchor="middle" font-size="14">churn_dense</text>
 <text x="624.0" y="465" text-anchor="middle" font-size="14">churn_sparse</text>
 <text x="776.0" y="465" text-anchor="middle" font-size="14">freed</text>
-<circle cx="168.0" cy="144.02850877192986" r="3.5" fill="#d97706"/>
-<circle cx="320.0" cy="144.02850877192986" r="3.5" fill="#d97706"/>
-<circle cx="472.0" cy="132.51535087719304" r="3.5" fill="#d97706"/>
-<circle cx="624.0" cy="132.51535087719304" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="132.51535087719304" r="3.5" fill="#d97706"/>
-<polyline points="168.0,144.02850877192986 320.0,144.02850877192986 472.0,132.51535087719304 624.0,132.51535087719304 776.0,132.51535087719304" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
+<circle cx="168.0" cy="143.89776217639314" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="143.89776217639314" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="132.24243089074156" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="132.24243089074156" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="132.24243089074156" r="3.5" fill="#d97706"/>
+<polyline points="168.0,143.89776217639314 320.0,143.89776217639314 472.0,132.24243089074156 624.0,132.24243089074156 776.0,132.24243089074156" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="7 5"/>
 <path d="M880,115h28" stroke="#d97706" stroke-width="3" stroke-dasharray="7 5"/>
 <text x="880" y="133" font-size="12">jemalloc / Native</text>
-<circle cx="168.0" cy="141.15021929824564" r="3.5" fill="#d97706"/>
-<circle cx="320.0" cy="141.15021929824564" r="3.5" fill="#d97706"/>
-<circle cx="472.0" cy="129.50000000000006" r="3.5" fill="#d97706"/>
-<circle cx="624.0" cy="129.50000000000006" r="3.5" fill="#d97706"/>
-<circle cx="776.0" cy="129.50000000000006" r="3.5" fill="#d97706"/>
-<polyline points="168.0,141.15021929824564 320.0,141.15021929824564 472.0,129.50000000000006 624.0,129.50000000000006 776.0,129.50000000000006" fill="none" stroke="#d97706" stroke-width="2.5"/>
+<circle cx="168.0" cy="141.0182097411145" r="3.5" fill="#d97706"/>
+<circle cx="320.0" cy="141.0182097411145" r="3.5" fill="#d97706"/>
+<circle cx="472.0" cy="129.5" r="3.5" fill="#d97706"/>
+<circle cx="624.0" cy="129.5" r="3.5" fill="#d97706"/>
+<circle cx="776.0" cy="129.5" r="3.5" fill="#d97706"/>
+<polyline points="168.0,141.0182097411145 320.0,141.0182097411145 472.0,129.5 624.0,129.5 776.0,129.5" fill="none" stroke="#d97706" stroke-width="2.5"/>
 <path d="M880,149h28" stroke="#d97706" stroke-width="3"/>
 <text x="880" y="167" font-size="12">jemalloc / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Memory phase</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/jemalloc/OFF · e355001f2ad8 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/jemalloc/OFF · e758dc2a8476 · 16,384 slots; eight refill/free cycles; final phase has zero live requests</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

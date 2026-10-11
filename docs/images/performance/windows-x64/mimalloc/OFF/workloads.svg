@@ -12,30 +12,30 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">38</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">39</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">77</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">78</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
 <text x="80" y="237.0" text-anchor="end" font-size="13">1.2e+02</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">1.5e+02</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">1.6e+02</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">1.9e+02</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">2e+02</text>
 <text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">raw</text>
 <text x="282.0" y="465" text-anchor="middle" font-size="14">zeroed</text>
 <text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">reallocate</text>
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
-<rect data-path="disabled" x="137.60000000000002" y="427.066059311898" width="35.46666666666666" height="14.933940688101984" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="264.26666666666665" y="374.2075245479846" width="35.46666666666666" height="67.79247545201542" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="390.93333333333334" y="387.22740068495153" width="35.46666666666666" height="54.77259931504847" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="517.5999999999999" y="427.3108827939486" width="35.46666666666666" height="14.689117206051378" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="644.2666666666667" y="420.0331638457634" width="35.46666666666666" height="21.966836154236603" fill="#0284c7" opacity="0.9"/>
-<rect data-path="disabled" x="770.9333333333333" y="129.50000000000006" width="35.46666666666666" height="312.49999999999994" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="137.60000000000002" y="427.31473238581356" width="35.46666666666666" height="14.685267614186444" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="264.26666666666665" y="375.5010397511472" width="35.46666666666666" height="66.49896024885282" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="390.93333333333334" y="389.09370936234325" width="35.46666666666666" height="52.90629063765675" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="517.5999999999999" y="427.5769616351877" width="35.46666666666666" height="14.423038364812328" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="644.2666666666667" y="419.7534787266342" width="35.46666666666666" height="22.246521273365772" fill="#0284c7" opacity="0.9"/>
+<rect data-path="disabled" x="770.9333333333333" y="129.50000000000003" width="35.46666666666666" height="312.5" fill="#0284c7" opacity="0.9"/>
 <rect data-path="disabled" x="880" y="110" width="28" height="8" fill="#0284c7" opacity="0.9"/>
 <text x="880" y="133" font-size="12">mimalloc / UniMemory</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Workload</text>
-<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/OFF · e355001f2ad8 · selected API statistics mode · compare within each workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">windows-x64/mimalloc/OFF · e758dc2a8476 · selected API statistics mode · compare within each workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

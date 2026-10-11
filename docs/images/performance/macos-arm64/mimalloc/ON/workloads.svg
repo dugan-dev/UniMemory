@@ -12,30 +12,30 @@
 <path d="M92,442.0h760" stroke="#e2e8f0"/>
 <text x="80" y="447.0" text-anchor="end" font-size="13">0</text>
 <path d="M92,372.0h760" stroke="#e2e8f0"/>
-<text x="80" y="377.0" text-anchor="end" font-size="13">31</text>
+<text x="80" y="377.0" text-anchor="end" font-size="13">42</text>
 <path d="M92,302.0h760" stroke="#e2e8f0"/>
-<text x="80" y="307.0" text-anchor="end" font-size="13">62</text>
+<text x="80" y="307.0" text-anchor="end" font-size="13">84</text>
 <path d="M92,232.0h760" stroke="#e2e8f0"/>
-<text x="80" y="237.0" text-anchor="end" font-size="13">93</text>
+<text x="80" y="237.0" text-anchor="end" font-size="13">1.3e+02</text>
 <path d="M92,162.0h760" stroke="#e2e8f0"/>
-<text x="80" y="167.0" text-anchor="end" font-size="13">1.2e+02</text>
+<text x="80" y="167.0" text-anchor="end" font-size="13">1.7e+02</text>
 <path d="M92,92.0h760" stroke="#e2e8f0"/>
-<text x="80" y="97.0" text-anchor="end" font-size="13">1.6e+02</text>
+<text x="80" y="97.0" text-anchor="end" font-size="13">2.1e+02</text>
 <text x="155.33333333333334" y="465" text-anchor="middle" font-size="14">raw</text>
 <text x="282.0" y="465" text-anchor="middle" font-size="14">zeroed</text>
 <text x="408.6666666666667" y="465" text-anchor="middle" font-size="14">reallocate</text>
 <text x="535.3333333333333" y="465" text-anchor="middle" font-size="14">object</text>
 <text x="662.0" y="465" text-anchor="middle" font-size="14">shared_object</text>
 <text x="788.6666666666666" y="465" text-anchor="middle" font-size="14">std_vector</text>
-<rect data-path="basic" x="137.60000000000002" y="426.0498170565148" width="35.46666666666666" height="15.950182943485174" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="264.26666666666665" y="419.14891204336016" width="35.46666666666666" height="22.851087956639844" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="390.93333333333334" y="404.8899230127809" width="35.46666666666666" height="37.11007698721909" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="517.5999999999999" y="426.4726492301278" width="35.46666666666666" height="15.527350769872214" fill="url(#mimalloc-basic)" opacity="0.9"/>
-<rect data-path="basic" x="644.2666666666667" y="405.64402576304326" width="35.46666666666666" height="36.35597423695674" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="137.60000000000002" y="429.31554299873574" width="35.46666666666666" height="12.684457001264263" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="264.26666666666665" y="398.316281160147" width="35.46666666666666" height="43.683718839852986" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="390.93333333333334" y="415.08778186163374" width="35.46666666666666" height="26.912218138366256" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="517.5999999999999" y="430.8246563248497" width="35.46666666666666" height="11.175343675150316" fill="url(#mimalloc-basic)" opacity="0.9"/>
+<rect data-path="basic" x="644.2666666666667" y="413.9517001050896" width="35.46666666666666" height="28.04829989491037" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="770.9333333333333" y="129.50000000000006" width="35.46666666666666" height="312.49999999999994" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <rect data-path="basic" x="880" y="110" width="28" height="8" fill="url(#mimalloc-basic)" opacity="0.9"/>
 <text x="880" y="133" font-size="12">mimalloc / API + stats</text>
 <text x="472" y="487" text-anchor="middle" font-size="13">Workload</text>
-<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/ON · e355001f2ad8 · selected API statistics mode · compare within each workload</text>
+<text x="92" y="505" font-size="13" fill="#475569">macos-arm64/mimalloc/ON · e758dc2a8476 · selected API statistics mode · compare within each workload</text>
 <text x="92" y="528" font-size="12" fill="#64748b">Three fresh-process trials; median shown. See measurement method and raw data for scope and environment.</text>
 </g></svg>

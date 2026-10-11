@@ -40,8 +40,8 @@
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 7,
-  "measured_at_utc": "2026-10-11T00:25:01.678280+00:00",
-  "executable_sha256": "e6e375635a4276bbf1e8196a9079737073c04a71d317203ed0b8093344839d9a",
+  "measured_at_utc": "2026-10-11T01:39:09.044960+00:00",
+  "executable_sha256": "9db67337232eb42b6e5598e6d03180cd83b31477b4d1639cd70cbfb34e26d05e",
   "benchmark_source_sha256": "55a0f4e810f8b283b24514d80ca686577fbf92041826cb7b7ba263b63baad74d",
   "source_hash_line_endings": "LF"
 }
