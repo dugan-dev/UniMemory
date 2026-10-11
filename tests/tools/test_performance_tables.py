@@ -2,8 +2,10 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import statistics
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("tables", ROOT / "tools/ci/refresh-performance-tables.py")
@@ -12,6 +14,21 @@ spec.loader.exec_module(tables)
 
 
 class PerformanceTableTests(unittest.TestCase):
+    def test_one_trusted_run_may_cross_utc_midnight(self):
+        read_json = tables.read_json
+
+        def timestamp_after_midnight(path):
+            value = read_json(path)
+            if path.name == "environment.json" and path.parts[-4:-1] == ("macos-arm64", "jemalloc", "ON"):
+                value["measured_at_utc"] = "2026-10-12T00:01:00+00:00"
+            return value
+
+        with mock.patch.object(tables, "read_json", side_effect=timestamp_after_midnight):
+            _, manifests = tables.sdk_inputs(ROOT)
+        self.assertGreater(len({item["measured_at_utc"][:10] for item in manifests}), 1)
+        with self.assertRaisesRegex(ValueError, "UTC measurement timestamp"):
+            tables.report_tool().validate_timestamp("2026-10-11T00:00:00")
+
     def test_repeated_cells_show_mean_min_max_and_sample_cv(self):
         rows = [{"trial": str(trial), "_schema": 3, "_trials": 10,
                  "median_ns": "999", "mean_ns": str(value),
@@ -118,11 +135,23 @@ class PerformanceTableTests(unittest.TestCase):
                    if row[:2] == ["64", "mimalloc"])
         off = datasets["windows-x64", "mimalloc", "OFF"]["latency"]
         on = datasets["windows-x64", "mimalloc", "ON"]["latency"]
-        self.assertEqual(row[2], f"{tables.metric(off, 'median_ns', backend='mimalloc', path='native', bytes=64):.1f}")
-        self.assertEqual(row[3], f"{tables.metric(off, 'median_ns', backend='mimalloc', path='disabled', bytes=64):.1f}")
-        self.assertEqual(row[4], f"{tables.metric(on, 'median_ns', backend='mimalloc', path='basic', bytes=64):.1f}")
+        def expected_cell(selected, value, decimals=1):
+            values = [float(value(item)) for item in selected]
+            if selected[0]["_schema"] != 3:
+                return f"{statistics.median(values):.{decimals}f}"
+            mean = statistics.mean(values)
+            cv = f"{statistics.stdev(values) / abs(mean) * 100:.1f}%" if mean else "n/a"
+            return f"{mean:.{decimals}f} [{min(values):.{decimals}f}, {max(values):.{decimals}f}], CV {cv}"
+
+        for column, data, path in ((2, off, "native"), (3, off, "disabled"), (4, on, "basic")):
+            selected = [item for item in data if item["backend"] == "mimalloc" and item["path"] == path and item["bytes"] == "64"]
+            field = "mean_ns" if selected[0]["_schema"] == 3 else "median_ns"
+            self.assertEqual(row[column], expected_cell(selected, lambda item: item[field]))
         for platform, _ in tables.PLATFORMS:
-            self.assertEqual(generated[f"pressure-{platform}"][0][2], f"{tables.resident_delta(datasets[platform, 'standard', 'OFF']['pressure'], 'rss', backend='standard', path='native', phase='dense'):.2f}")
+            selected = [item for item in datasets[platform, "standard", "OFF"]["pressure"]
+                        if item["backend"] == "standard" and item["path"] == "native" and item["phase"] == "dense"]
+            expected = expected_cell(selected, lambda item: (float(item["rss"]) - float(item["baseline_rss"])) / tables.MIB, 2)
+            self.assertEqual(generated[f"pressure-{platform}"][0][2], expected)
 
     def test_chinese_labels_preserve_all_numeric_cells_and_english_input(self):
         datasets, manifests = tables.sdk_inputs(ROOT)

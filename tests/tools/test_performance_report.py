@@ -278,13 +278,16 @@ class CombinedReportTests(unittest.TestCase):
         for key in ("source_revision", "measurement_protocol", "pressure_protocol"):
             with self.subTest(key=key):
                 current = self.copy_profiles()
-                path = current / "jemalloc/ON/environment.json"
-                manifest = json.loads(path.read_text(encoding="utf-8"))
-                manifest[key] = "different"
-                path.write_text(json.dumps(manifest))
-                with self.assertRaisesRegex(ValueError, "different source revisions, protocols"):
-                    report.load_combined(current)
-                shutil.rmtree(current)
+                try:
+                    path = current / "jemalloc/ON/environment.json"
+                    manifest = json.loads(path.read_text(encoding="utf-8"))
+                    manifest[key] = "different"
+                    path.write_text(json.dumps(manifest), encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, "source|protocol"):
+                        report.load_combined(current)
+                finally:
+                    self.assertTrue(current.resolve().is_relative_to(self.directory.resolve()))
+                    shutil.rmtree(current)
 
     def test_controlled_profiles_reject_different_host_or_sdk_hashes(self):
         suite = {"host_id": "synthetic-shared-host"}

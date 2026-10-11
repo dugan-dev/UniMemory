@@ -183,6 +183,7 @@ def sdk_inputs(root):
                 manifest = read_json(directory / "environment.json")
                 profile = manifest.get("build_profile", {})
                 count = report_tool().trial_count(manifest)
+                report_tool().validate_timestamp(manifest.get("measured_at_utc"))
                 if (manifest.get("schema") not in (2, 3) or
                         profile.get("backend") != backend or profile.get("statistics") != mode):
                     raise ValueError("Unexpected performance dataset profile")
@@ -194,9 +195,8 @@ def sdk_inputs(root):
                 }
     revisions = {item["source_revision"] for item in manifests}
     runs = {str(item["run_id"]) for item in manifests}
-    dates = {item["measured_at_utc"][:10] for item in manifests}
     contracts = {(item["schema"], item["trials"], item.get("measurement_protocol")) for item in manifests}
-    if len(revisions) != 1 or len(runs) != 1 or len(dates) != 1 or len(contracts) != 1:
+    if len(revisions) != 1 or len(runs) != 1 or len(contracts) != 1:
         raise ValueError("Detailed tables require one consistent source revision and run")
     for index in range(0, len(manifests), 6):
         report_tool().validate_profile_group(manifests[index:index + 6])
@@ -386,6 +386,7 @@ def replace_blocks(content, tables, source, expected=None, language="en"):
 def refresh_tables(root, native_input=None):
     root = Path(root)
     datasets, manifests = sdk_inputs(root)
+    source_manifest = max(manifests, key=lambda item: report_tool().validate_timestamp(item["measured_at_utc"]))
     tables = sdk_tables(datasets, manifests)
     if native_input is not None:
         linux_index = next(index for index, (platform, _) in enumerate(PLATFORMS) if platform == "linux-x64") * 6
@@ -412,7 +413,7 @@ def refresh_tables(root, native_input=None):
             path = root / "docs/performance" / (name + suffix)
             original = path.read_text(encoding="utf-8")
             updated = replace_blocks(original, tables,
-                                     source_line(native_manifest if name == "applications" else manifests[0],
+                                     source_line(native_manifest if name == "applications" else source_manifest,
                                                  native=name == "applications", language="zh-CN" if suffix == ".zh-CN.md" else "en"), expected=expected[name],
                                      language="zh-CN" if suffix == ".zh-CN.md" else "en")
             if updated != original:

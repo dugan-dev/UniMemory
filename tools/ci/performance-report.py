@@ -1,6 +1,7 @@
 """Validate complete measurements and render publication SVGs without dependencies."""
 import argparse
 import csv
+from datetime import datetime, timedelta
 from collections import defaultdict
 from functools import lru_cache
 import html
@@ -20,6 +21,16 @@ import benchmark_statistics
 from result_io import read_csv, read_json, resolve_path
 
 BUILD_COMPARISON_FIELDS = ("compiler", "msvc_runtime", "flags", "release_flags", "ipo", "compile_options")
+
+
+def validate_timestamp(value):
+    try:
+        measured = datetime.fromisoformat(value)
+        if measured.utcoffset() != timedelta(0):
+            raise ValueError("Timestamp must record UTC")
+        return measured
+    except (TypeError, ValueError) as error:
+        raise ValueError("Invalid UTC measurement timestamp") from error
 
 BACKENDS = ("standard", "mimalloc", "jemalloc")
 PATHS = ("native", "disabled", "basic")
@@ -185,6 +196,7 @@ def validate_interval_rows(rows, name, manifest):
 
 
 def validate_sweep_provenance(directory, manifest, sweep_manifest, rows):
+    validate_timestamp(sweep_manifest.get("measured_at_utc"))
     profile = manifest["build_profile"]
     selected = next(item for item in manifest["controlled_suite"]["profiles"] if
                     (item["backend"], item["statistics"]) == (profile["backend"], profile["statistics"]))
@@ -327,6 +339,7 @@ def validate(directory, strict_artifact=False):
     trials_range = range(1, count + 1)
     backends, paths, api_path, profile = dimensions(manifest)
     if manifest["schema"] == 3:
+        validate_timestamp(manifest.get("measured_at_utc"))
         validate_controlled_suite(directory, manifest)
     for name, expected, key in (
         ("scaling", set(itertools.product(trials_range, backends, paths, ("same_thread", "handoff"), (64, 4096, 65536), THREADS)),
