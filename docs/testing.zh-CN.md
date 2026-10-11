@@ -4,6 +4,33 @@
 
 下方结果对应原实测源码修订，包含旧的多后端编译库配置；保留为历史证据，不宣称它们是新纯头文件配置的测试计数。当前配置见[构建指南](getting-started.zh-CN.md)。
 
+## 纯头文件验收 · 2026-10-11
+
+源码 `33df39d` 的核心、安装与诊断矩阵已全部通过。安装消费者有九项实际运行测试，包含三个翻译单元、PMR 静态生命周期和六种头文件顺序。后续 CMake 修正移除了消费者 PIC 限制，并显式验证 PIC OFF；最终运行记录见 [dev Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)。
+
+| 流程 | 结果与范围 |
+| --- | --- |
+| [构建](https://github.com/dugan-dev/UniMemory/actions/runs/38100027933) | 25/25 项；三平台 × 三 SDK × 两种统计配置、Debug/Release、检查开关和安装消费者 |
+| [编译器矩阵](https://github.com/dugan-dev/UniMemory/actions/runs/38100027832) | 53/53 项；52 项编译配置与总验收 |
+| [错误检测](https://github.com/dugan-dev/UniMemory/actions/runs/38100027817) | 21/21 项；严格 ASan/UBSan/TSan、可选后端、原生 mimalloc、静态分析和覆盖率 |
+| [发布](https://github.com/dugan-dev/UniMemory/actions/runs/38100027804) | 4/4 项；原生分配器正确性、压力与打包验证 |
+| [性能排查](https://github.com/dugan-dev/UniMemory/actions/runs/38100027867) | 11/11 项；配对因素与报告工具验证 |
+
+Basic 计数、PMR 零大小归一化、构造与 OOM 回滚、初始化失败重试、跨线程弱引用释放、安装配置冲突都保留强制验证。性能采集通过不代表每个负载都达到原生的 90%。[测量控制](performance/header-only.zh-CN.md)
+
+### 当前检测明细
+
+| 配置 | 行覆盖 | 分支覆盖 | 覆盖率 CTest | ASan + UBSan | TSan |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Standard OFF | 337/477 · 70.65% | 1548/3535 · 43.79% | 667 | 668 | 666 |
+| Standard ON | 381/487 · 78.23% | 1920/4253 · 45.14% | 669 | 670 | 667 |
+| mimalloc OFF | 391/518 · 75.48% | 1362/2955 · 46.09% | 712 | 713 | 712 |
+| mimalloc ON | 470/528 · 89.02% | 1799/3673 · 48.98% | 751 | 752 | 750 |
+| jemalloc OFF | 465/595 · 78.15% | 1461/3271 · 44.67% | 722 | 723 | 722 |
+| jemalloc ON | 543/605 · 89.75% | 1886/3989 · 47.28% | 760 | 761 | 759 |
+
+所有注册测试均通过。原生 mimalloc 另通过三项 UBSan、三项 TSan；六组 Clang 18.1.3 静态分析全部通过。GCC 13.3.0 使用 `--coverage -O0 -g`，只统计 `include/unimem/**`。各配置不能累加为一个源码覆盖率，SDK 内部不计入；gcov 分支槽包含编译器控制流。未覆盖部分仍保留在报告中，不宣称覆盖完整。[可复现流程](../.github/workflows/diagnostics.yml)
+
 ## 远程验收 · 2026-10-10
 
 扩展验收对应源码 `ca4919f`。[原生矩阵](remote-validation.md#platform-and-compiler-matrix)

@@ -1,6 +1,6 @@
 # Remote validation
 
-The protocol and recorded counts on this page describe the earlier multi-backend development runs. The current header-only source uses separate mandatory backend/statistics profiles; see [build configuration](getting-started.md). Earlier shared-UniMemory jobs are historical evidence, not a supported current library form.
+The current library is header-only, with one mandatory backend/statistics profile per build; see [build configuration](getting-started.md). The matrix below runs both statistics settings. Earlier shared-UniMemory jobs and recorded counts are historical evidence, not a supported current library form.
 
 Related source or configuration changes trigger GitHub Actions on `dev`, `main`,
 and pull requests. There are no scheduled workflows. Builds and tests for this
@@ -17,8 +17,9 @@ development run remotely.
 
 Actual compiler family, version, SDK where available, and produced binary
 architecture are recorded in `toolchain.json`. Compiler major selections are
-checked; the build cannot silently use a different target. Existing shared and
-optional-backend configurations supplement this matrix. This table does not
+checked; the build cannot silently use a different target. The 13 compiler/architecture combinations run Debug/Release and statistics
+ON/OFF, for 52 profiles. Separate x64 Windows/Linux and ARM64 macOS jobs cover
+all three SDKs and both statistics settings, including installed consumers. This table does not
 claim that every optional allocator supports every compiler/architecture pair.
 
 ## Detection and pressure
@@ -30,8 +31,8 @@ build. Thread adapter jobs additionally use mimalloc's supported TSan build so
 its atomics and memory-reuse annotations are visible to the detector. Jemalloc
 internals remain uninstrumented; separate mimalloc UBSan/TSan jobs exercise native
 instrumentation independently.
-Clang TSan supplies strong global new/delete replacements, so the two explicit
-global-new failure-injection cases run in ordinary and compatible ASan jobs,
+Clang TSan supplies strong global new/delete replacements, so explicit
+global-new failure injection and initialization-retry cases run in ordinary and compatible ASan jobs,
 not in the Clang TSan binary. They remain required in the standard build matrix;
 this is an instrumentation incompatibility, not a passed skipped test.
 Static analysis uses the actual compile database. GCC reports project line and

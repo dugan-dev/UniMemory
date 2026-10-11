@@ -7,8 +7,11 @@
 | Platform | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
 | Windows x64 / MSVC | Verified | Verified | Verified |
+| Windows ARM64 / MSVC, clang-cl | Verified | Not validated | Not validated |
 | Linux x64 / GCC | Verified | Verified | Verified, prefixed build |
-| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI, prefixed build |
+| Linux ARM64 / GCC, Clang | Verified | Not validated | Not validated |
+| macOS Apple Silicon / AppleClang | Verified | Verified | Verified, prefixed build |
+| macOS Intel / AppleClang | Verified | Not validated | Not validated |
 | Android / iOS | Not device-tested | Not device-tested | Not device-tested |
 
 This table describes evidence, not a guarantee for all architectures or operating-system versions. [Exact versions and results →](../testing.md)

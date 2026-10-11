@@ -56,6 +56,28 @@ All five paired medians exceed 90%; some individual pairs remain below it. Ratio
 
 [All paired measurements](../results/header-only/linux-standard-throw/measurements.csv) · [Environment](../results/header-only/linux-standard-throw/environment.json)
 
+## Final Standard profile remeasurement
+
+Source `33df39d` retains the unrepresentable-size failure guard so ASan/TSan do not abort on oversized requests. Using the same host, pinned CPU, five alternating process pairs and native reference described above, all five final API size medians exceed 90%; individual pairs still fall below 90%.
+
+| Bytes | Original nothrow API median ratio | Final API median ratio |
+| --- | ---: | ---: |
+| 16 | 87.79% | 91.61% |
+| 64 | 83.18% | 93.13% |
+| 256 | 72.65% | 94.14% |
+| 4096 | 88.52% | 97.90% |
+| 65536 | 88.94% | 99.84% |
+
+This is a separate measurement round; timing differences between rounds cannot be attributed directly to the size guard. The full cloud report remains authoritative for cross-platform and broader workloads. [All measurements](../results/header-only/linux-standard-final/measurements.csv) · [Environment and revision](../results/header-only/linux-standard-final/environment.json)
+
+## Generic Memory context overhead
+
+The measured `33df39d` Delivery executable confirms the remaining distinction: MSVC/mimalloc's native hot loop has 12 decoded instructions; its generic `Memory&` API path has 22. AppleClang/mimalloc has 10 versus 18. The API still reloads its Memory reference and checks Global identity twice per pair; backend/statistics selection and initialization are absent from that loop. Both paths call the same allocator and free entry. Instruction counts identify additional work, not a complete cycle attribution.
+
+A separate Windows control tested explicit Global early returns and likely/unlikely hints with unchanged Native code, SDK, CRT and `/Ob3`. It retained the same 22-instruction hot path, failed the 16-byte 90% median goal and did not consistently improve absolute time. It was not adopted. The unified class still supports Heap/Stack, so a generic reference cannot promise zero context selection overhead. The direct Global controls above do not establish a universal speed guarantee.
+
+[Layout control data](../results/header-only/windows-global-layout/measurements.csv) · [Metadata](../results/header-only/windows-global-layout/environment.json)
+
 ## Raw measurements
 
 | Profile | Complete 23-group summary | All paired path measurements |

@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
 
 A modern, header-only C++20 library for unified memory allocation with Standard, mimalloc or jemalloc, selected at build time.
 
@@ -234,12 +234,15 @@ if (unimem::supports(backend, option)) {
 
 | Platform | Standard | mimalloc | jemalloc | Compiler |
 | --- | :---: | :---: | :---: | --- |
-| Windows x64 | ✔ | ✔ | ✔ | MSVC |
-| Linux x64 | ✔ | ✔ | ✔ | GCC |
-| macOS | ✔ | ✔ | ✔ | Apple Clang |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC, clang-cl, MinGW-w64 GCC |
+| Windows ARM64 | ✔ | — | — | MSVC, clang-cl |
+| Linux x64 | ✔ | ✔ | ✔ | GCC 13/14, Clang 18 |
+| Linux ARM64 | ✔ | — | — | GCC 13/14, Clang 18 |
+| macOS Apple Silicon | ✔ | ✔ | ✔ | AppleClang |
+| macOS Intel | ✔ | — | — | AppleClang |
 | Android / iOS | — | — | — | Not device-validated |
 
-✔ Supported; — awaiting device validation. [Platform details](docs/guides/backends.md)
+✔ CI-validated; — awaiting validation. Optional SDKs use the default compiler for each platform. [Platform details](docs/guides/backends.md)
 
 ## Capabilities
 

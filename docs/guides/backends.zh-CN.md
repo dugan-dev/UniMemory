@@ -7,8 +7,11 @@
 | 平台 | Standard | mimalloc | jemalloc |
 | --- | --- | --- | --- |
 | Windows x64 / MSVC | 已验证 | 已验证 | 已验证 |
+| Windows ARM64 / MSVC、clang-cl | 已验证 | 尚未验证 | 尚未验证 |
 | Linux x64 / GCC | 已验证 | 已验证 | 已验证，前缀构建 |
-| macOS / Apple Clang | GitHub CI | GitHub CI | GitHub CI，前缀构建 |
+| Linux ARM64 / GCC、Clang | 已验证 | 尚未验证 | 尚未验证 |
+| macOS Apple Silicon / AppleClang | 已验证 | 已验证 | 已验证，前缀构建 |
+| macOS Intel / AppleClang | 已验证 | 尚未验证 | 尚未验证 |
 | Android / iOS | 尚未设备验证 | 尚未设备验证 | 尚未设备验证 |
 
 已测版本：mimalloc 3.4.3、jemalloc 5.3.1；更新版本需另行验证。[测试结果](../testing.zh-CN.md)

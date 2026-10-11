@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
 现代 C++20 纯头文件内存分配库，构建时选择 Standard、mimalloc 或 jemalloc，使用统一接口。
 
@@ -234,12 +234,15 @@ if (unimem::supports(backend, option)) {
 
 | 平台 | Standard | mimalloc | jemalloc | 编译器 |
 | --- | :---: | :---: | :---: | --- |
-| Windows x64 | ✔ | ✔ | ✔ | MSVC |
-| Linux x64 | ✔ | ✔ | ✔ | GCC |
-| macOS | ✔ | ✔ | ✔ | Apple Clang |
+| Windows x64 | ✔ | ✔ | ✔ | MSVC、clang-cl、MinGW-w64 GCC |
+| Windows ARM64 | ✔ | — | — | MSVC、clang-cl |
+| Linux x64 | ✔ | ✔ | ✔ | GCC 13/14、Clang 18 |
+| Linux ARM64 | ✔ | — | — | GCC 13/14、Clang 18 |
+| macOS Apple Silicon | ✔ | ✔ | ✔ | AppleClang |
+| macOS Intel | ✔ | — | — | AppleClang |
 | Android / iOS | — | — | — | 尚未设备验证 |
 
-✔ 已支持；— 尚未设备验证。[平台说明](docs/guides/backends.zh-CN.md)
+✔ 已通过 CI；— 尚未验证。可选 SDK 使用各平台默认编译器验证。[平台说明](docs/guides/backends.zh-CN.md)
 
 ## 功能
 

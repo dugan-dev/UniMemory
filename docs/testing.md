@@ -4,6 +4,33 @@
 
 The results below identify earlier measured source revisions, including compiled multi-backend library builds. They are retained as historical evidence and do not claim validation counts for the new header-only profile. Current configuration is described in the [build guide](getting-started.md).
 
+## Header-only validation · 2026-10-11
+
+Source `33df39d` passed the complete core, installer and diagnostics matrices below. The installed consumer suite has nine real execution tests, including three translation units, PMR static lifetime and six header orders. The subsequent CMake correction removes a consumer PIC restriction and explicitly tests PIC OFF; its final runs are tracked on the [dev Actions page](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev).
+
+| Workflow | Result and scope |
+| --- | --- |
+| [Build](https://github.com/dugan-dev/UniMemory/actions/runs/38100027933) | 25/25 jobs; three platforms × three SDKs × both statistics settings, Debug/Release, explicit checks and installed consumers |
+| [Portability](https://github.com/dugan-dev/UniMemory/actions/runs/38100027832) | 53/53 jobs; 52 compiler/configuration profiles and acceptance |
+| [Diagnostics](https://github.com/dugan-dev/UniMemory/actions/runs/38100027817) | 21/21 jobs; strict ASan/UBSan/TSan, optional adapters, native mimalloc, static analysis and coverage |
+| [Release](https://github.com/dugan-dev/UniMemory/actions/runs/38100027804) | 4/4 jobs; native allocator correctness, pressure and packaging |
+| [Performance diagnosis](https://github.com/dugan-dev/UniMemory/actions/runs/38100027867) | 11/11 jobs; matched factors and report-tool verification |
+
+Basic counters, zero-size PMR normalization, constructor/OOM rollback, initialization retry, weak-pointer release on another thread and installed profile conflicts all remain required. Passing performance collection does not imply every workload reaches 90% of native speed. [Measurement controls](performance/header-only.md)
+
+### Current diagnostics detail
+
+| Profile | Line coverage | Branch coverage | Coverage CTest | ASan + UBSan | TSan |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Standard OFF | 337/477 · 70.65% | 1548/3535 · 43.79% | 667 | 668 | 666 |
+| Standard ON | 381/487 · 78.23% | 1920/4253 · 45.14% | 669 | 670 | 667 |
+| mimalloc OFF | 391/518 · 75.48% | 1362/2955 · 46.09% | 712 | 713 | 712 |
+| mimalloc ON | 470/528 · 89.02% | 1799/3673 · 48.98% | 751 | 752 | 750 |
+| jemalloc OFF | 465/595 · 78.15% | 1461/3271 · 44.67% | 722 | 723 | 722 |
+| jemalloc ON | 543/605 · 89.75% | 1886/3989 · 47.28% | 760 | 761 | 759 |
+
+Every registered test passed. Native mimalloc additionally passed three UBSan and three TSan tests; all six Clang 18.1.3 analysis profiles passed. GCC 13.3.0 coverage uses `--coverage -O0 -g` and counts only `include/unimem/**`. Counts are per profile; they cannot be added into one source-coverage percentage and exclude SDK internals. gcov branch slots include compiler control flow. Remaining coverage is disclosed rather than treated as complete. [Reproducible workflow](../.github/workflows/diagnostics.yml)
+
 ## Remote validation · 2026-10-10
 
 The expanded validation targets source `ca4919f`. The [native matrix](remote-validation.md#platform-and-compiler-matrix)

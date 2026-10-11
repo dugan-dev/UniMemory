@@ -56,6 +56,28 @@ IPO API 成功 push 每元素11条解码指令，默认15条，因此不能按�
 
 [全部配对测量](../results/header-only/linux-standard-throw/measurements.csv) · [环境](../results/header-only/linux-standard-throw/environment.json)
 
+## 最终 Standard 配置复测
+
+源码 `33df39d` 保留不可表示大小的失败保护，避免 ASan/TSan 在超大请求上直接终止。沿用上述主机、固定 CPU、五组交替配对及原生参考，最终 API 的五种尺寸中位数均超过 90%；单次配对仍有低于 90% 的结果。
+
+| 字节 | 原 nothrow API 比值中位 | 最终 API 比值中位 |
+| --- | ---: | ---: |
+| 16 | 87.79% | 91.61% |
+| 64 | 83.18% | 93.13% |
+| 256 | 72.65% | 94.14% |
+| 4096 | 88.52% | 97.90% |
+| 65536 | 88.94% | 99.84% |
+
+这是另一轮独立测量，不能将两轮时间差直接归因于大小保护。跨平台及全部负载以完整云端报告为准。[全部测量](../results/header-only/linux-standard-final/measurements.csv) · [环境与修订](../results/header-only/linux-standard-final/environment.json)
+
+## 泛型 Memory 上下文开销
+
+源码 `33df39d` 的真实 Delivery 机器码确认了剩余区别：MSVC/mimalloc 原生热循环 12 条解码指令，泛型 `Memory&` API 路径 22 条；AppleClang/mimalloc 为 10 对 18。API 每对操作仍两次读取 Memory 引用并判断 Global 身份；后端、统计选择及初始化已不在循环里。双方进入相同分配和释放入口。指令数能定位额外工作，不能完整解释耗时比例。
+
+另一组 Windows 控制保留相同 Native、SDK、CRT 和 `/Ob3`，仅测试 Global 提前返回与 likely/unlikely 提示。热路径仍为 22 条，16 字节中位数仍未达到 90%，绝对耗时也并非一致改善，因此未采用。统一类仍支持 Heap/Stack，泛型引用无法保证上下文选择零开销；上面的直接 Global 控制也不构成全负载速度保证。
+
+[布局控制数据](../results/header-only/windows-global-layout/measurements.csv) · [环境](../results/header-only/windows-global-layout/environment.json)
+
 ## 原始数据
 
 | 配置 | 全23组汇总 | 全部配对路径测量 |

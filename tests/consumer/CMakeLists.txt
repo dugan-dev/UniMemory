@@ -12,6 +12,7 @@ foreach(property IN ITEMS BACKEND STATISTICS CHECKS_POLICY)
         message(FATAL_ERROR "Installed target and package ${property} disagree")
     endif()
 endforeach()
+
 include("${CMAKE_CURRENT_SOURCE_DIR}/../configuration/requests.cmake")
 unimemory_check_installed_requests(
     PACKAGE_DIR "${UniMemory_DIR}"
@@ -152,4 +153,14 @@ foreach(order RANGE 0 5)
     target_link_libraries(UniMemoryInstalledHeaderOrder${order} PRIVATE UniMemory::UniMemory)
     set_target_properties(UniMemoryInstalledHeaderOrder${order} PROPERTIES CXX_EXTENSIONS OFF)
     add_test(NAME UniMemory.installed_header_order_${order} COMMAND UniMemoryInstalledHeaderOrder${order})
+endforeach()
+
+# A header-only dependency must respect the application's PIC policy. This
+# explicit OFF profile catches accidental PIC requirements in installed exports.
+foreach(target IN ITEMS UniMemoryInstalledProfile UniMemoryInstalledConsumer
+    UniMemoryInstalledPmrLifetime UniMemoryInstalledHeaderOrder0
+    UniMemoryInstalledHeaderOrder1 UniMemoryInstalledHeaderOrder2
+    UniMemoryInstalledHeaderOrder3 UniMemoryInstalledHeaderOrder4
+    UniMemoryInstalledHeaderOrder5)
+    set_property(TARGET ${target} PROPERTY POSITION_INDEPENDENT_CODE OFF)
 endforeach()
