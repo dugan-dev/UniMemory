@@ -159,11 +159,11 @@ void matrix(unsigned index) {
   const bool owned = path == 2 || path == 5;
   const bool tracked = use_arena ? (compiled_test::supports_statistics && index % 4 == 0) : compiled_test::supports_statistics;
 
-  std::unique_ptr<unimem::Memory> heap;
+  std::unique_ptr<unimem::Heap> heap;
   if (use_arena) {
     heap.reset(new unimem::Heap(compiled_test::heap(tracked ? compiled_test::heap_mode : unimem::StatisticsMode::Disabled)));
   }
-  auto& target = use_arena ? *heap : compiled_test::global();
+  unimem::Memory& target = use_arena ? static_cast<unimem::Memory&>(*heap) : static_cast<unimem::Memory&>(compiled_test::global());
 
   // Every registered case is a repeated allocation/reallocation/free workload.
   for (unsigned cycle = 0; cycle < 64; ++cycle) {
@@ -229,11 +229,11 @@ void matrix(unsigned index) {
 void stress() {
   for (bool dedicated : {false, true}) {
 
-    std::unique_ptr<unimem::Memory> heap;
+    std::unique_ptr<unimem::Heap> heap;
     if (dedicated) {
       heap.reset(new unimem::Heap(compiled_test::heap(compiled_test::heap_mode)));
     }
-    auto& target = dedicated ? *heap : compiled_test::global();
+    unimem::Memory& target = dedicated ? static_cast<unimem::Memory&>(*heap) : static_cast<unimem::Memory&>(compiled_test::global());
     std::atomic<bool> okay{true};
     std::array<std::thread, 8> workers;
     for (unsigned worker = 0; worker < workers.size(); ++worker) {

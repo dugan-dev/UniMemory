@@ -70,15 +70,16 @@ class PublicationTests(unittest.TestCase):
             publisher.validate_narrative(before, after.replace("User guidance", "Different"), "docs/performance/latency.md")
 
     def test_only_real_pr_runs_for_exact_head_and_number_selected(self):
-        valid = {"id": 1, "path": ".github/workflows/ci.yml", "event": "pull_request",
+        valid = {"id": 1, "path": ".github/workflows/performance.yml", "event": "pull_request",
                  "head_sha": self.head, "head_repository": {"full_name": self.repository}, "pull_requests": [{"number": 4}]}
         runs = [valid, dict(valid, id=2), dict(valid, id=3, event="workflow_dispatch"),
                 dict(valid, id=4, head_sha="c"*40), dict(valid, id=5, pull_requests=[{"number": 5}]),
                 dict(valid, id=6, path=".github/workflows/unrelated.yml"),
-                dict(valid, id=7, path="other/ci.yml"), dict(valid, id=8, head_repository={"full_name": "fork/project"})]
+                dict(valid, id=7, path="other/performance.yml"), dict(valid, id=8, head_repository={"full_name": "fork/project"}),
+                dict(valid, id=9, path=".github/workflows/ci.yml")]
         selected = publisher.select_pr_runs(runs, 4, self.head, self.repository)
-        self.assertEqual(set(selected), {"ci.yml"})
-        self.assertEqual(selected["ci.yml"]["id"], 2)
+        self.assertEqual(set(selected), {"performance.yml"})
+        self.assertEqual(selected["performance.yml"]["id"], 2)
 
     def test_incomplete_file_pagination_rejected(self):
         with self.assertRaises(RuntimeError):

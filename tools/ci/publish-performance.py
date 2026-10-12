@@ -10,9 +10,8 @@ import shutil
 import subprocess
 import time
 
-WORKFLOWS = {"ci.yml", "release-validation.yml", "portability.yml", "diagnostics.yml", "performance.yml"}
-REQUIRED_CHECKS = {"build acceptance", "release acceptance", "portability acceptance",
-                   "diagnostics acceptance", "performance acceptance"}
+WORKFLOWS = {"performance.yml"}
+REQUIRED_CHECKS = {"performance acceptance"}
 GENERATED_DIRECTORIES = ("docs/images/performance/", "docs/results/current/")
 GENERATED_FILES = {"README.md", "README.zh-CN.md", "docs/images/workload-comparison.png",
                    "docs/images/memory-retention.png",

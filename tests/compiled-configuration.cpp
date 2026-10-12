@@ -2,7 +2,9 @@
 #include <array>
 #include <stdexcept>
 #include <type_traits>
-static_assert(std::is_polymorphic_v<unimem::Memory>);
+static_assert(!std::is_polymorphic_v<unimem::Memory>);
+static_assert(!std::has_virtual_destructor_v<unimem::Memory>);
+static_assert(!std::is_destructible_v<unimem::Memory>);
 int main() {
   using namespace unimem;
   auto& global = Memory::global();

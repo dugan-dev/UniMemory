@@ -10,7 +10,7 @@
 namespace unimem::detail {
 namespace system_impl {
 
-inline constexpr std::size_t default_new_alignment = alignof(void*);
+inline constexpr std::size_t default_new_alignment = __STDCPP_DEFAULT_NEW_ALIGNMENT__;
 
 UNIMEMORY_FORCE_INLINE void* allocate(void*, std::size_t bytes, std::size_t alignment) noexcept {
   if (bytes > static_cast<std::size_t>((std::numeric_limits<std::ptrdiff_t>::max)())) {

@@ -10,7 +10,7 @@ struct Object {
   Object(int initial = 0) : value(initial) {}
 };
 
-// Compile all common adapters through the abstract interface.
+// Compile all common adapters through the shared non-virtual interface.
 void common_operations(unimem::Memory& memory) {
   auto* raw = memory.allocate(16);
   raw = memory.reallocate(raw, 16, 32);
@@ -49,8 +49,8 @@ void inheritance_compile_regression() {
   stack.allocate(16);
   stack.rewind(mark);
   stack.reset();
-  std::unique_ptr<Memory> owned_heap = std::make_unique<Heap>();
-  std::unique_ptr<Memory> owned_stack = std::make_unique<Stack>(bytes);
+  std::unique_ptr<Heap> owned_heap = std::make_unique<Heap>();
+  std::unique_ptr<Stack> owned_stack = std::make_unique<Stack>(bytes);
   common_operations(*owned_heap);
   common_operations(*owned_stack);
 }

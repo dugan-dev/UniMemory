@@ -40,3 +40,16 @@ UniMemory also measures C++ objects, containers and context handling. Standard u
 [Data and environments](results/current/README.md) · [Validation](testing.md)
 
 New measurements use `allocation-v3` and `delivery-v2` inventories, including Standard Heap. Older archives retain their original inventory and timing data; they do not measure the current Heap or statistics implementation. Native allocator diagnostics use private build identifiers, separate from the public Memory API. `api_lookup` diagnostics retrieve the same Global singleton for each allocation/free call; `api_cached` reuses a reference retrieved before timing.
+
+## Local performance acceptance
+
+```sh
+cmake -S . -B build/performance -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_PERFORMANCE_TESTS=ON
+cmake --build build/performance --config Release --target UniMemoryPerformanceAcceptance
+```
+
+Run on an idle local machine before CI. This dedicated target runs timing serially, separately from normal CTest correctness checks. Each raw-allocation and public API scenario must reach at least 90% Native performance for both paired median ratios and arithmetic mean durations across at least ten alternating process trials; `UNIMEMORY_PERFORMANCE_MIN_RATIO` can only tighten that threshold. Native and API use the same executable, SDK and compiler/CRT settings. Statistics, checks and configuration are checked against the executable's read-only `--profile` output; rebuild after reconfiguration. Sanitizer and coverage builds are rejected.
+
+IPO is optional and defaults to OFF. Add `-DUNIMEMORY_IPO=ON` to enable supported IPO for all project Release consumers, including Native/API benchmarks, examples and tests. The existing `UNIMEMORY_DIAGNOSTIC_IPO` option remains available for controlled diagnostic builds; the profile records the effective IPO setting and its actual Release target property. Source and installed consumers can instead use the standard CMake setting `-DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON` in their own project. Apply the same IPO policy to both Native and API paths when comparing performance; the installed header-only target does not impose IPO on consumers.
+
+Use a fresh output directory for every run (`tools/ci/performance-acceptance.py EXECUTABLE OUTPUT` for repeat runs). Calibration targets 250 ms per path by default (`--seconds`), with a limit of 200 million iterations for the sequential `hotpath` and `api` suites; other diagnostic suites retain the 50 million limit. `raw/` retains measurement output, `calibration-raw/` retains every calibration pilot, and `samples.csv` distinguishes both phases. `environment.json` records the compiled flags and phase counts. Calibration that cannot reach the requested timing interval fails while retaining its evidence. Windows/Linux require CPU affinity; macOS runs unpinned and records that limitation explicitly. No outliers are removed.

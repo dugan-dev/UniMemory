@@ -49,10 +49,15 @@ void* checked_native_allocation(void* pointer) {
 
 struct NativeStandard {
   void* allocate() const {
-    // Match the Standard backend, including its nothrow allocation form.
-    return checked_native_allocation(::operator new(bytes, std::align_val_t{alignment}, std::nothrow));
+    return alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__ ? ::operator new(bytes, std::align_val_t{alignment}) : ::operator new(bytes);
   }
-  void deallocate(void* pointer) const noexcept { ::operator delete(pointer, std::align_val_t{alignment}); }
+  void deallocate(void* pointer) const noexcept {
+    if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+      ::operator delete(pointer, std::align_val_t{alignment});
+    } else {
+      ::operator delete(pointer);
+    }
+  }
 };
 
 #ifdef UNIMEMORY_BENCH_MIMALLOC

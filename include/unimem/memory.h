@@ -30,7 +30,6 @@ class Memory {
   static Stack stack(void* buffer, std::size_t capacity, StatisticsMode statistics = StatisticsMode::Disabled);
   static Stack stack(std::span<std::byte> buffer, StatisticsMode statistics = StatisticsMode::Disabled);
 
-  virtual ~Memory();
   Memory(const Memory&) = delete;
   Memory& operator=(const Memory&) = delete;
   Memory(Memory&&) = delete;
@@ -39,11 +38,11 @@ class Memory {
   MemoryKind kind() const noexcept;
 
   // Raw storage in bytes.
-  virtual void* allocate(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) = 0;
-  virtual void* allocate_zeroed(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) = 0;
-  virtual void* reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment = alignof(std::max_align_t)) = 0;
+  void* allocate(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t));
+  void* allocate_zeroed(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t));
+  void* reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment = alignof(std::max_align_t));
   void* reallocate_zeroed(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment = alignof(std::max_align_t));
-  virtual void deallocate(void* pointer, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) noexcept = 0;
+  void deallocate(void* pointer, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) noexcept;
 
   // Typed storage without construction or destruction.
   template <class T>
@@ -97,6 +96,13 @@ class Memory {
   void reset_statistics() noexcept;
 
  protected:
+  ~Memory();
+
+ private:
+  friend class Global;
+  friend class Heap;
+  friend class Stack;
+  Memory(MemoryKind kind) noexcept;
   UNIM_IMPL_MEMORY_MEMBERS
 };
 

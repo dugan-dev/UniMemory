@@ -9,13 +9,7 @@ namespace unimem {
 class Heap final : public Memory {
  public:
   Heap(StatisticsMode statistics = StatisticsMode::Disabled);
-  ~Heap() override;
-
-  // Raw storage in bytes.
-  void* allocate(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-  void* allocate_zeroed(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-  void* reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-  void deallocate(void* pointer, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) noexcept override;
+  ~Heap();
 
   // Reset does not invoke object destructors.
   void reset();

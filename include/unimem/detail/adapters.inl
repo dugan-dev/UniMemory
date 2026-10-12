@@ -61,8 +61,9 @@ inline bool Memory::Resource::do_is_equal(const std::pmr::memory_resource& other
   return this == &other;
 }
 
+// Keep backend control flow outside container payload loops, including with LTO.
 template <class T>
-UNIMEMORY_FORCE_INLINE T* Allocator<T>::allocate(std::size_t count) {
+UNIMEMORY_NOINLINE inline T* Allocator<T>::allocate(std::size_t count) {
   if (count == 0) {
     return static_cast<T*>(memory_->allocate(1, alignof(T)));
   }
@@ -110,7 +111,15 @@ UNIMEMORY_FORCE_INLINE OwnedBlock::OwnedBlock(Memory& memory, void* pointer, std
     : memory_(&memory), pointer_(pointer), bytes_(bytes), alignment_(alignment) {}
 
 UNIMEMORY_FORCE_INLINE OwnedBlock::~OwnedBlock() {
-  clear();
+  if (pointer_ != nullptr) {
+#if UNIMEMORY_CHECKS
+    if (memory_ == nullptr) {
+      assert(memory_ != nullptr && "UniMemory: nonempty OwnedBlock must have a bound Memory");
+      std::terminate();
+    }
+#endif
+    memory_->deallocate(pointer_, bytes_, alignment_);
+  }
 }
 
 UNIMEMORY_FORCE_INLINE OwnedBlock::OwnedBlock(OwnedBlock&& other) noexcept

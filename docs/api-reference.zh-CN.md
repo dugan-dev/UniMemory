@@ -2,7 +2,7 @@
 
 [目录](README.zh-CN.md) · [English](api-reference.md) · **简体中文**
 
-命名空间：`unimem`。包含 `<unimem/all.h>` 即可使用完整纯头文件分配接口，并链接 CMake `UniMemory::UniMemory` 接口目标。`Memory` 为非模板抽象基类，提供虚析构函数；`Global`、`Heap`、`Stack` 为 final 派生类。分配、所有权、Allocator/PMR 与统计接口可通过 `Memory&` 使用。
+命名空间：`unimem`。包含 `<unimem/all.h>` 即可使用完整纯头文件分配接口，并链接 CMake `UniMemory::UniMemory` 接口目标。`Memory` 为非模板基类，统一提供内联分配函数，析构函数为受保护的非虚函数；`Global`、`Heap`、`Stack` 为 final 派生类。分配、所有权、Allocator/PMR 与统计接口可通过 `Memory&` 使用。
 
 ## 1 · 创建 Memory
 

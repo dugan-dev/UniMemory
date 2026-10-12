@@ -76,12 +76,11 @@ struct Native {
   void* allocate(std::size_t bytes, std::size_t alignment) {
     void* pointer = nullptr;
     if constexpr (B == Backend::Standard) {
+      const bool over_aligned = Aligned && alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__;
       if constexpr (Throwing) {
-        pointer = ::operator new(bytes, std::align_val_t(alignment));
-      } else if constexpr (Aligned) {
-        pointer = ::operator new(bytes, std::align_val_t(alignment), std::nothrow);
+        pointer = over_aligned ? ::operator new(bytes, std::align_val_t(alignment)) : ::operator new(bytes);
       } else {
-        pointer = ::operator new(bytes, std::nothrow);
+        pointer = over_aligned ? ::operator new(bytes, std::align_val_t(alignment), std::nothrow) : ::operator new(bytes, std::nothrow);
       }
     }
 #ifdef UNIMEMORY_BENCH_MIMALLOC
@@ -101,7 +100,7 @@ struct Native {
   }
   void deallocate(void* pointer, std::size_t, std::size_t alignment) noexcept {
     if constexpr (B == Backend::Standard) {
-      if constexpr (Aligned || Throwing) {
+      if (Aligned && alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
         ::operator delete(pointer, std::align_val_t(alignment));
       } else {
         ::operator delete(pointer);
@@ -223,7 +222,7 @@ struct Actual {
 };
 
 template <class Policy, bool Constant = false>
-void kernel(std::ostream& out, const std::string& backend, const std::string& variant, Policy&& policy, std::size_t iterations,
+void kernel(std::ostream& out, const std::string& backend, const std::string& variant, Policy policy, std::size_t iterations,
             std::size_t runtime_bytes, bool touch, std::size_t runtime_alignment = 16) {
   const auto bytes = Constant ? std::size_t{64} : runtime_bytes;
   const auto alignment = Constant ? std::size_t{16} : runtime_alignment;
@@ -257,7 +256,7 @@ void kernel(std::ostream& out, const std::string& backend, const std::string& va
 }
 
 template <class Policy>
-void batched(std::ostream& out, const std::string& backend, const std::string& variant, Policy&& policy, std::size_t iterations, std::size_t bytes) {
+void batched(std::ostream& out, const std::string& backend, const std::string& variant, Policy policy, std::size_t iterations, std::size_t bytes) {
   std::array<void*, 64> pointers{};
   for (std::size_t i = 0; i < 256; ++i) {
     void* p = policy.allocate(bytes, 16);
@@ -291,13 +290,18 @@ void batched(std::ostream& out, const std::string& backend, const std::string& v
 template <Backend B>
 void selected(std::ostream& out, const std::string& backend, const std::string& variant, std::size_t iterations, std::size_t bytes, bool touch) {
   if (variant == "native") {
-    kernel(out, backend, variant, Native<B>{}, iterations, bytes, touch);
+    if constexpr (B == Backend::Standard) {
+      kernel(out, backend, variant, Native<B, true, true>{}, iterations, bytes, touch);
+    } else {
+      kernel(out, backend, variant, Native<B>{}, iterations, bytes, touch);
+    }
   } else if (variant == "native_runtime_alignment") {
-    kernel(out, backend, variant, Native<B>{}, iterations, bytes, touch, opaque_alignment(16));
+    kernel(out, backend, variant, Native < B, true, B == Backend::Standard > {}, iterations, bytes, touch, opaque_alignment(16));
   } else if (variant == "native_constant") {
-    kernel<Native<B>, true>(out, backend, variant, Native<B>{}, iterations, 64, touch);
+    kernel<Native<B, true, B == Backend::Standard>, true>(out, backend, variant, Native < B, true, B == Backend::Standard > {}, iterations, 64,
+                                                          touch);
   } else if (variant == "native_unaligned") {
-    kernel(out, backend, variant, Native<B, false>{}, iterations, bytes, touch);
+    kernel(out, backend, variant, Native < B, false, B == Backend::Standard > {}, iterations, bytes, touch);
   } else if (variant == "native_throwing") {
     if constexpr (B == Backend::Standard) {
       kernel(out, backend, variant, Native<B, true, true>{}, iterations, bytes, touch);
@@ -335,7 +339,7 @@ void selected(std::ostream& out, const std::string& backend, const std::string& 
       kernel(out, backend, variant, Actual<true>{memory}, iterations, bytes, touch);
     }
   } else if (variant == "native_batch") {
-    batched(out, backend, variant, Native<B>{}, iterations, bytes);
+    batched(out, backend, variant, Native < B, true, B == Backend::Standard > {}, iterations, bytes);
   } else if (variant == "api_batch") {
     compiled_benchmark_configuration(B, StatisticsMode::Disabled);
     unimem::Global& memory = Memory::global();

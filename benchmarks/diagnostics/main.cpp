@@ -1,4 +1,6 @@
 #include <unimem/all.h>
+#include "../performance-config.h"
+#include "diagnostic-profile.h"
 
 #include "api.h"
 #include "backend.h"
@@ -69,6 +71,14 @@ void clock_samples(std::ostream& out, std::size_t iterations) {
 
 int main(int argc, char** argv) {
   try {
+    if (argc == 2 && std::string(argv[1]) == "--profile") {
+      std::cout << UNIMEMORY_DIAGNOSTIC_BUILD_PROFILE << "actual_backend=" << UNIMEMORY_CONFIG_BACKEND_NAME << '\n'
+                << "actual_statistics=" << (UNIMEMORY_CONFIG_STATISTICS ? "ON" : "OFF") << '\n'
+                << "actual_checks=" << UNIMEMORY_CONFIG_CHECKS_NAME << '\n'
+                << "actual_checks_enabled=" << UNIMEMORY_CHECKS << '\n'
+                << "actual_performance_tests=" << (UNIMEMORY_PERFORMANCE_TESTS ? "ON" : "OFF") << '\n';
+      return 0;
+    }
     std::string suite = "hotpath", backend = UNIMEMORY_CONFIG_BACKEND_NAME, variant = "native", affinity = "none";
     std::size_t iterations = 10000, threads = 1, bytes = 64;
     bool touch = false;
@@ -93,7 +103,7 @@ int main(int argc, char** argv) {
       } else {
         std::size_t used = 0;
         const auto number = std::stoull(value, &used);
-        if (used != value.size() || value.starts_with('-') || number == 0 || number > 50000000) {
+        if (used != value.size() || value.starts_with('-') || number == 0 || number > 200000000) {
           throw std::invalid_argument("invalid positive count");
         }
         if (option == "--iterations") {
@@ -106,6 +116,10 @@ int main(int argc, char** argv) {
           throw std::invalid_argument("unknown option");
         }
       }
+    }
+    const std::size_t iteration_limit = (suite == "hotpath" || suite == "api") ? 200000000 : 50000000;
+    if (iterations > iteration_limit) {
+      throw std::invalid_argument("suite iteration limit exceeded");
     }
     if (threads > 16 || bytes > 65536 || (affinity != "none" && affinity != "single")) {
       throw std::invalid_argument("unsupported configuration");

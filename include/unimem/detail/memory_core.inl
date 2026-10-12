@@ -235,6 +235,9 @@ inline Memory::~Memory() {
 }
 
 inline detail::BackendHandle Memory::native_backend() const noexcept {
+  if (kind_ == MemoryKind::Heap) {
+    return static_cast<const Heap&>(*this).heap_;
+  }
   return {ops_, context_};
 }
 

@@ -29,10 +29,11 @@ DIAGNOSTIC_NOINLINE std::size_t opaque_alignment(std::size_t value) noexcept {
 
 // Direct and indirect probes invoke these exact same functions.
 DIAGNOSTIC_NOINLINE void* shim_standard_allocate(void*, std::size_t bytes, std::size_t alignment) noexcept {
-  return alignment > alignof(void*) ? ::operator new(bytes, std::align_val_t(alignment), std::nothrow) : ::operator new(bytes, std::nothrow);
+  return alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__ ? ::operator new(bytes, std::align_val_t(alignment), std::nothrow)
+                                                      : ::operator new(bytes, std::nothrow);
 }
 DIAGNOSTIC_NOINLINE void shim_standard_free(void*, void* pointer, std::size_t, std::size_t alignment) noexcept {
-  if (alignment > alignof(void*)) {
+  if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
     ::operator delete(pointer, std::align_val_t(alignment));
   } else {
     ::operator delete(pointer);

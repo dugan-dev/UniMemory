@@ -1,19 +1,17 @@
 name: diagnostics
 on:
-  push:
-    branches: [main, dev]
-    paths: ['include/**', 'tests/**', 'cmake/**', 'tools/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+
 permissions:
   contents: read
-concurrency:
-  group: diagnostics-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   optional-adapters:
     name: ${{ matrix.backend }} / stats=${{ matrix.statistics }} / ${{ matrix.sanitizer }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 35
     strategy:
       fail-fast: false
@@ -49,7 +47,7 @@ jobs:
           path: build/adapters/Testing/Temporary/LastTest.log
   native-mimalloc:
     name: native mimalloc / ${{ matrix.sanitizer }}
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -83,7 +81,7 @@ jobs:
       matrix:
         backend: [standard, mimalloc, jemalloc]
         statistics: ['OFF', 'ON']
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v5
@@ -117,7 +115,7 @@ jobs:
     name: diagnostics acceptance
     needs: [optional-adapters, native-mimalloc, analysis-coverage]
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     steps:
       - env:
           RESULTS: ${{ toJSON(needs) }}

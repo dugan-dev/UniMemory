@@ -2,7 +2,7 @@
 
 [Index](README.md) · **English** · [简体中文](api-reference.zh-CN.md)
 
-Namespace: `unimem`. Include `<unimem/all.h>` for the complete header-only allocation API; link the CMake `UniMemory::UniMemory` interface target. `Memory` is a non-template abstract base with a virtual destructor. `Global`, `Heap` and `Stack` are final subclasses; allocation, ownership, Allocator/PMR and statistics remain available through `Memory&`.
+Namespace: `unimem`. Include `<unimem/all.h>` for the complete header-only allocation API; link the CMake `UniMemory::UniMemory` interface target. `Memory` is a non-template base with inline allocation functions and a protected non-virtual destructor. `Global`, `Heap` and `Stack` are final subclasses; allocation, ownership, Allocator/PMR and statistics remain available through `Memory&`.
 
 ## 1 · Create Memory
 

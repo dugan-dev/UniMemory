@@ -12,7 +12,9 @@ using namespace unimem;
 static_assert(std::is_default_constructible_v<Unique<int>>);
 static_assert(std::is_default_constructible_v<UniqueArray<int>>);
 static_assert(sizeof(Deleter<int>) == sizeof(Memory*));
-static_assert(std::is_polymorphic_v<Memory>);
+static_assert(!std::is_polymorphic_v<Memory>);
+static_assert(!std::has_virtual_destructor_v<Memory>);
+static_assert(!std::is_destructible_v<Memory>);
 
 namespace {
 struct Object {

@@ -94,20 +94,4 @@ inline void Stack::reset() {
   clear_allocation_statistics();
 }
 
-UNIMEMORY_FORCE_INLINE void* Stack::allocate(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Stack, false>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Stack::allocate_zeroed(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Stack, true>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Stack::reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) {
-  return reallocate_for<MemoryKind::Stack>(pointer, old_bytes, new_bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void Stack::deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
-  deallocate_for<MemoryKind::Stack>(pointer, bytes, alignment);
-}
-
 }  // namespace unimem

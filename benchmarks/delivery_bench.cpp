@@ -1,5 +1,6 @@
 #include "diagnostics/compiled-bench-config.h"
 #include <unimem/all.h>
+#include "performance-config.h"
 #include <algorithm>
 #include <atomic>
 #include <array>
@@ -40,8 +41,20 @@ using unimem::detail::Backend;
 using Clock = std::chrono::steady_clock;
 volatile std::uintptr_t observed = 0;
 struct NativeStandard {
-  void* allocate(std::size_t n) { return ::operator new(n, std::align_val_t(16)); }
-  void deallocate(void* p, std::size_t) { ::operator delete(p, std::align_val_t(16)); }
+  void* allocate(std::size_t n) {
+    if constexpr (16 > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+      return ::operator new(n, std::align_val_t(16));
+    } else {
+      return ::operator new(n);
+    }
+  }
+  void deallocate(void* p, std::size_t) {
+    if constexpr (16 > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
+      ::operator delete(p, std::align_val_t(16));
+    } else {
+      ::operator delete(p);
+    }
+  }
 };
 #ifdef UNIMEMORY_BENCH_MIMALLOC
 struct NativeMimalloc {

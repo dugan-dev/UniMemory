@@ -12,14 +12,7 @@ class Stack final : public Memory {
   // Buffer storage must outlive this Stack and its users.
   Stack(void* buffer, std::size_t capacity, StatisticsMode statistics = StatisticsMode::Disabled);
   Stack(std::span<std::byte> buffer, StatisticsMode statistics = StatisticsMode::Disabled);
-
-  // Raw storage in bytes.
-  void* allocate(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-  void* allocate_zeroed(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-  void* reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment = alignof(std::max_align_t)) override;
-
-  // Individual deallocation does not reclaim buffer space.
-  void deallocate(void* pointer, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t)) noexcept override;
+  ~Stack() = default;
 
   // Reset and rewind do not invoke object destructors.
   void reset();

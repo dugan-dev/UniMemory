@@ -33,9 +33,6 @@ inline Heap::Heap(StatisticsMode statistics) : Memory(MemoryKind::Heap) {
 inline Heap::~Heap() {
   heap_.ops->destroy(heap_.context);
 }
-inline detail::BackendHandle Heap::native_backend() const noexcept {
-  return heap_;
-}
 
 inline void Heap::reset() {
   heap_.context = heap_.ops->reset(heap_.context);
@@ -122,22 +119,6 @@ UNIMEMORY_FORCE_INLINE void Heap::deallocate_raw(void* pointer, std::size_t byte
     detail::jemalloc_impl::deallocate(heap_.context, pointer, bytes, alignment);
   }
 #endif
-}
-
-UNIMEMORY_FORCE_INLINE void* Heap::allocate(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Heap, false>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Heap::allocate_zeroed(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Heap, true>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Heap::reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) {
-  return reallocate_for<MemoryKind::Heap>(pointer, old_bytes, new_bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void Heap::deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
-  deallocate_for<MemoryKind::Heap>(pointer, bytes, alignment);
 }
 
 }  // namespace unimem

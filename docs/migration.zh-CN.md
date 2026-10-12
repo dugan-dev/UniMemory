@@ -2,9 +2,11 @@
 
 [目录](README.zh-CN.md) · [English](migration.md) · **简体中文**
 
-`Memory` 现为非模板抽象基类；`Global`、`Heap`、`Stack` 为 final 派生类。包含 `<unimem/all.h>` 并链接 `UniMemory::UniMemory`；该目标传递内联实现、生成配置和所选 SDK 依赖，不再生成 UniMemory 二进制库。
+`Memory` 为非模板基类，统一实现非虚分配接口；`Global`、`Heap`、`Stack` 为 final 派生类。包含 `<unimem/all.h>` 并链接 `UniMemory::UniMemory`；该目标传递内联实现、生成配置和所选 SDK 依赖，不再生成 UniMemory 二进制库。
 
 `Memory heap = Memory::heap()` 改为 `Heap heap;` 或 `auto heap = Memory::heap()`。缓冲区使用 `Stack scratch(buffer);` 与 `Stack::Mark`。通用分配及所有权代码可继续使用 `Memory&`；Heap/Stack 管理接口需使用对应具体类型。
+
+使用具体类型管理 Heap、Stack 生命周期，例如 `std::unique_ptr<Heap>`；`Memory&`、`Memory*` 用作借用视图。禁止通过 `Memory*` 删除对象。
 
 | 原用法 | 当前用法 |
 | --- | --- |

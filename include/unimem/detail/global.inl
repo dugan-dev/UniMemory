@@ -4,48 +4,43 @@
 
 namespace unimem {
 
-inline Global& Memory::global(StatisticsMode statistics) {
-  memory_impl::validate_statistics(statistics);
-  struct Slot {
-    std::mutex mutex;
-    std::atomic<Global*> value{nullptr};
-    alignas(Global) std::byte object[sizeof(Global)];
-  };
-  alignas(Slot) static std::byte storage[sizeof(Slot)]{};
-  static Slot* initialized = ::new (storage) Slot;
+namespace detail {
+UNIMEMORY_FORCE_INLINE void* global_storage_address() noexcept {
+  alignas(Global) static std::byte storage[sizeof(Global)]{};
+  return storage;
+}
+UNIMEMORY_FORCE_INLINE std::atomic<bool>& global_initialized_flag() noexcept {
+  static std::atomic<bool> initialized{false};
+  return initialized;
+}
+inline std::mutex& global_initialization_mutex() {
+  alignas(std::mutex) static std::byte storage[sizeof(std::mutex)];
+  static std::mutex* initialized = ::new (storage) std::mutex;
   (void)initialized;
-  auto& slot = *std::launder(reinterpret_cast<Slot*>(storage));
-  Global* global = slot.value.load(std::memory_order_acquire);
-  if (global == nullptr) {
-    std::lock_guard lock(slot.mutex);
-    global = slot.value.load(std::memory_order_relaxed);
-    if (global == nullptr) {
-      global = ::new (slot.object) Global(statistics);
-      slot.value.store(global, std::memory_order_release);
-    }
+  return *std::launder(reinterpret_cast<std::mutex*>(storage));
+}
+}  // namespace detail
+
+UNIMEMORY_NOINLINE inline void Memory::initialize_global(StatisticsMode statistics) {
+  std::lock_guard lock(detail::global_initialization_mutex());
+  auto& initialized = detail::global_initialized_flag();
+  if (!initialized.load(std::memory_order_relaxed)) {
+    ::new (detail::global_storage_address()) Global(statistics);
+    initialized.store(true, std::memory_order_release);
   }
-  return *global;
+}
+
+UNIMEMORY_FORCE_INLINE Global& Memory::global(StatisticsMode statistics) {
+  memory_impl::validate_statistics(statistics);
+  if (!detail::global_initialized_flag().load(std::memory_order_acquire)) {
+    initialize_global(statistics);
+  }
+  return *std::launder(reinterpret_cast<Global*>(detail::global_storage_address()));
 }
 
 inline Global::Global(StatisticsMode statistics) : Memory(MemoryKind::Global) {
   memory_impl::validate_statistics(statistics);
   initialize(memory_impl::selected_backend(), statistics);
-}
-
-UNIMEMORY_FORCE_INLINE void* Global::allocate(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Global, false>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Global::allocate_zeroed(std::size_t bytes, std::size_t alignment) {
-  return allocate_for<MemoryKind::Global, true>(bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void* Global::reallocate(void* pointer, std::size_t old_bytes, std::size_t new_bytes, std::size_t alignment) {
-  return reallocate_for<MemoryKind::Global>(pointer, old_bytes, new_bytes, alignment);
-}
-
-UNIMEMORY_FORCE_INLINE void Global::deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
-  deallocate_for<MemoryKind::Global>(pointer, bytes, alignment);
 }
 
 }  // namespace unimem

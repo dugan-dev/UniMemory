@@ -93,8 +93,7 @@ void* checked(void* pointer) {
 // shortcut is used in the Standard or reallocate_zeroed controls.
 struct NativeStandard {
   void* allocate(std::size_t bytes, std::size_t alignment) const {
-    return checked(alignment > alignof(void*) ? ::operator new(bytes, std::align_val_t{alignment}, std::nothrow)
-                                              : ::operator new(bytes, std::nothrow));
+    return alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__ ? ::operator new(bytes, std::align_val_t{alignment}) : ::operator new(bytes);
   }
   void* allocate_zeroed(std::size_t bytes, std::size_t alignment) const {
     void* pointer = allocate(bytes, alignment);
@@ -108,7 +107,7 @@ struct NativeStandard {
     return next;
   }
   void deallocate(void* pointer, std::size_t, std::size_t alignment) const noexcept {
-    if (alignment > alignof(void*)) {
+    if (alignment > __STDCPP_DEFAULT_NEW_ALIGNMENT__) {
       ::operator delete(pointer, std::align_val_t{alignment});
     } else {
       ::operator delete(pointer);

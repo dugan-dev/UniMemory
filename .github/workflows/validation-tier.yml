@@ -1,0 +1,63 @@
+name: ordered validation tier
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      platform:
+        type: string
+        required: true
+      tools:
+        type: string
+        required: true
+    outputs:
+      correctness:
+        description: 'Success only after every required correctness suite passes'
+        value: ${{ jobs.correctness.outputs.result }}
+permissions:
+  contents: read
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+    with:
+      runner: ${{ inputs.runner }}
+  portability:
+    uses: ./.github/workflows/portability.yml
+    with:
+      runner: ${{ inputs.runner }}
+      tools: ${{ inputs.tools }}
+  diagnostics:
+    if: inputs.platform == 'linux-x64'
+    uses: ./.github/workflows/diagnostics.yml
+    with:
+      runner: ${{ inputs.runner }}
+  release:
+    if: inputs.platform != 'windows-x64'
+    uses: ./.github/workflows/release-validation.yml
+    with:
+      runner: ${{ inputs.runner }}
+      platform: ${{ inputs.platform }}
+  correctness:
+    needs: [build, portability, diagnostics, release]
+    if: always()
+    runs-on: ${{ inputs.runner }}
+    outputs:
+      result: ${{ steps.guard.outputs.result }}
+    steps:
+      - id: guard
+        shell: bash
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          jobs=json.loads(os.environ['RESULTS'])
+          platform=os.environ['PLATFORM']
+          skipped={'diagnostics'} if platform != 'linux-x64' else set()
+          if platform == 'windows-x64': skipped.add('release')
+          assert all(job['result'] == ('skipped' if name in skipped else 'success') for name,job in jobs.items()), 'Required tier correctness failed'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('result=success\n')
+          PY

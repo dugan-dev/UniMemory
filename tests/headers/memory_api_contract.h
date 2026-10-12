@@ -78,8 +78,9 @@ static_assert(!HasMark<unimem::Heap> && !HasMarkType<unimem::Heap> && !HasRewind
 static_assert(HasReset<unimem::Stack> && HasMark<unimem::Stack> && HasMarkType<unimem::Stack> && HasRewind<unimem::Stack> && HasUsed<unimem::Stack> &&
               HasCapacity<unimem::Stack>);
 static_assert(!HasCollect<unimem::Stack> && !HasOwns<unimem::Stack>);
-static_assert(std::is_abstract_v<unimem::Memory> && std::is_polymorphic_v<unimem::Memory>);
-static_assert(std::has_virtual_destructor_v<unimem::Memory>);
+static_assert(!std::is_abstract_v<unimem::Memory> && !std::is_polymorphic_v<unimem::Memory>);
+static_assert(!std::has_virtual_destructor_v<unimem::Memory>);
+static_assert(!std::is_destructible_v<unimem::Memory>);
 static_assert(!std::is_copy_constructible_v<unimem::Memory> && !std::is_move_constructible_v<unimem::Memory>);
 static_assert(!std::is_copy_assignable_v<unimem::Memory> && !std::is_move_assignable_v<unimem::Memory>);
 static_assert(std::is_base_of_v<unimem::Memory, unimem::Global> && std::is_final_v<unimem::Global>);
@@ -87,11 +88,20 @@ static_assert(std::is_base_of_v<unimem::Memory, unimem::Heap> && std::is_final_v
 static_assert(std::is_base_of_v<unimem::Memory, unimem::Stack> && std::is_final_v<unimem::Stack>);
 template <class T>
 constexpr bool concrete_memory_contract =
-    !std::is_abstract_v<T> && std::is_final_v<T> && std::has_virtual_destructor_v<T> && !std::is_copy_constructible_v<T> &&
-    !std::is_move_constructible_v<T> && !std::is_copy_assignable_v<T> && !std::is_move_assignable_v<T>;
+    !std::is_abstract_v<T> && !std::is_polymorphic_v<T> && std::is_final_v<T> && !std::has_virtual_destructor_v<T> &&
+    !std::is_copy_constructible_v<T> && !std::is_move_constructible_v<T> && !std::is_copy_assignable_v<T> && !std::is_move_assignable_v<T>;
 static_assert(concrete_memory_contract<unimem::Global>);
 static_assert(concrete_memory_contract<unimem::Heap>);
 static_assert(concrete_memory_contract<unimem::Stack>);
+template <class T>
+constexpr bool inherited_allocation_contract = std::is_same_v<decltype(&T::allocate), decltype(&unimem::Memory::allocate)> &&
+                                               std::is_same_v<decltype(&T::allocate_zeroed), decltype(&unimem::Memory::allocate_zeroed)> &&
+                                               std::is_same_v<decltype(&T::reallocate), decltype(&unimem::Memory::reallocate)> &&
+                                               std::is_same_v<decltype(&T::reallocate_zeroed), decltype(&unimem::Memory::reallocate_zeroed)> &&
+                                               std::is_same_v<decltype(&T::deallocate), decltype(&unimem::Memory::deallocate)>;
+static_assert(inherited_allocation_contract<unimem::Global>);
+static_assert(inherited_allocation_contract<unimem::Heap>);
+static_assert(inherited_allocation_contract<unimem::Stack>);
 static_assert(std::is_convertible_v<unimem::Global*, unimem::Memory*>);
 static_assert(std::is_convertible_v<unimem::Heap*, unimem::Memory*>);
 static_assert(std::is_convertible_v<unimem::Stack*, unimem::Memory*>);

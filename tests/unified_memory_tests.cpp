@@ -21,7 +21,9 @@ static_assert(!std::is_default_constructible_v<Memory>);
 static_assert(!std::is_constructible_v<Memory, int>);
 static_assert(!std::is_copy_constructible_v<Memory>);
 static_assert(!std::is_move_constructible_v<Memory>);
-static_assert(std::is_polymorphic_v<Memory>);
+static_assert(!std::is_polymorphic_v<Memory>);
+static_assert(!std::has_virtual_destructor_v<Memory>);
+static_assert(!std::is_destructible_v<Memory>);
 
 namespace {
 void check(bool condition, const char* message) {

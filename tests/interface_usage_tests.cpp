@@ -54,19 +54,20 @@ detail::Backend parse_backend(const std::string& name) {
 
 struct Context {
   std::vector<std::byte> buffer;
-  std::unique_ptr<Memory> owned;
+  std::unique_ptr<Heap> owned_heap;
+  std::unique_ptr<Stack> owned_stack;
   Memory* memory = nullptr;
   Context(const std::string& kind, StatisticsMode mode) {
     compiled_test::configure(mode);
     if (kind == "global") {
       memory = &Memory::global(mode);
     } else if (kind == "heap") {
-      owned.reset(new Heap(compiled_test::heap(mode)));
-      memory = owned.get();
+      owned_heap.reset(new Heap(compiled_test::heap(mode)));
+      memory = owned_heap.get();
     } else if (kind == "stack") {
       buffer.resize(4 * 1024 * 1024);
-      owned.reset(new Stack(Memory::stack(buffer, mode)));
-      memory = owned.get();
+      owned_stack.reset(new Stack(Memory::stack(buffer, mode)));
+      memory = owned_stack.get();
     } else {
       throw std::invalid_argument("unknown memory kind");
     }
@@ -687,9 +688,9 @@ void handoff(Memory& memory) {
   verify_bytes(anchor.data(), anchor.size(), 139);
   if (memory.kind() == MemoryKind::Heap) {
     const auto before = memory.statistics();
-    dynamic_cast<Heap&>(memory).collect();
+    static_cast<Heap&>(memory).collect();
     verify_bytes(anchor.data(), anchor.size(), 139);
-    check(dynamic_cast<Heap&>(memory).owns(anchor.data()), "collect lost live anchor ownership");
+    check(static_cast<Heap&>(memory).owns(anchor.data()), "collect lost live anchor ownership");
     if (compiled_test::tracking()) {
       const auto after = memory.statistics();
       check((!compiled_test::tracking() || (before.allocations == after.allocations)) &&
@@ -709,7 +710,7 @@ void handoff(Memory& memory) {
   anchor.resize(0);
   balanced(memory);
   if (memory.kind() == MemoryKind::Heap) {
-    dynamic_cast<Heap&>(memory).reset();
+    static_cast<Heap&>(memory).reset();
   }
 }
 
@@ -853,9 +854,9 @@ void trace(Memory& memory, unsigned seed, unsigned steps) {
           "owner trace allocation counts did not balance");
   }
   if (memory.kind() == MemoryKind::Stack) {
-    check(dynamic_cast<Stack&>(memory).used() > 0 || steps == 0, "Stack trace unexpectedly reclaimed individual storage");
-    dynamic_cast<Stack&>(memory).reset();
-    check(dynamic_cast<Stack&>(memory).used() == 0, "Stack trace epoch reset");
+    check(static_cast<Stack&>(memory).used() > 0 || steps == 0, "Stack trace unexpectedly reclaimed individual storage");
+    static_cast<Stack&>(memory).reset();
+    check(static_cast<Stack&>(memory).used() == 0, "Stack trace epoch reset");
   }
 }
 }  // namespace
@@ -888,7 +889,8 @@ int main(int argc, char** argv) {
     if (mode == "trace") {
       trace(memory, seed, steps);
     } else if (mode == "marks") {
-      marks(dynamic_cast<Stack&>(memory));
+      check(memory.kind() == MemoryKind::Stack, "marks requires Stack");
+      marks(static_cast<Stack&>(memory));
     } else if (mode == "handoff") {
       handoff(memory);
     } else {
@@ -904,12 +906,12 @@ int main(int argc, char** argv) {
       }
       balanced(*peer.memory);
       if (peer.memory->kind() == MemoryKind::Stack) {
-        dynamic_cast<Stack&>(*peer.memory).reset();
+        static_cast<Stack&>(*peer.memory).reset();
       }
     }
     balanced(memory);
     if (memory.kind() == MemoryKind::Stack) {
-      dynamic_cast<Stack&>(memory).reset();
+      static_cast<Stack&>(memory).reset();
     }
     return 0;
   } catch (const std::exception& error) {

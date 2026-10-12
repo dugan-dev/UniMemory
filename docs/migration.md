@@ -2,9 +2,11 @@
 
 [Index](README.md) · **English** · [简体中文](migration.zh-CN.md)
 
-`Memory` is now a non-template abstract base; `Global`, `Heap` and `Stack` are final subclasses. Include `<unimem/all.h>` and link `UniMemory::UniMemory`; the target now carries inline implementation, generated configuration and the selected SDK dependency instead of a UniMemory binary.
+`Memory` is a non-template base with shared non-virtual allocation functions; `Global`, `Heap` and `Stack` are final subclasses. Include `<unimem/all.h>` and link `UniMemory::UniMemory`; the target now carries inline implementation, generated configuration and the selected SDK dependency instead of a UniMemory binary.
 
 `Memory heap = Memory::heap()` becomes `Heap heap;` or `auto heap = Memory::heap()`. Use `Stack scratch(buffer);` and `Stack::Mark` for buffers. Common allocation and ownership code keeps `Memory&`; Heap/Stack controls require their concrete type.
+
+Own Heap and Stack through their concrete types, such as `std::unique_ptr<Heap>`; use `Memory&` or `Memory*` as a borrowed view. Deletion through `Memory*` is disabled.
 
 | Earlier usage | Current usage |
 | --- | --- |

@@ -22,3 +22,11 @@ struct TrackingContext;
 #else
 #define UNIMEMORY_FORCE_INLINE inline
 #endif
+
+#if defined(_MSC_VER)
+#define UNIMEMORY_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+#define UNIMEMORY_NOINLINE __attribute__((noinline))
+#else
+#define UNIMEMORY_NOINLINE
+#endif

@@ -1,32 +1,25 @@
 name: performance-diagnosis
 on:
-  push:
-    branches: [main, dev]
-    paths: ['benchmarks/diagnostics/**', 'tools/**', 'tests/tools/**', 'cmake/**', 'include/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/performance-diagnosis.yml']
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      platform:
+        type: string
+        required: true
+
 permissions:
   contents: read
-concurrency:
-  group: performance-diagnosis-${{ github.ref }}-${{ github.sha }}
-  cancel-in-progress: true
 jobs:
-  tools:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v5
-      - run: python3 -m unittest discover -s tests/tools -v
-      - run: python3 tools/ci/test-profile-report.py
   diagnose:
-    needs: tools
     runs-on: ${{ matrix.platform.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         platform:
-          - {os: ubuntu-24.04, label: linux-x64}
-          - {os: windows-2022, label: windows-x64}
-          - {os: macos-15, label: macos-arm64}
+          - {os: "${{ inputs.runner }}", label: "${{ inputs.platform }}"}
         backend: [standard, mimalloc, jemalloc]
     steps:
       - uses: actions/checkout@v5
@@ -112,10 +105,11 @@ jobs:
           retention-days: 14
   acceptance:
     if: always()
-    needs: [tools, diagnose]
-    runs-on: ubuntu-24.04
+    needs: diagnose
+    runs-on: ${{ inputs.runner }}
     steps:
-      - env:
+      - shell: bash
+        env:
           RESULTS: ${{ toJSON(needs) }}
         run: |
           python3 - <<'PY'

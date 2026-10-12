@@ -1,14 +1,16 @@
 name: portability
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      tools:
+        type: string
+        required: true
+
 permissions:
   contents: read
-concurrency:
-  group: portability-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   compiler:
     name: ${{ matrix.tool.os }} / ${{ matrix.tool.compiler }} / ${{ matrix.configuration }} / stats=${{ matrix.statistics }}
@@ -19,20 +21,7 @@ jobs:
       matrix:
         configuration: [Debug, Release]
         statistics: ['OFF', 'ON']
-        tool:
-          - {os: ubuntu-24.04, compiler: gcc-13, cc: gcc-13, cxx: g++-13, arch: x64}
-          - {os: ubuntu-24.04, compiler: gcc-14, cc: gcc-14, cxx: g++-14, arch: x64}
-          - {os: ubuntu-24.04, compiler: clang-18, cc: clang-18, cxx: clang++-18, arch: x64}
-          - {os: ubuntu-24.04-arm, compiler: gcc-13, cc: gcc-13, cxx: g++-13, arch: arm64}
-          - {os: ubuntu-24.04-arm, compiler: gcc-14, cc: gcc-14, cxx: g++-14, arch: arm64}
-          - {os: ubuntu-24.04-arm, compiler: clang-18, cc: clang-18, cxx: clang++-18, arch: arm64}
-          - {os: windows-2022, compiler: msvc, arch: x64}
-          - {os: windows-2022, compiler: clang-cl, arch: x64}
-          - {os: windows-2022, compiler: mingw, arch: x64}
-          - {os: windows-11-arm, compiler: msvc, arch: arm64}
-          - {os: windows-11-arm, compiler: clang-cl, arch: arm64}
-          - {os: macos-15-intel, compiler: appleclang, cc: clang, cxx: clang++, arch: x64}
-          - {os: macos-15, compiler: appleclang, cc: clang, cxx: clang++, arch: arm64}
+        tool: ${{ fromJSON(inputs.tools) }}
     steps:
       - uses: actions/checkout@v5
       - name: Linux compiler
@@ -81,6 +70,7 @@ jobs:
     name: portability acceptance
     needs: compiler
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     steps:
-      - run: test '${{ needs.compiler.result }}' = success
+      - shell: bash
+        run: test '${{ needs.compiler.result }}' = success

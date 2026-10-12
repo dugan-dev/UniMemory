@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev+event%3Apush) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
 现代 C++20 纯头文件内存分配库，构建时选择 Standard、mimalloc 或 jemalloc，使用统一接口。
 
@@ -30,7 +30,7 @@
 - **📊 可选统计**：可选的分配次数、当前用量和峰值统计。
 - **🌐 跨平台**：支持 Windows、Linux、macOS。
 
-`Memory` 为抽象通用接口。`Memory::global()` 返回进程生命周期内唯一的 `Global&`，共享统计与 PMR 资源。`Heap`、`Stack` 可直接构造，也可通过 `Memory::heap()`、`Memory::stack()` 创建。
+`Memory` 提供统一的内联分配接口。`Memory::global()` 返回进程生命周期内唯一的 `Global&`，共享统计与 PMR 资源。`Heap`、`Stack` 可直接构造，也可通过 `Memory::heap()`、`Memory::stack()` 创建。
 
 ## 快速开始
 
@@ -231,7 +231,7 @@ unimem::Memory::config(1000);
 | --- | :---: | :---: | :---: |
 | 对象、容器、内存块 | ✔ | ✔ | ✔ |
 | 分配统计 | ✔ | ✔ | ✔ |
-| 独立堆 | — | ✔ | ✔ |
+| 独立堆 | ✔ | ✔ | ✔ |
 | 闲置内存释放延迟 | — | ✔ | ✔ |
 | 额外依赖 | 无 | SDK | SDK |
 
@@ -239,20 +239,17 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 ## 性能
 
-历史图表与数值保留原测量来源；尚未测量本次 Heap 和统计实现。
-
-Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。取 10 轮独立进程测量的算术平均值，单位 **ns/次，越小越快**。
+Windows x64 · MSVC 19.44 · Release＋IPO · 统计关闭 · 2026-10-12。10 轮耗时中位数，**ns/次，越低越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| 创建并销毁对象，64 B | 35.4 | 6.3 | 28.8 |
-| vector 增长并销毁，32 个 `uint64_t` | 432.7 | 168.8 | 389.7 |
-| 分配、扩容、释放，4 → 8 KiB | 143.1 | 80.9 | 120.5 |
-| 单线程分配，8 个线程释放 | 81.5 | 42.3 | 70.8 |
+| 创建并销毁对象，64 B | 30.8 | 6.1 | 26.6 |
+| vector 增长并销毁 | 233.2 | 242.8 | 181.5 |
+| 创建并释放内存块，64 B | 29.9 | 5.7 | 27.5 |
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-各后端独立测量；图中 Standard = 1，条形越短越快。[完整性能报告](docs/performance.zh-CN.md)
+图保留此前已发布的 CI 测量。[最新 Windows 对照](docs/performance-windows.zh-CN.md) · [完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 

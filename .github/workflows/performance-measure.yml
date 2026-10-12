@@ -1,0 +1,116 @@
+name: tier performance
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+      platform:
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  measure:
+    runs-on: ${{ matrix.platform.os }}
+    # Ten complete same-host rounds plus six sustained calibrations exceeded
+    # 180 minutes on a normally progressing hosted macOS runner. Per-process
+    # 30/600-second watchdogs still identify individual calibration/measurement failures.
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - {os: "${{ inputs.runner }}", label: "${{ inputs.platform }}"}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build pinned explicit backends
+        if: runner.os != 'Windows'
+        run: bash tools/ci/build-backends.sh
+      - name: Windows pinned dependency toolchain
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git build/vcpkg
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./build/vcpkg/vcpkg.exe install --triplet=x64-windows-unimemory --overlay-triplets=cmake/triplets --x-install-root=build/sdk-installed --x-feature=mimalloc --x-feature=jemalloc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile and verify benchmark build
+        shell: bash
+        run: |
+          set -euo pipefail
+          workspace="$PWD"
+          if [ "$RUNNER_OS" = Windows ]; then workspace=$(cygpath -m "$PWD"); fi
+          flags=(-DCMAKE_PREFIX_PATH="$workspace/build/prefix")
+          if [ "$RUNNER_OS" = Windows ]; then
+            flags+=(-DCMAKE_TOOLCHAIN_FILE="$workspace/build/vcpkg/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows-unimemory -DVCPKG_OVERLAY_TRIPLETS="$workspace/cmake/triplets" -DVCPKG_MANIFEST_MODE=OFF -DVCPKG_MANIFEST_INSTALL=OFF -DVCPKG_INSTALLED_DIR="$workspace/build/sdk-installed" -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL)
+            export PATH="$PWD/build/sdk-installed/x64-windows-unimemory/bin:$PATH"
+          fi
+          mkdir -p build/performance
+          : > build/performance/acceptance-failures.txt
+          : > build/performance/acceptance-status.txt
+          for backend in standard mimalloc jemalloc; do
+            for statistics in OFF ON; do
+              directory="build/performance/$backend-$statistics"
+              performance_flags=()
+              if [ "$statistics" = OFF ]; then
+                performance_flags+=(-DUNIMEMORY_PERFORMANCE_TESTS=ON -DUNIMEMORY_PERFORMANCE_MIN_RATIO=0.90)
+              fi
+              python3 tools/ci/configure.py -- cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_IPO=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}" "${performance_flags[@]}"
+              cmake --build "$directory" --config Release --parallel 4
+              ctest --test-dir "$directory" -C Release --parallel 4 --output-on-failure --no-tests=error
+              if [ "$statistics" = OFF ]; then
+                # Keep every >=90% result, then finish all profiles and controlled trials.
+                if cmake --build "$directory" --config Release --target UniMemoryPerformanceAcceptance; then
+                  echo "$backend: passed >=0.90" >> build/performance/acceptance-status.txt
+                else
+                  echo "$backend: failed >=0.90" >> build/performance/acceptance-status.txt
+                  echo "$backend" >> build/performance/acceptance-failures.txt
+                fi
+              fi
+            done
+          done
+      - name: Measure matched Native and UniMemory workloads
+        shell: bash
+        run: |
+          python3 tools/controlled_benchmarks.py build/performance build/results --trials 10
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-${{ matrix.platform.label }}
+          path: |
+            build/results/
+            build/performance/*/benchmark-build-Release.txt
+            build/performance/*/CMakeCache.txt
+            build/performance/*/compile_commands.json
+            build/performance/*/performance-acceptance-Release/
+            build/performance/acceptance-*.txt
+          retention-days: 90
+      - name: Existing16 native application benchmarks on the same Linux host
+        if: runner.os == 'Linux'
+        run: bash tools/validate-benchmark-collection.sh "$PWD/build" "$PWD/build/results/controlled-suite.json"
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Linux'
+        with:
+          name: native-application-comparison
+          path: build/collection-results/
+          retention-days: 90
+      - name: Require all recorded Native/API >=90% gates
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          test -f build/performance/acceptance-failures.txt
+          cat build/performance/acceptance-status.txt
+          test ! -s build/performance/acceptance-failures.txt
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: performance-failure-${{ matrix.platform.label }}
+          path: |
+            build/performance/*/Testing/Temporary/LastTest.log
+            build/configure.log
+            build/sdk-installed/vcpkg/status

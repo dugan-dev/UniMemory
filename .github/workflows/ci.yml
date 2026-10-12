@@ -1,14 +1,13 @@
 name: build
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        required: true
+
 permissions:
   contents: read
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 jobs:
   profiles:
     name: ${{ matrix.os }} / ${{ matrix.backend }} / stats=${{ matrix.statistics }}
@@ -17,18 +16,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-24.04, macos-15]
+        os: ["${{ inputs.runner }}"]
         backend: [standard, mimalloc, jemalloc]
         statistics: ['OFF', 'ON']
     steps:
       - uses: actions/checkout@v5
-      - name: Documentation, presets and tool tests
-        shell: bash
-        run: |
-          python3 tools/check-docs.py
-          cmake --list-presets
-          python3 -m unittest discover -s tests/tools -v
-          python3 tools/ci/test-profile-report.py
       - name: Pinned Unix SDKs
         if: runner.os != 'Windows' && matrix.backend != 'standard'
         run: bash tools/ci/build-backends.sh
@@ -94,7 +86,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-24.04, macos-15]
+        os: ["${{ inputs.runner }}"]
         checks: ['ON', 'OFF']
     steps:
       - uses: actions/checkout@v5
@@ -127,6 +119,7 @@ jobs:
     name: build acceptance
     needs: [profiles, checks-policies]
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ${{ inputs.runner }}
     steps:
-      - run: test '${{ needs.profiles.result }}' = success && test '${{ needs.checks-policies.result }}' = success
+      - shell: bash
+        run: test '${{ needs.profiles.result }}' = success && test '${{ needs.checks-policies.result }}' = success

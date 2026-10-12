@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush) [![Source](https://img.shields.io/badge/source-main-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/main) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev+event%3Apush) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
 
 A modern, header-only C++20 library for unified memory allocation with Standard, mimalloc or jemalloc, selected at build time.
 
@@ -30,7 +30,7 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 - **📊 Optional statistics**: Optional allocation counts, live bytes and peak usage.
 - **🌐 Cross-platform**: Supports Windows, Linux and macOS.
 
-`Memory` is the abstract common interface. `Memory::global()` returns the unique process-lifetime `Global&`; its statistics and PMR resource are shared. Construct `Heap` and `Stack` directly or use `Memory::heap()` and `Memory::stack()`.
+`Memory` provides the common inline allocation interface. `Memory::global()` returns the unique process-lifetime `Global&`; its statistics and PMR resource are shared. Construct `Heap` and `Stack` directly or use `Memory::heap()` and `Memory::stack()`.
 
 ## Quick Start
 
@@ -239,20 +239,17 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 ## Performance
 
-Historical charts and values retain their original measurement provenance; the current Heap and statistics implementation have not been measured.
-
-Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Arithmetic mean of 10 fresh-process trials, **ns/operation; lower is faster.**
+Windows x64 · MSVC 19.44 · Release with IPO · statistics off · 2026-10-12. Median of 10 trials, **ns/operation; lower is faster**.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| Create and destroy an object, 64 B | 35.4 | 6.3 | 28.8 |
-| Grow and destroy a vector, 32 `uint64_t` values | 432.7 | 168.8 | 389.7 |
-| Allocate, resize and free, 4 → 8 KiB | 143.1 | 80.9 | 120.5 |
-| Allocate on one thread, free on eight | 81.5 | 42.3 | 70.8 |
+| Create and destroy an object, 64 B | 30.8 | 6.1 | 26.6 |
+| Grow and destroy a vector | 233.2 | 242.8 | 181.5 |
+| Create and release a block, 64 B | 29.9 | 5.7 | 27.5 |
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-Backends are measured separately. Standard = 1 in the chart; shorter bars are faster. [Full performance report](docs/performance.md)
+The chart retains the previously published CI measurements. [Latest Windows comparison](docs/performance-windows.md) · [Full performance report](docs/performance.md)
 
 ## Build and Install
 
