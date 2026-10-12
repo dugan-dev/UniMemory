@@ -30,7 +30,7 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll",
-        "sha256": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+        "sha256": "9b81eee3c734f243648e7efcb45533fdaca135e7f0afc66cada2e065da4bfa5e"
       },
       "sdk_linker_file": {
         "path": "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\lib\\mimalloc.dll.lib",
@@ -38,30 +38,30 @@
       }
     },
     "runtime_dlls": {
-      "mimalloc.dll": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+      "mimalloc.dll": "9b81eee3c734f243648e7efcb45533fdaca135e7f0afc66cada2e065da4bfa5e"
     },
     "sdk_runtime_files": {
-      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "26f8d3736287029ed9bf8d154b814bfd8ec65ed5c43973016e1d22fc40c3fbb5",
-      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "3f2e7bd86707477fab2d0130ae4c770b8b7d67ddfc909da6f941761cc9f7a730"
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "84371856c0dae114966b5eb6cb57e93ab61649f2a1915ef879520180f9eccdbf",
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "9b81eee3c734f243648e7efcb45533fdaca135e7f0afc66cada2e065da4bfa5e"
     },
     "cmake_cache_sha256": "a5fc46d08a8c0eadb7e0c72785b2498e3bb86535ace17274bbe1affc6ad72c31",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
-  "run_id": "38122935359",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "source_revision": "7e4b486af1813820b73339fa70884338ae76201f",
+  "run_id": "38167630684",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167630684",
   "trials": 10,
   "scenarios_per_trial": 311,
   "affinity_pinned": true,
   "sequential_processes": true,
   "repetitions": 1,
   "measurement_protocol": "native-api-sustained-v4",
-  "operations_file_sha256": "710fae631afda18c8830a00d0d5417fc914ac321f60983927869bb0129249063",
-  "measured_at_utc": "2026-10-11T10:11:44.582300+00:00",
-  "executable_sha256": "8cf84ae8822096a4f9174228fc42a4eb7e5646bfa55da3848f5dd5574ec11a07",
-  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "operations_file_sha256": "64e9bfe875815d30ab1ac196bdbeabccd1aa93ed527f811c8cad4296ae2331f2",
+  "measured_at_utc": "2026-10-11T22:25:48.010008+00:00",
+  "executable_sha256": "44942a676cf71c5cbee44900a218febae3a68a7d6236be9b2e758215b8b54ef9",
+  "benchmark_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
   "source_hash_line_endings": "LF",
-  "full_calibration_sha256": "58b35ba89d544473e63f30e26c525c75f173d2f896cde4f293ee4b07fe94c03f"
+  "full_calibration_sha256": "622b56fdbf10a3d3b9779d7886320940c814e3e22c284c60292bbd0918bebc8f"
 }

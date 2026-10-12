@@ -30,11 +30,11 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        "sha256": "d79aab80e10d8539046a691a108477b2e0efdd57ddfba3885ce3d24d27843bf3"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libmimalloc.so.3.4",
-        "sha256": "1686029f9e1604418784ec118d6dd8f8fd7e0eace13c4807b11547430889d6ff"
+        "sha256": "d79aab80e10d8539046a691a108477b2e0efdd57ddfba3885ce3d24d27843bf3"
       }
     },
     "runtime_dlls": {},
@@ -44,19 +44,19 @@
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "source_revision": "59537619fa4fdd2c0abe0645ba378c766377cbd0",
-  "run_id": "38122935359",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38122935359",
+  "source_revision": "7e4b486af1813820b73339fa70884338ae76201f",
+  "run_id": "38167630684",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167630684",
   "trials": 10,
   "scenarios_per_trial": 214,
   "affinity_pinned": true,
   "sequential_processes": true,
   "repetitions": 1,
   "measurement_protocol": "native-api-sustained-v4",
-  "operations_file_sha256": "b2b143dea74b247608da338b3d53cbc6a428013cd9b43333e96c227d56cb9ebc",
-  "measured_at_utc": "2026-10-11T10:01:30.935038+00:00",
-  "executable_sha256": "b113032aeaf557a22399f1c3f3309f46ded7b5e2323af9f6d0d1d82c4c5c32ca",
-  "benchmark_source_sha256": "60f5b85e925a31fd17629a98ebcc4b3d2ff1cbaac2022953f5fb1c4583093ac7",
+  "operations_file_sha256": "ea425b1dfadb13012ed551556e0586980dd1d7ed9606d352b69d58ae969c3db1",
+  "measured_at_utc": "2026-10-11T22:08:55.722139+00:00",
+  "executable_sha256": "598abef5ad85832dc164bffa0d0ab4ee7029ccadd1197b54034c54c22928aaa4",
+  "benchmark_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
   "source_hash_line_endings": "LF",
-  "full_calibration_sha256": "a951622e9c93e0d03d7f95f5fce6b158bab5b5ed32dbd094c968d9872c70f16a"
+  "full_calibration_sha256": "c2185a62c4c23517d5d59ccf4ddcb1e41c31d93022b2dfde5e0b5e34c8054ce3"
 }
