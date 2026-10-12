@@ -27,13 +27,14 @@
 #include <unimem/common.h>
 #include <unimem/owned_block.h>
 #include <unimem/version.h>
+#include <unimem/all.h>
 
 int main() {
-    auto& memory = unimem::Memory::global();
-    auto allocator = memory.allocator<int>();
-    auto* storage = allocator.allocate(2);
-    std::construct_at(storage, 17);
-    std::construct_at(storage + 1, 23);
-    auto owner = memory.adopt_unique_array(storage, 2);
-    return owner[0] == 17 && owner[1] == 23 ? 0 : 1;
+  auto& memory = unimem::Memory::global();
+  auto allocator = memory.allocator<int>();
+  auto* storage = allocator.allocate(2);
+  std::construct_at(storage, 17);
+  std::construct_at(storage + 1, 23);
+  auto owner = memory.adopt_unique_array(storage, 2);
+  return owner[0] == 17 && owner[1] == 23 ? 0 : 1;
 }

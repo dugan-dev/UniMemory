@@ -38,3 +38,5 @@ Process-trial data and summaries are stored losslessly in the repository. Indivi
 UniMemory also measures C++ objects, containers and context handling. Standard uses C++ allocation APIs; it is not the same baseline as the official glibc malloc comparison. Process-wide native allocator replacement measures allocator behavior, not wrapper cost. No allocator is fastest for every workload.
 
 [Data and environments](results/current/README.md) · [Validation](testing.md)
+
+New measurements use `allocation-v3` and `delivery-v2` inventories, including Standard Heap. Older archives retain their original inventory and timing data; they do not measure the current Heap or statistics implementation. Native allocator diagnostics use private build identifiers, separate from the public Memory API. `api_lookup` diagnostics retrieve the same Global singleton for each allocation/free call; `api_cached` reuses a reference retrieved before timing.

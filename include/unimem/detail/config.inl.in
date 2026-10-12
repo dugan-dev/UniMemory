@@ -1,6 +1,5 @@
 #pragma once
 
-// This installed file is the build profile. Per-TU overrides must agree.
 #ifdef UNIMEMORY_CONFIG_BACKEND
 #if UNIMEMORY_CONFIG_BACKEND != @UNIMEMORY_CONFIG_BACKEND@
 #error "UniMemory backend macro disagrees with the installed build profile"
@@ -24,8 +23,6 @@
 #error "Selected jemalloc build requires its exported SDK definition"
 #endif
 
-// Precondition checking is fixed by the exported target/profile.
-// Every TU must consume the same target; per-TU overrides are rejected.
 #ifdef UNIMEMORY_CONFIG_CHECKS_POLICY
 #if UNIMEMORY_CONFIG_CHECKS_POLICY != @UNIMEMORY_CONFIG_CHECKS_POLICY@
 #error "UniMemory checks policy disagrees with the installed build profile"

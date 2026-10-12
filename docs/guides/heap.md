@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Scope and lifetime
 
-`Memory::heap()` creates an independent allocation group using the CMake-selected backend. It grows as needed; allocations need not be contiguous. All common Memory APIs are available; check `capabilities().heap` first. Standard does not support Heap. The default Heap statistics mode is Disabled. `Memory::heap(StatisticsMode::Basic)` is allowed only when `UNIMEMORY_STATISTICS=ON`, and throws `std::invalid_argument` in an OFF build.
+`Heap heap;` (or `Memory::heap()`) creates an independent allocation group with the CMake-selected backend. All backends support the common APIs and owns, reset, collect. The constructor selects per-instance statistics and defaults to Disabled. Heap controls are available on `Heap`, while common operations also work through `Memory&`.
 
 ## Operations
 
@@ -15,8 +15,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 | `reset()` | Release all blocks and restart Basic counters; failure preserves allocations |
 | `collect()` | Reclaim idle memory while preserving live allocations |
 | `owns(ptr)` | Check whether a live allocation belongs to this Heap |
-| `statistics()` | Optional request counters for this Heap |
-| `backend_statistics()` | Optional native metrics; jemalloc requires `config.stats` |
+| `statistics()` | Five-field request-counter value |
 
 ## Usage rules
 
@@ -33,3 +32,5 @@ flowchart LR
 ```
 
 [Stack](stack.md) · [Statistics](statistics.md) · [Lifetime and threads](../compatibility.md)
+
+Heap owns its backend state: a native mimalloc heap, a dedicated jemalloc arena, or a Default allocation group. Physical page isolation is not guaranteed.

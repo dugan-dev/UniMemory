@@ -46,11 +46,13 @@ API_SCENARIOS = (("raw", "64", "16"), ("zeroed", "64", "16"), ("reallocate", "64
                  ("object", "64", "1"), ("shared_object", "64", "1"), ("std_vector", "256", "8"))
 
 
-def sweep_scenarios(profile=None):
+def sweep_scenarios(profile=None, include_native_statistics=None, scenario_contract="allocation-v2"):
     """Pinned full-sweep contract, independent of measurements and their manifest."""
+    if include_native_statistics is None:
+        include_native_statistics = profile is None
     expected = set()
     for backend in BACKENDS:
-        heaps = ("no",) if backend == "standard" else ("no", "yes")
+        heaps = ("no",) if backend == "standard" and scenario_contract != "allocation-v3" else ("no", "yes")
         for heap, tracking in itertools.product(heaps, ("disabled", "basic")):
             for workload, size, alignment in itertools.product(
                     ("raw", "zeroed", "reallocate", "reallocate_zeroed", "batch", "mixed_lifetime", "owned_block"),
@@ -64,7 +66,8 @@ def sweep_scenarios(profile=None):
                 expected.add((backend, workload, "256", "8", "1", tracking, heap))
         for heap, threads in itertools.product(heaps, (2,4,8)):
             expected.add((backend, "cross_thread", "64", "16", str(threads), "disabled", heap))
-        if backend != "standard":
+        # Historical archives retain the retired native statistics workload.
+        if include_native_statistics and backend != "standard":
             for heap in heaps:
                 expected.add((backend, "detailed_statistics", "0", "0", "1", "disabled", heap))
     for size, alignment in itertools.product((64,256,4096,65536), (16,64,256)):
@@ -188,7 +191,7 @@ def validate_calibration_pilots(directory, manifest, selected):
     calibration = manifest["calibration"]
     expected_cases = {"latency": {str(size) for size in (16, 64, 256, 4096, 65536)},
                       "scaling": {f"{workload}:{size}:{threads}" for workload, size, threads in itertools.product(("scaling", "handoff"), (64, 4096, 65536), THREADS)},
-                      "heap": set() if manifest["build_profile"]["backend"] == "standard" else {"owns", "collect", "reset"}}
+                      "heap": set() if manifest["build_profile"]["backend"] == "standard" and manifest.get("scenario_contract") != "delivery-v2" else {"owns", "collect", "reset"}}
     if set(calibration) != set(expected_cases) or any(set(calibration[kind]) != cases for kind, cases in expected_cases.items()):
         raise ValueError("Missing or unexpected profile calibration workload")
     expected = {(kind, case): count for kind, cases in calibration.items() for case, count in cases.items()}
@@ -374,7 +377,9 @@ def validate_full_calibration(directory, manifest, selected, sweep_manifest, cou
     records = evidence.get("records", [])
     fields = ("backend", "workload", "bytes", "alignment", "threads", "statistics", "heap")
     keys = [tuple(row[field] for field in fields) for row in records]
-    expected = sweep_scenarios(manifest["build_profile"])
+    expected = sweep_scenarios(manifest["build_profile"],
+                               sweep_manifest.get("scenario_contract") not in ("allocation-v2", "allocation-v3"),
+                               sweep_manifest.get("scenario_contract", "allocation-v1"))
     if len(keys) != len(expected) or set(keys) != expected:
         raise ValueError("Missing or duplicate full calibration scenario")
     grouped = defaultdict(list)
@@ -582,11 +587,11 @@ def validate(directory, strict_artifact=False):
                                            ("dense", "sparse", "churn_dense", "churn_sparse", "freed"))),
          ("trial", "backend", "path", "phase"), ("baseline_rss", "rss", "peak_rss", "requested_bytes", "live_blocks")),
         ("footprint", {(trial, backend, stats, heap) for trial in trials_range for backend in backends
-                       for stats in ('disabled', 'basic') for heap in (('no',) if backend == 'standard' else ('no', 'yes'))
+                       for stats in ('disabled', 'basic') for heap in (('no',) if backend == 'standard' and manifest.get('scenario_contract') != 'delivery-v2' else ('no', 'yes'))
                        if profile is None or ((heap == 'no' and stats == api_path) or
                           (heap == 'yes' and (profile['statistics'] == 'ON' or stats == 'disabled')))},
          ("trial", "backend", "statistics", "heap"), ("baseline_rss", "live_rss", "freed_rss", "collected_rss", "peak_rss")),
-        ("heap", set(itertools.product(trials_range, tuple(b for b in backends if b != "standard"), ("owns", "collect", "reset"))),
+        ("heap", set(itertools.product(trials_range, tuple(b for b in backends if b != "standard" or manifest.get("scenario_contract") == "delivery-v2"), ("owns", "collect", "reset"))),
          ("trial", "backend", "operation"), ("median_ns", "operations")),
     )
     for name, expected, fields, metrics in matrices:
@@ -612,7 +617,8 @@ def validate(directory, strict_artifact=False):
         if trial not in trials or not math.isfinite(float(row["median_ns_per_operation"])) or float(row["median_ns_per_operation"]) <= 0:
             raise ValueError("Invalid full-sweep measurement")
         trials[trial].append(tuple(row[field] for field in scenario_fields))
-    expected = sweep_scenarios(profile)
+    expected = sweep_scenarios(profile, sweep_manifest.get("scenario_contract") not in ("allocation-v2", "allocation-v3"),
+                               sweep_manifest.get("scenario_contract", "allocation-v1"))
     for keys in trials.values():
         if len(keys) != len(expected) or set(keys) != expected or len(keys) != sweep_manifest["scenarios_per_trial"]:
             raise ValueError("Incomplete full sweep")

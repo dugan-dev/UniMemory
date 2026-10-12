@@ -4,7 +4,7 @@
 
 示例见[快速开始](../../README.zh-CN.md#快速开始)。
 
-`UnusedPageReleaseDelayMs` 调整闲置内存归还系统的等待时间。分配器可能缓存已释放空间以供复用。先用 `supports(option)` 查询，再调用 `set_runtime_option(option, value)` 设置 CMake 所选后端。
+`Memory::config(release_delay_ms)` 调整 CMake 所选后端的闲置内存归还等待时间。分配器可能缓存已释放空间以供复用。
 
 ## 选项值
 
@@ -17,10 +17,12 @@
 
 ## 使用规则
 
-- 作用于 Backend 的默认策略，建议在创建线程和 Memory::heap() 前设置。
-- Standard 不支持，合法值返回 `false`。jemalloc 设置新 arena 的默认值，已有 Heap 可能不受影响。
+- 作用于所选后端的默认策略，建议在创建线程和 Memory::heap() 前设置。
+- Standard 对合法值不执行操作。jemalloc 更新已初始化 arena 的延迟，并设置新 arena 的默认值。
 - 只回收符合条件的闲置页，**不会释放仍在使用的 Object**。
 - 延迟不是完成期限，不保证 RSS 在指定时间下降。
 - 后端拒绝设置时抛 `std::runtime_error`。
 
 更积极回收可能降低驻留内存，也可能增加分配开销。按实际负载测量。[Backend 参考](../backends/mimalloc.zh-CN.md) · [内存测试](../performance/memory.zh-CN.md)
+
+`Memory::config(release_delay_ms)` 只设置回收延迟，不影响实例统计。

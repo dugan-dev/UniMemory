@@ -50,7 +50,7 @@ foreach(kind IN ITEMS backend statistics checks)
         set(reason "checks policy disagrees")
     endif()
     try_compile(accepted SOURCE_FROM_CONTENT "conflict-${kind}.cpp"
-        "#define ${macro} ${conflicting_${kind}}\n#include <unimem/memory.h>\nint main() {}\n"
+        "#define ${macro} ${conflicting_${kind}}\n#include <unimem/all.h>\nint main() {}\n"
         LINK_LIBRARIES UniMemory::UniMemory
         CXX_STANDARD 20 OUTPUT_VARIABLE compiler_output)
     file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/conflict-${kind}.log" "${compiler_output}")
@@ -59,7 +59,7 @@ foreach(kind IN ITEMS backend statistics checks)
     endif()
 endforeach()
 try_compile(accepted SOURCE_FROM_CONTENT "conflict-tuple-checks.cpp"
-    "#undef UNIMEMORY_CHECKS\n#define UNIMEMORY_CHECKS (1 - UNIMEMORY_TARGET_CHECKS)\n#include <unimem/memory.h>\nint main() {}\n"
+    "#undef UNIMEMORY_CHECKS\n#define UNIMEMORY_CHECKS (1 - UNIMEMORY_TARGET_CHECKS)\n#include <unimem/all.h>\nint main() {}\n"
     LINK_LIBRARIES UniMemory::UniMemory CXX_STANDARD 20 OUTPUT_VARIABLE compiler_output)
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/conflict-tuple-checks.log" "${compiler_output}")
 if(accepted OR NOT compiler_output MATCHES "Per-TU UNIMEMORY_CHECKS override disagrees")
@@ -70,7 +70,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile.h" [=[
 #pragma once
 #include "memory_api_contract.h"
 static_assert(static_cast<int>(unimem::detail::build_backend) == UNIMEMORY_CONFIG_BACKEND);
-static_assert(static_cast<int>(unimem::detail::build_statistics) == UNIMEMORY_CONFIG_STATISTICS);
+static_assert(static_cast<int>((UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled)) == UNIMEMORY_CONFIG_STATISTICS);
 unimem::Memory* profile_a();
 unimem::Memory* profile_b();
 ]=])
@@ -88,9 +88,10 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-main.cpp" [=[
 #include <memory_resource>
 #include <stdexcept>
 int main() {
-    auto& memory = unimem::Memory::global();
+    auto& memory = unimem::Memory::global(UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
     if (profile_a() != &memory || profile_b() != &memory) return 1;
-    if (memory.backend() != unimem::detail::build_backend) return 2;
+    if (!profile_a()->resource()->is_equal(*profile_b()->resource())) return 2;
+
     const auto before = memory.statistics();
     {
         std::vector<int, unimem::Allocator<int>> values{unimem::Allocator<int>{memory}};
@@ -102,12 +103,13 @@ int main() {
         pmr.resize(32, 8);
         if (*unique != 42 || *shared != 43 || block.data() == nullptr) return 4;
     }
-    const auto after = profile_b()->statistics();
-    if constexpr (unimem::detail::build_statistics == unimem::StatisticsMode::Basic) {
-        if (!before || !after || after->live_bytes != before->live_bytes ||
-            after->allocations - before->allocations != after->deallocations - before->deallocations) return 5;
-        if (after->allocations <= before->allocations) return 6;
-    } else if (before || after) return 7;
+    const auto after = memory.statistics();
+    if constexpr ((UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled) == unimem::StatisticsMode::Basic) {
+        if (after.live_bytes != before.live_bytes ||
+            after.allocations - before.allocations != after.deallocations - before.deallocations) return 5;
+        if (after.allocations <= before.allocations) return 6;
+    } else if (before.allocations || before.deallocations || before.reallocations || before.live_bytes || before.peak_live_bytes ||
+               after.allocations || after.deallocations || after.reallocations || after.live_bytes || after.peak_live_bytes) return 7;
 }
 ]=])
 add_executable(UniMemoryInstalledProfile
@@ -119,13 +121,19 @@ target_include_directories(UniMemoryInstalledProfile PRIVATE "${CMAKE_CURRENT_SO
 target_compile_features(UniMemoryInstalledProfile PRIVATE cxx_std_20)
 set_target_properties(UniMemoryInstalledProfile PROPERTIES CXX_EXTENSIONS OFF)
 add_executable(UniMemoryInstalledConsumer main.cpp
-    ../headers/common.cpp
+    ../headers/types.cpp
     ../headers/memory.cpp
     ../headers/owned_block.cpp
     ../headers/allocator.cpp
     ../headers/smart_ptr.cpp
     ../headers/standalone_allocator.cpp
     ../headers/standalone_smart_ptr.cpp)
+add_library(UniMemoryInstalledInheritance OBJECT
+    ../headers/factory_statistics.cpp
+    ../headers/inheritance.cpp ../headers/global.cpp ../headers/heap.cpp ../headers/stack.cpp)
+target_link_libraries(UniMemoryInstalledInheritance PRIVATE UniMemory::UniMemory)
+target_compile_features(UniMemoryInstalledInheritance PRIVATE cxx_std_20)
+set_target_properties(UniMemoryInstalledInheritance PROPERTIES CXX_EXTENSIONS OFF)
 target_link_libraries(UniMemoryInstalledConsumer PRIVATE UniMemory::UniMemory)
 target_compile_features(UniMemoryInstalledConsumer PRIVATE cxx_std_20)
 set_target_properties(UniMemoryInstalledConsumer PROPERTIES CXX_EXTENSIONS OFF)

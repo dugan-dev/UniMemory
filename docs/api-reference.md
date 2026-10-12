@@ -2,36 +2,32 @@
 
 [Index](README.md) · **English** · [简体中文](api-reference.zh-CN.md)
 
-Namespace: `unimem`. Include `<unimem/memory.h>` for the complete header-only allocation API; link the CMake `UniMemory::UniMemory` interface target. `Memory` is a non-template class.
+Namespace: `unimem`. Include `<unimem/all.h>` for the complete header-only allocation API; link the CMake `UniMemory::UniMemory` interface target. `Memory` is a non-template abstract base with a virtual destructor. `Global`, `Heap` and `Stack` are final subclasses; allocation, ownership, Allocator/PMR and statistics remain available through `Memory&`.
 
 ## 1 · Create Memory
 
 | Signature | Result / contract |
 | --- | --- |
-| `Memory::global()` | `Memory&`; one library-managed Global using the CMake-selected backend |
-| `Memory::heap(StatisticsMode = StatisticsMode::Disabled)` | `Memory`; independent Heap using the same backend; Basic requires statistics ON; Standard unsupported |
-| `Memory::stack(span<byte>)` | `Memory`; fixed borrowed Buffer, single-threaded |
-| `Memory::stack(void*, size_t)` | Pointer/size form of the same Buffer strategy |
+| `Memory::global(statistics = Disabled)` | `Global&`; the unique process-lifetime singleton using the CMake-selected backend |
+| `Heap(statistics = Disabled)` / `Memory::heap(statistics = Disabled)` | Independent `Heap`, supported by all backends |
+| `Stack(span<byte>, statistics = Disabled)` / `Memory::stack(span<byte>, statistics = Disabled)` | `Stack`; fixed borrowed Buffer, single-threaded |
+| `Stack(void*, size_t, statistics = Disabled)` / `Memory::stack(void*, size_t, statistics = Disabled)` | Pointer/size form of the same Buffer strategy |
 
-Memory cannot be copied or moved; store global instances by pointer or reference. See [lifetime requirements](compatibility.md#lifetime) for Heap/Stack release order.
+`Memory` cannot be instantiated directly. `Global` has a private constructor; obtain it only through `Memory::global()`. It remains alive for the process lifetime, with one shared statistics ledger and PMR resource. `Heap` and `Stack` have public constructors and must outlive their Owners, Containers, Allocator/PMR adapters and shared/weak control blocks. These classes cannot be copied or moved. See [lifetime requirements](compatibility.md#lifetime) for Heap/Stack release order.
 
-## 2 · Configuration and capabilities
+## 2 · Configuration and queries
 
 | Interface | Result |
 | --- | --- |
-| `Backend::{Standard, Mimalloc, Jemalloc}` | Backend identifiers; the backend is fixed by CMake |
 | `MemoryKind::{Global, Heap, Stack}` / `kind()` | Allocation mode |
-| `backend()` | Read-only `optional<Backend>`; empty for Stack |
-| `capabilities()` | `BackendCapabilities` for this build: `heap`, `detailed_statistics`, `release_delay` |
-| `memory.capabilities()` | `basic_statistics`, `detailed_statistics`, `reset`, `collect`, `owns`, `checkpoints`, `thread_safe`, `individual_reclaim` |
-| `supports(RuntimeOption)` | Runtime-option support for this build |
-| `set_runtime_option(RuntimeOption, std::int64_t)` | Unsupported returns false; invalid values/native failure throw |
-| `statistics()` / `backend_statistics()` | Optional [statistics](guides/statistics.md) |
+| `Memory::config(release_delay_ms)` | Set the backend-wide idle-page release delay |
+| `statistics()` / `reset_statistics()` | Five-field value; clear all five counters without freeing storage |
 
-The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. Backend selection happens once in CMake; allocation and capability APIs use that choice. ON means Global Basic and permits Heap Basic; OFF means Global Disabled and rejects Heap Basic. Heap defaults to Disabled; Stack has no counters. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
+`config(release_delay_ms)` accepts milliseconds; -1 disables automatic page reclamation. Statistics are selected per instance through a factory argument or `set_statistics()`; OFF builds reject Basic.
 
-Current RuntimeOption: `UnusedPageReleaseDelayMs`, milliseconds, Backend-wide.
-Capability support is distinct from enabled counters. Global lookup does not replace
+The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. Backend selection happens once in CMake; allocation APIs use that choice. ON permits runtime Basic for Global, Heap and Stack; OFF rejects Basic configuration. All modes default to Disabled. Global captures statistics on first access; Heap and Stack capture their own mode at construction. Use `set_statistics()` to change an existing instance mode. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
+
+`Statistics` contains five request counter fields; Disabled returns five zeros. Global lookup does not replace
 ordinary `new/delete` or unadapted Containers.
 
 ## 3 · Bytes and Block
@@ -72,15 +68,14 @@ Object destructors must not throw. See [ownership and adoption](guides/objects.m
 
 | Signature | Supported mode / meaning |
 | --- | --- |
-| `reset()` | Heap/Stack: bulk release or rewind; Heap counters restart |
+| `reset()` | Heap/Stack: bulk release or rewind; counters restart |
 | `collect()` | Heap: attempt idle-resource reclamation, preserve live blocks |
-| `owns(const void*)` | Heap: same-Backend live allocation start; null false |
-| `mark()` | Stack: opaque `Memory::Mark` |
+| `owns(const void*)` | Heap: this Heap’s live allocation start; null false |
+| `mark()` | Stack: opaque `Stack::Mark` |
 | `rewind(Mark)` | Stack: recover trailing storage; all old marks become invalid |
 | `used()` / `capacity()` | Stack: occupied / total Buffer bytes |
 
-`owns()` is not a general pointer validator. Stack has no Backend, Basic counters
-or native metrics. Unsupported mode-specific operations throw `logic_error`.
+`owns()` is not a general pointer validator. Stack uses the same request-counter contract and has no native metrics. Heap controls exist only on `Heap`; Stack controls exist only on `Stack`. `Memory` and `Global` expose neither set of controls.
 
 ## 6 · Errors
 
@@ -88,10 +83,10 @@ or native metrics. Unsupported mode-specific operations throw `logic_error`.
 | --- | --- |
 | Allocation/capacity failure | `bad_alloc`; resize preserves old storage |
 | Invalid allocation alignment | `invalid_argument` with checks enabled; a caller precondition when checks are OFF |
-| Invalid statistics mode, Heap Basic in an OFF build, invalid Buffer or Mark | `invalid_argument` |
+| Invalid statistics mode, Basic configuration in an OFF build, invalid Buffer or Mark | `invalid_argument` |
 | Element-count or mark-counter overflow | `length_error` |
-| Unsupported Heap / native control failure | `runtime_error` |
-| Unsupported operation / moved-from Block resize | `logic_error` |
+| Native control failure | `runtime_error` |
+| Moved-from Block resize | `logic_error` |
 | Invalid pointers, mismatched frees, premature reset/destruction | Caller contract violation; not necessarily detected |
 
 Link `UniMemory::UniMemory`. [Build](getting-started.md) · [Lifetime](compatibility.md).

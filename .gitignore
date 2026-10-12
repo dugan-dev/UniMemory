@@ -5,6 +5,7 @@
 /evaluation/results/
 /vcpkg_installed/
 /.vs/
+/.vscode/
 CMakeUserPresets.json
 /.codebuddy/
 __pycache__/

@@ -112,13 +112,12 @@ def calibrate_delivery(executable, output=None, effective_cpus=None):
                                                            size, threads, count, timeout=PILOT_TIMEOUT_SECONDS)[0],
                     initial=8, count_limit=limit, oversubscribed=oversubscribed, evidence=evidence, save=save)
                 result['scaling'][key] = decision['count']
-    if backend != 'standard':
-        for operation in ('owns', 'collect', 'reset'):
-            decision = calibrate_pair('heap', operation, ('disabled',),
-                lambda api_path, count, repeat: measure(executable, backend, 'heap', api_path,
-                                                       operation, count, timeout=PILOT_TIMEOUT_SECONDS)[0],
-                initial=2000, count_limit=OPERATION_LIMIT, evidence=evidence, save=save)
-            result['heap'][operation] = decision['count']
+    for operation in ('owns', 'collect', 'reset'):
+        decision = calibrate_pair('heap', operation, ('disabled',),
+            lambda api_path, count, repeat: measure(executable, backend, 'heap', api_path,
+                                       operation, count, timeout=PILOT_TIMEOUT_SECONDS)[0],
+            initial=2000, count_limit=OPERATION_LIMIT, evidence=evidence, save=save)
+        result['heap'][operation] = decision['count']
     return result
 
 
@@ -147,7 +146,7 @@ def record_environment(executable, output, total_trials, calibration, suite=None
                     run_url=f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}",
                     measurement_protocol=PROTOCOL, calibration=calibration, target_interval_seconds=.25,
                     calibration_target_seconds=TARGET_SECONDS,
-                    pressure_protocol='mixed-size-retention-v1',
+                    pressure_protocol='mixed-size-retention-v1', scenario_contract='delivery-v2',
                     pressure_sizes=[17, 33, 65, 129, 257, 513, 1025, 2049, 4097, 8193],
                     pressure_slots=16384, pressure_cycles=8, pressure_anchor_stride=16, pressure_seed='0xC0FFEE',
                     threads=list(THREADS), sizes=list(SIZES), backends=[profile['backend']],
@@ -207,6 +206,10 @@ def finalize_traces(output):
 def run_base(executable, output, trials=TRIALS, offset=0, append=False, calibration=None, total_trials=None, suite=None):
     executable, output = Path(executable).resolve(), Path(output)
     output.mkdir(parents=True, exist_ok=True)
+    if append and (output / 'environment.json').exists():
+        previous = json.loads((output / 'environment.json').read_text(encoding='utf-8'))
+        if previous.get('scenario_contract') != 'delivery-v2':
+            raise ValueError('Cannot append current scenarios to a historical delivery inventory')
     calibration = calibration or calibrate_delivery(executable, output)
     profile = read_profile(executable)
     if not append or not (output / 'environment.json').exists():
@@ -226,22 +229,17 @@ def run_base(executable, output, trials=TRIALS, offset=0, append=False, calibrat
         for path, size in cases:
             persist('latency', measured_rows(executable, output, trial, backend, 'latency', path,
                                             size, calibration['latency'][str(size)]))
-        modes = [profile['api_path']] if backend == 'standard' else (
-            ['disabled', 'basic'] if profile['statistics'] == 'ON' else ['disabled'])
+        modes = ['disabled', 'basic'] if profile['statistics'] == 'ON' else ['disabled']
         cases = [(mode, domain) for mode in modes for domain in (
-            ['plain'] if backend == 'standard' else ['plain', 'heap'] if mode == profile['api_path'] else ['heap'])]
+            ['plain', 'heap'] if mode == profile['api_path'] else ['heap'])]
         rng.shuffle(cases)
         for mode, domain in cases:
             persist('footprint', measured_rows(executable, output, trial, backend, 'footprint', mode, domain))
         operations = ['owns', 'collect', 'reset']
         rng.shuffle(operations)
-        if backend != 'standard':
-            for operation in operations:
-                persist('heap', measured_rows(executable, output, trial, backend, 'heap', 'disabled',
-                                             operation, calibration['heap'][operation]))
-        else:
-            persist('heap', [], ['trial', 'backend', 'operation', 'operations', 'median_ns', 'min_ns', 'mean_ns',
-                                 'max_ns', 'samples_ns', 'seconds', 'short_interval'])
+        for operation in operations:
+            persist('heap', measured_rows(executable, output, trial, backend, 'heap', 'disabled',
+                                         operation, calibration['heap'][operation]))
         ordered_paths = list(paths)
         rng.shuffle(ordered_paths)
         for path in ordered_paths:

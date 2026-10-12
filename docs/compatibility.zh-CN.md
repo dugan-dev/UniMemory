@@ -6,7 +6,7 @@
 
 | 类型 | 规则 |
 | --- | --- |
-| Global | 库管理，静态析构期间仍有效；不可删除或显式析构 |
+| Global | 进程生命周期内唯一的单例；不可删除或显式析构。Owner、适配器及共享/弱引用控制块均绑定该对象。 |
 | Heap | Owner、Container、weak_ptr 控制块全部释放后，再 reset 或析构 |
 | Stack | Buffer 比 Memory 活得更久；先销毁受影响的 Owner、Container，再回退 |
 
@@ -40,7 +40,7 @@ reset、rewind 只回收存储，不调用 Object 析构。旧指针、仍存活
 
 ## 动态库
 
-同一程序使用同一配置时，纯头文件 inline Global 状态在各翻译单元共享。不要假定独立加载的 DLL/插件一定共用实例，身份取决于符号可见性与平台链接器。跨边界传递原 Memory/资源，保持其定义模块加载，并用原实例配对释放。
+同一程序使用同一配置时，各翻译单元共享 Global。独立加载的 DLL/插件之间须保留原 Memory/资源身份，不假定链接器一定合并 inline 状态。跨边界传递原 Memory/资源，保持其定义模块加载，并用原实例配对释放。
 跨动态库的 C++ Object、Container 还要求兼容的编译器、标准库及 Runtime ABI。
 
 使用 Memory、智能指针、Allocator 或 PMR 资源期间，定义模块和动态链接的 SDK 必须保持加载；UniMemory 不提供单独的共享库 ABI。
@@ -62,4 +62,7 @@ reset、rewind 只回收存储，不调用 Object 析构。旧指针、仍存活
 
 ## 后端扩展
 
-`Backend` 是 `Standard`、`Mimalloc`、`Jemalloc` 的封闭集合，一次 CMake 配置选择一种集成；不提供运行时注册或分配器插件 ABI。新增后端需要经过审查的源码修改、明确的依赖决策、能力映射以及接口和包测试。`std::pmr::memory_resource` 让消费者通过已有接口选择存储，不会注册新的 UniMemory 后端。
+CMake 在 Standard、mimalloc、jemalloc 中选择一种后端，一次 CMake 配置选择一种集成；不提供运行时注册或分配器插件 ABI。新增后端需要经过审查的源码修改、明确的依赖决策、能力映射以及接口和包测试。`std::pmr::memory_resource` 让消费者通过已有接口选择存储，不会注册新的 UniMemory 后端。
+
+
+调用 `set_statistics()` 或 `reset_statistics()` 前暂停该 Memory 的操作；启动工作线程前配置回收延迟。

@@ -6,7 +6,7 @@
 
 | Kind | Rule |
 | --- | --- |
-| Global | Library-managed; available during static destruction. Never delete or explicitly destroy it. |
+| Global | Unique process-lifetime singleton; never delete or explicitly destroy it. Owners, adapters and shared/weak control blocks remain bound to that object. |
 | Heap | Destroy Owners, Containers and weak_ptr control blocks before reset or destruction. |
 | Stack | Buffer outlives Memory. Destroy affected Owners and Containers before rewind/reset. |
 
@@ -22,7 +22,7 @@ Global and Heap allow concurrent allocation/free. Synchronize Object access sepa
 | Access | Synchronization |
 | --- | --- |
 | Different allocations through Global / Heap | Allocation/free may run concurrently |
-| Basic statistics snapshots | Atomic counters; fields may describe different instants |
+| Basic statistics snapshots | Coherent snapshot under this Memory's statistics lock |
 | Backend diagnostic statistics | Pause activity and thread cleanup in its Memory/Process scope, including native calls |
 | Same Object, OwnedBlock or Container | Caller coordinates readers and writers |
 | Separate shared_ptr / weak_ptr handles | Standard control-block synchronization; Object data is separate |
@@ -41,7 +41,7 @@ Reset/rewind reclaim storage without running Object destructors. Stale pointers,
 
 ## Dynamic libraries
 
-Header-only inline Global state is shared across translation units in one program using one profile. Do not rely on it being unified across independently loaded DLLs/plugins; identity depends on symbol visibility and the platform linker. Pass the original Memory/resource across that boundary, keep its defining module loaded, and preserve allocation pairing. Cross-library C++ Objects and Containers require compatible compiler, standard library and runtime ABIs.
+Global is shared across translation units in one program using one profile. Across independently loaded DLLs/plugins, preserve the original Memory/resource identity rather than assuming inline state is unified by the linker. Pass the original Memory/resource across that boundary, keep its defining module loaded, and preserve allocation pairing. Cross-library C++ Objects and Containers require compatible compiler, standard library and runtime ABIs.
 
 Keep the defining module and dynamically linked SDK loaded while its Memory instances, owners, Allocators or PMR resources are in use. UniMemory does not provide a separate shared-library ABI.
 
@@ -65,4 +65,7 @@ No long-term support or backport schedule is currently promised. Pin a source re
 
 ## Backend extension
 
-`Backend` is the closed set `Standard`, `Mimalloc`, and `Jemalloc`. One CMake profile selects one integration; there is no runtime registration or allocator plugin ABI. A new backend requires a reviewed source change, an explicit dependency decision, capability mappings and contract/package tests. `std::pmr::memory_resource` lets consumers select storage through the existing interface; it does not register another UniMemory backend.
+CMake selects Standard, mimalloc or jemalloc. One CMake profile selects one integration; there is no runtime registration or allocator plugin ABI. A new backend requires a reviewed source change, an explicit dependency decision, capability mappings and contract/package tests. `std::pmr::memory_resource` lets consumers select storage through the existing interface; it does not register another UniMemory backend.
+
+
+Pause Memory operations before calling `set_statistics()` or `reset_statistics()`. Configure the release delay before starting workers.

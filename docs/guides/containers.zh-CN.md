@@ -27,10 +27,11 @@
 ## 组合临时内存资源
 
 ```cpp
-#include <unimem/memory.h>
+#include <unimem/all.h>
+#include <vector>
 
 int main() {
-    unimem::Memory& memory = unimem::Memory::global();
+    unimem::Global& memory = unimem::Memory::global();
 
     // 在 UniMemory 之上组合标准 PMR 资源
     std::pmr::monotonic_buffer_resource pool(memory.resource());

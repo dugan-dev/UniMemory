@@ -27,19 +27,21 @@
 - **📦 标准容器**：通过 Allocator 和 PMR 接入标准库容器。
 - **🎯 对齐内存**：自定义对齐、清零分配与 Buffer 扩容。
 - **🗂️ 独立堆与栈式分配**：独立管理分配组，支持固定缓冲区的临时分配。
-- **📊 可选统计**：分配请求计数，以及可用的后端原生指标。
+- **📊 可选统计**：可选的分配次数、当前用量和峰值统计。
 - **🌐 跨平台**：支持 Windows、Linux、macOS。
+
+`Memory` 为抽象通用接口。`Memory::global()` 返回进程生命周期内唯一的 `Global&`，共享统计与 PMR 资源。`Heap`、`Stack` 可直接构造，也可通过 `Memory::heap()`、`Memory::stack()` 创建。
 
 ## 快速开始
 
 ### 基本用法
 
 ```cpp
-#include <unimem/memory.h>
+#include <unimem/all.h>
 
 int main() {
     // 获取本次构建所选后端的全局 Memory
-    unimem::Memory& memory = unimem::Memory::global();
+    unimem::Global& memory = unimem::Memory::global();
 
     // 普通分配与释放
     void* bytes = memory.allocate(1024);
@@ -153,22 +155,19 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### 堆
 
 ```cpp
-// 支持时创建堆
-if (unimem::capabilities().heap) {
-    unimem::Memory heap = unimem::Memory::heap();
+unimem::Heap heap;
 
-    // 检查归属并释放
-    void* bytes = heap.allocate(1024);
-    bool owned = heap.owns(bytes);
-    heap.deallocate(bytes, 1024);
+// 检查归属并释放
+void* bytes = heap.allocate(1024);
+bool owned = heap.owns(bytes);
+heap.deallocate(bytes, 1024);
 
-    // 回收时暂停该堆上的其他操作
-    heap.collect();
+// 回收时暂停该堆上的其他操作
+heap.collect();
 
-    // 先销毁已创建的对象；reset 只回收存储，原指针失效
-    void* batch = heap.allocate(1024);
-    heap.reset();
-}
+// 先销毁已创建的对象；reset 只回收存储，原指针失效
+void* batch = heap.allocate(1024);
+heap.reset();
 ```
 
 ### 栈
@@ -176,10 +175,10 @@ if (unimem::capabilities().heap) {
 ```cpp
 // 先声明缓冲区，再创建 scratch；仅供当前线程使用
 alignas(std::max_align_t) std::byte buffer[4096];
-unimem::Memory scratch = unimem::Memory::stack(buffer);
+unimem::Stack scratch(buffer);
 
 // 标记并分配
-unimem::Memory::Mark checkpoint = scratch.mark();
+unimem::Stack::Mark checkpoint = scratch.mark();
 void* bytes = scratch.allocate(128);
 
 // 若创建了对象，先 destroy；rewind 只回收存储，旧指针和标记失效
@@ -194,37 +193,25 @@ scratch.reset();
 
 ### 初始化与统计
 
+统计默认关闭；ON 构建支持为每个 Memory 独立开启、暂停与清零。
+
 ```cpp
 // 通过 UNIMEMORY_STATISTICS=ON 启用请求计数
-unimem::Memory& memory = unimem::Memory::global();
+unimem::Global& memory = unimem::Memory::global();
+memory.set_statistics(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
-
-// 查询请求次数与字节数；关闭计数时为空
-std::optional<unimem::MemoryStatistics> stats = memory.statistics();
-if (stats) {
-    std::uint64_t live = stats->live_bytes;
-    std::uint64_t peak = stats->peak_live_bytes;
-    std::uint64_t calls = stats->allocations;
-}
-
-// 原生统计字段可能不可用
-std::optional<unimem::BackendStatistics> details = memory.backend_statistics();
-if (details && details->committed_bytes) {
-    std::uint64_t committed = *details->committed_bytes;
-    unimem::BackendStatisticsScope scope = details->scope;
-}
+unimem::Statistics stats = memory.statistics();
+std::uint64_t live = stats.live_bytes;
+std::uint64_t peak = stats.peak_live_bytes;
+std::uint64_t calls = stats.allocations;
+block.resize(0);
+memory.reset_statistics();
 ```
 
 ### 运行时选项
 
 ```cpp
-const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
-
-// 正常分配前设置后端级选项
-if (unimem::supports(option)) {
-    // 将闲置页释放延迟设为 1000 毫秒
-    bool configured = unimem::set_runtime_option(option, 1000);
-}
+unimem::Memory::config(1000);
 ```
 
 ## 平台
@@ -245,13 +232,14 @@ if (unimem::supports(option)) {
 | 对象、容器、内存块 | ✔ | ✔ | ✔ |
 | 分配统计 | ✔ | ✔ | ✔ |
 | 独立堆 | — | ✔ | ✔ |
-| 原生统计范围 | — | 进程 | 进程 / 独立堆，取决于构建 |
 | 闲置内存释放延迟 | — | ✔ | ✔ |
 | 额外依赖 | 无 | SDK | SDK |
 
 Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。[配置指南](docs/guides/backends.zh-CN.md)
 
 ## 性能
+
+历史图表与数值保留原测量来源；尚未测量本次 Heap 和统计实现。
 
 Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-11。取 10 轮独立进程测量的算术平均值，单位 **ns/次，越小越快**。
 

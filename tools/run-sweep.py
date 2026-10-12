@@ -53,6 +53,11 @@ def run_sweep(executable, output, trials=TRIALS, offset=0, append=False, operati
     executable, output = Path(executable).resolve(), Path(output)
     profile = read_profile(executable)
     output.mkdir(parents=True, exist_ok=True)
+    manifest_path = output / 'sweep-environment.json'
+    if append and manifest_path.exists():
+        previous = json.loads(manifest_path.read_text(encoding='utf-8'))
+        if previous.get('scenario_contract') != 'allocation-v3':
+            raise ValueError('Cannot append current scenarios to a historical sweep inventory')
     if operations_file is None:
         counts = calibrate_sweep(executable, output)
         operations_file = output / 'sweep-operations.txt'
@@ -97,7 +102,7 @@ def run_sweep(executable, output, trials=TRIALS, offset=0, append=False, operati
                     source_revision=os.environ.get('GITHUB_SHA', 'unrecorded'),
                     run_id=os.environ.get('GITHUB_RUN_ID', 'unrecorded'),
                     run_url=f"https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/runs/{os.environ.get('GITHUB_RUN_ID', '')}",
-                    trials=total_trials or trials, scenarios_per_trial=len(keys),
+                    trials=total_trials or trials, scenarios_per_trial=len(keys), scenario_contract="allocation-v3",
                     affinity_pinned=suite['affinity']['pinned'] if suite else False,
                     sequential_processes=True, repetitions=1, measurement_protocol=PROTOCOL,
                     operations_file_sha256=hashlib.sha256(Path(operations_file).read_bytes()).hexdigest(),

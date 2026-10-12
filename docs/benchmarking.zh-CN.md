@@ -38,3 +38,5 @@ cmake --build build/bench --config Release
 本库还测量 C++ 对象、容器和上下文处理；Standard 使用 C++ 分配接口，与官方 glibc malloc 基线不同。进程级替换分配器测量的是原生行为，不是封装开销。没有分配器在所有场景下都最快。
 
 [数据与环境](results/current/README.md) · [验证](testing.zh-CN.md)
+
+新测量采用 `allocation-v3` 和 `delivery-v2` 场景契约，覆盖 Standard Heap。历史归档保留原场景、数值和来源日期，不代表当前 Heap 或统计实现的性能。原生分配器诊断使用私有构建标识，公共 Memory API 不提供后端查询。`api_lookup` 在每次分配/释放时获取同一个 Global 单例；`api_cached` 复用计时前取得的引用。

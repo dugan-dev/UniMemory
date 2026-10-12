@@ -1,5 +1,7 @@
 # Performance report
 
+Historical charts and values retain their original measurement provenance; the current Heap and statistics implementation have not been measured.
+
 [UniMemory](../README.md) · **English** · [简体中文](performance.zh-CN.md)
 
 ## Overview

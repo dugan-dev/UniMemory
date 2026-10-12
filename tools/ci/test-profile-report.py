@@ -34,8 +34,11 @@ for backend in report.BACKENDS:
                         "allocator_environment": {"core": "header-only", "selected_backend": backend, "selected_statistics": api}}
             (directory / "environment.json").write_text(json.dumps(manifest))
             expected = report.sweep_scenarios(profile)
-            assert len(expected) == ({"standard": 112, "mimalloc": 214, "jemalloc": 214}[backend]
-                                     if mode == "OFF" else {"standard": 112, "mimalloc": 311, "jemalloc": 311}[backend])
+            current = report.sweep_scenarios(profile, False, "allocation-v3")
+            assert len(current) == (212 if mode == "OFF" else 309)
+            assert any(case[0] == backend and case[6] == "yes" for case in current)
+            assert len(expected) == ({"standard": 112, "mimalloc": 212, "jemalloc": 212}[backend]
+                                     if mode == "OFF" else {"standard": 112, "mimalloc": 309, "jemalloc": 309}[backend])
             for name in ("latency", "scaling", "tails", "pressure", "footprint", "heap", "full"):
                 rows = report.read(directory / f"{name}.csv")
                 if name == "full":
@@ -53,7 +56,7 @@ for backend in report.BACKENDS:
                     measurement.write_rows(directory / f"{name}.csv", rows)
                 else:
                     (directory / f"{name}.csv").write_text("trial,backend,operation,operations,median_ns\n")
-            (directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": len(expected), "build_profile": profile}))
+            (directory / "sweep-environment.json").write_text(json.dumps({"scenarios_per_trial": len(expected), "build_profile": profile, "scenario_contract": "allocation-v2"}))
             report.validate(directory)
             for language in report.LANGUAGES:
                 output = directory / language

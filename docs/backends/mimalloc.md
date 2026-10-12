@@ -2,7 +2,7 @@
 
 [Index](../README.md) · **English** · [简体中文](mimalloc.zh-CN.md)
 
-Tested: **3.4.3**. UniMemory requires v3.4.3+ for its statistics API, matching headers/library, and `UNIMEMORY_BACKEND=mimalloc`. Newer releases are not automatically validated.
+Tested: **3.4.3**. UniMemory requires v3.4.3+ for its native Heap integration and matching headers/library, and `UNIMEMORY_BACKEND=mimalloc`. Newer releases are not automatically validated.
 
 | Native feature | Key functions | UniMemory decision |
 | --- | --- | --- |
@@ -10,9 +10,9 @@ Tested: **3.4.3**. UniMemory requires v3.4.3+ for its statistics API, matching h
 | Alignment | `mi_malloc_aligned`, `mi_realloc_aligned` | Uniform alignment parameter |
 | Zero initialization | `mi_zalloc`, `mi_rezalloc` | Uniform request-range zeroing; avoid native old-block preconditions |
 | Typed / constant-size helpers | Typed macros, `mi_malloc_csize`, `mi_free_csize` | C++ object templates; no promised constant-size fast path |
-| Independent heap | `mi_heap_new`, heap allocation, `mi_heap_destroy` | Memory::heap() in a mimalloc build |
-| Collect and membership | `mi_heap_collect`, `mi_heap_contains` | Heap collect/owns |
-| Detailed statistics | `mi_stats_get` | Process committed/reserved only; independent Heap details unavailable |
+| Independent heap | `mi_heap_new`, heap allocation, `mi_heap_destroy` | UniMemory Heap uses the native independent heap/arena, with exact owns and bulk reset |
+| Collect and membership | `mi_heap_collect`, `mi_heap_contains` | UniMemory Heap uses the native independent heap/arena, with exact owns and bulk reset |
+| Detailed statistics | `mi_stats_get` | Use native tools directly; UniMemory exposes request counters |
 | Runtime options | `mi_option_set`, `mi_option_get` | Advisory purge delay only |
 | Heap traversal | `mi_heap_visit_blocks` | Not exposed |
 | Large OS arenas / subprocesses | Reservation and isolation APIs | Not exposed; different scope from UniMemory Heap |
@@ -26,14 +26,13 @@ Windows/Linux final local checks are recorded in the [report](../testing.md). An
 In the pinned default Release build, `MI_STAT=0`: normal malloc counters are not
 recorded. Requested counters and huge-allocation release updates also do not
 consistently represent live bytes. Heap page accounting is recorded at subprocess
-scope. UniMemory therefore returns only Process committed/reserved metrics; a
-mimalloc Heap reports no native detailed-statistics capability. Use `UNIMEMORY_STATISTICS=ON` for exact Global request counters and optional Heap Basic counters.
+scope. These native metrics are available through backend tools directly; UniMemory exposes request counters only. Use `UNIMEMORY_STATISTICS=ON` for exact Global request counters and runtime Basic counters for Global, Heap and Stack.
 
 Verified against [build conditions](https://github.com/microsoft/mimalloc/blob/v3.4.3/include/mimalloc/types.h#L70),
 [allocation counters](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/alloc.c#L57),
 [release counters](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/free.c#L563)
 and [OS page accounting](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/os.c#L223).
-Unavailable fields remain empty optionals. The aggregate covers the calling
+The native aggregate covers the calling
 thread's current native subprocess, normally main, rather than all native
 subprocesses ([query implementation](https://github.com/microsoft/mimalloc/blob/v3.4.3/src/stats.c#L566)).
 

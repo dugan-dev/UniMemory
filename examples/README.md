@@ -21,4 +21,4 @@ Run an executable from the repository root:
 | Heap | `build/UniMemory-release/Release/UniMemoryExample_heap.exe` | `build/UniMemory-release/UniMemoryExample_heap` |
 | Stack | `build/UniMemory-release/Release/UniMemoryExample_scratch.exe` | `build/UniMemory-release/UniMemoryExample_scratch` |
 
-Heap uses the selected mimalloc or jemalloc backend and skips Standard, which has no independent Heap. Examples are optional and are not installed with the library.
+Heap uses the selected Standard, mimalloc, or jemalloc backend with an independent allocation group. Examples are optional and are not installed with the library.

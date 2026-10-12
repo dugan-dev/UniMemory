@@ -27,19 +27,21 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 - **📦 Standard Container**: Allocator and PMR adapters for existing C++ containers.
 - **🎯 Aligned memory**: Custom alignment, zero initialization and byte-buffer resizing.
 - **🗂️ Heap and Stack**: Independent allocation groups and temporary fixed-buffer storage.
-- **📊 Optional statistics**: Request counters and available native backend metrics.
+- **📊 Optional statistics**: Optional allocation counts, live bytes and peak usage.
 - **🌐 Cross-platform**: Supports Windows, Linux and macOS.
+
+`Memory` is the abstract common interface. `Memory::global()` returns the unique process-lifetime `Global&`; its statistics and PMR resource are shared. Construct `Heap` and `Stack` directly or use `Memory::heap()` and `Memory::stack()`.
 
 ## Quick Start
 
 ### Basic Usage
 
 ```cpp
-#include <unimem/memory.h>
+#include <unimem/all.h>
 
 int main() {
     // Get global memory for this build
-    unimem::Memory& memory = unimem::Memory::global();
+    unimem::Global& memory = unimem::Memory::global();
 
     // Allocate and free
     void* bytes = memory.allocate(1024);
@@ -153,22 +155,19 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### Heap
 
 ```cpp
-// Create a Heap when supported
-if (unimem::capabilities().heap) {
-    unimem::Memory heap = unimem::Memory::heap();
+unimem::Heap heap;
 
-    // Check membership and free
-    void* bytes = heap.allocate(1024);
-    bool owned = heap.owns(bytes);
-    heap.deallocate(bytes, 1024);
+// Check membership and free
+void* bytes = heap.allocate(1024);
+bool owned = heap.owns(bytes);
+heap.deallocate(bytes, 1024);
 
-    // Pause other operations on this heap while reclaiming memory
-    heap.collect();
+// Pause other operations on this heap while reclaiming memory
+heap.collect();
 
-    // Destroy constructed objects first; reset reclaims storage and invalidates pointers
-    void* batch = heap.allocate(1024);
-    heap.reset();
-}
+// Destroy constructed objects first; reset reclaims storage and invalidates pointers
+void* batch = heap.allocate(1024);
+heap.reset();
 ```
 
 ### Stack
@@ -176,10 +175,10 @@ if (unimem::capabilities().heap) {
 ```cpp
 // Declare the buffer before scratch; use it on this thread only
 alignas(std::max_align_t) std::byte buffer[4096];
-unimem::Memory scratch = unimem::Memory::stack(buffer);
+unimem::Stack scratch(buffer);
 
 // Mark and allocate
-unimem::Memory::Mark checkpoint = scratch.mark();
+unimem::Stack::Mark checkpoint = scratch.mark();
 void* bytes = scratch.allocate(128);
 
 // Destroy constructed objects first; rewind reclaims storage and invalidates later pointers and old marks
@@ -194,37 +193,25 @@ scratch.reset();
 
 ### Initialization and Statistics
 
+Statistics default to Disabled. ON builds permit runtime Basic; select statistics on first Global access or when constructing each Heap/Stack; use `set_statistics()` to change the shared Global mode. Existing instances retain their modes.
+
 ```cpp
 // Enable request counters with UNIMEMORY_STATISTICS=ON
-unimem::Memory& memory = unimem::Memory::global();
+unimem::Global& memory = unimem::Memory::global();
+memory.set_statistics(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
-
-// Query counts and bytes; empty when counters are off
-std::optional<unimem::MemoryStatistics> stats = memory.statistics();
-if (stats) {
-    std::uint64_t live = stats->live_bytes;
-    std::uint64_t peak = stats->peak_live_bytes;
-    std::uint64_t calls = stats->allocations;
-}
-
-// Native fields may be unavailable
-std::optional<unimem::BackendStatistics> details = memory.backend_statistics();
-if (details && details->committed_bytes) {
-    std::uint64_t committed = *details->committed_bytes;
-    unimem::BackendStatisticsScope scope = details->scope;
-}
+unimem::Statistics stats = memory.statistics();
+std::uint64_t live = stats.live_bytes;
+std::uint64_t peak = stats.peak_live_bytes;
+std::uint64_t calls = stats.allocations;
+block.resize(0);
+memory.reset_statistics();
 ```
 
 ### Runtime Options
 
 ```cpp
-const unimem::RuntimeOption option = unimem::RuntimeOption::UnusedPageReleaseDelayMs;
-
-// Set backend-wide options before normal allocations
-if (unimem::supports(option)) {
-    // Delay unused-page release by 1000 ms
-    bool configured = unimem::set_runtime_option(option, 1000);
-}
+unimem::Memory::config(1000);
 ```
 
 ## Platforms
@@ -244,14 +231,15 @@ if (unimem::supports(option)) {
 | --- | :---: | :---: | :---: |
 | Objects, containers, blocks | ✔ | ✔ | ✔ |
 | Allocation counters | ✔ | ✔ | ✔ |
-| Independent Heap | — | ✔ | ✔ |
-| Native statistics scope | — | Process | Process / Heap, build-dependent |
+| Independent Heap | ✔ | ✔ | ✔ |
 | Unused memory release delay | — | ✔ | ✔ |
 | Extra dependency | None | SDK | SDK |
 
 Standard needs no extra allocator dependency; mimalloc and jemalloc require their SDK. [Configuration guide](docs/guides/backends.md)
 
 ## Performance
+
+Historical charts and values retain their original measurement provenance; the current Heap and statistics implementation have not been measured.
 
 Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-11. Arithmetic mean of 10 fresh-process trials, **ns/operation; lower is faster.**
 

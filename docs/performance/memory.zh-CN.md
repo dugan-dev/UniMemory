@@ -136,7 +136,7 @@ collect() 回收符合后端策略的闲置资源，不销毁在用对象，也�
 | macOS | 80 | 32 | 8 |
 <!-- /performance-table -->
 
-类型大小来自当前构建环境；不含 Global 共享状态、Basic 计数或后端管理空间。Stack 创建不额外分配管理状态。
+类型大小来自记录的历史测量构建；不含 Global 共享状态、Basic 计数或后端管理空间。Stack 创建不额外分配管理状态。
 
 Linux 使用 smaps_rollup RSS，Windows 使用工作集，macOS 使用 resident size；OS 峰值计数与阶段快照不同。
 

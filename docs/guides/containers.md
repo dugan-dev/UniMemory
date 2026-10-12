@@ -27,10 +27,11 @@ Containers and third-party libraries without allocator injection retain their ow
 ## Compose a temporary resource
 
 ```cpp
-#include <unimem/memory.h>
+#include <unimem/all.h>
+#include <vector>
 
 int main() {
-    unimem::Memory& memory = unimem::Memory::global();
+    unimem::Global& memory = unimem::Memory::global();
 
     // Place a standard PMR resource above UniMemory
     std::pmr::monotonic_buffer_resource pool(memory.resource());

@@ -1,5 +1,7 @@
 # 性能报告
 
+历史图表与数值保留原测量来源；尚未测量本次 Heap 和统计实现。
+
 [UniMemory](../README.zh-CN.md) · [English](performance.md) · **简体中文**
 
 ## 概览

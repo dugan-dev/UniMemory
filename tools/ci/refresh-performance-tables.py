@@ -237,7 +237,7 @@ def sdk_tables(datasets, manifests):
         ]
         for backend in BACKENDS:
             data = datasets[platform, backend, "OFF"]
-            for heap in (("no",) if backend == "standard" else ("no", "yes")):
+            for heap in (("no",) if backend == "standard" and not any(row["heap"] == "yes" for row in data["footprint"]) else ("no", "yes")):
                 dimensions = dict(backend=backend, statistics="disabled", heap=heap)
                 footprint.append([label, BACKEND_LABELS[backend], "Heap" if heap == "yes" else "Global",
                                   *[formatted_delta(data['footprint'], field, **dimensions)

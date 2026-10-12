@@ -196,7 +196,7 @@ def smoke(executable, directory, affinity, backends=BACKENDS, statistics_mode=No
                 rows.extend(value)
     for b in (backend for backend in backends if backend != 'standard'):
         variants=['native_heap','api_heap','native_global','api_global']
-        if b=='jemalloc': variants+=['native_no_tcache','native_stats','api_stats','epoch_only','native_cached_stats']
+        if b=='jemalloc': variants+=['native_no_tcache','native_stats','epoch_only','native_cached_stats']
         for v in variants:
             value,_=execute(executable,specimen('backend',b,v),256,None,'smoke')
             rows.extend(value)
@@ -357,7 +357,7 @@ def main():
     backend_rows=[]
     for b in (backend for backend in backends if backend != 'standard'):
         variants=['native_heap','api_heap','native_global','api_global']
-        if b=='jemalloc': variants+=['native_no_tcache','native_stats','api_stats','epoch_only','native_cached_stats']
+        if b=='jemalloc': variants+=['native_no_tcache','native_stats','epoch_only','native_cached_stats']
         for trial in range(args.trials):
             shuffled=variants[:]; random.Random(7193+trial).shuffle(shuffled)
             for v in shuffled:

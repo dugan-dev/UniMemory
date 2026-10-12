@@ -13,3 +13,6 @@ indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.{h,hpp,hxx,c,cc,cpp,cxx,inl}]
+indent_size = 2

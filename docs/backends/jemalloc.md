@@ -9,20 +9,20 @@ Tested: **5.3.1** with explicit `je_` exports. Enable `UNIMEMORY_BACKEND=jemallo
 | Allocation / alignment / zeroing | `je_mallocx`, ALIGN/ZERO flags | Common byte APIs |
 | Resize | `je_rallocx`, `je_xallocx` | Reallocate contract; in-place xallocx not exposed |
 | Sizes / sized free | `je_sallocx`, `je_nallocx`, `je_sdallocx` | Not public; size parameter retained, current free uses dallocx |
-| Independent region | `arenas.create`, arena allocation/reset/destroy | Memory::heap() in a jemalloc build, per-group tcache disabled |
-| Membership / reclaim | `arenas.lookup`, arena purge | Heap owns/collect |
+| Independent region | `arenas.create`, arena allocation/reset/destroy | UniMemory Heap uses the native independent heap/arena, with exact owns and bulk reset |
+| Membership / reclaim | `arenas.lookup`, arena purge | Managed live-pointer membership; advisory reclamation on the SDK shared path |
 | Thread caches / extent hooks | tcache controls, extent callbacks | Not public |
 | Controls | `je_mallctl` and MIB variants | Uniform reclaim-delay defaults only |
 | Statistics | epoch refresh, stats controls | Optional allocated/resident metrics |
 | Sampling profiling | prof controls | Not public |
 
-Detailed statistics depend on the native statistics build. Query capabilities; every returned metric remains optional. Native snapshots may synchronize. Ordinary Memory uses the default shared `je_` path; only Memory::heap() creates an explicit region.
+Native statistics depend on the native statistics build and are queried directly with backend tools. Native snapshots may synchronize. Ordinary Memory uses the default shared `je_` path; Heap uses an independently managed native arena.
 
 An installed package retains its jemalloc dependency. If discovery or symbol validation fails, `find_package(UniMemory CONFIG QUIET)` returns `UniMemory_FOUND=FALSE` with `UniMemory_NOT_FOUND_MESSAGE` and does not import UniMemory or jemalloc targets. `find_package(... REQUIRED)` and explicitly enabling the source backend still fail configuration. Windows keeps distinct release/debug libraries, with Release as the fallback when no debug library is available.
 
 ## Initialization
 
-Global/Heap creation, capability queries and runtime-option changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and runtime-option changes report failure by exception; noexcept capability lookup reports no detailed statistics.
+Global/Heap creation and release-delay changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and release-delay changes report failure by exception.
 
 The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Thread requirements](../compatibility.md)
 

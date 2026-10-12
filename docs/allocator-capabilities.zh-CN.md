@@ -4,7 +4,7 @@
 
 后端配置见[平台与后端](guides/backends.zh-CN.md)。
 
-UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和可选调优接口**。`capabilities()` 查询 CMake 所选后端的可选功能；各分配器保留自己的物理行为。
+UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和可选调优接口**。可用功能取决于 CMake 所选后端；各分配器保留自己的物理行为。
 
 | 能力 | Standard C++ | mimalloc | jemalloc | UniMemory 接口 |
 | --- | --- | --- | --- | --- |
@@ -12,9 +12,9 @@ UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和�
 | 清零分配/扩容 | 手动分配、复制、清零 | `mi_zalloc`、`mi_rezalloc` | `MALLOCX_ZERO` | `allocate_zeroed`、`reallocate_zeroed` |
 | Object 与 Container | 标准分配器、PMR | C++ 包装与宏 | 可提供底层存储 | `create/destroy`、Smart Pointer、`Allocator<T>`、PMR |
 | 已知大小的释放 | sized delete | `mi_free_csize` | `sdallocx` | 释放接口保留大小，不承诺专用快速路径 |
-| 独立 Heap | 无对应统一接口 | heap | arena | `Memory::heap()`，仅支持 mimalloc / jemalloc |
-| 详细统计 | 无分配器内部指标 | 原生 Process 指标 | `mallctl`，Process / Heap 指标 | Basic 请求计数、可选原生指标与明确统计范围 |
-| 调参与回收 | 无对应控制接口 | 收集、运行时选项 | purge/decay、`mallctl` | 可选回收延迟、Heap 的 `collect()` |
+| 独立 Heap | 无对应统一接口 | heap | arena | `Memory::heap()`，所有后端均支持 |
+| 详细统计 | 无分配器内部指标 | 原生 Process 指标 | `mallctl`，Process / Heap 指标 | Basic 请求计数；原生指标使用后端工具 |
+| 调参与回收 | 无对应控制接口 | 收集、运行时选项 | purge/decay、`mallctl` | `Memory::config(release_delay_ms)`、Heap 的 `collect()` |
 | 临时栈式分配 | 调用方提供缓冲区 | 无对应语义 | 无对应语义 | `Memory::stack()` |
 | 分配画像与块遍历 | 无共同接口 | 原生专属功能 | 原生专属功能 | 0.0.1 不提供 |
 
@@ -23,7 +23,7 @@ UniMemory 统一**业务常用的分配、所有权、分配范围、诊断和�
 ```mermaid
 flowchart LR
     A[单个 Memory 的请求] --> B[CMake 所选后端]
-    C[可选详细统计/运行选项] --> D[按能力查询与作用范围解释]
+    C[请求统计/回收延迟] --> D[按 Memory 模式与所选 Backend 使用]
     E[Stack] --> F[调用方提供的固定缓冲区]
 ```
 
@@ -31,8 +31,8 @@ flowchart LR
 | --- | --- |
 | **请求字节** | 传给某个 `Memory` 的大小；不等于可用容量、已提交页或进程 RSS |
 | **Heap** | `Memory::heap()` 创建；动态增长，不保证连续或物理隔离 |
-| **mimalloc heap** | mimalloc 构建的独立 Heap 实现；`Memory::global()` 使用默认分配接口；OS arena 是另一层大型内存区域 |
-| **jemalloc arena** | jemalloc 构建的独立 Heap 实现；`Memory::global()` 使用共享路径 |
+| **mimalloc heap** | mimalloc 构建中 UniMemory Heap 使用的原生 SDK heap；OS arena 是另一层大型内存区域 |
+| **jemalloc arena** | 原生 SDK arena；Global 使用共享默认路径，UniMemory Heap 使用独立 arena |
 | **Stack Memory** | 固定缓冲区上的线性回退；不是线程调用栈，也不析构 C++ Object |
 
 ## 证据与版本

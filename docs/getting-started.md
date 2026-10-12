@@ -25,7 +25,7 @@ Expected output: `3, 1024 bytes`. [More examples](../examples/README.md)
 
 ## Add UniMemory to a project
 
-Follow the [project integration example](../README.md#integration). `UniMemory::UniMemory` is a header-only `INTERFACE` target that provides include paths, generated configuration, C++20 settings and the selected SDK link dependency. Include `<unimem/memory.h>` in your code.
+Follow the [project integration example](../README.md#integration). `UniMemory::UniMemory` is a header-only `INTERFACE` target that provides include paths, generated configuration, C++20 settings and the selected SDK link dependency. Include `<unimem/all.h>` in your code.
 
 ## Install the library
 
@@ -51,7 +51,7 @@ The README's `release` preset uses `build/UniMemory-release`. If you choose anot
 | Option | Default | Purpose |
 | --- | --- | --- |
 | `UNIMEMORY_BACKEND` | Required, no default | Exactly one of `standard`, `mimalloc`, `jemalloc` |
-| `UNIMEMORY_STATISTICS` | Required, no default | `ON`: Global Basic and Heap Basic support; `OFF`: Global Disabled, Heap Basic rejected |
+| `UNIMEMORY_STATISTICS` | Required, no default | `ON`: permits runtime Basic for all Memory kinds; `OFF`: rejects Basic configuration; default Disabled |
 | `UNIMEMORY_CHECKS` | `AUTO` | Checks in Debug, omitted in other configurations; `ON`/`OFF` override the policy |
 | `UNIMEMORY_AGGRESSIVE_INLINING` | ON | MSVC Release `/Ob3`; OFF preserves consumer inlining settings |
 | `UNIMEMORY_BUILD_EXAMPLES` | OFF | Build runnable examples |

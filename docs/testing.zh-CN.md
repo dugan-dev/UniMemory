@@ -2,7 +2,7 @@
 
 [文档](README.zh-CN.md) · [English](testing.md) · **简体中文**
 
-当前纯头文件库在 Windows、Linux、macOS 持续验证。每个源码修订的结果见[最新 Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)。
+CI 配置覆盖纯头文件库的 Windows、Linux、macOS 验证。每个源码修订的结果见[最新 Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)。
 
 | 范围 | 检查内容 |
 | --- | --- |

@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Buffer lifetime
 
-`Memory::stack(buffer)` allocates from an existing buffer and supports all common Memory APIs. The buffer must be writable, fixed-capacity and outlive Memory. Use one thread only. This is not the thread call stack.
+`Stack scratch(buffer);` (or `Memory::stack(buffer)`) allocates from an existing buffer and supports all common Memory APIs. Stack controls belong to `Stack`, including `Stack::Mark`. The buffer must be writable, fixed-capacity and outlive Memory. Use one thread only. This is not the thread call stack.
 
 ## Reuse storage
 
@@ -36,7 +36,7 @@ Rewinding an inner Mark also invalidates outer Marks. Saved Marks cannot be unwo
 | Shrink or free | Retains occupied Buffer space |
 | Failed resize | Preserves old pointer, bytes and offset |
 
-Stack has no Backend or native statistics. Use `used()` to inspect occupied bytes;
+Stack supports configured request counters and has no native statistics. Use `used()` to inspect occupied bytes;
 it includes padding and storage retained after individual releases.
 
 Next: [Containers](containers.md) · [API](../api-reference.md)

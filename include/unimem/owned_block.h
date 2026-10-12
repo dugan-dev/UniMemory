@@ -1,29 +1,33 @@
 #pragma once
 
-#include <unimem/common.h>
+#include <unimem/detail/members.h>
 
 #include <cstddef>
 
 namespace unimem {
 
+class Memory;
+
+// Owning byte storage with automatic release.
 class OwnedBlock final {
-public:
-    ~OwnedBlock();
-    OwnedBlock(const OwnedBlock&) = delete;
-    OwnedBlock& operator=(const OwnedBlock&) = delete;
-    OwnedBlock(OwnedBlock&& other) noexcept;
-    OwnedBlock& operator=(OwnedBlock&& other) noexcept;
+ public:
+  ~OwnedBlock();
+  OwnedBlock(OwnedBlock&& other) noexcept;
+  OwnedBlock& operator=(OwnedBlock&& other) noexcept;
 
-    void* data() const noexcept;
-    std::size_t size() const noexcept;
-    std::size_t alignment() const noexcept;
+  OwnedBlock(const OwnedBlock&) = delete;
+  OwnedBlock& operator=(const OwnedBlock&) = delete;
 
-    void resize(std::size_t new_bytes);
+  // Storage address, size and alignment.
+  void* data() const noexcept;
+  std::size_t size() const noexcept;
+  std::size_t alignment() const noexcept;
 
-private:
-#include <unimem/detail/owned_block_members.inl>
+  // Resize while preserving existing bytes.
+  void resize(std::size_t new_bytes);
+
+ private:
+  UNIM_IMPL_OWNED_BLOCK_MEMBERS
 };
 
-}
-
-#include <unimem/memory.h>
+}  // namespace unimem

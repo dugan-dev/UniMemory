@@ -4,7 +4,7 @@
 
 Examples: [Quick Start](../../README.md#quick-start).
 
-`UnusedPageReleaseDelayMs` adjusts how long unused memory may wait before returning to the OS. Allocators may cache freed storage for reuse. Check `supports(option)`, then call `set_runtime_option(option, value)` for the CMake-selected backend.
+`Memory::config(release_delay_ms)` adjusts how long unused memory may wait before returning to the OS for the CMake-selected backend. Allocators may cache freed storage for reuse.
 
 | Value | Request |
 | --- | --- |
@@ -13,6 +13,6 @@ Examples: [Quick Start](../../README.md#quick-start).
 | `-1` | Disable timed reclamation |
 | Below `-1` or outside the supported integer range | `std::invalid_argument` |
 
-Set options before creating workers and independent Heaps. They affect backend-wide policy/defaults, not one Memory. jemalloc applies the delay to defaults for newly created arenas; existing regions may be unaffected.
+Set options before creating workers and independent Heaps. They affect backend-wide policy/defaults, not one Memory. jemalloc updates existing initialized arenas and defaults for new arenas.
 
-With a valid value, an unsupported capability returns `false`; a backend rejection throws `std::runtime_error`. This never frees live objects or guarantees a deadline for reducing RSS. More frequent reclamation may reduce retained memory and increase allocation time; measure your workload.
+Standard accepts valid values as a no-op; a backend rejection throws `std::runtime_error`. This never frees live objects or guarantees a deadline for reducing RSS. More frequent reclamation may reduce retained memory and increase allocation time; measure your workload.

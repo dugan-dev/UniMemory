@@ -139,7 +139,6 @@ set_target_properties(UniMemory PROPERTIES
 set_property(TARGET UniMemory APPEND PROPERTY EXPORT_PROPERTIES UNIMEMORY_BACKEND UNIMEMORY_STATISTICS)
 install(FILES "${_unimemory_generated_include}/unimem/detail/config.inl" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem/detail)
 
-
 if(UNIMEMORY_WITH_MIMALLOC)
     find_package(mimalloc CONFIG REQUIRED)
     if(TARGET mimalloc)
@@ -188,7 +187,7 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
     endif()
     find_package(Threads REQUIRED)
     set(_unimemory_header_tests
-        tests/headers/common.cpp
+        tests/headers/types.cpp
         tests/headers/memory.cpp
         tests/headers/owned_block.cpp
         tests/headers/allocator.cpp
@@ -209,7 +208,7 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
     set_target_properties(UniMemoryGlobalSharedTests PROPERTIES CXX_EXTENSIONS OFF)
     add_test(NAME UniMemory.global_shared.lifetime COMMAND UniMemoryGlobalSharedTests lifetime)
     if(UNIMEMORY_STATISTICS)
-        add_test(NAME UniMemory.global_shared.stateless_shape COMMAND UniMemoryGlobalSharedTests stateless_shape)
+        add_test(NAME UniMemory.global_shared.binding_shape COMMAND UniMemoryGlobalSharedTests binding_shape)
     endif()
     add_executable(UniMemoryPmrLifetime
         tests/pmr_lifetime/main.cpp tests/pmr_lifetime/a.cpp tests/pmr_lifetime/b.cpp)
@@ -289,17 +288,21 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
         add_executable(UniMemoryJemallocInitialization tests/jemalloc_initialization.cpp)
         target_link_libraries(UniMemoryJemallocInitialization PRIVATE UniMemory::UniMemory Threads::Threads)
         set_target_properties(UniMemoryJemallocInitialization PROPERTIES CXX_EXTENSIONS OFF)
-        foreach(mode IN ITEMS shared global heap capabilities option mixed)
+        foreach(mode IN ITEMS shared global heap backend release_delay mixed release_policy)
             add_test(NAME "UniMemory.jemalloc.initialization_${mode}" COMMAND "${CMAKE_COMMAND}"
                 "-DPROGRAM=$<TARGET_FILE:UniMemoryJemallocInitialization>" "-DMODE=${mode}"
                 -P "${CMAKE_CURRENT_SOURCE_DIR}/tests/jemalloc_initialization.cmake")
             set_tests_properties("UniMemory.jemalloc.initialization_${mode}" PROPERTIES TIMEOUT 60)
         endforeach()
         add_test(NAME UniMemory.jemalloc.initialization_lifecycle
-            COMMAND UniMemoryJemallocInitialization mixed 16 16)
+            COMMAND UniMemoryJemallocInitialization mixed 64 16)
         set_tests_properties(UniMemory.jemalloc.initialization_lifecycle PROPERTIES TIMEOUT 60)
     endif()
     add_test(NAME UniMemory.memory COMMAND UniMemoryTests)
+    add_library(UniMemoryFactoryCompileRegression OBJECT
+        tests/headers/factory_statistics.cpp tests/headers/inheritance.cpp
+        tests/headers/global.cpp tests/headers/heap.cpp tests/headers/stack.cpp)
+    target_link_libraries(UniMemoryFactoryCompileRegression PRIVATE UniMemory::UniMemory)
     add_executable(UniMemoryUnifiedTests tests/unified_memory_tests.cpp)
     target_link_libraries(UniMemoryUnifiedTests PRIVATE UniMemory::UniMemory Threads::Threads)
     add_executable(UniMemoryInterfaceUsage tests/interface_usage_tests.cpp)
@@ -340,10 +343,6 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
     target_compile_features(UniMemoryConformance PRIVATE cxx_std_20)
     add_executable(UniMemoryHeapTests tests/heap_tests.cpp)
     target_link_libraries(UniMemoryHeapTests PRIVATE UniMemory::UniMemory Threads::Threads)
-    if(UNIMEMORY_BACKEND STREQUAL "standard")
-        add_test(NAME UniMemory.standard.arena_rejected
-            COMMAND UniMemoryHeapTests standard rejected)
-    endif()
     add_executable(UniMemoryProductionTests tests/production_tests.cpp)
     target_link_libraries(UniMemoryProductionTests PRIVATE UniMemory::UniMemory Threads::Threads)
     add_executable(UniMemoryExtendedStress tests/extended_stress.cpp)
@@ -382,24 +381,16 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
             set_tests_properties("UniMemory.${backend}.extended_${mode}"
                 PROPERTIES TIMEOUT 300 LABELS "stress;extended")
         endforeach()
-        set(UNIMEMORY_USAGE_KINDS global)
-        if(NOT backend STREQUAL "standard")
-            list(APPEND UNIMEMORY_USAGE_KINDS heap)
-        endif()
+        set(UNIMEMORY_USAGE_KINDS global heap)
         foreach(statistics IN ITEMS disabled basic)
             if(statistics STREQUAL "basic" AND NOT UNIMEMORY_STATISTICS)
                 continue()
             endif()
-            if(statistics STREQUAL _compiled_global_mode)
             foreach(seed RANGE 0 2)
                 add_test(NAME "UniMemory.${backend}.compiled_configuration_${statistics}_${seed}"
                     COMMAND UniMemoryInterfaceUsage "${backend}" global compiled-config "${seed}" 1024 "${statistics}")
             endforeach()
-            endif()
             foreach(kind IN LISTS UNIMEMORY_USAGE_KINDS)
-                if(kind STREQUAL "global" AND NOT statistics STREQUAL _compiled_global_mode)
-                    continue()
-                endif()
                 foreach(mode IN ITEMS owners objects allocators handoff)
                     add_test(NAME "UniMemory.${backend}.${kind}.usage_${statistics}_${mode}"
                         COMMAND UniMemoryInterfaceUsage "${backend}" "${kind}" "${mode}" 0 1024 "${statistics}")
@@ -411,7 +402,10 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
                 endforeach()
             endforeach()
         endforeach()
-        foreach(mode IN ITEMS ${_compiled_global_mode})
+        foreach(mode IN ITEMS disabled basic)
+            if(mode STREQUAL "basic" AND NOT UNIMEMORY_STATISTICS)
+                continue()
+            endif()
             add_test(NAME "UniMemory.${backend}.global_${mode}" COMMAND UniMemoryUnifiedTests "${backend}" "${mode}")
         endforeach()
         foreach(seed RANGE 0 63)
@@ -424,12 +418,10 @@ if(UNIMEMORY_BUILD_TESTS AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
             set_tests_properties("UniMemory.${backend}.production_${mode}" PROPERTIES TIMEOUT 300)
         endforeach()
         set_tests_properties("UniMemory.${backend}.production_soak" PROPERTIES LABELS "stress")
-        if(NOT backend STREQUAL "standard")
-            foreach(mode IN ITEMS reset collect owns containers threads lifetime)
+        foreach(mode IN ITEMS reset collect owns containers threads lifetime)
                 add_test(NAME "UniMemory.${backend}.arena_${mode}"
                     COMMAND UniMemoryHeapTests "${backend}" "${mode}")
-            endforeach()
-        endif()
+        endforeach()
         foreach(mode IN ITEMS smoke boundary stress)
             add_test(NAME "UniMemory.${backend}.${mode}"
                 COMMAND UniMemoryConformance "${mode}" "${backend}")
@@ -503,21 +495,25 @@ install(FILES
     include/unimem/allocator.h
     include/unimem/smart_ptr.h
     include/unimem/memory.h
+    include/unimem/global.h
+    include/unimem/heap.h
+    include/unimem/stack.h
+    include/unimem/all.h
     include/unimem/version.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem)
 install(FILES include/unimem/detail/memory.inl
-    include/unimem/detail/memory_members.inl
-    include/unimem/detail/owned_block_members.inl
-    include/unimem/detail/allocator.inl
-    include/unimem/detail/configuration.inl
-    include/unimem/detail/inline.h
+    include/unimem/detail/heap.inl
+    include/unimem/detail/stack.inl
+    include/unimem/detail/stack_mark.h
+    include/unimem/detail/members.h
+    include/unimem/detail/adapters.inl
+    include/unimem/detail/configuration.h
     include/unimem/detail/backend.h
     include/unimem/detail/backend_system.inl
     include/unimem/detail/backend_mimalloc.inl
     include/unimem/detail/backend_jemalloc.inl
-    include/unimem/detail/common.inl
     include/unimem/detail/memory_core.inl
-    include/unimem/detail/global_storage.inl
+    include/unimem/detail/global.inl
     include/unimem/detail/allocation.inl
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/unimem/detail)
 configure_package_config_file(cmake/UniMemoryConfig.cmake.in

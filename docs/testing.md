@@ -2,7 +2,7 @@
 
 [Documentation](README.md) · **English** · [简体中文](testing.zh-CN.md)
 
-The current header-only library is checked on Windows, Linux and macOS. See the [latest Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev) for each tested source revision.
+CI is configured to validate the header-only library on Windows, Linux and macOS. See the [latest Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev) for each tested source revision.
 
 | Area | Checks |
 | --- | --- |

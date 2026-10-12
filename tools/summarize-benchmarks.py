@@ -142,7 +142,7 @@ def summarize(root):
                                   'trial_max_ns': max(float(row['median_ns']) for row in matches)})
         memory = []
         for backend in BACKENDS:
-            for heap in ['no', 'yes'] if backend != 'standard' else ['no']:
+            for heap in ['no', 'yes'] if backend != 'standard' or any(row['backend'] == backend and row['heap'] == 'yes' for row in footprint) else ['no']:
                 matches = [row for row in footprint if row['backend'] == backend
                            and row['heap'] == heap and row['statistics'] == 'disabled']
                 entry = {'backend': backend, 'heap': heap}

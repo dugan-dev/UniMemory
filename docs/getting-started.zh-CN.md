@@ -25,7 +25,7 @@ git clone https://github.com/dugan-dev/UniMemory.git
 
 ## 接入项目
 
-按照[项目集成示例](../README.zh-CN.md#项目集成)。`UniMemory::UniMemory` 是纯头文件 `INTERFACE` 目标，传递头文件路径、生成配置、C++20 设置与所选 SDK 链接依赖。代码中包含 `<unimem/memory.h>` 即可。
+按照[项目集成示例](../README.zh-CN.md#项目集成)。`UniMemory::UniMemory` 是纯头文件 `INTERFACE` 目标，传递头文件路径、生成配置、C++20 设置与所选 SDK 链接依赖。代码中包含 `<unimem/all.h>` 即可。
 
 ## 安装库
 
@@ -51,7 +51,7 @@ README 的 `release` 预设使用 `build/UniMemory-release`。若通过 `cmake -
 | 选项 | 默认 | 用途 |
 | --- | --- | --- |
 | `UNIMEMORY_BACKEND` | 必填，无默认值 | `standard`、`mimalloc`、`jemalloc` 三选一 |
-| `UNIMEMORY_STATISTICS` | 必填，无默认值 | `ON`：Global Basic，支持 Heap Basic；`OFF`：Global Disabled，拒绝 Heap Basic |
+| `UNIMEMORY_STATISTICS` | 必填，无默认值 | `ON`：允许所有 Memory 模式运行时开启 Basic；`OFF`：拒绝 Basic 配置；默认 Disabled |
 | `UNIMEMORY_CHECKS` | `AUTO` | Debug 开启检查，其他配置省略；可用 `ON`/`OFF` 覆盖策略 |
 | `UNIMEMORY_AGGRESSIVE_INLINING` | ON | MSVC Release 使用 `/Ob3`；OFF 保留使用方自己的内联选项 |
 | `UNIMEMORY_BUILD_EXAMPLES` | OFF | 构建可运行示例 |

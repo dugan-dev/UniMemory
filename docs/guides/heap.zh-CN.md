@@ -6,7 +6,7 @@
 
 ## 范围与生命周期
 
-`Memory::heap()` 使用 CMake 所选后端创建独立分配组，按需增长，各次分配不保证连续。支持全部通用 Memory 接口；先用 `capabilities().heap` 查询支持情况。Standard 不支持。Heap 统计默认 Disabled；`Memory::heap(StatisticsMode::Basic)` 仅在 `UNIMEMORY_STATISTICS=ON` 时可用，OFF 构建抛 `std::invalid_argument`。
+`Heap heap;`（或 `Memory::heap()`）使用 CMake 所选后端创建独立分配组，所有后端均支持全部通用接口及 owns、reset、collect。构造函数选择实例统计模式，默认 Disabled。管理接口属于 `Heap`，通用接口也可通过 `Memory&` 使用。
 
 ## 成员操作
 
@@ -15,8 +15,7 @@
 | `reset()` | 整体释放，Basic 统计重新开始；失败保留原分配 |
 | `collect()` | 回收闲置内存，保留在用分配 |
 | `owns(ptr)` | 检查有效分配是否属于当前堆 |
-| `statistics()` | 当前堆的可选请求计数 |
-| `backend_statistics()` | 可选原生指标；jemalloc 需开启 `config.stats` |
+| `statistics()` | 当前堆的五字段请求计数值 |
 
 ## 使用约定
 
@@ -33,3 +32,5 @@ flowchart LR
 ```
 
 [栈](stack.zh-CN.md) · [统计](statistics.zh-CN.md) · [生命周期与线程](../compatibility.zh-CN.md)
+
+Heap 自己持有后端状态：mimalloc 原生堆、jemalloc 独立 arena，或 Default 分配组；不承诺物理页隔离。
