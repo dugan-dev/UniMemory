@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      performance_only:
+        description: 'Run all performance measurements and diagnosis after verified correctness'
+        type: boolean
+        default: false
       correctness_recovery:
         description: 'Rerun only failed or missing correctness checks from the audited baseline'
         type: boolean
@@ -31,8 +35,11 @@ permissions:
   actions: read
 concurrency:
   group: performance-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
+  verified-performance:
+    if: ${{ inputs.performance_only == true }}
+    uses: ./.github/workflows/performance-after-validation.yml
   recover-correctness:
     if: ${{ inputs.correctness_recovery == true }}
     uses: ./.github/workflows/correctness-recovery.yml
@@ -67,7 +74,7 @@ jobs:
           print('Source/configuration measurement required:', relevant)
           PY
   report-tests:
-    if: ${{ inputs.correctness_recovery != true }}
+    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true }}
     needs: changes
     runs-on: windows-2022
     steps:
@@ -84,7 +91,7 @@ jobs:
       - shell: bash
         run: python3 tools/ci/validate-published.py
   windows:
-    if: ${{ inputs.correctness_recovery != true }}
+    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -107,7 +114,7 @@ jobs:
       runner: windows-2022
       platform: windows-x64
   linux:
-    if: ${{ inputs.correctness_recovery != true }}
+    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -130,7 +137,7 @@ jobs:
       runner: ubuntu-24.04
       platform: linux-x64
   macos:
-    if: ${{ inputs.correctness_recovery != true }}
+    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -181,7 +188,7 @@ jobs:
   acceptance:
     name: performance acceptance
     needs: [changes, report-tests, windows, linux, macos, measure-windows, measure-linux, measure-macos, diagnosis-windows, diagnosis-linux, diagnosis-macos, overview]
-    if: ${{ always() && inputs.correctness_recovery != true }}
+    if: ${{ always() && inputs.correctness_recovery != true && inputs.performance_only != true }}
     runs-on: windows-2022
     steps:
       - shell: bash
