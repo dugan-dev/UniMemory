@@ -20,6 +20,7 @@
       "release_flags": "-O3 -DNDEBUG",
       "debug_flags": "-g",
       "ipo": "",
+      "release_ipo": "ON",
       "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
       "compile_options": "",
       "sdk_target": "unimemory_jemalloc",
@@ -30,33 +31,34 @@
     "sdk_binaries": {
       "sdk_binary": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "b6cb786f4d69d62ee179028a05e1cb91e288c370b1f1c857b194623a1603097c"
+        "sha256": "f1056c84b774446fbffe7bf64fed22c5e7b22964d2f508b0c817c3306c41ffaa"
       },
       "sdk_linker_file": {
         "path": "<runner>/work/UniMemory/UniMemory/build/prefix/lib/libjemalloc.dylib",
-        "sha256": "b6cb786f4d69d62ee179028a05e1cb91e288c370b1f1c857b194623a1603097c"
+        "sha256": "f1056c84b774446fbffe7bf64fed22c5e7b22964d2f508b0c817c3306c41ffaa"
       }
     },
     "runtime_dlls": {},
     "sdk_runtime_files": {},
-    "cmake_cache_sha256": "319165a32c3072aa20a327a5c20992f0276ee5696717b869747a8c4b7a77e2cc",
+    "cmake_cache_sha256": "c3bc8ff0982cd68d07e69af5be9c3e3e652a32ae0b3bb0758c6569f212c67157",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 3,
-  "source_revision": "8365472eea66997cde5163182aef82d3b94dcc48",
-  "run_id": "38167739252",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167739252",
+  "source_revision": "c917e8173a8b938fa60119a2b534f827e37e42ec",
+  "run_id": "38415666741",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38415666741",
   "trials": 10,
-  "scenarios_per_trial": 311,
+  "scenarios_per_trial": 309,
+  "scenario_contract": "allocation-v3",
   "affinity_pinned": false,
   "sequential_processes": true,
   "repetitions": 1,
   "measurement_protocol": "native-api-sustained-v4",
-  "operations_file_sha256": "6f996ed8b982b41d05d6451dbed54678e45a4c3f7d8b578957c3ca121ed6028e",
-  "measured_at_utc": "2026-10-11T23:01:14.618271+00:00",
-  "executable_sha256": "a10884372d86fb2a88f9c9fa62a7be2b4158c5ce9a3b48a01b25a36955a8c2c1",
-  "benchmark_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+  "operations_file_sha256": "bea772b16ae56ccb9d9e6b95470c755dc7130da59155ef18fd05afbc19db5970",
+  "measured_at_utc": "2026-10-13T19:00:10.726741+00:00",
+  "executable_sha256": "f2d7520782b9a951e86b37c6c1d4f61574f43de27c2c8ae0da36c0cf0c92c109",
+  "benchmark_source_sha256": "a849bd75a48522c6111384b2c8d517a0126f6224aa968bf55a5bf96f8cc7904f",
   "source_hash_line_endings": "LF",
-  "full_calibration_sha256": "9e4cc9e745ab98f2733a08dbdc2bf37fe60a554e59015d23ff0eb7b441c87f99"
+  "full_calibration_sha256": "bc3a59e05651169b664c0cc12c6f8a03707417677db41016c5440fa37a928475"
 }
