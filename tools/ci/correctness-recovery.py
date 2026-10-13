@@ -91,14 +91,43 @@ def command(*args):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--baseline-run", required=True, type=int)
-    parser.add_argument("--baseline-sha", required=True)
+    parser.add_argument("--baseline-run", type=int)
+    parser.add_argument("--verify-fixtures-run", type=int)
+    parser.add_argument("--baseline-sha")
     parser.add_argument("--allow-source-changes", action="store_true")
     parser.add_argument("--analysis-retry", action="store_true")
     parser.add_argument("--previous-recovery-run", type=int, default=38332523441)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     repository = os.environ["GITHUB_REPOSITORY"]
+    if args.verify_fixtures_run:
+        run = json.loads(command("gh", "api", f"repos/{repository}/actions/runs/{args.verify_fixtures_run}"))
+        pages = json.loads(command("gh", "api", "--paginate", "--slurp",
+                                  f"repos/{repository}/actions/runs/{args.verify_fixtures_run}/jobs?filter=latest&per_page=100"))
+        jobs = [job for page in pages for job in page["jobs"]]
+        if (run["head_repository"]["full_name"] != repository or run["status"] != "completed" or
+                run["event"] != "workflow_dispatch" or run["path"].split("@", 1)[0] != ".github/workflows/performance.yml"):
+            raise RuntimeError("Untrusted fixture evidence")
+        head = command("git", "rev-parse", "HEAD")
+        subprocess.run(["git", "merge-base", "--is-ancestor", run["head_sha"], head], check=True)
+        changes = command("git", "diff", "--name-only", run["head_sha"], head).splitlines()
+        if any(not evidence_only(path) or path.startswith("tests/headers/") for path in changes):
+            raise RuntimeError("Library or header fixtures changed since their verified run")
+        prefixes = ("recover-correctness / changed header fixtures / ",
+                    "recover-correctness / missing standard analysis and coverage / stats=")
+        matches = [job for job in jobs if job["name"].startswith(prefixes)]
+        if len(matches) != 6 or any(job["status"] != "completed" or job["conclusion"] != "success" for job in matches):
+            raise RuntimeError("Six required header/analysis jobs did not all pass")
+        evidence = {"run_id": run["id"], "source_revision": run["head_sha"], "jobs":
+                    [{"id": job["id"], "name": job["name"]} for job in matches]}
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+            output.write("verified=true\n")
+        print(json.dumps(evidence, indent=2))
+        return
+    if not args.baseline_run or not args.baseline_sha:
+        parser.error("--baseline-run and --baseline-sha are required for baseline verification")
     run = json.loads(command("gh", "api", f"repos/{repository}/actions/runs/{args.baseline_run}"))
     pages = json.loads(command("gh", "api", "--paginate", "--slurp",
                               f"repos/{repository}/actions/runs/{args.baseline_run}/jobs?filter=latest&per_page=100"))

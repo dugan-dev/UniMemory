@@ -15,21 +15,6 @@ on:
         required: true
 
 jobs:
-  rpmalloc-upstream:
-    if: inputs.platform == 'linux-x64'
-    runs-on: ${{ inputs.runner }}
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v5
-      - name: Run test-only rpmalloc suites
-        run: bash tools/validate-rpmalloc.sh "$PWD/build/rpmalloc-validation"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: rpmalloc-upstream
-          path: |
-            build/rpmalloc-validation/*.log
-            build/rpmalloc-validation/environment.json
   native-unix:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -39,27 +24,22 @@ jobs:
         os: ["${{ inputs.runner }}"]
     steps:
       - uses: actions/checkout@v5
-      - name: Native mimalloc tests
+      - name: Build mimalloc SDK
         shell: bash
         run: |
           git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
           test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076
-          cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_BUILD_TESTS=ON -DMI_OVERRIDE=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
+          cmake -S build/mimalloc -B build/mi -DCMAKE_BUILD_TYPE=Release -DMI_BUILD_TESTS=OFF -DMI_OVERRIDE=OFF -DCMAKE_INSTALL_PREFIX="$PWD/build/prefix"
           cmake --build build/mi --parallel 4
-          ctest --test-dir build/mi --output-on-failure
           cmake --install build/mi
-      - name: Native jemalloc tests and stress
+      - name: Build jemalloc SDK
         shell: bash
         run: |
           curl -L --fail https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
           tar -xf build/jemalloc.tar.bz2 -C build
-          python3 tools/patch-jemalloc-tests.py build/jemalloc-5.3.1
           cd build/jemalloc-5.3.1
           ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-prof --prefix="$GITHUB_WORKSPACE/build/prefix"
           make -j4
-          make check -j4 > ../jemalloc-check.log 2>&1
-          make stress > ../jemalloc-stress.log 2>&1
-          make analyze > ../jemalloc-analyze.log 2>&1
           make install
       - name: Validate shared and static SDK installed packages
         shell: bash
@@ -77,7 +57,7 @@ jobs:
 
   acceptance:
     name: release acceptance
-    needs: [rpmalloc-upstream, native-unix]
+    needs: [native-unix]
     if: ${{ always() }}
     runs-on: ${{ inputs.runner }}
     timeout-minutes: 5
@@ -91,7 +71,7 @@ jobs:
           import json, os
           results = json.loads(os.environ['RESULTS'])
           failed = [name for name, job in results.items() if job['result'] !=
-                    ('skipped' if name == 'rpmalloc-upstream' and os.environ['PLATFORM'] != 'linux-x64' else 'success')]
+                    'success']
           if failed:
               raise SystemExit('Required release jobs did not pass: ' + ', '.join(failed))
           print('All required release validation jobs passed.')

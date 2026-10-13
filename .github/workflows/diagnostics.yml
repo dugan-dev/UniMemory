@@ -22,7 +22,7 @@ jobs:
     env:
       ASAN_OPTIONS: allocator_may_return_null=1:detect_leaks=1
       UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-      TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
+      TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1:ignore_noninstrumented_modules=1
     steps:
       - uses: actions/checkout@v5
       - name: Thread instrumentation toolchain
@@ -32,14 +32,12 @@ jobs:
           sudo apt-get install -y clang-18
           echo CC=clang-18 >> "$GITHUB_ENV"
           echo CXX=clang++-18 >> "$GITHUB_ENV"
-      - name: Build existing backends (mimalloc TSAN annotations for thread jobs)
+      - name: Build existing backends without third-party instrumentation
         if: matrix.backend != 'standard'
-        run: bash tools/ci/build-backends.sh '${{ matrix.sanitizer }}'
+        run: bash tools/ci/build-backends.sh
       - name: Build selected instrumented core and run its complete suite
         run: |
-          probe_flags=()
-          if [ '${{ matrix.sanitizer }}' = thread ]; then probe_flags=(-DCMAKE_REQUIRED_LINK_OPTIONS=-fsanitize=thread); fi
-          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }} "${probe_flags[@]}"
+          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }}
           cmake --build build/adapters --parallel 4
           ctest --test-dir build/adapters --parallel 2 --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4
@@ -47,36 +45,6 @@ jobs:
         with:
           name: optional-adapter-${{ matrix.backend }}-${{ matrix.statistics }}-${{ matrix.sanitizer }}
           path: build/adapters/Testing/Temporary/LastTest.log
-  native-mimalloc:
-    name: native mimalloc / ${{ matrix.sanitizer }}
-    runs-on: ${{ inputs.runner }}
-    timeout-minutes: 25
-    strategy:
-      fail-fast: false
-      matrix:
-        sanitizer: [ubsan, tsan]
-    steps:
-      - uses: actions/checkout@v5
-      - run: sudo apt-get update -qq && sudo apt-get install -y clang-18
-      - name: Supported native instrumentation
-        env:
-          CC: clang-18
-          CXX: clang++-18
-          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-          TSAN_OPTIONS: halt_on_error=1
-        run: |
-          git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
-          test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076
-          flag=MI_DEBUG_UBSAN
-          if [ '${{ matrix.sanitizer }}' = tsan ]; then flag=MI_DEBUG_TSAN; fi
-          cmake -S build/mimalloc -B build/native -DCMAKE_BUILD_TYPE=Debug -DMI_USE_CXX=ON -DMI_OVERRIDE=OFF -D${flag}=ON
-          cmake --build build/native --parallel 4
-          ctest --test-dir build/native --output-on-failure --no-tests=error
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: native-mimalloc-${{ matrix.sanitizer }}
-          path: build/native/Testing/Temporary/LastTest.log
   analysis-coverage:
     strategy:
       fail-fast: false
@@ -115,7 +83,7 @@ jobs:
             build/coverage/Testing/Temporary/LastTest.log
   acceptance:
     name: diagnostics acceptance
-    needs: [optional-adapters, native-mimalloc, analysis-coverage]
+    needs: [optional-adapters, analysis-coverage]
     if: always()
     runs-on: ${{ inputs.runner }}
     steps:

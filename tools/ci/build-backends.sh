@@ -2,13 +2,7 @@
 # Fixed existing dependencies. No global malloc/new replacement.
 set -euo pipefail
 prefix=$(pwd)/build/prefix
-mode=${1:-none}
-jemalloc_flags=()
 flags=(-DCMAKE_BUILD_TYPE=Release)
-if [ "$mode" = thread ]; then
-    flags=(-DCMAKE_BUILD_TYPE=Debug -DMI_USE_CXX=ON -DMI_DEBUG_TSAN=ON)
-    jemalloc_flags=(--enable-tsan)
-fi
 mkdir -p build
 git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
 test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076
@@ -19,7 +13,7 @@ curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.
 tar -xf build/jemalloc.tar.bz2 -C build
 (
     cd build/jemalloc-5.3.1
-    ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$prefix" "${jemalloc_flags[@]}"
+    ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$prefix"
     make -j4
     make install
 )

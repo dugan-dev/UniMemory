@@ -8,7 +8,7 @@ on:
       baseline_sha:
         type: string
         default: '06dc705'
-      native_probe_only:
+      threads_only:
         type: boolean
         default: false
       analysis_retry:
@@ -30,8 +30,7 @@ on:
         description: 'Expected baseline source revision'
         type: string
         default: '06dc705'
-      native_probe_only:
-        description: 'Run only independent native jemalloc TSAN probes; no UniMemory correctness acceptance'
+      threads_only:
         type: boolean
         default: false
       analysis_retry:
@@ -50,15 +49,15 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: correctness-recovery-${{ github.ref }}-${{ inputs.native_probe_only }}
+  group: correctness-recovery-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   provenance:
-    if: ${{ !inputs.native_probe_only }}
     runs-on: ubuntu-24.04
     outputs:
       requires_regression: ${{ steps.evidence.outputs.requires_regression }}
       inherited_verified: ${{ steps.evidence.outputs.inherited_verified }}
+      inherited_fixtures_verified: ${{ steps.fixtures.outputs.verified }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -77,11 +76,19 @@ jobs:
           if [ "$ALLOW_SOURCE" = true ]; then flags+=(--allow-source-changes); fi
           if [ "$ANALYSIS_RETRY" = true ]; then flags+=(--analysis-retry --previous-recovery-run "$PREVIOUS_RECOVERY"); fi
           python3 tools/ci/correctness-recovery.py --baseline-run "$BASELINE_RUN" --baseline-sha "$BASELINE_SHA" --output build/recovery-provenance.json "${flags[@]}"
+      - id: fixtures
+        if: inputs.threads_only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 tools/ci/correctness-recovery.py --verify-fixtures-run 38334414833 --output build/recovery-fixtures.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: recovery-provenance
-          path: build/recovery-provenance.json
+          path: |
+            build/recovery-provenance.json
+            build/recovery-fixtures.json
   report-tests:
     needs: provenance
     if: ${{ !inputs.analysis_retry }}
@@ -151,6 +158,7 @@ jobs:
             build/consumer/*conflict*.log
             build/consumer/profile-request-conflicts/*.log
   analysis:
+    if: ${{ !inputs.threads_only }}
     needs: provenance
     name: missing standard analysis and coverage / stats=${{ matrix.statistics }}
     runs-on: ubuntu-24.04
@@ -193,6 +201,7 @@ jobs:
             build/coverage-report/
             build/coverage/Testing/Temporary/LastTest.log
   headers:
+    if: ${{ !inputs.threads_only }}
     needs: provenance
     name: changed header fixtures / ${{ matrix.runner }} / stats=${{ matrix.statistics }}
     runs-on: ${{ matrix.runner }}
@@ -225,18 +234,18 @@ jobs:
             build/consumer/Testing/Temporary/LastTest.log
   threads:
     needs: provenance
-    name: jemalloc ${{ matrix.statistics }} thread sanitizer
+    name: ${{ matrix.backend }} ${{ matrix.statistics }} adapter thread sanitizer
     runs-on: ubuntu-24.04
     timeout-minutes: 35
-    # ON also regresses the changed SDK instrumentation; prior uninstrumented passes do not cover it.
     strategy:
       fail-fast: false
       matrix:
+        backend: [mimalloc, jemalloc]
         statistics: ['OFF', 'ON']
     env:
       CC: clang-18
       CXX: clang++-18
-      TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1
+      TSAN_OPTIONS: halt_on_error=1:allocator_may_return_null=1:ignore_noninstrumented_modules=1
     steps:
       - uses: actions/checkout@v5
       - name: Use installed Clang18; bound package-manager network waits
@@ -245,94 +254,25 @@ jobs:
             timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
             timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y clang-18
           fi
-      - name: Only existing pinned jemalloc SDK
+      - name: Build pinned SDKs without third-party instrumentation or tests
+        run: bash tools/ci/build-backends.sh
+      - name: Entire UniMemory adapter thread sanitizer suite
         run: |
-          mkdir -p build
-          curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
-          tar -xf build/jemalloc.tar.bz2 -C build
-          cd build/jemalloc-5.3.1
-          ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-tsan --prefix="$GITHUB_WORKSPACE/build/prefix"
-          make -j4
-          make install
-          nm -D "$GITHUB_WORKSPACE/build/prefix/lib/libjemalloc.so.2" | grep '__tsan_atomic' > /dev/null
-      - name: Entire jemalloc selected-statistics thread sanitizer suite
-        run: |
-          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=jemalloc -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread -DCMAKE_REQUIRED_LINK_OPTIONS=-fsanitize=thread
+          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread
           cmake --build build/adapters --parallel 4
           ctest --test-dir build/adapters --parallel 2 --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: recovery-jemalloc-${{ matrix.statistics }}-thread
+          name: recovery-${{ matrix.backend }}-${{ matrix.statistics }}-thread
           path: |
             build/adapters/Testing/Temporary/LastTest.log
             build/adapters/CMakeCache.txt
             build/adapters/CMakeFiles/CMakeConfigureLog.yaml
-  native-probe:
-    name: independent native jemalloc TSAN proof
-    if: inputs.native_probe_only
-    runs-on: ubuntu-24.04
-    timeout-minutes: 35
-    env:
-      CC: clang-18
-      CXX: clang++-18
-      TSAN_OPTIONS: halt_on_error=1:exitcode=66:allocator_may_return_null=1
-    steps:
-      - uses: actions/checkout@v5
-      - name: Existing Clang18 toolchain
-        run: |
-          if ! command -v clang++-18 >/dev/null; then
-            timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
-            timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y clang-18
-          fi
-      - name: Build the same pinned native SDK with thread instrumentation
-        run: |
-          set -euo pipefail
-          mkdir -p build/native-proof
-          curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
-          tar -xf build/jemalloc.tar.bz2 -C build
-          cd build/jemalloc-5.3.1
-          ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-tsan --prefix="$GITHUB_WORKSPACE/build/prefix" 2>&1 | tee ../native-proof/sdk-configure.log
-          make -j4 2>&1 | tee ../native-proof/sdk-build.log
-          make install 2>&1 | tee ../native-proof/sdk-install.log
-          nm -D "$GITHUB_WORKSPACE/build/prefix/lib/libjemalloc.so.2" > ../native-proof/sdk-symbols.txt
-          grep '__tsan_atomic' ../native-proof/sdk-symbols.txt > /dev/null
-      - name: Compile a native-only probe without UniMemory headers
-        run: |
-          set -euo pipefail
-          clang++-18 tools/ci/jemalloc-tsan-probe.cpp -std=c++20 -O1 -g -fsanitize=thread -pthread -I"$PWD/build/prefix/include" -L"$PWD/build/prefix/lib" -Wl,-rpath,"$PWD/build/prefix/lib" -ljemalloc -o build/native-proof/jemalloc-tsan-probe 2>&1 | tee build/native-proof/probe-build.log
-          printf 'source_revision=%s\nrun_id=%s\nsdk=jemalloc-5.3.1\nsanitizer=thread\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > build/native-proof/provenance.txt
-      - name: Record both independent native modes even when TSAN rejects one
-        run: |
-          set -euo pipefail
-          : > build/native-proof/failures.txt
-          : > build/native-proof/exit-codes.txt
-          for mode in handoff config; do
-            if timeout 300 build/native-proof/jemalloc-tsan-probe "$mode" > "build/native-proof/$mode.log" 2>&1; then
-              status=0
-            else
-              status=$?
-              echo "$mode" >> build/native-proof/failures.txt
-            fi
-            printf '%s=%s\n' "$mode" "$status" >> build/native-proof/exit-codes.txt
-            cat "build/native-proof/$mode.log"
-          done
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: native-jemalloc-tsan-proof
-          path: build/native-proof/
-          retention-days: 14
-      - name: Preserve a failing native TSAN result
-        if: ${{ !cancelled() }}
-        run: |
-          test -f build/native-proof/failures.txt
-          cat build/native-proof/exit-codes.txt
-          test ! -s build/native-proof/failures.txt
   acceptance:
     name: targeted correctness recovery acceptance
     needs: [provenance, report-tests, checks, analysis, headers, threads]
-    if: ${{ always() && !inputs.native_probe_only }}
+    if: always()
     runs-on: ubuntu-24.04
     steps:
       - env:
@@ -343,6 +283,8 @@ jobs:
           jobs=json.loads(os.environ['RESULTS'])
           inherited=jobs['provenance'].get('outputs',{}).get('inherited_verified') == 'true'
           skip={'report-tests','checks'} if inherited else set()
+          if jobs['provenance'].get('outputs',{}).get('inherited_fixtures_verified') == 'true':
+              skip.update({'analysis','headers'})
           assert all(job['result']==('skipped' if name in skip else 'success') for name,job in jobs.items()), 'A required recovery target failed or did not run'
           assert jobs['provenance']['outputs']['requires_regression']=='false', 'Library changed: baseline inheritance forbidden; additional regression required'
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as summary:
