@@ -24,12 +24,6 @@ class Memory {
   // Unused-page release policy.
   static void config(std::int64_t release_delay_ms);
 
-  // Shared global memory and independent heap or stack memory.
-  static Global& global(StatisticsMode statistics = StatisticsMode::Disabled);
-  static Heap heap(StatisticsMode statistics = StatisticsMode::Disabled);
-  static Stack stack(void* buffer, std::size_t capacity, StatisticsMode statistics = StatisticsMode::Disabled);
-  static Stack stack(std::span<std::byte> buffer, StatisticsMode statistics = StatisticsMode::Disabled);
-
   Memory(const Memory&) = delete;
   Memory& operator=(const Memory&) = delete;
   Memory(Memory&&) = delete;

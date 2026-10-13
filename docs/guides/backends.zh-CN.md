@@ -18,7 +18,7 @@
 
 ## 选择与构建
 
-配置时显式设置 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` 与 `UNIMEMORY_STATISTICS=ON|OFF`。`Memory` 为抽象通用接口，`Memory::global()` 返回进程唯一 Global，`Heap`、`Stack` 为独立具体实例。所有后端均支持 Heap。
+配置时显式设置 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` 与 `UNIMEMORY_STATISTICS=ON|OFF`。`Memory` 为通用基类，`Global`、`Heap`、`Stack` 均直接构造；Global 实例共用原生分配器，但统计和 PMR 资源身份各自独立。所有后端均支持 Heap。
 
 Heap 创建独立分配组。ON 允许所有 Memory 模式开启 Basic；OFF 拒绝 Basic。统计默认 Disabled。[统计说明](statistics.zh-CN.md)
 

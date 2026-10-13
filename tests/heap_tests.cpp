@@ -97,8 +97,8 @@ void collect_test() {
 }
 
 void owns_test() {
-  Heap first = Memory::heap();
-  Heap second = Memory::heap();
+  Heap first = Heap();
+  Heap second = Heap();
   Memory& ordinary = compiled_test::global();
   check(!first.owns(nullptr), "null ownership");
   check(!first.owns(first.allocate(0)), "zero size ownership");
@@ -187,7 +187,7 @@ struct DestructorProbe {
 void lifetime_test() {
   unsigned destroyed = 0;
   for (unsigned round = 0; round < 128; ++round) {
-    Heap arena = Memory::heap();
+    Heap arena = Heap();
     auto* object = arena.create<DestructorProbe>(&destroyed);
     // No implicit C++ destructor is promised by bulk release.
     arena.reset();

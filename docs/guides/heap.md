@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Scope and lifetime
 
-`Heap heap;` (or `Memory::heap()`) creates an independent allocation group with the CMake-selected backend. All backends support the common APIs and owns, reset, collect. The constructor selects per-instance statistics and defaults to Disabled. Heap controls are available on `Heap`, while common operations also work through `Memory&`.
+`Heap heap;` creates an independent allocation group with the CMake-selected backend. All backends support the common APIs and owns, reset, collect. The constructor selects per-instance statistics and defaults to Disabled. Heap controls are available on `Heap`, while common operations also work through `Memory&`.
 
 ## Operations
 

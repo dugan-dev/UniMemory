@@ -202,23 +202,10 @@ struct BitsAdapter {
   void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept { shim_jemalloc_free(nullptr, pointer, bytes, alignment); }
 };
 
-template <bool Lookup>
 struct Actual {
   Memory& memory;
-  void* allocate(std::size_t bytes, std::size_t alignment) {
-    if constexpr (Lookup) {
-      return Memory::global().allocate(bytes, alignment);
-    } else {
-      return memory.allocate(bytes, alignment);
-    }
-  }
-  void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept {
-    if constexpr (Lookup) {
-      Memory::global().deallocate(pointer, bytes, alignment);
-    } else {
-      memory.deallocate(pointer, bytes, alignment);
-    }
-  }
+  void* allocate(std::size_t bytes, std::size_t alignment) { return memory.allocate(bytes, alignment); }
+  void deallocate(void* pointer, std::size_t bytes, std::size_t alignment) noexcept { memory.deallocate(pointer, bytes, alignment); }
 };
 
 template <class Policy, bool Constant = false>
@@ -330,20 +317,18 @@ void selected(std::ostream& out, const std::string& backend, const std::string& 
     kernel(out, backend, variant, HandlePolicy<true, true>{real_handle(B)}, iterations, bytes, touch);
   } else if (variant == "handle_checked_constant") {
     kernel<HandlePolicy<true, false>, true>(out, backend, variant, HandlePolicy<true, false>{real_handle(B)}, iterations, 64, touch);
-  } else if (variant == "api_cached" || variant == "api_lookup") {
+  } else if (variant == "api_cached") {
     compiled_benchmark_configuration(B, StatisticsMode::Disabled);
-    unimem::Global& memory = Memory::global();
-    if (variant == "api_cached") {
-      kernel(out, backend, variant, Actual<false>{memory}, iterations, bytes, touch);
-    } else {
-      kernel(out, backend, variant, Actual<true>{memory}, iterations, bytes, touch);
-    }
+    unimem::Global memory;
+    kernel(out, backend, variant, Actual{memory}, iterations, bytes, touch);
+  } else if (variant == "api_lookup") {
+    throw std::invalid_argument("api_lookup was removed with Memory::global(); use api_cached");
   } else if (variant == "native_batch") {
     batched(out, backend, variant, Native < B, true, B == Backend::Standard > {}, iterations, bytes);
   } else if (variant == "api_batch") {
     compiled_benchmark_configuration(B, StatisticsMode::Disabled);
-    unimem::Global& memory = Memory::global();
-    batched(out, backend, variant, Actual<false>{memory}, iterations, bytes);
+    unimem::Global memory;
+    batched(out, backend, variant, Actual{memory}, iterations, bytes);
   } else {
     throw std::invalid_argument("unknown hotpath variant");
   }

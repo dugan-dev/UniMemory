@@ -6,7 +6,7 @@
 
 ## 缓冲区生命周期
 
-`Stack scratch(buffer);`（或 `Memory::stack(buffer)`）在现有缓冲区中分配，支持全部通用 Memory 接口。管理接口及 `Stack::Mark` 属于 `Stack`。缓冲区须可写、固定容量、比 Memory 存活更久，仅限单线程。它不是线程的调用栈。
+`Stack scratch(buffer);`在现有缓冲区中分配，支持全部通用 Memory 接口。管理接口及 `Stack::Mark` 属于 `Stack`。缓冲区须可写、固定容量、比 Memory 存活更久，仅限单线程。它不是线程的调用栈。
 
 ## 回收空间
 

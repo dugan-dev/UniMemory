@@ -3,7 +3,6 @@
 #include <unimem/detail/backend.h>
 
 #define UNIM_IMPL_MEMORY_MEMBERS                                                                                                           \
-  static void initialize_global(StatisticsMode statistics);                                                                                \
   bool is_local_global() const noexcept;                                                                                                   \
   template <class T>                                                                                                                       \
   void construct_array_with_rollback(T* objects, std::size_t count);                                                                       \
@@ -38,11 +37,6 @@
   detail::TrackingContext* tracking_ = nullptr;                                                                                            \
   const MemoryKind kind_;                                                                                                                  \
   Resource resource_;
-
-#define UNIM_IMPL_GLOBAL_MEMBERS     \
-  friend class Memory;               \
-  Global(StatisticsMode statistics); \
-  ~Global() = default;
 
 #define UNIM_IMPL_HEAP_MEMBERS                                                                                       \
   friend class Memory;                                                                                               \

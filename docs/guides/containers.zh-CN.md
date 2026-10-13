@@ -31,7 +31,7 @@
 #include <vector>
 
 int main() {
-    unimem::Global& memory = unimem::Memory::global();
+    unimem::Global memory;
 
     // 在 UniMemory 之上组合标准 PMR 资源
     std::pmr::monotonic_buffer_resource pool(memory.resource());

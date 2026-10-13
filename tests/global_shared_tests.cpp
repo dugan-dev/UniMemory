@@ -43,12 +43,14 @@ struct Payload {
 };
 static_assert(sizeof(Payload) == 64 && alignof(Payload) == 1);
 
+// The explicit context is constructed first and destroyed after all late owners.
+unimem::Global late_memory(compiled_test::global_mode);
 struct LateOwners {
   std::shared_ptr<Payload> strong;
   std::weak_ptr<Payload> weak;
   std::optional<unimem::OwnedBlock> block;
   ~LateOwners() noexcept {
-    auto& memory = unimem::Memory::global();
+    auto& memory = late_memory;
     strong.reset();
     if (!weak.expired()) {
       std::_Exit(81);
@@ -152,7 +154,7 @@ void snapshot(unimem::Memory& memory, const unimem::Statistics& baseline, std::s
 
 void run(bool require_binding_shape) {
   compiled_test::verify_configuration();
-  auto& memory = unimem::Memory::global(compiled_test::global_mode);
+  unimem::Global memory(compiled_test::global_mode);
   const auto initial = memory.statistics();
   check(compiled_test::tracking() == (compiled_test::supports_statistics), "Global statistics mode mismatch");
   check(!compiled_test::tracking() || initial.live_bytes == 0, "fixture requires an isolated Global ledger");
@@ -247,17 +249,17 @@ void run(bool require_binding_shape) {
              std::max(rollback_before.peak_live_bytes, rollback_before.live_bytes + request));
   }
 
-  // Leaving a getter reference scope does not end Global storage lifetime.
+  // Raw native storage survives a Global scope; owners/adapters require its lifetime.
   void* surviving = nullptr;
   {
-    auto& transient = unimem::Memory::global();
+    unimem::Global transient;
     surviving = transient.allocate(32, 16);
     std::fill_n(static_cast<unsigned char*>(surviving), 32, 91);
   }
   check(static_cast<unsigned char*>(surviving)[0] == 91 && static_cast<unsigned char*>(surviving)[31] == 91,
-        "Global getter scope released raw storage");
+        "Global destruction released raw native storage");
   {
-    auto& release_context = unimem::Memory::global();
+    unimem::Global release_context;
     release_context.deallocate(surviving, 32, 16);
   }
 
@@ -275,8 +277,11 @@ void run(bool require_binding_shape) {
     snapshot(memory, overflow_before, 0, 0, overflow_before.live_bytes, overflow_before.peak_live_bytes);
   }
   if (require_binding_shape) {
-    auto& repeated = unimem::Memory::global(unimem::StatisticsMode::Disabled);
-    check(&repeated == &memory && repeated.resource() == memory.resource(), "Global getter identity changed");
+    unimem::Global repeated(unimem::StatisticsMode::Disabled);
+    check(&repeated != &memory && repeated.resource() != memory.resource() && !repeated.resource()->is_equal(*memory.resource()),
+          "independent Global resources share a context binding");
+    auto ignored = repeated.make_shared<Payload>();
+    check(compiled_test::zero(repeated.statistics()), "Disabled Global peer statistics changed");
     unimem::Heap peer(compiled_test::global_mode);
     check(peer.resource() != memory.resource() && !peer.resource()->is_equal(*memory.resource()),
           "Global and Heap PMR resources must bind distinct contexts");
@@ -297,9 +302,9 @@ void run(bool require_binding_shape) {
     check(peer.statistics().live_bytes == 0, "peer control block retained");
   }
   auto& late = late_owners;
-  late.strong = memory.make_shared<Payload>();
+  late.strong = late_memory.make_shared<Payload>();
   late.weak = late.strong;
-  late.block.emplace(memory.make_block(16));
+  late.block.emplace(late_memory.make_block(16));
 }
 }  // namespace
 

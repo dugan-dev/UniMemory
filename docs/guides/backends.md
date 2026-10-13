@@ -18,7 +18,7 @@ This table describes evidence, not a guarantee for all architectures or operatin
 
 ## Select the build backend
 
-Set `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF` explicitly. `Memory` provides the common inline allocation interface; `Global` is the process singleton returned by `Memory::global()`; `Heap` and `Stack` are independent concrete contexts. All backends support Heap.
+Set `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF` explicitly. `Memory` provides the common inline allocation interface; `Global`, `Heap` and `Stack` are directly constructed contexts; Global instances use the shared native allocator with separate statistics and PMR resource identities. All backends support Heap.
 
 Heap creates an independent group. ON permits runtime Basic for all Memory kinds; OFF rejects Basic. Statistics default to Disabled. [Statistics](statistics.md)
 

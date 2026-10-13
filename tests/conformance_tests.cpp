@@ -139,7 +139,7 @@ void boundaries() {
   block.resize(0);
   check((!compiled_test::tracking() || (memory.statistics().live_bytes == 0)), "all bytes released");
 
-  unimem::Heap arena = unimem::Memory::heap();
+  unimem::Heap arena = unimem::Heap();
   auto* pointer = arena.allocate_zeroed(33, 64);
   for (std::size_t i = 0; i < 33; ++i) {
     check(static_cast<unsigned char*>(pointer)[i] == 0, "arena zeroing");

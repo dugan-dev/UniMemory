@@ -18,7 +18,7 @@ BACKENDS = ('standard', 'mimalloc', 'jemalloc')
 HOT = ('native', 'native_constant', 'native_unaligned', 'adapter_direct', 'adapter_pointer',
        'handle_inline_unchecked', 'handle_inline_checked', 'handle_external_unchecked',
        'handle_external_checked', 'handle_checked_constant', 'native_runtime_alignment',
-       'handle_runtime_alignment', 'api_cached', 'api_lookup', 'native_batch', 'api_batch')
+       'handle_runtime_alignment', 'api_cached', 'native_batch', 'api_batch')
 STATS = ('native', 'api_disabled', 'api_basic', 'synthetic_none',
          'synthetic_thread_local_plain', 'synthetic_shared_relaxed', 'synthetic_shared_padded',
          'synthetic_worker_padded_atomic', 'synthetic_worker_padded_plain',
@@ -131,7 +131,6 @@ def contrasts(affinity, backends=BACKENDS, statistics_mode=None):
             ('handle_constant_size','handle_inline_checked','handle_checked_constant'),
             ('native_runtime_alignment','native','native_runtime_alignment'),
             ('handle_runtime_alignment','handle_inline_checked','handle_runtime_alignment'),
-            ('global_lookup','api_cached','api_lookup'),
             ('alignment_contract','native_unaligned','native'),
             ('allocation_lifetime_native','native','native_batch'),
             ('allocation_lifetime_api','api_cached','api_batch'),

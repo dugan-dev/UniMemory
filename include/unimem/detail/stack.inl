@@ -30,14 +30,6 @@ inline std::size_t Stack::capacity() const noexcept {
   return storage_.capacity;
 }
 
-inline Stack Memory::stack(void* buffer, std::size_t capacity, StatisticsMode statistics) {
-  return Stack(buffer, capacity, statistics);
-}
-
-inline Stack Memory::stack(std::span<std::byte> buffer, StatisticsMode statistics) {
-  return Stack(buffer, statistics);
-}
-
 inline Stack::Stack(void* buffer, std::size_t capacity, StatisticsMode statistics)
     : Memory(MemoryKind::Stack), storage_{static_cast<std::byte*>(buffer), capacity} {
   memory_impl::validate_statistics(statistics);

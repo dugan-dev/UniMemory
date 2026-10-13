@@ -38,8 +38,8 @@ void allocate(Memory& memory, unsigned loops) {
 }
 
 void release_policy() {
-  auto& global = Memory::global();
-  auto existing = Memory::heap();
+  Global global;
+  auto existing = Heap();
   auto global_block = global.make_block(128);
   auto existing_block = existing.make_block(128);
   const auto check_policy = [](const void* pointer, std::int64_t expected) {
@@ -59,7 +59,7 @@ void release_policy() {
     Memory::config(delay);
     check_policy(global_block.data(), delay);
     check_policy(existing_block.data(), delay);
-    auto future = Memory::heap();
+    auto future = Heap();
     auto future_block = future.make_block(128);
     check_policy(future_block.data(), delay);
   }
@@ -73,7 +73,7 @@ void worker(std::string_view mode, Memory* shared, unsigned index, unsigned loop
   if (mode == "shared") {
     allocate(*shared, loops);
   } else if (mode == "heap") {
-    auto memory = Memory::heap();
+    auto memory = Heap();
     allocate(memory, loops);
     auto block = memory.make_block(128, 64);
     check(memory.owns(block.data()), "heap allocation lost its arena");
@@ -83,7 +83,7 @@ void worker(std::string_view mode, Memory* shared, unsigned index, unsigned loop
     } else if (mode == "release_delay") {
       unimem::Memory::config(10);
     }
-    auto& memory = Memory::global();
+    Global memory;
     allocate(memory, loops);
   }
 }
@@ -104,7 +104,11 @@ int main(int argc, char** argv) {
     check(rounds >= 1 && rounds <= 64 && loops >= 1 && loops <= 64, "invalid workload size");
     // Only the shared case constructs Memory before starting its workers.
     // No jemalloc query or allocator warmup precedes the other cold entries.
-    Memory* shared = mode == "shared" ? &Memory::global() : nullptr;
+    std::optional<Global> shared_context;
+    if (mode == "shared") {
+      shared_context.emplace();
+    }
+    Memory* shared = shared_context ? &*shared_context : nullptr;
     for (unsigned long round = 0; round < rounds; ++round) {
       std::array<std::exception_ptr, 6> failures;
       {

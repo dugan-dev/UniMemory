@@ -6,42 +6,6 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      results_only:
-        description: 'Assemble completed measurements and independently enforce their actual gates'
-        type: boolean
-        default: false
-      inline_factor:
-        description: 'Single-factor experiment; production code stays unchanged'
-        type: choice
-        options: [allocator_inline, kind_global, api_boundaries]
-        default: allocator_inline
-      allocator_inline_experiment:
-        description: 'Compare allocator inlining on three platforms without modifying production headers'
-        type: boolean
-        default: false
-      performance_retry:
-        description: 'Measure all platforms at the repaired source revision; retry Windows Standard diagnosis'
-        type: boolean
-        default: false
-      performance_only:
-        description: 'Run all performance measurements and diagnosis after verified correctness'
-        type: boolean
-        default: false
-      correctness_recovery:
-        description: 'Rerun only failed or missing correctness checks from the audited baseline'
-        type: boolean
-        default: false
-      analysis_retry:
-        description: 'Retry unresolved analysis and TSAN after the first recovery completes'
-        type: boolean
-        default: false
-      mimalloc_only:
-        type: boolean
-        default: false
-      threads_only:
-        description: 'Validate adapters with normal third-party SDKs; reuse successful earlier analysis and headers'
-        type: boolean
-        default: false
       validation_only:
         description: 'Validate tools and existing published data without benchmarking'
         type: boolean
@@ -51,29 +15,9 @@ permissions:
   pull-requests: read
   actions: read
 concurrency:
-  group: performance-${{ github.ref }}-${{ inputs.performance_retry || false }}-${{ inputs.allocator_inline_experiment || false }}-${{ inputs.inline_factor || 'none' }}-${{ inputs.results_only || false }}
+  group: performance-${{ github.ref }}
   cancel-in-progress: false
 jobs:
-  measured-results:
-    if: ${{ inputs.results_only == true }}
-    uses: ./.github/workflows/performance-results.yml
-  inline-experiment:
-    if: ${{ inputs.allocator_inline_experiment == true }}
-    uses: ./.github/workflows/allocator-inline-experiment.yml
-    with:
-      experiment_kind: ${{ inputs.inline_factor }}
-  verified-performance:
-    if: ${{ inputs.performance_only == true }}
-    uses: ./.github/workflows/performance-after-validation.yml
-    with:
-      retry_failed: ${{ inputs.performance_retry }}
-  recover-correctness:
-    if: ${{ inputs.correctness_recovery == true }}
-    uses: ./.github/workflows/correctness-recovery.yml
-    with:
-      analysis_retry: ${{ inputs.analysis_retry }}
-      threads_only: ${{ inputs.threads_only }}
-      mimalloc_only: ${{ inputs.mimalloc_only }}
   changes:
     runs-on: windows-2022
     outputs:
@@ -101,7 +45,6 @@ jobs:
           print('Source/configuration measurement required:', relevant)
           PY
   report-tests:
-    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true && inputs.allocator_inline_experiment != true && inputs.results_only != true }}
     needs: changes
     runs-on: windows-2022
     steps:
@@ -118,7 +61,6 @@ jobs:
       - shell: bash
         run: python3 tools/ci/validate-published.py
   windows:
-    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true && inputs.allocator_inline_experiment != true && inputs.results_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -141,7 +83,6 @@ jobs:
       runner: windows-2022
       platform: windows-x64
   linux:
-    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true && inputs.allocator_inline_experiment != true && inputs.results_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -164,7 +105,6 @@ jobs:
       runner: ubuntu-24.04
       platform: linux-x64
   macos:
-    if: ${{ inputs.correctness_recovery != true && inputs.performance_only != true && inputs.allocator_inline_experiment != true && inputs.results_only != true }}
     needs: changes
     uses: ./.github/workflows/validation-tier.yml
     with:
@@ -215,7 +155,7 @@ jobs:
   acceptance:
     name: performance acceptance
     needs: [changes, report-tests, windows, linux, macos, measure-windows, measure-linux, measure-macos, diagnosis-windows, diagnosis-linux, diagnosis-macos, overview]
-    if: ${{ always() && inputs.correctness_recovery != true && inputs.performance_only != true && inputs.allocator_inline_experiment != true && inputs.results_only != true }}
+    if: ${{ always() }}
     runs-on: windows-2022
     steps:
       - shell: bash

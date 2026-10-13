@@ -48,7 +48,7 @@ flowchart LR
 | [测试结果](testing.zh-CN.md) | 验证平台与覆盖范围 |
 | [远程验收](remote-validation.md) | 原生编译器矩阵、错误检测与图表自动更新 |
 
-[后端能力对照](allocator-capabilities.zh-CN.md) · [测量方法](benchmarking.zh-CN.md) · [原始数据](results/current/README.md) · [上游验证](upstream-validation.md)
+[后端能力对照](allocator-capabilities.zh-CN.md) · [测量方法](benchmarking.zh-CN.md) · [原始数据](results/current/README.md) · [SDK 接入](sdk-integration.md)
 
 ## 5 · 验证
 

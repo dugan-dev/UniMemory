@@ -30,7 +30,7 @@
 #include <unimem/all.h>
 
 int main() {
-  auto& memory = unimem::Memory::global();
+  unimem::Global memory;
   auto allocator = memory.allocator<int>();
   auto* storage = allocator.allocate(2);
   std::construct_at(storage, 17);

@@ -1,13 +1,8 @@
 #pragma once
 
 namespace unimem {
-namespace detail {
-UNIMEMORY_FORCE_INLINE void* global_storage_address() noexcept;
-}
 UNIMEMORY_FORCE_INLINE bool Memory::is_local_global() const noexcept {
-  // Compare addresses only, without reading an unconstructed Global object.
-  // A foreign Global (or a different base offset) safely uses the kind fallback.
-  return static_cast<const void*>(this) == detail::global_storage_address();
+  return kind_ == MemoryKind::Global;
 }
 
 template <bool Zero>

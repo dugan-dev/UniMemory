@@ -54,19 +54,21 @@ detail::Backend parse_backend(const std::string& name) {
 
 struct Context {
   std::vector<std::byte> buffer;
+  std::unique_ptr<Global> owned_global;
   std::unique_ptr<Heap> owned_heap;
   std::unique_ptr<Stack> owned_stack;
   Memory* memory = nullptr;
   Context(const std::string& kind, StatisticsMode mode) {
     compiled_test::configure(mode);
     if (kind == "global") {
-      memory = &Memory::global(mode);
+      owned_global = std::make_unique<Global>(mode);
+      memory = owned_global.get();
     } else if (kind == "heap") {
       owned_heap.reset(new Heap(compiled_test::heap(mode)));
       memory = owned_heap.get();
     } else if (kind == "stack") {
       buffer.resize(4 * 1024 * 1024);
-      owned_stack.reset(new Stack(Memory::stack(buffer, mode)));
+      owned_stack.reset(new Stack(Stack(buffer, mode)));
       memory = owned_stack.get();
     } else {
       throw std::invalid_argument("unknown memory kind");
@@ -136,7 +138,7 @@ void owners(Memory& first, Memory& second) {
   balanced(first);
   // Bounded, deterministic exhaustion proves resize's strong failure guarantee.
   alignas(256) std::array<std::byte, 256> backing{};
-  Stack limited = Memory::stack(backing);
+  Stack limited = Stack(backing);
   auto block = limited.make_block(32, 256);
   std::memset(block.data(), 47, 32);
   auto* original = block.data();
@@ -539,24 +541,20 @@ void global_config(detail::Backend backend, unsigned scenario, StatisticsMode mo
   compiled_test::test_configuration(backend, mode);
   constexpr unsigned count = 8;
   std::atomic<bool> failed{false};
-  std::array<Global*, count> contexts{};
-  const auto before = Memory::global().statistics();
+  Global shared(mode);
+  const auto before = shared.statistics();
   parallel(count, [&](unsigned id) {
     try {
-      contexts[id] = &Memory::global(mode);
       for (unsigned round = 0; round < 64; ++round) {
-        auto owner = contexts[id]->make_unique<unsigned>(round);
-        check(*owner == round, "Global content");
+        auto owner = shared.make_unique<unsigned>(round + id);
+        check(*owner == round + id, "Global content");
       }
     } catch (...) {
       failed.store(true);
     }
   });
   check(!failed.load(), "Global lookup/allocation failed");
-  for (auto* context : contexts) {
-    check(context == &Memory::global() && context->resource() == Memory::global().resource(), "Global singleton/resource identity diverged");
-  }
-  const auto after = Memory::global().statistics();
+  const auto after = shared.statistics();
   if (mode == StatisticsMode::Basic) {
     check(after.allocations == before.allocations + count * 64 && after.deallocations == before.deallocations + count * 64 &&
               after.live_bytes == before.live_bytes,

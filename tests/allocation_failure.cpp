@@ -147,10 +147,11 @@ int main(int argc, char** argv) {
   using namespace unimem;
   if (argc == 2 && std::strcmp(argv[1], "initialization_retry") == 0) {
     compiled_test::configure(compiled_test::global_mode);
+    Global recovered(compiled_test::global_mode);
     bool rejected = false;
     fail_allocations.store(true);
     try {
-      (void)Memory::global(compiled_test::global_mode);
+      (void)recovered.allocate(16, 16);
     } catch (const std::bad_alloc&) {
       rejected = true;
     }
@@ -158,7 +159,6 @@ int main(int argc, char** argv) {
     if (!rejected) {
       return 7;
     }
-    auto& recovered = Memory::global(compiled_test::global_mode);
     auto* resource = recovered.resource();
     void* pointer = resource->allocate(0, 16);
     resource->deallocate(pointer, 0, 16);
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
       return 5;
     }
     alignas(std::max_align_t) std::byte buffer[1024];
-    Stack stack = Memory::stack(buffer);
+    Stack stack = Stack(buffer);
     auto object = stack.make_unique<int>(42);
     auto shared = stack.make_shared<int>(17);
     std::pmr::vector<int> values(stack.resource());

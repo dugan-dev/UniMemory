@@ -22,8 +22,8 @@ An installed package retains its jemalloc dependency. If discovery or symbol val
 
 ## Initialization
 
-Global/Heap creation and release-delay changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: factories and release-delay changes report failure by exception.
+Global/Heap creation and release-delay changes share a first-use initialization guard. It completes a native version query before concurrent UniMemory operations can enter jemalloc. Initialization failure remains retryable: constructors and release-delay changes report failure by exception.
 
 The guard is per linked UniMemory copy. Raw `je_*` calls and independent wrapper copies sharing a native DLL require coordinated startup outside this guard. It does not replace synchronization for object access or exclusive Heap reclamation. [Thread requirements](../compatibility.md)
 
-Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public declarations](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc_protos.h.in), [validation](../upstream-validation.md). Platform evidence: [test results](../testing.md).
+Sources: [official manual](https://jemalloc.net/jemalloc.3.html), [5.3.1 public declarations](https://github.com/jemalloc/jemalloc/blob/5.3.1/include/jemalloc/jemalloc_protos.h.in), [validation](../sdk-integration.md). Platform evidence: [test results](../testing.md).

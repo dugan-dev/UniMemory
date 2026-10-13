@@ -13,9 +13,9 @@ using RawOwner = std::unique_ptr<void, RawDeleter>;
 
 void factory_statistics_regression() {
   using namespace unimem;
-  Heap heap = Memory::heap();
+  Heap heap = Heap();
   std::array<std::byte, 1024> backing{};
-  Stack stack = Memory::stack(backing);
+  Stack stack = Stack(backing);
   for (Memory* memory : std::array<Memory*, 2>{&heap, &stack}) {
     RawOwner old(memory->allocate(17, 1), RawDeleter{memory, 17});
     if constexpr (UNIMEMORY_CONFIG_STATISTICS != 0) {

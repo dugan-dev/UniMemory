@@ -10,7 +10,7 @@ CI is configured to validate the header-only library on Windows, Linux and macOS
 | Objects and ownership | Construction, destruction, arrays, shared/weak lifetime and cross-thread release |
 | Containers | Allocator, PMR, copy, move, nested containers and zero-size PMR requests |
 | Heap and Stack | Membership, collect/reset, capacity, marks and rewind |
-| Concurrency | Global initialization, allocation handoff and exact request counters |
+| Concurrency | Global construction, allocation handoff and exact request counters |
 | Integration | Single entry header, six include orders, multiple translation units, installed profiles and PIC choices |
 | Error detection | ASan, non-recovering UBSan, TSan, static analysis and coverage |
 
@@ -22,4 +22,4 @@ cmake --build --preset release
 ctest --preset release
 ```
 
-[Build options](getting-started.md#build-options) · [Native suites](upstream-validation.md) · [Performance](performance.md)
+[Build options](getting-started.md#build-options) · [SDK integration](sdk-integration.md) · [Performance](performance.md)

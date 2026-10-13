@@ -246,7 +246,7 @@ struct ApiAllocator {
   const unimem::detail::Backend backend;
   const bool dedicated;
   std::unique_ptr<unimem::Heap> heap;
-  unimem::Global* global = nullptr;
+  unimem::Global global;
   unimem::Memory* memory = nullptr;
 
   ApiAllocator(unimem::detail::Backend selected, bool is_heap) : backend(selected), dedicated(is_heap) {
@@ -257,8 +257,7 @@ struct ApiAllocator {
       memory = heap.get();
     } else {
       compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
-      global = &unimem::Memory::global();
-      memory = global;
+      memory = &global;
     }
   }
   void* allocate(std::size_t bytes) { return memory->allocate(bytes, alignment); }

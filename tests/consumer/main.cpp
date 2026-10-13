@@ -25,7 +25,7 @@ int main() {
   if (!header_types() || !header_memory() || !header_owned_block() || !header_allocator() || !header_smart_ptr()) {
     return 14;
   }
-  auto& memory = unimem::Memory::global(compiled_test::global_mode);
+  unimem::Global memory(compiled_test::global_mode);
   auto object = memory.make_unique<int>(42);
   if (*object != 42) {
     return 1;
@@ -51,7 +51,7 @@ int main() {
     return 2;
   }
   alignas(std::max_align_t) std::byte buffer[1024];
-  unimem::Stack scratch = unimem::Memory::stack(buffer);
+  unimem::Stack scratch = unimem::Stack(buffer);
   {
     auto value = scratch.make_unique<int>(37);
     std::pmr::vector<int> items(scratch.resource());

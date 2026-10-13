@@ -48,7 +48,7 @@ flowchart LR
 | [Test results](testing.md) | Verified platforms and coverage |
 | [Remote validation](remote-validation.md) | Native compiler matrix, detection and chart automation |
 
-[Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/current/README.md) · [Upstream validation](upstream-validation.md)
+[Backend capabilities](allocator-capabilities.md) · [Measurement method](benchmarking.md) · [Raw data](results/current/README.md) · [SDK integration](sdk-integration.md)
 
 ## 5 · Validation
 

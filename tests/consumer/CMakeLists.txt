@@ -71,16 +71,16 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile.h" [=[
 #include "memory_api_contract.h"
 static_assert(static_cast<int>(unimem::detail::build_backend) == UNIMEMORY_CONFIG_BACKEND);
 static_assert(static_cast<int>((UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled)) == UNIMEMORY_CONFIG_STATISTICS);
-unimem::Memory* profile_a();
-unimem::Memory* profile_b();
+unimem::Memory* profile_a(unimem::Global&);
+unimem::Memory* profile_b(unimem::Global&);
 ]=])
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-a.cpp" [=[
 #include "profile.h"
-unimem::Memory* profile_a() { return &unimem::Memory::global(); }
+unimem::Memory* profile_a(unimem::Global& context) { return &context; }
 ]=])
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-b.cpp" [=[
 #include "profile.h"
-unimem::Memory* profile_b() { return &unimem::Memory::global(); }
+unimem::Memory* profile_b(unimem::Global& context) { return &context; }
 ]=])
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-main.cpp" [=[
 #include "profile.h"
@@ -88,9 +88,9 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/profile-main.cpp" [=[
 #include <memory_resource>
 #include <stdexcept>
 int main() {
-    auto& memory = unimem::Memory::global(UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
-    if (profile_a() != &memory || profile_b() != &memory) return 1;
-    if (!profile_a()->resource()->is_equal(*profile_b()->resource())) return 2;
+    unimem::Global memory(UNIMEMORY_CONFIG_STATISTICS ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
+    if (profile_a(memory) != &memory || profile_b(memory) != &memory) return 1;
+    if (!profile_a(memory)->resource()->is_equal(*profile_b(memory)->resource())) return 2;
 
     const auto before = memory.statistics();
     {

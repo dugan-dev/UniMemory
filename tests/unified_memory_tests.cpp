@@ -72,7 +72,7 @@ struct ShutdownProbe {
       return;
     }
     try {
-      Memory& memory = compiled_test::global();
+      Global memory;
       auto object = memory.make_unique<Object>();
       auto block = memory.make_block(128, 64);
       if (object->value != 42 || block.size() != 128) {
@@ -86,37 +86,50 @@ struct ShutdownProbe {
 
 void global_test(detail::Backend backend, StatisticsMode mode) {
   compiled_test::test_configuration(backend, mode);
-  std::array<Memory*, 16> addresses{};
+  Global memory(mode);
+  std::atomic<bool> failed{false};
   std::array<std::thread, 16> workers;
   for (std::size_t i = 0; i < workers.size(); ++i) {
-    workers[i] = std::thread([&, i] { addresses[i] = &compiled_test::global(); });
+    workers[i] = std::thread([&] {
+      try {
+        Global independent(mode);
+        auto owner = independent.make_unique<unsigned>(42);
+        check(*owner == 42, "independent Global content");
+        const auto live = independent.statistics();
+        check(mode != StatisticsMode::Basic || (live.allocations == 1 && live.live_bytes == sizeof(unsigned)),
+              "concurrent independent Global ledger changed");
+        owner.reset();
+        const auto released = independent.statistics();
+        check(mode != StatisticsMode::Basic || (released.deallocations == 1 && released.live_bytes == 0),
+              "concurrent independent Global release changed");
+        check(mode != StatisticsMode::Disabled || compiled_test::zero(released), "Disabled independent Global ledger changed");
+      } catch (...) {
+        failed.store(true);
+      }
+    });
   }
   for (auto& worker : workers) {
     worker.join();
   }
-  Memory& memory = *addresses[0];
-  for (Memory* address : addresses) {
-    check(address == &memory, "Global singleton identity changed");
-  }
+  check(!failed.load() && compiled_test::zero(memory.statistics()), "independent concurrent Globals contaminated shared ledger");
   check(memory.kind() == MemoryKind::Global && unimem::detail::build_backend == backend, "global identity");
   check(mode == StatisticsMode::Basic || compiled_test::zero(memory.statistics()), "statistics mode");
   compiled_test::verify_configuration();
 
   const auto before = memory.statistics();
   for (unsigned i = 0; i < 4096; ++i) {
-    Memory& first = compiled_test::global();
-    Memory& second = compiled_test::global();
+    Memory& first = memory;
+    Memory& second = memory;
     auto* pointer = first.allocate_objects<unsigned>();
     *pointer = i;
     check(*pointer == i, "global content");
     second.deallocate_objects(pointer);
   }
-  std::atomic<bool> failed{false};
   for (auto& worker : workers) {
     worker = std::thread([&] {
       try {
         for (unsigned i = 0; i < 2048; ++i) {
-          auto owner = compiled_test::global().make_unique<unsigned>(i);
+          auto owner = memory.make_unique<unsigned>(i);
           if (*owner != i) {
             failed.store(true);
           }
@@ -163,30 +176,32 @@ void global_test(detail::Backend backend, StatisticsMode mode) {
     }
   }
   const auto original_before = memory.statistics();
-  auto& repeated = Memory::global(StatisticsMode::Disabled);
-  check(&repeated == &memory && repeated.resource() == memory.resource(), "Global getter must preserve singleton/resource identity");
+  Global repeated(StatisticsMode::Disabled);
+  check(&repeated != &memory && repeated.resource() != memory.resource() && !repeated.resource()->is_equal(*memory.resource()),
+        "independent Global resources must bind distinct contexts");
   {
     auto item = repeated.make_unique<int>(7);
     check(*item == 7, "Global repeated getter allocation");
     const auto after = memory.statistics();
     if (mode == StatisticsMode::Basic) {
-      check(after.allocations == original_before.allocations + 1 && after.live_bytes == original_before.live_bytes + sizeof(int),
-            "later Global mode argument changed the captured statistics mode");
+      check(after.allocations == original_before.allocations && after.live_bytes == original_before.live_bytes,
+            "independent Global changed another ledger");
     } else {
       check(compiled_test::zero(after), "Global Disabled statistics changed");
     }
   }
+  check(compiled_test::zero(repeated.statistics()), "Disabled peer statistics changed");
   shutdown_enabled = true;
 }
 
 void stack_boundaries() {
-  Stack empty = Memory::stack(nullptr, 0);
+  Stack empty = Stack(nullptr, 0);
   check(empty.allocate(0) == nullptr && empty.capacity() == 0, "empty Stack");
   throws<std::bad_alloc>([&] { empty.allocate(1); });
-  throws<std::invalid_argument>([] { Memory::stack(nullptr, 1); });
+  throws<std::invalid_argument>([] { Stack(nullptr, 1); });
   std::byte buffer[64];
-  throws<std::invalid_argument>([&] { Memory::stack(buffer, std::numeric_limits<std::size_t>::max()); });
-  Stack stack = Memory::stack(buffer);
+  throws<std::invalid_argument>([&] { Stack(buffer, std::numeric_limits<std::size_t>::max()); });
+  Stack stack = Stack(buffer);
   check(stack.kind() == MemoryKind::Stack, "Stack kind");
   check(compiled_test::zero(stack.statistics()), "Stack statistics");
 #if UNIMEMORY_CHECKS
@@ -233,8 +248,8 @@ void stack_matrix(unsigned index) {
   const auto bytes = sizes[index % 8], alignment = alignments[index / 8 % 5];
   const auto path = index / 40;
   std::vector<std::byte> backing(262144);
-  Stack stack = Memory::stack(backing);
-  Stack other = Memory::stack(nullptr, 0);
+  Stack stack = Stack(backing);
+  Stack other = Stack(nullptr, 0);
   for (unsigned cycle = 0; cycle < 64; ++cycle) {
     const auto checkpoint = stack.mark();
     throws<std::invalid_argument>([&] { stack.rewind(other.mark()); });

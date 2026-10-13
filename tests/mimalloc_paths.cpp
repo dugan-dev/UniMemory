@@ -80,29 +80,29 @@ void arenas() {
 }
 
 void counters() {
-  auto& first = Memory::global(compiled_test::global_mode);
-  auto& second = Memory::global(StatisticsMode::Disabled);
-  check(&first == &second && first.resource() == second.resource(), "Global getters must share one context");
+  Global first(compiled_test::global_mode);
+  Global second(compiled_test::global_mode);
+  check(&first != &second && first.resource() != second.resource(), "Global contexts must be independent");
   auto a = first.make_block(100);
   auto b = second.make_block(200);
   check(mi_heap_of(a.data()) == mi_heap_of(b.data()), "Global allocations must use native defaults");
-  check(!compiled_test::tracking() || (first.statistics().live_bytes == 300 && second.statistics().live_bytes == 300),
-        "Global getters must share counters");
+  check(!compiled_test::tracking() || (first.statistics().live_bytes == 100 && second.statistics().live_bytes == 200),
+        "Global contexts must keep independent counters");
   const auto before_native = first.statistics();
   void* external = mi_malloc(512);
   check(external != nullptr, "native allocation failed");
   mi_free(external);
   check(first.statistics().allocations == before_native.allocations, "native allocations must not enter request counters");
   a.resize(300);
-  check(!compiled_test::tracking() || (first.statistics().live_bytes == 500 && second.statistics().live_bytes == 500),
-        "Global reallocation did not update shared counters");
+  check(!compiled_test::tracking() || (first.statistics().live_bytes == 300 && second.statistics().live_bytes == 200),
+        "Global reallocation changed another context's counters");
   a.resize(0);
-  check(!compiled_test::tracking() || (first.statistics().live_bytes == 200 && second.statistics().live_bytes == 200),
-        "Global release did not update shared counters");
+  check(!compiled_test::tracking() || (first.statistics().live_bytes == 0 && second.statistics().live_bytes == 200),
+        "Global release changed another context's counters");
   auto large = first.make_block(1024 * 1024);
-  check(!compiled_test::tracking() || first.statistics().live_bytes == 200 + large.size(), "live large-block request count");
+  check(!compiled_test::tracking() || first.statistics().live_bytes == large.size(), "live large-block request count");
   large.resize(0);
-  check(!compiled_test::tracking() || first.statistics().live_bytes == 200, "large allocation release request count");
+  check(!compiled_test::tracking() || first.statistics().live_bytes == 0, "large allocation release request count");
 }
 
 void threads() {

@@ -57,7 +57,7 @@ void common_operations(unimem::Memory& memory) {
 
 void inheritance_compile_regression() {
   using namespace unimem;
-  auto& global = Memory::global();
+  Global global;
   Heap heap;
   std::array<std::byte, 4096> bytes{};
   Stack stack(bytes);

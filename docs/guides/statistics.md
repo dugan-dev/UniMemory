@@ -15,7 +15,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 `UNIMEMORY_STATISTICS=ON` permits Basic for Global, Heap and Stack; configuring Basic in an OFF build throws `std::invalid_argument`. All modes default to Disabled.
 
-All factories accept `StatisticsMode`, defaulting to Disabled. The process-wide Global captures the mode on its first getter call; later getter arguments do not change it. All callers share its statistics ledger. Use `set_statistics(StatisticsMode::Basic)` to enable an existing instance, and Disabled to pause it; resuming retains its counters.
+All constructors accept `StatisticsMode`, defaulting to Disabled. Each Global, Heap and Stack has its own statistics ledger; Global instances use the shared native allocator. Use `set_statistics(StatisticsMode::Basic)` to enable an existing instance, and Disabled to pause it; resuming retains its counters.
 
 ```sh
 cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON

@@ -283,8 +283,8 @@ void handoff() {
 void stack() {
   std::array<std::byte, 65536> backing{};
   for (unsigned offset = 0; offset < 64; ++offset) {
-    Stack arena = Memory::stack(backing.data() + offset, backing.size() - offset);
-    Stack other = Memory::stack(backing.data(), backing.size());
+    Stack arena = Stack(backing.data() + offset, backing.size() - offset);
+    Stack other = Stack(backing.data(), backing.size());
     for (unsigned alignment = 1; alignment <= 4096; alignment *= 2) {
       const auto mark = arena.mark();
       auto* pointer = arena.allocate(31, alignment);

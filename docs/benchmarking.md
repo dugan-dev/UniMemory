@@ -39,7 +39,7 @@ UniMemory also measures C++ objects, containers and context handling. Standard u
 
 [Data and environments](results/current/README.md) · [Validation](testing.md)
 
-New measurements use `allocation-v3` and `delivery-v2` inventories, including Standard Heap. Older archives retain their original inventory and timing data; they do not measure the current Heap or statistics implementation. Native allocator diagnostics use private build identifiers, separate from the public Memory API. `api_lookup` diagnostics retrieve the same Global singleton for each allocation/free call; `api_cached` reuses a reference retrieved before timing.
+New measurements use `allocation-v3` and `delivery-v2` inventories, including Standard Heap. Older archives retain their original inventory and timing data; they do not measure the current Heap or statistics implementation. Native allocator diagnostics use private build identifiers, separate from the public Memory API. Historical `api_lookup` diagnostics retrieved the former Global singleton for each allocation/free call; `api_cached` reused a reference retrieved before timing. The current API directly constructs Global contexts; these historical timings do not measure that contract.
 
 ## Local performance acceptance
 

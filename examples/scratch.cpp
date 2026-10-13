@@ -5,7 +5,7 @@
 
 int main() {
   alignas(64) std::byte buffer[4096];
-  unimem::Stack scratch = unimem::Memory::stack(buffer, sizeof buffer);
+  unimem::Stack scratch(buffer, sizeof buffer);
   unimem::Stack::Mark checkpoint = scratch.mark();
   std::byte* bytes = static_cast<std::byte*>(scratch.allocate(128, 64));
   bytes[0] = std::byte{42};

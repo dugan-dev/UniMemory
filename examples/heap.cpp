@@ -9,7 +9,7 @@ struct Point {
 
 int main() {
   {
-    unimem::Heap heap = unimem::Memory::heap();
+    unimem::Heap heap;
     {
       unimem::Unique<Point> point = heap.make_unique<Point>(1.0f, 2.0f);
       if (!heap.owns(point.get())) {

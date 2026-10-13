@@ -58,8 +58,10 @@ class DiagnosticTests(unittest.TestCase):
         factors={factor for factor,_,_ in causal.contrasts('single')}
         for factor in ('indirect_dispatch','external_checked_boundary','inline_guards',
                        'actual_stats','atomic_local_cost','cross_worker_sharing',
-                       'counter_field_padding','peak_maintenance','global_lookup','cpu_affinity_api'):
+                       'counter_field_padding','peak_maintenance','cpu_affinity_api'):
             self.assertIn(factor,factors)
+        self.assertNotIn('global_lookup',factors)
+        self.assertNotIn('api_lookup',causal.HOT)
         self.assertIn('alignment_bit_conversion',factors)
         self.assertEqual(len([f for f in factors if f.startswith('api_')]),9)
 

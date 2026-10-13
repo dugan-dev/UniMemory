@@ -15,7 +15,7 @@
 
 `UNIMEMORY_STATISTICS=ON` 允许 Global、Heap、Stack 开启 Basic；OFF 下配置 Basic 抛 `std::invalid_argument`。所有模式默认 Disabled。
 
-所有创建函数接受 `StatisticsMode`，默认关闭。进程唯一 Global 使用首次获取时的模式参数；后续获取参数不改变模式，所有调用方共享同一份统计。实例通过 `set_statistics(Basic)` 开启统计，Disabled 暂停；重新开启保留已有计数。
+所有构造函数接受 `StatisticsMode`，默认关闭。Global、Heap、Stack 的统计各自独立；Global 实例共用原生分配器。实例通过 `set_statistics(Basic)` 开启统计，Disabled 暂停；重新开启保留已有计数。
 
 ```sh
 cmake -S . -B build/basic -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=ON

@@ -11,7 +11,7 @@ UniMemory unifies common contracts. The CMake-selected backend determines availa
 | Zeroed growth | Not a PMR operation | Native form has old-block preconditions | ZERO uses native usable-size boundary | Zero newly requested bytes consistently |
 | Containers | allocator / PMR | C++ adapter | Can supply storage | Allocator adapter and PMR resource |
 | Request counters | Not required by PMR | Native metrics | Native metrics | Runtime Basic counters for Global, Heap and Stack |
-| Independent group | PMR pools have different semantics | Heap | Explicit arena | Memory::heap(), supported by all backends |
+| Independent group | PMR pools have different semantics | Heap | Explicit arena | Heap(), supported by all backends |
 | Group reset / idle collect / membership | No uniform native contract | Heap operations | arena reset/purge/lookup | Heap reset/collect/owns with pointer/lifetime rules |
 | Detailed statistics | No allocator internals | Process committed/reserved | stats build + mallctl; Process or Heap | Use backend tools directly |
 | Reclaim delay | No allocator control | Purge delay | Arena decay defaults | `Memory::config(release_delay_ms)`; Standard valid no-op |

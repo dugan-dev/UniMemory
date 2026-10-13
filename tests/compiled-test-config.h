@@ -22,7 +22,7 @@ inline void configure(unimem::StatisticsMode mode) {
 }
 inline unimem::Heap heap(unimem::StatisticsMode mode) {
   configure(mode);
-  return unimem::Memory::heap(mode);
+  return unimem::Heap(mode);
 }
 inline auto heap_modes() {
   if constexpr (supports_statistics) {
@@ -31,9 +31,10 @@ inline auto heap_modes() {
     return std::array{unimem::StatisticsMode::Disabled};
   }
 }
-// Forward test configuration to the process-wide Global getter.
+// Explicitly owned shared fixture; production Global has no singleton.
 inline unimem::Global& global(unimem::StatisticsMode mode = active_mode) {
-  return unimem::Memory::global(mode);
+  static unimem::Global fixture(mode);
+  return fixture;
 }
 inline void test_configuration(unimem::detail::Backend requested, unimem::StatisticsMode mode) {
   if (requested != backend) {
@@ -47,8 +48,7 @@ inline void verify_configuration() {
     test_configuration(backend, global_mode);
   }
   auto& memory = global();
-  if (memory.kind() != unimem::MemoryKind::Global || &memory != &unimem::Memory::global() ||
-      memory.resource() != unimem::Memory::global().resource()) {
+  if (memory.kind() != unimem::MemoryKind::Global) {
     throw std::runtime_error("Global test fixture kind mismatch");
   }
 }

@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev+event%3Apush) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.md)
 
 A modern, header-only C++20 library for unified memory allocation with Standard, mimalloc or jemalloc, selected at build time.
 
@@ -30,9 +30,9 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 - **📊 Optional statistics**: Optional allocation counts, live bytes and peak usage.
 - **🌐 Cross-platform**: Supports Windows, Linux and macOS.
 
-`Memory` provides the common inline allocation interface. `Memory::global()` returns the unique process-lifetime `Global&`; its statistics and PMR resource are shared. Construct `Heap` and `Stack` directly or use `Memory::heap()` and `Memory::stack()`.
-
 ## Quick Start
+
+Construct `Global`, `Heap` and `Stack` directly. Each instance is non-copyable and non-movable and must outlive its Owners, Containers, Allocator/PMR adapters and shared/weak control blocks. Global instances share the native allocator, with separate statistics and PMR resource identities.
 
 ### Basic Usage
 
@@ -40,8 +40,8 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 #include <unimem/all.h>
 
 int main() {
-    // Get global memory for this build
-    unimem::Global& memory = unimem::Memory::global();
+    // Create a context using the shared native allocator
+    unimem::Global memory;
 
     // Allocate and free
     void* bytes = memory.allocate(1024);
@@ -155,6 +155,7 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### Heap
 
 ```cpp
+// Create an independent allocation group
 unimem::Heap heap;
 
 // Check membership and free
@@ -193,17 +194,17 @@ scratch.reset();
 
 ### Initialization and Statistics
 
-Statistics default to Disabled. ON builds permit runtime Basic; select statistics on first Global access or when constructing each Heap/Stack; use `set_statistics()` to change the shared Global mode. Existing instances retain their modes.
-
 ```cpp
-// Enable request counters with UNIMEMORY_STATISTICS=ON
-unimem::Global& memory = unimem::Memory::global();
+// Build with UNIMEMORY_STATISTICS=ON; runtime counters default to Disabled
+unimem::Global memory;
 memory.set_statistics(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
+// Query counts and bytes; all fields are zero when Disabled
 unimem::Statistics stats = memory.statistics();
 std::uint64_t live = stats.live_bytes;
 std::uint64_t peak = stats.peak_live_bytes;
 std::uint64_t calls = stats.allocations;
+// Release the block, then reset counters
 block.resize(0);
 memory.reset_statistics();
 ```
@@ -211,6 +212,7 @@ memory.reset_statistics();
 ### Runtime Options
 
 ```cpp
+// Set unused-page release delay before normal allocations (Standard: no effect)
 unimem::Memory::config(1000);
 ```
 
@@ -241,13 +243,13 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 <!-- performance-overview-source: docs/results/windows-local-comparison.json -->
 
-Windows x64 · MSVC 19.44 · Release with IPO · statistics off · 2026-10-12. Median of 10 trials, **ns/operation; lower is faster**.
+Windows x64 · MSVC 19.44 · Release · diagnostic IPO off · statistics off · 2026-10-13. Median of 10 trials, **ns/operation; lower is faster**.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| Create and destroy an object, 64 B | 30.8 | 6.1 | 26.6 |
-| Grow and destroy a vector, 256 integers | 233.2 | 242.8 | 181.5 |
-| Create and release a block, 64 B | 29.9 | 5.7 | 27.5 |
+| Create and destroy an object, 64 B | 37.7 | 7.3 | 33.4 |
+| Reserve, fill and destroy a vector, 256 64-bit integers | 302.9 | 265.7 | 311.3 |
+| Create and release a block, 64 B | 41.0 | 7.0 | 36.2 |
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 

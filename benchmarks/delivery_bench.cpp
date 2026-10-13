@@ -69,12 +69,8 @@ struct NativeJemalloc {
 };
 #endif
 struct Unified {
-  unimem::Global& memory;
-  static unimem::Global& get(Backend backend, StatisticsMode mode) {
-    compiled_benchmark_configuration(backend, mode);
-    return Memory::global(mode);
-  }
-  Unified(Backend backend, StatisticsMode mode) : memory(get(backend, mode)) {}
+  unimem::Global memory;
+  Unified(Backend backend, StatisticsMode mode) : memory(mode) { compiled_benchmark_configuration(backend, mode); }
   void* allocate(std::size_t n) { return memory.allocate(n, 16); }
   void deallocate(void* p, std::size_t n) { memory.deallocate(p, n, 16); }
 };
@@ -400,7 +396,7 @@ void footprint(Backend backend, const std::string& name, StatisticsMode mode, bo
   if (dedicated) {
     heap.reset(new unimem::Heap(mode));
   }
-  unimem::Global& global = Memory::global(mode);
+  unimem::Global global(mode);
   Memory& memory = dedicated ? static_cast<Memory&>(*heap) : static_cast<Memory&>(global);
   constexpr std::size_t count = 16384, bytes = 4096;
   std::vector<void*> pointers(count);

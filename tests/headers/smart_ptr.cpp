@@ -9,7 +9,7 @@ struct Point {
 }  // namespace
 
 bool header_smart_ptr() {
-  unimem::Global& memory = unimem::Memory::global();
+  unimem::Global memory;
   unimem::Unique<Point> unique = memory.make_unique<Point>(3, 4);
   unimem::UniqueArray<Point> array = memory.make_unique_array<Point>(3);
   std::shared_ptr<Point> shared = memory.make_shared<Point>(5, 6);

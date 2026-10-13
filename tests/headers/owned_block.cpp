@@ -5,7 +5,7 @@
 #include <utility>
 
 bool header_owned_block() {
-  unimem::Global& memory = unimem::Memory::global();
+  unimem::Global memory;
   if (memory.kind() != unimem::MemoryKind::Global) {
     return false;
   }

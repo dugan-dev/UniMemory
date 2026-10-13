@@ -297,7 +297,7 @@ void test_statistics() {
 
 void test_stack_arena() {
   alignas(64) std::byte buffer[256]{};
-  unimem::Stack arena = unimem::Memory::stack(buffer, sizeof(buffer));
+  unimem::Stack arena = unimem::Stack(buffer, sizeof(buffer));
   CHECK(arena.capacity() == sizeof(buffer));
   CHECK(arena.allocate(0) == nullptr && arena.used() == 0);
   auto start = arena.mark();
@@ -347,7 +347,7 @@ void test_stack_arena() {
   CHECK(threw);
 #endif
 
-  unimem::Stack other = unimem::Memory::stack(buffer, sizeof(buffer));
+  unimem::Stack other = unimem::Stack(buffer, sizeof(buffer));
   threw = false;
   try {
     other.rewind(start);

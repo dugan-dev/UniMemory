@@ -24,15 +24,68 @@ jobs:
         platform:
           - {os: "${{ inputs.runner }}", label: "${{ inputs.platform }}"}
         backend: ${{ fromJSON(inputs.backends) }}
+    env:
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/build/vcpkg-binary-cache
+      VCPKG_DOWNLOADS: ${{ github.workspace }}/build/vcpkg-downloads
     steps:
       - uses: actions/checkout@v5
+      - name: Identify exact SDK cache compatibility
+        id: sdk-key
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = Windows ]; then
+            compiler=$(powershell.exe -NoProfile -Command '$vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio/Installer/vswhere.exe"; $cl = & $vswhere -latest -products "*" -find "VC/Tools/MSVC/**/bin/Hostx64/x64/cl.exe" | Select-Object -Last 1; if (!$cl) { throw "MSVC compiler not found" }; (Get-Item -LiteralPath $cl).VersionInfo.FileVersion')
+          else
+            compiler=$("${CC:-cc}" --version; "${CXX:-c++}" --version)
+          fi
+          signature=$(printf '%s\n' "$PWD" "${ImageVersion:?Missing hosted image version}" "$compiler" "${CC:-default}" "${CXX:-default}" "${CFLAGS:-}" "${CXXFLAGS:-}" "${CPPFLAGS:-}" "${LDFLAGS:-}" "$(cmake --version)" | sha256sum | cut -d' ' -f1)
+          echo "signature=$signature" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v4
+        if: runner.os != 'Windows' && matrix.backend != 'standard'
+        id: unix-sdk-cache
+        with:
+          key: sdk-release-native-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.sdk-key.outputs.signature }}-${{ hashFiles('vcpkg*.json', 'cmake/triplets/**', 'tools/ci/build-backends.sh') }}
+          path: |
+            build/mimalloc
+            build/mi
+            build/jemalloc-5.3.1
+            build/prefix
+      - uses: actions/cache/restore@v4
+        if: runner.os == 'Windows' && matrix.backend != 'standard'
+        id: windows-sdk-cache
+        with:
+          key: sdk-vcpkg-md-v1-${{ runner.os }}-${{ runner.arch }}-${{ steps.sdk-key.outputs.signature }}-2273a28f34ce5aac8be50b3b6b44da7fc1722e06-${{ hashFiles('vcpkg*.json', 'cmake/triplets/**', 'tools/ci/build-backends.sh') }}
+          path: |
+            build/vcpkg-binary-cache
+            build/vcpkg-downloads
       - name: Build existing pinned backend dependencies
         if: runner.os != 'Windows' && matrix.backend != 'standard'
-        run: bash tools/ci/build-backends.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ '${{ steps.unix-sdk-cache.outputs.cache-hit }}' = true ]; then
+            for directory in build/mimalloc/.git build/mi build/jemalloc-5.3.1 build/prefix/lib build/prefix/include; do
+              test -d "$directory" || { echo "Incomplete SDK cache: $directory"; exit 1; }
+            done
+            test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076
+          else
+            bash tools/ci/build-backends.sh
+          fi
+      - uses: actions/cache/save@v4
+        if: runner.os != 'Windows' && matrix.backend != 'standard' && steps.unix-sdk-cache.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.unix-sdk-cache.outputs.cache-primary-key }}
+          path: |
+            build/mimalloc
+            build/mi
+            build/jemalloc-5.3.1
+            build/prefix
       - name: Prepare existing Windows dependency toolchain
         if: runner.os == 'Windows' && matrix.backend != 'standard'
         shell: pwsh
         run: |
+          New-Item -ItemType Directory -Force -Path $env:VCPKG_DEFAULT_BINARY_CACHE,$env:VCPKG_DOWNLOADS | Out-Null
           git clone https://github.com/microsoft/vcpkg.git build/vcpkg
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C build/vcpkg checkout 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
@@ -85,6 +138,13 @@ jobs:
                   subprocess.run(tool,stdout=stream,check=True)
           (root/'build/diagnostic-executables.json').write_text(json.dumps(executables))
           PY
+      - uses: actions/cache/save@v4
+        if: runner.os == 'Windows' && matrix.backend != 'standard' && steps.windows-sdk-cache.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.windows-sdk-cache.outputs.cache-primary-key }}
+          path: |
+            build/vcpkg-binary-cache
+            build/vcpkg-downloads
       - name: Validate selectors and measure isolated factors
         shell: bash
         run: |

@@ -8,12 +8,12 @@ Namespace: `unimem`. Include `<unimem/all.h>` for the complete header-only alloc
 
 | Signature | Result / contract |
 | --- | --- |
-| `Memory::global(statistics = Disabled)` | `Global&`; the unique process-lifetime singleton using the CMake-selected backend |
-| `Heap(statistics = Disabled)` / `Memory::heap(statistics = Disabled)` | Independent `Heap`, supported by all backends |
-| `Stack(span<byte>, statistics = Disabled)` / `Memory::stack(span<byte>, statistics = Disabled)` | `Stack`; fixed borrowed Buffer, single-threaded |
-| `Stack(void*, size_t, statistics = Disabled)` / `Memory::stack(void*, size_t, statistics = Disabled)` | Pointer/size form of the same Buffer strategy |
+| `Global(statistics = Disabled)` | Context using the shared native allocator selected by CMake; per-instance statistics and PMR resource identity |
+| `Heap(statistics = Disabled)` | Independent `Heap`, supported by all backends |
+| `Stack(span<byte>, statistics = Disabled)` | `Stack`; fixed borrowed Buffer, single-threaded |
+| `Stack(void*, size_t, statistics = Disabled)` | Pointer/size form of the same Buffer strategy |
 
-`Memory` cannot be instantiated directly. `Global` has a private constructor; obtain it only through `Memory::global()`. It remains alive for the process lifetime, with one shared statistics ledger and PMR resource. `Heap` and `Stack` have public constructors and must outlive their Owners, Containers, Allocator/PMR adapters and shared/weak control blocks. These classes cannot be copied or moved. See [lifetime requirements](compatibility.md#lifetime) for Heap/Stack release order.
+`Memory` cannot be instantiated directly. Construct `Global`, `Heap` and `Stack` directly; these classes cannot be copied or moved. Each instance must outlive its Owners, Containers, Allocator/PMR adapters and shared/weak control blocks. Global instances share the native allocator, but retain separate statistics and PMR resource identities; destroying Global does not reclaim outstanding native allocations. See [lifetime requirements](compatibility.md#lifetime).
 
 ## 2 · Configuration and queries
 
@@ -23,11 +23,11 @@ Namespace: `unimem`. Include `<unimem/all.h>` for the complete header-only alloc
 | `Memory::config(release_delay_ms)` | Set the backend-wide idle-page release delay |
 | `statistics()` / `reset_statistics()` | Five-field value; clear all five counters without freeing storage |
 
-`config(release_delay_ms)` accepts milliseconds; -1 disables automatic page reclamation. Statistics are selected per instance through a factory argument or `set_statistics()`; OFF builds reject Basic.
+`config(release_delay_ms)` accepts milliseconds; -1 disables automatic page reclamation. Statistics are selected per instance through a constructor argument or `set_statistics()`; OFF builds reject Basic.
 
-The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. Backend selection happens once in CMake; allocation APIs use that choice. ON permits runtime Basic for Global, Heap and Stack; OFF rejects Basic configuration. All modes default to Disabled. Global captures statistics on first access; Heap and Stack capture their own mode at construction. Use `set_statistics()` to change an existing instance mode. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
+The required source options are `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc` and `UNIMEMORY_STATISTICS=ON|OFF`. Backend selection happens once in CMake; allocation APIs use that choice. ON permits runtime Basic for Global, Heap and Stack; OFF rejects Basic configuration. All modes default to Disabled. Each Global, Heap and Stack selects its own mode at construction. Use `set_statistics()` to change an existing instance mode. `UNIMEMORY_CHECKS=AUTO` enables precondition checks in Debug and omits them in other configurations; ON/OFF override it. Keep one configuration across consumer translation units. [Build options](getting-started.md#build-options)
 
-`Statistics` contains five request counter fields; Disabled returns five zeros. Global lookup does not replace
+`Statistics` contains five request counter fields; Disabled returns five zeros. Constructing Global does not replace
 ordinary `new/delete` or unadapted Containers.
 
 ## 3 · Bytes and Block

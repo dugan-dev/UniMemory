@@ -5,10 +5,11 @@
 
 namespace unimem {
 
-// Shared memory accessed through Memory::global().
+// Shared allocator with per-object statistics.
 class Global final : public Memory {
- private:
-  UNIM_IMPL_GLOBAL_MEMBERS
+ public:
+  Global(StatisticsMode statistics = StatisticsMode::Disabled);
+  ~Global() = default;
 };
 
 }  // namespace unimem

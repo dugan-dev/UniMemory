@@ -107,7 +107,7 @@ void boundaries(unimem::Memory& memory) {
 
 void reuse_stack() {
   alignas(256) std::array<std::byte, 4096> buffer;
-  auto memory = unimem::Memory::stack(buffer);
+  auto memory = unimem::Stack(buffer);
   for (int iteration = 0; iteration < 64; ++iteration) {
     // Reuse the same address for arrays of incompatible types and bounds.
     auto* integers = memory.allocate_objects<int>(17);
@@ -138,7 +138,7 @@ void reuse_stack() {
 
 void low_alignment() {
   alignas(256) std::array<std::byte, 1025> buffer;
-  auto memory = unimem::Memory::stack(buffer.data() + 1, 1024);
+  auto memory = unimem::Stack(buffer.data() + 1, 1024);
   for (bool adapter : {false, true}) {
     auto allocator = memory.allocator<char>();
     char* values = adapter ? allocator.allocate(16) : memory.allocate_objects<char>(16);

@@ -501,7 +501,7 @@ void run_backend(std::ostream& output, const std::string& backend_name, unimem::
   } else if (variant == "api_disabled" || variant == "api_basic") {
     const bool basic = variant == "api_basic";
     compiled_benchmark_configuration(backend, basic ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
-    unimem::Global& memory = unimem::Memory::global();
+    unimem::Global memory(basic ? unimem::StatisticsMode::Basic : unimem::StatisticsMode::Disabled);
     const auto before = memory.statistics();
     require(basic || (before.allocations == 0 && before.live_bytes == 0), "statistics diagnostic actual statistics mode mismatch");
     if (basic) {

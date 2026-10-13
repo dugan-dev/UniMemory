@@ -11,5 +11,4 @@ inline void compiled_benchmark_configuration(unimem::detail::Backend backend, un
   if (mode == unimem::StatisticsMode::Basic && UNIMEMORY_CONFIG_STATISTICS == 0) {
     throw std::invalid_argument("benchmark requires the compiled backend/statistics mode");
   }
-  unimem::Memory::global(mode).set_statistics(mode);
 }

@@ -633,9 +633,9 @@ void run_backend(std::ostream& output, const std::string& backend_name, unimem::
     result = run_workload(access, allocator, &resource, selection.workload, iterations);
   } else {
     compiled_benchmark_configuration(backend, unimem::StatisticsMode::Disabled);
-    unimem::Global& memory = unimem::Memory::global();
+    unimem::Global memory;
     require(memory.kind() == unimem::MemoryKind::Global && memory.statistics().allocations == 0 && memory.statistics().live_bytes == 0,
-            "api diagnostic requires cached statistics-disabled Global Memory");
+            "api diagnostic requires statistics-disabled Global Memory");
     ActualAccess access{&memory};
     auto allocator = memory.allocator<std::uint64_t>();
     auto* resource = memory.resource();

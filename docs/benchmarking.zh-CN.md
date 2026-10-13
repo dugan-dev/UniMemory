@@ -39,7 +39,7 @@ cmake --build build/bench --config Release
 
 [数据与环境](results/current/README.md) · [验证](testing.zh-CN.md)
 
-新测量采用 `allocation-v3` 和 `delivery-v2` 场景契约，覆盖 Standard Heap。历史归档保留原场景、数值和来源日期，不代表当前 Heap 或统计实现的性能。原生分配器诊断使用私有构建标识，公共 Memory API 不提供后端查询。`api_lookup` 在每次分配/释放时获取同一个 Global 单例；`api_cached` 复用计时前取得的引用。
+新测量采用 `allocation-v3` 和 `delivery-v2` 场景契约，覆盖 Standard Heap。历史归档保留原场景、数值和来源日期，不代表当前 Heap 或统计实现的性能。原生分配器诊断使用私有构建标识，公共 Memory API 不提供后端查询。历史 `api_lookup` 在每次分配/释放时获取旧 Global 单例；`api_cached` 复用计时前取得的引用。当前 API 直接构造 Global 实例；这些历史计时不代表该契约。
 
 ## 本地性能验收
 

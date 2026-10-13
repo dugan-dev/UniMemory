@@ -6,7 +6,7 @@
 
 ## 范围与生命周期
 
-`Heap heap;`（或 `Memory::heap()`）使用 CMake 所选后端创建独立分配组，所有后端均支持全部通用接口及 owns、reset、collect。构造函数选择实例统计模式，默认 Disabled。管理接口属于 `Heap`，通用接口也可通过 `Memory&` 使用。
+`Heap heap;`使用 CMake 所选后端创建独立分配组，所有后端均支持全部通用接口及 owns、reset、collect。构造函数选择实例统计模式，默认 Disabled。管理接口属于 `Heap`，通用接口也可通过 `Memory&` 使用。
 
 ## 成员操作
 

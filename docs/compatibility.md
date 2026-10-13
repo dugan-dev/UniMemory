@@ -6,7 +6,7 @@
 
 | Kind | Rule |
 | --- | --- |
-| Global | Unique process-lifetime singleton; never delete or explicitly destroy it. Owners, adapters and shared/weak control blocks remain bound to that object. |
+| Global | Caller-owned context; destroy Owners, Containers, adapters and shared/weak control blocks before this instance. Destruction does not bulk-free native allocations. |
 | Heap | Destroy Owners, Containers and weak_ptr control blocks before reset or destruction. |
 | Stack | Buffer outlives Memory. Destroy affected Owners and Containers before rewind/reset. |
 
@@ -30,9 +30,11 @@ Global and Heap allow concurrent allocation/free. Synchronize Object access sepa
 | Publish ownership to another thread | Mutex, barrier or release/acquire publication; no unsynchronized pointer handoff |
 | Heap collect/reset/destruction | No concurrent Memory operations or access to reclaimed storage |
 
+All three contexts are non-copyable and non-movable; keep their addresses stable while consumers exist. Global instances share native allocation facilities, not statistics or PMR resource identity.
+
 ## Allocation pairing
 
-Release through the original Memory, using the current request size and original alignment. Do not mix UniMemory storage with delete, free or another Heap. Smart Pointers and OwnedBlock remember the allocation context; raw pointers do not.
+Release through the original Memory, using the current request size and original alignment. Do not mix UniMemory storage with delete, free or another Memory instance. Smart Pointers and OwnedBlock remember the allocation context; raw pointers do not.
 
 Raw Object destruction also requires its original concrete type and allocation-start
 pointer. Adoption binds this Memory without inspecting arbitrary pointer provenance.
@@ -41,7 +43,7 @@ Reset/rewind reclaim storage without running Object destructors. Stale pointers,
 
 ## Dynamic libraries
 
-Global is shared across translation units in one program using one profile. Across independently loaded DLLs/plugins, preserve the original Memory/resource identity rather than assuming inline state is unified by the linker. Pass the original Memory/resource across that boundary, keep its defining module loaded, and preserve allocation pairing. Cross-library C++ Objects and Containers require compatible compiler, standard library and runtime ABIs.
+Share a caller-owned Global across translation units by passing its reference. Across independently loaded DLLs/plugins, preserve the original Memory/resource identity and lifetime. Pass the original Memory/resource across that boundary, keep its defining module loaded, and preserve allocation pairing. Cross-library C++ Objects and Containers require compatible compiler, standard library and runtime ABIs.
 
 Keep the defining module and dynamically linked SDK loaded while its Memory instances, owners, Allocators or PMR resources are in use. UniMemory does not provide a separate shared-library ABI.
 

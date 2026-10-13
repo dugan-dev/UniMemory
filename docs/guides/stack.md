@@ -6,7 +6,7 @@ Examples: [Quick Start](../../README.md#quick-start).
 
 ## Buffer lifetime
 
-`Stack scratch(buffer);` (or `Memory::stack(buffer)`) allocates from an existing buffer and supports all common Memory APIs. Stack controls belong to `Stack`, including `Stack::Mark`. The buffer must be writable, fixed-capacity and outlive Memory. Use one thread only. This is not the thread call stack.
+`Stack scratch(buffer);` allocates from an existing buffer and supports all common Memory APIs. Stack controls belong to `Stack`, including `Stack::Mark`. The buffer must be writable, fixed-capacity and outlive Memory. Use one thread only. This is not the thread call stack.
 
 ## Reuse storage
 

@@ -6,7 +6,7 @@
 
 | 类型 | 规则 |
 | --- | --- |
-| Global | 进程生命周期内唯一的单例；不可删除或显式析构。Owner、适配器及共享/弱引用控制块均绑定该对象。 |
+| Global | 调用方管理生命周期；Owner、Container、适配器及共享/弱引用控制块须先销毁。析构不批量释放原生分配。 |
 | Heap | Owner、Container、weak_ptr 控制块全部释放后，再 reset 或析构 |
 | Stack | Buffer 比 Memory 活得更久；先销毁受影响的 Owner、Container，再回退 |
 
@@ -30,9 +30,11 @@ Global、Heap 支持并发分配释放。Object 读写需自行同步。reset、
 | 向其他线程交接所有权 | Mutex、barrier 或 release/acquire 发布；不使用无同步指针交接 |
 | Heap collect/reset/析构 | 无并发 Memory 操作，不访问已回收存储 |
 
+三类实例均不可复制或移动；消费者存活期间，地址须保持稳定。Global 实例共用原生分配设施，不共用统计或 PMR 资源身份。
+
 ## 分配与释放配对
 
-使用原 Memory、当前请求大小及原对齐参数释放。不可混用 delete、free 或另一个 Heap。Smart Pointer、OwnedBlock 记住来源；原始指针不会。
+使用原 Memory、当前请求大小及原对齐参数释放。不可混用 delete、free 或另一个 Memory 实例。Smart Pointer、OwnedBlock 记住来源；原始指针不会。
 
 原始 Object 还须保留原具体类型和分配起始指针。接管接口只绑定 Memory，不检查任意指针的来源。
 
@@ -40,7 +42,7 @@ reset、rewind 只回收存储，不调用 Object 析构。旧指针、仍存活
 
 ## 动态库
 
-同一程序使用同一配置时，各翻译单元共享 Global。独立加载的 DLL/插件之间须保留原 Memory/资源身份，不假定链接器一定合并 inline 状态。跨边界传递原 Memory/资源，保持其定义模块加载，并用原实例配对释放。
+通过引用在翻译单元间共享调用方管理的 Global。独立加载的 DLL/插件之间须保留原 Memory/资源身份和生命周期。跨边界传递原 Memory/资源，保持其定义模块加载，并用原实例配对释放。
 跨动态库的 C++ Object、Container 还要求兼容的编译器、标准库及 Runtime ABI。
 
 使用 Memory、智能指针、Allocator 或 PMR 资源期间，定义模块和动态链接的 SDK 必须保持加载；UniMemory 不提供单独的共享库 ABI。

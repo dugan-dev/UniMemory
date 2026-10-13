@@ -1,6 +1,6 @@
 # UniMemory
 
-[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev&event=push)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev+event%3Apush) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
+[![CI](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml/badge.svg?branch=dev)](https://github.com/dugan-dev/UniMemory/actions/workflows/performance.yml?query=branch%3Adev) [![Source](https://img.shields.io/badge/source-dev-blue.svg)](https://github.com/dugan-dev/UniMemory/tree/dev) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard) [![CMake](https://img.shields.io/badge/CMake-3.25%2B-green.svg)](https://cmake.org/) [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](docs/guides/backends.zh-CN.md)
 
 现代 C++20 纯头文件内存分配库，构建时选择 Standard、mimalloc 或 jemalloc，使用统一接口。
 
@@ -30,9 +30,9 @@
 - **📊 可选统计**：可选的分配次数、当前用量和峰值统计。
 - **🌐 跨平台**：支持 Windows、Linux、macOS。
 
-`Memory` 提供统一的内联分配接口。`Memory::global()` 返回进程生命周期内唯一的 `Global&`，共享统计与 PMR 资源。`Heap`、`Stack` 可直接构造，也可通过 `Memory::heap()`、`Memory::stack()` 创建。
-
 ## 快速开始
+
+直接构造 `Global`、`Heap`、`Stack`。实例不可复制或移动，须比其 Owner、Container、Allocator/PMR 适配器及共享/弱引用控制块存活更久。Global 实例共用原生分配器，但统计和 PMR 资源身份各自独立。
 
 ### 基本用法
 
@@ -40,8 +40,8 @@
 #include <unimem/all.h>
 
 int main() {
-    // 获取本次构建所选后端的全局 Memory
-    unimem::Global& memory = unimem::Memory::global();
+    // 创建使用共享原生分配器的实例
+    unimem::Global memory;
 
     // 普通分配与释放
     void* bytes = memory.allocate(1024);
@@ -155,6 +155,7 @@ unimem::UniqueArray<Point> owned = memory.make_unique_array<Point>(16);
 ### 堆
 
 ```cpp
+// 创建独立的分配组
 unimem::Heap heap;
 
 // 检查归属并释放
@@ -193,17 +194,17 @@ scratch.reset();
 
 ### 初始化与统计
 
-统计默认关闭；ON 构建支持为每个 Memory 独立开启、暂停与清零。
-
 ```cpp
-// 通过 UNIMEMORY_STATISTICS=ON 启用请求计数
-unimem::Global& memory = unimem::Memory::global();
+// 构建时设置 UNIMEMORY_STATISTICS=ON；运行时计数默认关闭
+unimem::Global memory;
 memory.set_statistics(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
+// 查询请求次数与字节数；关闭时所有字段为零
 unimem::Statistics stats = memory.statistics();
 std::uint64_t live = stats.live_bytes;
 std::uint64_t peak = stats.peak_live_bytes;
 std::uint64_t calls = stats.allocations;
+// 释放内存块后重置计数
 block.resize(0);
 memory.reset_statistics();
 ```
@@ -211,6 +212,7 @@ memory.reset_statistics();
 ### 运行时选项
 
 ```cpp
+// 正常分配前，将闲置页释放延迟设为 1000 毫秒（Standard 无效果）
 unimem::Memory::config(1000);
 ```
 
@@ -241,13 +243,13 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 <!-- performance-overview-source: docs/results/windows-local-comparison.json -->
 
-Windows x64 · MSVC 19.44 · Release＋IPO · 统计关闭 · 2026-10-12。10 轮耗时中位数，**ns/次，越低越快**。
+Windows x64 · MSVC 19.44 · Release · 诊断目标 IPO 关闭 · 统计关闭 · 2026-10-13。10 轮耗时中位数，**ns/次，越低越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
-| 创建并销毁对象，64 B | 30.8 | 6.1 | 26.6 |
-| vector 增长并销毁，256 个整数 | 233.2 | 242.8 | 181.5 |
-| 创建并释放内存块，64 B | 29.9 | 5.7 | 27.5 |
+| 创建并销毁对象，64 B | 37.7 | 7.3 | 33.4 |
+| vector 预留、填充并销毁，256 个 64 位整数 | 302.9 | 265.7 | 311.3 |
+| 创建并释放块，64 B | 41.0 | 7.0 | 36.2 |
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 

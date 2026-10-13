@@ -10,7 +10,7 @@ struct Point {
 };
 
 int main() {
-  unimem::Global& memory = unimem::Memory::global();
+  unimem::Global memory;
   Point* point = memory.create<Point>(1.0f, 2.0f);
   const Point position = *point;
   memory.destroy(point);

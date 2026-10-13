@@ -5,7 +5,9 @@
 #include <cstdlib>
 
 namespace {
-// Created before main, armed after Global publication, used during shutdown.
+// The context precedes the late resource user in construction order.
+unimem::Global shared_context(compiled_test::global_mode);
+// Armed in main and used during shutdown while shared_context remains alive.
 struct LatePmr {
   unimem::Memory* memory = nullptr;
   std::pmr::memory_resource* resource = nullptr;
@@ -31,7 +33,7 @@ struct LatePmr {
 }  // namespace
 
 unimem::Global& pmr_context() {
-  return unimem::Memory::global(compiled_test::global_mode);
+  return shared_context;
 }
 
 PmrIdentity pmr_identity_a() {

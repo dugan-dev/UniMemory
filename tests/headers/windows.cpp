@@ -2,7 +2,7 @@
 #include <unimem/all.h>
 
 int main() {
-  auto& memory = unimem::Memory::global();
+  unimem::Global memory;
   auto owner = memory.make_unique<int>(42);
   auto block = memory.make_block(16);
   block.resize(32);

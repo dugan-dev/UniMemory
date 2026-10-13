@@ -13,7 +13,7 @@ struct Point {
 }  // namespace
 
 bool header_allocator() {
-  unimem::Global& memory = unimem::Memory::global();
+  unimem::Global memory;
   unimem::Allocator<Point> allocator = memory.allocator<Point>();
   unimem::Allocator<long> rebound(allocator);
   Point* empty_storage = allocator.allocate(0);

@@ -37,7 +37,7 @@ struct StorageDeleter {
 }  // namespace
 
 bool header_memory() {
-  unimem::Global& memory = unimem::Memory::global();
+  unimem::Global memory;
   if (!standalone_allocator(memory)) {
     return false;
   }
@@ -56,7 +56,7 @@ bool header_memory() {
   std::unique_ptr<Point, StorageDeleter> storage(memory.allocate_objects<Point>(), StorageDeleter{&memory});
   storage.reset();
   alignas(64) std::byte buffer[1024];
-  unimem::Stack stack = unimem::Memory::stack(buffer);
+  unimem::Stack stack = unimem::Stack(buffer);
   unimem::Stack::Mark mark = stack.mark();
   {
     unimem::Unique<Point> owner = stack.make_unique<Point>(5, 6);

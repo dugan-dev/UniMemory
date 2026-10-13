@@ -2,10 +2,6 @@
 
 namespace unimem {
 
-inline Heap Memory::heap(StatisticsMode statistics) {
-  return Heap(statistics);
-}
-
 inline Heap::Heap(StatisticsMode statistics) : Memory(MemoryKind::Heap) {
   memory_impl::validate_statistics(statistics);
   if constexpr (detail::build_backend == detail::Backend::Standard) {

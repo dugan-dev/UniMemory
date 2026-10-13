@@ -10,11 +10,11 @@ concept HasSelectedStatistics = requires { T::selected_statistics; };
 template <class T>
 concept HasRuntimeGlobalConfiguration = requires { T::configure_global(0, unimem::StatisticsMode::Disabled); };
 template <class T>
-concept HasBackendGlobal = requires(T backend) { unimem::Memory::global(backend); };
+concept HasGlobalFactory = requires { T::global(); };
 template <class T>
-concept HasBackendHeap = requires(T backend) { unimem::Memory::heap(backend); };
+concept HasHeapFactory = requires { T::heap(); };
 template <class T>
-concept HasBackendHeapStatistics = requires(T backend) { unimem::Memory::heap(backend, unimem::StatisticsMode::Disabled); };
+concept HasStackFactory = requires { T::stack(nullptr, 0); };
 template <class T>
 concept HasConfig = requires { T::config(0); };
 template <class T>
@@ -27,13 +27,8 @@ concept HasBackendStatistics = requires(T& memory) { memory.backend_statistics()
 static_assert(!HasSelectedBackend<unimem::Memory>);
 static_assert(!HasSelectedStatistics<unimem::Memory>);
 static_assert(!HasRuntimeGlobalConfiguration<unimem::Memory>);
-static_assert(!HasBackendGlobal<int>);
-static_assert(!HasBackendHeap<int>);
-static_assert(!HasBackendHeapStatistics<int>);
 static_assert(HasConfig<unimem::Memory>);
-static_assert(HasBackendHeap<unimem::StatisticsMode>);
-static_assert(HasBackendGlobal<unimem::StatisticsMode>);
-static_assert(std::is_same_v<decltype(unimem::Memory::stack(nullptr, 0, unimem::StatisticsMode::Disabled)), unimem::Stack>);
+static_assert(std::is_same_v<decltype(unimem::Stack(nullptr, 0, unimem::StatisticsMode::Disabled)), unimem::Stack>);
 static_assert(std::is_same_v<decltype(&unimem::Memory::config), void (*)(std::int64_t)>);
 static_assert(std::is_same_v<decltype(std::declval<unimem::Memory&>().set_statistics(unimem::StatisticsMode::Basic)), void>);
 static_assert(!HasBackend<unimem::Memory>);
@@ -41,10 +36,7 @@ static_assert(std::is_same_v<decltype(std::declval<const unimem::Memory&>().stat
 static_assert(std::is_same_v<decltype(std::declval<unimem::Memory&>().reset_statistics()), void>);
 static_assert(!HasCapabilities<unimem::Memory>);
 static_assert(!HasBackendStatistics<unimem::Memory>);
-static_assert(std::is_same_v<decltype(&unimem::Memory::global), unimem::Global& (*)(unimem::StatisticsMode)>);
-static_assert(std::is_same_v<decltype(&unimem::Memory::heap), unimem::Heap (*)(unimem::StatisticsMode)>);
-static_assert(std::is_same_v<decltype(unimem::Memory::heap()), unimem::Heap>);
-static_assert(std::is_same_v<decltype(unimem::Memory::global()), unimem::Global&>);
+static_assert(std::is_same_v<decltype(unimem::Heap()), unimem::Heap>);
 
 template <class T>
 concept HasInstance = requires { T::instance(); };
@@ -105,8 +97,10 @@ static_assert(inherited_allocation_contract<unimem::Stack>);
 static_assert(std::is_convertible_v<unimem::Global*, unimem::Memory*>);
 static_assert(std::is_convertible_v<unimem::Heap*, unimem::Memory*>);
 static_assert(std::is_convertible_v<unimem::Stack*, unimem::Memory*>);
-static_assert(!std::is_default_constructible_v<unimem::Global>);
-static_assert(!std::is_constructible_v<unimem::Global, unimem::StatisticsMode>);
+static_assert(std::is_default_constructible_v<unimem::Global>);
+static_assert(std::is_constructible_v<unimem::Global, unimem::StatisticsMode>);
+static_assert(std::is_destructible_v<unimem::Global>);
+static_assert(!HasGlobalFactory<unimem::Memory> && !HasHeapFactory<unimem::Memory> && !HasStackFactory<unimem::Memory>);
 static_assert(std::is_default_constructible_v<unimem::Heap>);
 static_assert(std::is_constructible_v<unimem::Heap, unimem::StatisticsMode>);
 static_assert(std::is_convertible_v<unimem::StatisticsMode, unimem::Heap>);

@@ -355,7 +355,7 @@ double run(const BackendName& backend, const Scenario& scenario, std::size_t ope
   if (scenario.heap) {
     heap.reset(new unimem::Heap(scenario.statistics));
   }
-  unimem::Global& global = unimem::Memory::global(scenario.statistics);
+  unimem::Global global(scenario.statistics);
   unimem::Memory& target = scenario.heap ? static_cast<unimem::Memory&>(*heap) : static_cast<unimem::Memory&>(global);
   measure(target, scenario.workload, scenario.bytes, scenario.alignment, (std::min)(operations / 4 + 1, std::size_t{1024}), scenario.threads);
   const auto result = measure(target, scenario.workload, scenario.bytes, scenario.alignment, operations, scenario.threads);

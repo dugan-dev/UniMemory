@@ -8,12 +8,12 @@
 
 | 接口 | 返回值与用途 |
 | --- | --- |
-| `Memory::global(statistics = Disabled)` | `Global&`，进程生命周期内唯一的单例，使用 CMake 所选后端 |
-| `Heap(statistics = Disabled)` / `Memory::heap(statistics = Disabled)` | 独立 `Heap`，所有后端均支持 |
-| `Stack(span<byte>, statistics = Disabled)` / `Memory::stack(span<byte>, statistics = Disabled)` | `Stack`，固定 Buffer，单线程借用 |
-| `Stack(void*, size_t, statistics = Disabled)` / `Memory::stack(void*, size_t, statistics = Disabled)` | 同一策略的指针与大小形式 |
+| `Global(statistics = Disabled)` | 使用 CMake 所选共享原生分配器的实例；统计和 PMR 资源身份各自独立 |
+| `Heap(statistics = Disabled)` | 独立 `Heap`，所有后端均支持 |
+| `Stack(span<byte>, statistics = Disabled)` | `Stack`，固定 Buffer，单线程借用 |
+| `Stack(void*, size_t, statistics = Disabled)` | 同一策略的指针与大小形式 |
 
-`Memory` 不可直接实例化。`Global` 构造函数私有，仅通过 `Memory::global()` 获取，进程生命周期内共享同一份统计和 PMR 资源。`Heap`、`Stack` 构造函数公开，须比其 Owner、Container、Allocator/PMR 适配器及共享/弱引用控制块存活更久。这些类不可复制或移动。Heap/Stack 的释放顺序见[生命周期](compatibility.zh-CN.md#生命周期)。
+`Memory` 不可直接实例化。`Global`、`Heap`、`Stack` 均直接构造，不可复制或移动；每个实例须比其 Owner、Container、Allocator/PMR 适配器及共享/弱引用控制块存活更久。Global 实例共用原生分配器，但统计和 PMR 资源身份各自独立；析构 Global 不回收尚未释放的原生分配。见[生命周期](compatibility.zh-CN.md#生命周期)。
 
 ## 2 · 配置与查询
 
@@ -25,7 +25,7 @@
 
 `config(release_delay_ms)` 接受毫秒数；-1 关闭自动页回收。统计由创建参数或实例的 `set_statistics()` 独立设置；OFF 构建拒绝 Basic。
 
-源码配置必填 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc`、`UNIMEMORY_STATISTICS=ON|OFF`。ON 允许所有 Memory 模式运行时开启 Basic；OFF 拒绝 Basic 配置。所有模式默认 Disabled；Global 在首次获取时选择统计模式；Heap、Stack 在构造时选择各自模式。通过 `set_statistics()` 改变已有实例的统计模式。
+源码配置必填 `UNIMEMORY_BACKEND=standard|mimalloc|jemalloc`、`UNIMEMORY_STATISTICS=ON|OFF`。ON 允许所有 Memory 模式运行时开启 Basic；OFF 拒绝 Basic 配置。所有模式默认 Disabled；Global、Heap、Stack 均在构造时选择各自统计模式。通过 `set_statistics()` 改变已有实例的统计模式。
 
 `Statistics` 包含五个请求计数字段；Disabled 返回五个零值。
 本库不自动替换普通 `new/delete` 或未适配的 Container。

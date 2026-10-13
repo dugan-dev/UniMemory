@@ -7,12 +7,12 @@ static_assert(!std::has_virtual_destructor_v<unimem::Memory>);
 static_assert(!std::is_destructible_v<unimem::Memory>);
 int main() {
   using namespace unimem;
-  auto& global = Memory::global();
+  Global global;
   auto global_item = global.make_unique<int>(13);
-  auto default_heap = Memory::heap();
+  auto default_heap = Heap();
   auto default_item = default_heap.make_unique<int>(19);
   std::array<std::byte, 512> bytes{};
-  auto default_stack = Memory::stack(bytes);
+  auto default_stack = Stack(bytes);
   auto stack_item = default_stack.make_unique<int>(37);
   for (Memory* memory : std::array<Memory*, 3>{&global, &default_heap, &default_stack}) {
     if (!compiled_test::zero(memory->statistics())) {
@@ -20,15 +20,17 @@ int main() {
     }
   }
   for (auto mode : compiled_test::heap_modes()) {
-    auto heap = Memory::heap(mode);
+    Global global_arena(mode);
+    auto heap = Heap(mode);
     std::array<std::byte, 512> scratch_bytes{};
-    auto stack = Memory::stack(scratch_bytes, mode);
+    auto stack = Stack(scratch_bytes, mode);
     auto item = heap.make_unique<int>(91);
+    auto global_value = global_arena.make_unique<int>(29);
     auto scratch = stack.make_unique<int>(42);
     if (*item != 91 || *scratch != 42 || !heap.owns(item.get())) {
       return 2;
     }
-    for (Memory* memory : std::array<Memory*, 2>{&heap, &stack}) {
+    for (Memory* memory : std::array<Memory*, 3>{&global_arena, &heap, &stack}) {
       const auto recorded = memory->statistics();
       if (mode == StatisticsMode::Basic) {
         if (recorded.allocations != 1 || recorded.live_bytes != sizeof(int)) {
@@ -54,12 +56,16 @@ int main() {
       }
     }
     item.reset();
+    global_value.reset();
     scratch.reset();
-    if (heap.statistics().live_bytes != 0 || stack.statistics().live_bytes != 0) {
+    if (global_arena.statistics().live_bytes != 0 || heap.statistics().live_bytes != 0 || stack.statistics().live_bytes != 0) {
       return 8;
     }
-    auto& repeated = Memory::global(mode);
-    if (&repeated != &global || !compiled_test::zero(global.statistics())) {
+    Global repeated(mode);
+    auto peer_item = repeated.make_unique<int>(23);
+    if (&repeated == &global || repeated.resource() == global.resource() || !compiled_test::zero(global.statistics()) ||
+        (mode == StatisticsMode::Basic && (repeated.statistics().allocations != 1 || repeated.statistics().live_bytes != sizeof(int))) ||
+        (mode == StatisticsMode::Disabled && !compiled_test::zero(repeated.statistics()))) {
       return 9;
     }
   }
@@ -101,7 +107,7 @@ int main() {
     }
     bool rejected = false;
     try {
-      (void)Memory::heap(StatisticsMode::Basic);
+      (void)Heap(StatisticsMode::Basic);
     } catch (const std::invalid_argument&) {
       rejected = true;
     }
@@ -110,7 +116,7 @@ int main() {
     }
     rejected = false;
     try {
-      (void)Memory::stack(bytes, StatisticsMode::Basic);
+      (void)Stack(bytes, StatisticsMode::Basic);
     } catch (const std::invalid_argument&) {
       rejected = true;
     }
@@ -119,7 +125,7 @@ int main() {
     }
     rejected = false;
     try {
-      (void)Memory::global(StatisticsMode::Basic);
+      (void)Global(StatisticsMode::Basic);
     } catch (const std::invalid_argument&) {
       rejected = true;
     }
@@ -145,8 +151,7 @@ int main() {
     }
     return false;
   };
-  if (!rejects([&] { (void)Memory::global(invalid); }) || !rejects([&] { (void)Memory::heap(invalid); }) ||
-      !rejects([&] { (void)Memory::stack(bytes, invalid); })) {
+  if (!rejects([&] { (void)Global(invalid); }) || !rejects([&] { (void)Heap(invalid); }) || !rejects([&] { (void)Stack(bytes, invalid); })) {
     return 19;
   }
   return 0;
