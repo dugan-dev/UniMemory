@@ -242,7 +242,7 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 <!-- performance-overview-source: docs/results/windows-local-comparison.json -->
 
-Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-13. Median of 10 trials, **ns/operation; lower is faster**.
+Measured on Windows x64. **ns/operation; lower is faster**.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -250,17 +250,9 @@ Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-13. Median of 
 | Reserve, fill and destroy a vector, 256 64-bit integers | 302.9 | 265.7 | 311.3 |
 | Create and release a block, 64 B | 41.0 | 7.0 | 36.2 |
 
-Three-platform comparisons use the same baseline revision (2026-10-13, `fe90b68`, before the interface update), with statistics off. Native std = 1; lower is faster.
-
-![Windows native and UniMemory comparison](docs/images/native-comparison/windows.svg)
-
-![Linux native and UniMemory comparison](docs/images/native-comparison/linux.svg)
-
-![macOS native and UniMemory comparison](docs/images/native-comparison/macos.svg)
-
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-The original chart uses published Windows / Linux data, with Standard = 1; shorter bars are faster.
+Standard = 1 in the chart; shorter bars are faster.
 
 ## Build and Install
 
@@ -287,15 +279,19 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`.
+Set `-DCMAKE_PREFIX_PATH=<absolute-install-path>` to locate the installation.
 
 ## Documentation
 
-- **Start:** [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build options](docs/getting-started.md#build-options) · [Build and install](docs/getting-started.md) · [Runnable examples](examples/README.md)
-- **Everyday use:** [Object / Array](docs/guides/objects.md) · [Container](docs/guides/containers.md) · [Block](docs/guides/raw-memory.md)
-- **Memory management:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
-- **Reference:** [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md) · [Integration guide](docs/getting-started.md) · [Full index](docs/README.md)
-- **Performance:** [Full performance report](docs/performance.md) · [Table data](docs/results/windows-local-comparison.json) · [Chart data](docs/results/native-comparison.json)
+- [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build and install](docs/getting-started.md)
+- [Build options](docs/getting-started.md#build-options) · [Integration](docs/getting-started.md)
+- [Runnable examples](examples/README.md)
+- [Objects and arrays](docs/guides/objects.md) · [Containers](docs/guides/containers.md)
+- [Blocks](docs/guides/raw-memory.md) · [Heap](docs/guides/heap.md)
+- [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
+- [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md)
+- [Performance report](docs/performance.md) · [Table data](docs/results/windows-local-comparison.json)
+- [Full documentation index](docs/README.md)
 
 ## License
 
