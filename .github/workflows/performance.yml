@@ -21,7 +21,7 @@ permissions:
   pull-requests: read
   actions: read
 concurrency:
-  group: performance-${{ github.ref }}
+  group: performance-${{ github.ref }}-${{ inputs.validation_only || false }}
   cancel-in-progress: false
 jobs:
   changes:
