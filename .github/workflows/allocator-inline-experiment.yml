@@ -6,6 +6,10 @@ on:
         description: Unmodified production revision used for every variant
         type: string
         default: fe90b68
+      experiment_kind:
+        description: allocator_inline or kind_global; experimental source copies only
+        type: string
+        default: allocator_inline
 permissions:
   contents: read
 jobs:
@@ -42,7 +46,8 @@ jobs:
         shell: bash
         env:
           EXPERIMENT_SOURCE_REF: ${{ inputs.source_ref }}
-        run: python3 tools/ci/allocator-inline-experiment.py --source-ref "$EXPERIMENT_SOURCE_REF" --output build/allocator-inline-experiment
+          EXPERIMENT_KIND: ${{ inputs.experiment_kind }}
+        run: python3 tools/ci/allocator-inline-experiment.py --source-ref "$EXPERIMENT_SOURCE_REF" --experiment-kind "$EXPERIMENT_KIND" --output build/allocator-inline-experiment
       - uses: actions/upload-artifact@v4
         if: always()
         with:

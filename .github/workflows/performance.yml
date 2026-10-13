@@ -6,6 +6,11 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      inline_factor:
+        description: 'Single-factor experiment; production code stays unchanged'
+        type: choice
+        options: [allocator_inline, kind_global]
+        default: allocator_inline
       allocator_inline_experiment:
         description: 'Compare allocator inlining on three platforms without modifying production headers'
         type: boolean
@@ -42,12 +47,14 @@ permissions:
   pull-requests: read
   actions: read
 concurrency:
-  group: performance-${{ github.ref }}-${{ inputs.performance_retry || false }}-${{ inputs.allocator_inline_experiment || false }}
+  group: performance-${{ github.ref }}-${{ inputs.performance_retry || false }}-${{ inputs.allocator_inline_experiment || false }}-${{ inputs.inline_factor || 'none' }}
   cancel-in-progress: false
 jobs:
   inline-experiment:
     if: ${{ inputs.allocator_inline_experiment == true }}
     uses: ./.github/workflows/allocator-inline-experiment.yml
+    with:
+      experiment_kind: ${{ inputs.inline_factor }}
   verified-performance:
     if: ${{ inputs.performance_only == true }}
     uses: ./.github/workflows/performance-after-validation.yml
