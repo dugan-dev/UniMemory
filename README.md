@@ -242,9 +242,9 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 <!-- performance-overview: chart-only -->
 
-![Windows and Linux workload comparison](docs/images/workload-comparison.png)
-
 Relative workload time on Windows and Linux. Standard = 1; shorter bars are faster.
+
+![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
 ## Build and Install
 
@@ -275,12 +275,13 @@ Set `-DCMAKE_PREFIX_PATH=<absolute-install-path>` to locate the installation.
 
 ## Documentation
 
-- **Start:** [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build and install](docs/getting-started.md) · [Examples](examples/README.md)
-- **Project integration:** [Build options](docs/getting-started.md#build-options) · [Project setup](docs/getting-started.md)
-- **Everyday use:** [Objects and arrays](docs/guides/objects.md) · [Containers](docs/guides/containers.md) · [Blocks](docs/guides/raw-memory.md)
-- **Memory management:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
-- **Reference:** [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md) · [Full index](docs/README.md)
-- **Performance:** [Full report](docs/performance.md) · [Measurement data](docs/results/windows-local-comparison.json)
+- **Getting started:** [Build and integrate](docs/getting-started.md) · [Examples](examples/README.md)
+- **Allocation:** [Objects and arrays](docs/guides/objects.md) · [Blocks](docs/guides/raw-memory.md)
+- **Containers:** [Allocator and PMR](docs/guides/containers.md)
+- **Memory types:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md)
+- **Statistics:** [Usage and peaks](docs/guides/statistics.md)
+- **Configuration:** [Platforms and backends](docs/guides/backends.md)
+- **Performance:** [Detailed report](docs/performance.md)
 
 ## License
 

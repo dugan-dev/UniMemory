@@ -242,9 +242,9 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 <!-- performance-overview: chart-only -->
 
-![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
-
 Windows 与 Linux 上的相对耗时对比，Standard = 1；柱形越短越快。
+
+![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
 ## 构建与安装
 
@@ -275,12 +275,13 @@ target_link_libraries(app PRIVATE UniMemory::UniMemory)
 
 ## 文档
 
-- **开始使用：** [源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [构建与安装](docs/getting-started.zh-CN.md) · [示例](examples/README.md)
-- **项目集成：** [构建选项](docs/getting-started.zh-CN.md#构建选项) · [项目集成](docs/getting-started.zh-CN.md)
-- **日常使用：** [对象与数组](docs/guides/objects.zh-CN.md) · [标准容器](docs/guides/containers.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
-- **内存管理：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md) · [统计](docs/guides/statistics.zh-CN.md)
-- **参考：** [API](docs/api-reference.zh-CN.md) · [平台与配置](docs/guides/backends.zh-CN.md) · [完整目录](docs/README.zh-CN.md)
-- **性能：** [完整报告](docs/performance.zh-CN.md) · [测量数据](docs/results/windows-local-comparison.json)
+- **开始使用：** [构建和集成](docs/getting-started.zh-CN.md) · [示例](examples/README.md)
+- **内存分配：** [对象与数组](docs/guides/objects.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
+- **标准容器：** [Allocator 与 PMR](docs/guides/containers.zh-CN.md)
+- **分配方式：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md)
+- **内存统计：** [用量与峰值](docs/guides/statistics.zh-CN.md)
+- **平台配置：** [平台与后端](docs/guides/backends.zh-CN.md)
+- **性能：** [详细报告](docs/performance.zh-CN.md)
 
 ## 许可证
 
