@@ -142,7 +142,7 @@ jobs:
           if os.environ['RETRY_FAILED']=='true':
               repository=os.environ['GITHUB_REPOSITORY']
               pages=json.loads(subprocess.check_output(['gh','api','--paginate','--slurp',f'repos/{repository}/actions/runs/38340149739/jobs?per_page=100'],text=True))
-              old=[job for page in pages for job in page['jobs'] if job['name'].startswith('verified-performance / diagnosis') and not job['name'].endswith('windows-x64, standard)')]
+              old=[job for page in pages for job in page['jobs'] if job['name'].startswith('verified-performance / diagnosis') and ' / diagnose (' in job['name'] and not job['name'].endswith('windows-x64, standard)')]
               assert len(old)==8 and all(job['status']=='completed' and job['conclusion']=='success' for job in old), 'A previous diagnosis remains incomplete or failed'
               print('Verified eight earlier same-library diagnosis jobs; repaired Windows Standard diagnosis reran.')
           jobs=json.loads(os.environ['RESULTS'])
