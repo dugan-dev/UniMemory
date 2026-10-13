@@ -281,7 +281,7 @@ target_link_libraries(app PRIVATE UniMemory::UniMemory)
 - **分配方式：** [Global、Heap 与 Stack](docs/guides/heap.zh-CN.md)
 - **内存统计：** [用量与峰值](docs/guides/statistics.zh-CN.md)
 - **平台配置：** [平台与后端](docs/guides/backends.zh-CN.md)
-- **性能：** [详细报告](docs/performance.zh-CN.md)
+- **性能分析：** [详细报告](docs/performance.zh-CN.md)
 
 ## 许可证
 

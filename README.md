@@ -281,7 +281,7 @@ Set `-DCMAKE_PREFIX_PATH=<absolute-install-path>` to locate the installation.
 - **Memory types:** [Global, Heap and Stack](docs/guides/heap.md)
 - **Statistics:** [Usage and peaks](docs/guides/statistics.md)
 - **Configuration:** [Platforms and backends](docs/guides/backends.md)
-- **Performance:** [Detailed report](docs/performance.md)
+- **Performance analysis:** [Detailed report](docs/performance.md)
 
 ## License
 
