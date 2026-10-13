@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <new>
 #include <memory_resource>
 #include <vector>
@@ -13,6 +14,9 @@
 
 namespace {
 std::atomic<bool> fail_allocations{false};
+// Make allocation results observable even when fault injection unexpectedly succeeds.
+// Optimizers may otherwise remove an unused allocation/deallocation pair.
+void* volatile observed_pointer = nullptr;
 void* raw_allocate(std::size_t bytes, std::size_t alignment) {
   if (fail_allocations.load()) {
     throw std::bad_alloc();
@@ -43,7 +47,7 @@ void release_aligned(void* pointer) noexcept {
 #endif
 }
 template <class F>
-bool fails(F&& function) {
+bool fails(const char* stage, std::size_t alignment, unsigned iteration, F&& function) {
   fail_allocations.store(true);
   try {
     function();
@@ -52,9 +56,11 @@ bool fails(F&& function) {
     return true;
   } catch (...) {
     fail_allocations.store(false);
+    std::cerr << "unexpected exception: " << stage << ", alignment=" << alignment << ", iteration=" << iteration << '\n';
     throw;
   }
   fail_allocations.store(false);
+  std::cerr << "fault injection did not throw: " << stage << ", alignment=" << alignment << ", iteration=" << iteration << '\n';
   return false;
 }
 }  // namespace
@@ -187,18 +193,56 @@ int main(int argc, char** argv) {
       auto block = memory.make_block(33, alignment);
       void* original = block.data();
       std::memset(original, 0x75, 33);
+      const auto release = [&](void* pointer) {
+        memory.deallocate(pointer, alignment);
+      };
+      std::unique_ptr<void, decltype(release)> zeroed(memory.allocate(33, alignment), release);
+      void* zeroed_original = zeroed.get();
+      std::memset(zeroed_original, 0x75, 33);
       for (unsigned i = 0; i < 100; ++i) {
         const auto before = memory.statistics();
-        if (!fails([&] { memory.allocate(31, alignment); }) || !fails([&] { memory.allocate_zeroed(31, alignment); }) ||
-            !fails([&] { memory.resource()->allocate(31, alignment); }) || !fails([&] { block.resize(65); }) ||
-            !fails([&] { memory.reallocate_zeroed(original, 33, 65, alignment); }) || !fails([&] { auto p = memory.make_shared<int>(42); })) {
+        if (!fails("allocate", alignment, i,
+                   [&] {
+                     void* pointer = memory.allocate(31, alignment);
+                     observed_pointer = pointer;
+                     memory.deallocate(pointer, alignment);
+                   }) ||
+            !fails("allocate_zeroed", alignment, i,
+                   [&] {
+                     void* pointer = memory.allocate_zeroed(31, alignment);
+                     observed_pointer = pointer;
+                     memory.deallocate(pointer, alignment);
+                   }) ||
+            !fails("resource.allocate", alignment, i,
+                   [&] {
+                     auto* resource = memory.resource();
+                     void* pointer = resource->allocate(31, alignment);
+                     observed_pointer = pointer;
+                     resource->deallocate(pointer, 31, alignment);
+                   }) ||
+            !fails("block.resize", alignment, i, [&] { block.resize(65); }) ||
+            !fails("reallocate_zeroed", alignment, i,
+                   [&] {
+                     void* pointer = memory.reallocate_zeroed(zeroed.get(), 33, 65, alignment);
+                     observed_pointer = pointer;
+                     // Successful reallocation consumed the old allocation. Adopt the result
+                     // so a failed injection cannot leave a dangling owner or leak storage.
+                     (void)zeroed.release();
+                     zeroed.reset(pointer);
+                   }) ||
+            !fails("make_shared", alignment, i, [&] {
+              auto p = memory.make_shared<int>(42);
+              observed_pointer = p.get();
+            })) {
           return 2;
         }
-        if (block.data() != original || block.size() != 33) {
+        if (block.data() != original || block.size() != 33 || zeroed.get() != zeroed_original) {
+          std::cerr << "failed allocation changed ownership: alignment=" << alignment << ", iteration=" << i << '\n';
           return 3;
         }
         for (unsigned j = 0; j < 33; ++j) {
-          if (static_cast<unsigned char*>(original)[j] != 0x75) {
+          if (static_cast<unsigned char*>(original)[j] != 0x75 || static_cast<unsigned char*>(zeroed_original)[j] != 0x75) {
+            std::cerr << "failed allocation changed contents: alignment=" << alignment << ", iteration=" << i << ", byte=" << j << '\n';
             return 4;
           }
         }
@@ -206,6 +250,7 @@ int main(int argc, char** argv) {
         if (compiled_test::tracking() &&
             (before.live_bytes != after.live_bytes || before.allocations != after.allocations || before.deallocations != after.deallocations ||
              before.reallocations != after.reallocations || before.peak_live_bytes != after.peak_live_bytes)) {
+          std::cerr << "failed allocation changed statistics: alignment=" << alignment << ", iteration=" << i << '\n';
           return 5;
         }
       }

@@ -10,16 +10,37 @@ struct Object {
   Object(int initial = 0) : value(initial) {}
 };
 
+struct RawDeleter {
+  unimem::Memory* memory;
+  std::size_t bytes;
+  void operator()(void* pointer) const noexcept { memory->deallocate(pointer, bytes); }
+};
+using RawOwner = std::unique_ptr<void, RawDeleter>;
+
+struct StorageDeleter {
+  unimem::Memory* memory;
+  void operator()(Object* pointer) const noexcept { memory->deallocate_objects(pointer, 2); }
+};
+
+// Successful reallocation has already released the old storage. Updating its
+// owner must neither free that old address again nor throw after taking the new
+// address; a failed reallocation leaves the original owner untouched.
+void replace_reallocated(RawOwner& owner, void* pointer, std::size_t bytes) noexcept {
+  (void)owner.release();
+  owner.get_deleter().bytes = bytes;
+  owner.reset(pointer);
+}
+
 // Compile all common adapters through the shared non-virtual interface.
 void common_operations(unimem::Memory& memory) {
-  auto* raw = memory.allocate(16);
-  raw = memory.reallocate(raw, 16, 32);
-  raw = memory.reallocate_zeroed(raw, 32, 48);
-  memory.deallocate(raw, 48);
-  auto* zeroed = memory.allocate_zeroed(8);
-  memory.deallocate(zeroed, 8);
-  auto* storage = memory.allocate_objects<Object>(2);
-  memory.deallocate_objects(storage, 2);
+  RawOwner raw(memory.allocate(16), RawDeleter{&memory, 16});
+  replace_reallocated(raw, memory.reallocate(raw.get(), 16, 32), 32);
+  replace_reallocated(raw, memory.reallocate_zeroed(raw.get(), 32, 48), 48);
+  raw.reset();
+  RawOwner zeroed(memory.allocate_zeroed(8), RawDeleter{&memory, 8});
+  zeroed.reset();
+  std::unique_ptr<Object, StorageDeleter> storage(memory.allocate_objects<Object>(2), StorageDeleter{&memory});
+  storage.reset();
   auto unique = memory.make_unique<Object>(7);
   auto array = memory.make_unique_array<Object>(3);
   auto shared = memory.make_shared<Object>(11);

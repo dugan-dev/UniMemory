@@ -34,6 +34,49 @@ WORKLOADS = (
     ("Cross-thread free, 8 threads", "cross_thread", 64, 16, 8),
 )
 PHASES = ("dense", "sparse", "churn_dense", "churn_sparse", "freed")
+LOCAL_SOURCE = "docs/results/windows-local-comparison.json"
+LOCAL_MARKER = f"<!-- performance-overview-source: {LOCAL_SOURCE} -->"
+LOCAL_FACTORS = ("unique", "vector", "owned")
+
+
+def validate_local_overview(root, block):
+    """Validate the local table independently of the historical CI plot inputs."""
+    if LOCAL_MARKER not in block:
+        raise ValueError("Missing explicit local overview source marker")
+    snapshot = read_json(root / LOCAL_SOURCE)
+    if (snapshot.get("source") != "local-windows-comparison" or snapshot.get("sourceRoot") != "."
+            or snapshot.get("trials") != 10 or snapshot.get("statistic") != "median"
+            or snapshot.get("current_profile_verified") is not True):
+        raise ValueError("Invalid local overview provenance")
+    for backend in BACKENDS:
+        profile = snapshot["profiles"][backend]
+        actual = profile["compiled_profile"]
+        if (profile["statistics"] != "OFF" or profile["configuration"] != "Release"
+                or actual["actual_statistics"] != "OFF" or actual["actual_backend"] != backend
+                or actual["actual_checks_enabled"] != "0" or actual["release_ipo"] not in ("ON", "TRUE", "1")):
+            raise ValueError("Local overview requires verified Release/IPO, statistics OFF")
+    factors = {"raw:" + str(size) for size in (16, 64, 256, 4096, 65536)}
+    factors.update(("zeroed", "reallocate", "reallocate_zeroed", "unique", "array", "shared", "vector", "pmr_vector", "owned"))
+    expected = {(backend, build, factor) for backend in BACKENDS for build in ("main", "current") for factor in factors}
+    rows = snapshot["summary"]
+    keys = [(row["backend"], row["build"], row["factor"]) for row in rows]
+    if len(rows) != 84 or len(set(keys)) != 84 or set(keys) != expected:
+        raise ValueError("Local overview requires every one of the 84 matched summaries")
+    for row in rows:
+        if int(row["trials"]) != 10 or any(not math.isfinite(float(row[field])) or float(row[field]) <= 0
+                                         for field in ("control_median", "changed_median")):
+            raise ValueError("Invalid local overview summary")
+    table = [line for line in block.splitlines() if line.startswith("|")]
+    if len(table) != 5:
+        raise ValueError("Local overview requires its three-row table")
+    for line, factor in zip(table[2:], LOCAL_FACTORS):
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        values = [next(row for row in rows if row["backend"] == backend and row["build"] == "current"
+                       and row["factor"] == factor)["changed_median"] for backend in BACKENDS]
+        if (len(cells) != 4 or cells[1:] != [f"{float(value):.1f}" for value in values]
+                or (factor == "vector" and "256" not in cells[0])):
+            raise ValueError(f"README local overview differs from its snapshot: {factor}")
+    return snapshot
 
 
 def selected_median(rows, scenario, trials=3, mean=False):
@@ -182,6 +225,12 @@ def refresh_overview(root, output, expected_revision=None):
         begin = content.index(heading + "\n")
         finish = content.index("\n## ", begin + len(heading))
         block = content[begin:finish]
+        if LOCAL_MARKER in block:
+            validate_local_overview(root, block)
+            prepared.append((path, content))
+            continue
+        if "performance-overview-source:" in block:
+            raise ValueError("Unknown README performance overview source")
         lines = block.splitlines()
         first = next(index for index, line in enumerate(lines) if line.startswith(header))
         if len(lines[first:first + 6]) != 6 or any(not line.startswith("|") for line in lines[first:first + 6]):

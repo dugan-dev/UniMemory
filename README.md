@@ -239,17 +239,19 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 ## Performance
 
+<!-- performance-overview-source: docs/results/windows-local-comparison.json -->
+
 Windows x64 · MSVC 19.44 · Release with IPO · statistics off · 2026-10-12. Median of 10 trials, **ns/operation; lower is faster**.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
 | Create and destroy an object, 64 B | 30.8 | 6.1 | 26.6 |
-| Grow and destroy a vector | 233.2 | 242.8 | 181.5 |
+| Grow and destroy a vector, 256 integers | 233.2 | 242.8 | 181.5 |
 | Create and release a block, 64 B | 29.9 | 5.7 | 27.5 |
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-The chart retains the previously published CI measurements. [Latest Windows comparison](docs/performance-windows.md) · [Full performance report](docs/performance.md)
+[Local table source](docs/results/windows-local-comparison.json). The chart retains the previously published CI measurements (vector: 32 integers). [Latest Windows comparison](docs/performance-windows.md) · [Full performance report](docs/performance.md)
 
 ## Build and Install
 

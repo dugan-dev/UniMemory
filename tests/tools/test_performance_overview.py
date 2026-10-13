@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import shutil
 from pathlib import Path
 import tempfile
 import unittest
@@ -56,8 +57,9 @@ class OverviewTests(unittest.TestCase):
     def test_stale_revision_rejected_before_any_overview_write(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "overview.json"
-            with self.assertRaises(ValueError):
-                overview.refresh_overview(ROOT, output, "a" * 40)
+            with mock.patch.object(overview, "comparison_data", return_value={"source_revision": "b" * 40}):
+                with self.assertRaises(ValueError):
+                    overview.refresh_overview(ROOT, output, "a" * 40)
             self.assertFalse(output.exists())
 
     def test_current_overview_and_plot_use_exact_current_profile_values(self):
@@ -67,12 +69,98 @@ class OverviewTests(unittest.TestCase):
             self.assertEqual(profile["environment"]["source_revision"], data["source_revision"])
             self.assertEqual(profile["environment"]["build_profile"]["statistics"], "OFF")
             values = data["platforms"]["windows"]["overview"][backend]
-            table = (ROOT / "README.md").read_text(encoding="utf-8")
-            performance = table.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
-            for value in values:
-                self.assertIn(f"{value:.1f}", performance)
+            folder = ROOT / "docs/results/current/windows-x64" / backend / "OFF"
+            rows = overview.read_csv(folder / "full.csv")
+            expected = [overview.selected_median(rows, scenario, data["trials"], data["measurement_schema"] == 3)
+                        for scenario in overview.SCENARIOS]
+            self.assertEqual(values, expected)
+        for name, heading in (("README.md", "## Performance"), ("README.zh-CN.md", "## \u6027\u80fd")):
+            performance = (ROOT / name).read_text(encoding="utf-8").split(heading + "\n", 1)[1].split("\n## ", 1)[0]
+            overview.validate_local_overview(ROOT, performance)
         self.assertEqual(len(data["platforms"]["windows"]["workloads"]), 8)
         self.assertEqual(len(data["platforms"]["windows"]["pressure"]), 30)
+
+    def local_fixture(self, root):
+        for name in ("README.md", "README.zh-CN.md", overview.LOCAL_SOURCE):
+            target = root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / name, target)
+        return {"source_revision": "a" * 40, "trials": 10, "measurement_schema": 3,
+                "platforms": {"windows": {"overview": {backend: [100., 200., 300., 400.] for backend in overview.BACKENDS},
+                                          "profiles": {backend: {"sweep_environment": {"measured_at_utc": "2026-10-13T00:00:00Z"},
+                                                                "environment": {"compiler": {"CMAKE_CXX_COMPILER_VERSION": "19.44"}}}
+                                                       for backend in overview.BACKENDS}}}}
+
+    def test_local_table_wrong_value_rejected_against_local_snapshot(self):
+        content = (ROOT / "README.md").read_text(encoding="utf-8")
+        block = content.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
+        overview.validate_local_overview(ROOT, block)
+        with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
+            overview.validate_local_overview(ROOT, block.replace("30.8", "35.4"))
+        with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
+            overview.validate_local_overview(ROOT, block.replace("256 integers", "32 integers"))
+
+    def test_local_snapshot_retains_all_summaries_and_sanitized_provenance(self):
+        snapshot = overview.read_json(ROOT / overview.LOCAL_SOURCE)
+        self.assertEqual(len(snapshot["summary"]), 84)
+        self.assertEqual(snapshot["trials"], 10)
+        self.assertEqual(snapshot["sourceRoot"], ".")
+        self.assertEqual(len(snapshot["source_hashes"]), 25)
+        self.assertNotIn("Users/", json.dumps(snapshot))
+        self.assertNotIn("Users\\\\", json.dumps(snapshot))
+        for profile in snapshot["profiles"].values():
+            self.assertEqual(profile["statistics"], "OFF")
+            for binary in profile["sdk_binaries"].values():
+                self.assertRegex(binary["sha256"], "^[0-9a-f]{64}$")
+                self.assertNotIn("/", binary["filename"])
+                self.assertNotIn("\\", binary["filename"])
+
+    def test_refresh_preserves_local_labels_and_prose_but_updates_plot_inputs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = self.local_fixture(root)
+            before = {}
+            for name in ("README.md", "README.zh-CN.md"):
+                file = root / name
+                text = file.read_text(encoding="utf-8").replace(overview.LOCAL_MARKER, overview.LOCAL_MARKER + "\nLocal guidance: 256 integers.")
+                file.write_text(text, encoding="utf-8")
+                before[name] = text
+            output = root / "plot-input.json"
+            with mock.patch.object(overview, "comparison_data", return_value=data):
+                overview.refresh_overview(root, output, "a" * 40)
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8")), data)
+            for name, text in before.items():
+                self.assertEqual((root / name).read_text(encoding="utf-8"), text)
+
+    def test_invalid_local_table_prevents_any_refresh_write(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = self.local_fixture(root)
+            file = root / "README.md"
+            file.write_text(file.read_text(encoding="utf-8").replace("30.8", "35.4"), encoding="utf-8")
+            output = root / "plot-input.json"
+            with mock.patch.object(overview, "comparison_data", return_value=data):
+                with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
+                    overview.refresh_overview(root, output)
+            self.assertFalse(output.exists())
+
+    def test_canonical_ci_four_row_table_still_refreshes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = self.local_fixture(root)
+            for name, heading, header in (("README.md", "## Performance", "| Operation |"),
+                                          ("README.zh-CN.md", "## \u6027\u80fd", "| \u64cd\u4f5c |")):
+                content = (heading + "\n\nWindows x64 \xb7 MSVC 19.43 \xb7 2026-01-01\n" + header + " Standard | mimalloc | jemalloc |\n"
+                           "| --- | ---: | ---: | ---: |\n" + "".join(f"| Label {index} | 1.0 | 1.0 | 1.0 |\n" for index in range(4))
+                           + "\nKeep existing guidance.\n\n## Usage\nKeep this too.\n")
+                (root / name).write_text(content, encoding="utf-8")
+            with mock.patch.object(overview, "comparison_data", return_value=data):
+                overview.refresh_overview(root, root / "plot-input.json")
+            for name in ("README.md", "README.zh-CN.md"):
+                result = (root / name).read_text(encoding="utf-8")
+                self.assertIn("| Label 1 | 200.0 | 200.0 | 200.0 |", result)
+                self.assertIn("Keep existing guidance.", result)
+                self.assertIn("2026-10-13", result)
 
 
 if __name__ == "__main__":

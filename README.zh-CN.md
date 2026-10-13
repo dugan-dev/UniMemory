@@ -239,17 +239,19 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 ## 性能
 
+<!-- performance-overview-source: docs/results/windows-local-comparison.json -->
+
 Windows x64 · MSVC 19.44 · Release＋IPO · 统计关闭 · 2026-10-12。10 轮耗时中位数，**ns/次，越低越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
 | 创建并销毁对象，64 B | 30.8 | 6.1 | 26.6 |
-| vector 增长并销毁 | 233.2 | 242.8 | 181.5 |
+| vector 增长并销毁，256 个整数 | 233.2 | 242.8 | 181.5 |
 | 创建并释放内存块，64 B | 29.9 | 5.7 | 27.5 |
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-图保留此前已发布的 CI 测量。[最新 Windows 对照](docs/performance-windows.zh-CN.md) · [完整性能报告](docs/performance.zh-CN.md)
+[本地表格来源](docs/results/windows-local-comparison.json)。图保留此前已发布的 CI 测量（vector：32 个整数）。[最新 Windows 对照](docs/performance-windows.zh-CN.md) · [完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 
