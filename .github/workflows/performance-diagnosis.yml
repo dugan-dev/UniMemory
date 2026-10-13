@@ -2,6 +2,9 @@ name: performance-diagnosis
 on:
   workflow_call:
     inputs:
+      backends:
+        type: string
+        default: '["standard","mimalloc","jemalloc"]'
       runner:
         type: string
         required: true
@@ -20,7 +23,7 @@ jobs:
       matrix:
         platform:
           - {os: "${{ inputs.runner }}", label: "${{ inputs.platform }}"}
-        backend: [standard, mimalloc, jemalloc]
+        backend: ${{ fromJSON(inputs.backends) }}
     steps:
       - uses: actions/checkout@v5
       - name: Build existing pinned backend dependencies

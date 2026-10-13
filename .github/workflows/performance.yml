@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      performance_retry:
+        description: 'Measure all platforms at the repaired source revision; retry Windows Standard diagnosis'
+        type: boolean
+        default: false
       performance_only:
         description: 'Run all performance measurements and diagnosis after verified correctness'
         type: boolean
@@ -34,12 +38,14 @@ permissions:
   pull-requests: read
   actions: read
 concurrency:
-  group: performance-${{ github.ref }}
+  group: performance-${{ github.ref }}-${{ inputs.performance_retry || false }}
   cancel-in-progress: false
 jobs:
   verified-performance:
     if: ${{ inputs.performance_only == true }}
     uses: ./.github/workflows/performance-after-validation.yml
+    with:
+      retry_failed: ${{ inputs.performance_retry }}
   recover-correctness:
     if: ${{ inputs.correctness_recovery == true }}
     uses: ./.github/workflows/correctness-recovery.yml

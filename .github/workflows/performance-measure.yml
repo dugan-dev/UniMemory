@@ -56,9 +56,9 @@ jobs:
           for backend in standard mimalloc jemalloc; do
             for statistics in OFF ON; do
               directory="build/performance/$backend-$statistics"
-              performance_flags=()
+              performance_flags=(-DUNIMEMORY_PERFORMANCE_TESTS=OFF)
               if [ "$statistics" = OFF ]; then
-                performance_flags+=(-DUNIMEMORY_PERFORMANCE_TESTS=ON -DUNIMEMORY_PERFORMANCE_MIN_RATIO=0.90)
+                performance_flags=(-DUNIMEMORY_PERFORMANCE_TESTS=ON -DUNIMEMORY_PERFORMANCE_MIN_RATIO=0.90)
               fi
               python3 tools/ci/configure.py -- cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND="$backend" -DUNIMEMORY_STATISTICS="$statistics" -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_IPO=ON -DUNIMEMORY_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON "${flags[@]}" "${performance_flags[@]}"
               cmake --build "$directory" --config Release --parallel 4

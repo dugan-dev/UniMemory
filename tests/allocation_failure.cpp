@@ -193,8 +193,9 @@ int main(int argc, char** argv) {
       auto block = memory.make_block(33, alignment);
       void* original = block.data();
       std::memset(original, 0x75, 33);
+      std::size_t zeroed_bytes = 33;
       const auto release = [&](void* pointer) {
-        memory.deallocate(pointer, alignment);
+        memory.deallocate(pointer, zeroed_bytes, alignment);
       };
       std::unique_ptr<void, decltype(release)> zeroed(memory.allocate(33, alignment), release);
       void* zeroed_original = zeroed.get();
@@ -205,13 +206,13 @@ int main(int argc, char** argv) {
                    [&] {
                      void* pointer = memory.allocate(31, alignment);
                      observed_pointer = pointer;
-                     memory.deallocate(pointer, alignment);
+                     memory.deallocate(pointer, 31, alignment);
                    }) ||
             !fails("allocate_zeroed", alignment, i,
                    [&] {
                      void* pointer = memory.allocate_zeroed(31, alignment);
                      observed_pointer = pointer;
-                     memory.deallocate(pointer, alignment);
+                     memory.deallocate(pointer, 31, alignment);
                    }) ||
             !fails("resource.allocate", alignment, i,
                    [&] {
@@ -228,6 +229,7 @@ int main(int argc, char** argv) {
                      // Successful reallocation consumed the old allocation. Adopt the result
                      // so a failed injection cannot leave a dangling owner or leak storage.
                      (void)zeroed.release();
+                     zeroed_bytes = 65;
                      zeroed.reset(pointer);
                    }) ||
             !fails("make_shared", alignment, i, [&] {

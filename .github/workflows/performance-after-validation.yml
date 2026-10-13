@@ -1,11 +1,15 @@
 name: performance after correctness
 on:
   workflow_call:
+    inputs:
+      retry_failed:
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: read
 concurrency:
-  group: verified-performance-${{ github.ref }}
+  group: verified-performance-${{ github.ref }}-${{ inputs.retry_failed }}
   cancel-in-progress: false
 jobs:
   correctness-evidence:
@@ -45,8 +49,33 @@ jobs:
         with:
           name: performance-correctness-evidence
           path: performance-correctness-evidence.json
-  measure:
+  fault-fixtures:
     needs: correctness-evidence
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-2022, ubuntu-24.04, macos-15]
+        statistics: ['OFF', 'ON']
+    steps:
+      - uses: actions/checkout@v5
+      - shell: bash
+        run: |
+          set -euo pipefail
+          for ipo in OFF ON; do
+            directory="build/fault-$ipo"
+            cmake -S . -B "$directory" -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_IPO="$ipo"
+            cmake --build "$directory" --config Release --target UniMemoryAllocationFailure --parallel 4
+            ctest --test-dir "$directory" -C Release -R 'allocation_failure_|^UniMemory.global.initialization_retry$' --output-on-failure --no-tests=error
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fault-${{ matrix.runner }}-${{ matrix.statistics }}
+          path: build/fault-*/Testing/Temporary/LastTest.log
+  measure:
+    needs: [correctness-evidence, fault-fixtures]
     strategy:
       fail-fast: false
       matrix:
@@ -59,20 +88,18 @@ jobs:
       runner: ${{ matrix.runner }}
       platform: ${{ matrix.platform }}
   diagnosis:
-    needs: correctness-evidence
+    needs: [correctness-evidence, fault-fixtures]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - {runner: windows-2022, platform: windows-x64}
-          - {runner: ubuntu-24.04, platform: linux-x64}
-          - {runner: macos-15, platform: macos-arm64}
+        include: ${{ fromJSON(inputs.retry_failed && '[{"runner":"windows-2022","platform":"windows-x64","backends":"[\"standard\"]"}]' || '[{"runner":"windows-2022","platform":"windows-x64","backends":"[\"standard\",\"mimalloc\",\"jemalloc\"]"},{"runner":"ubuntu-24.04","platform":"linux-x64","backends":"[\"standard\",\"mimalloc\",\"jemalloc\"]"},{"runner":"macos-15","platform":"macos-arm64","backends":"[\"standard\",\"mimalloc\",\"jemalloc\"]"}]') }}
     uses: ./.github/workflows/performance-diagnosis.yml
     with:
+      backends: ${{ matrix.backends }}
       runner: ${{ matrix.runner }}
       platform: ${{ matrix.platform }}
   overview:
-    needs: [correctness-evidence, measure, diagnosis]
+    needs: [correctness-evidence, fault-fixtures, measure, diagnosis]
     if: ${{ !cancelled() }}
     runs-on: windows-2022
     timeout-minutes: 15
@@ -86,6 +113,8 @@ jobs:
         with:
           name: native-application-comparison
           path: build/native-applications
+          github-token: ${{ github.token }}
+          run-id: ${{ github.run_id }}
       - name: Assemble complete measurements and figures
         shell: powershell
         run: |
@@ -99,15 +128,23 @@ jobs:
           name: performance-overview
           path: build/overview/
   acceptance:
-    needs: [correctness-evidence, measure, diagnosis, overview]
+    needs: [correctness-evidence, fault-fixtures, measure, diagnosis, overview]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - env:
           RESULTS: ${{ toJSON(needs) }}
+          RETRY_FAILED: ${{ inputs.retry_failed }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           python3 - <<'PY'
-          import json,os
+          import json,os,subprocess
+          if os.environ['RETRY_FAILED']=='true':
+              repository=os.environ['GITHUB_REPOSITORY']
+              pages=json.loads(subprocess.check_output(['gh','api','--paginate','--slurp',f'repos/{repository}/actions/runs/38340149739/jobs?per_page=100'],text=True))
+              old=[job for page in pages for job in page['jobs'] if job['name'].startswith('verified-performance / diagnosis') and not job['name'].endswith('windows-x64, standard)')]
+              assert len(old)==8 and all(job['status']=='completed' and job['conclusion']=='success' for job in old), 'A previous diagnosis remains incomplete or failed'
+              print('Verified eight earlier same-library diagnosis jobs; repaired Windows Standard diagnosis reran.')
           jobs=json.loads(os.environ['RESULTS'])
           assert all(job['result']=='success' for job in jobs.values()), 'Incomplete performance evidence or a failed >=90% gate'
           print('All three platforms, all three backends and their controlled diagnosis passed.')
