@@ -7,7 +7,7 @@ on:
         type: string
         default: fe90b68
       experiment_kind:
-        description: allocator_inline or kind_global; experimental source copies only
+        description: allocator_inline, kind_global or api_boundaries; experimental source copies only
         type: string
         default: allocator_inline
 permissions:

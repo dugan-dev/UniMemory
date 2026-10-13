@@ -9,7 +9,7 @@ on:
       inline_factor:
         description: 'Single-factor experiment; production code stays unchanged'
         type: choice
-        options: [allocator_inline, kind_global]
+        options: [allocator_inline, kind_global, api_boundaries]
         default: allocator_inline
       allocator_inline_experiment:
         description: 'Compare allocator inlining on three platforms without modifying production headers'

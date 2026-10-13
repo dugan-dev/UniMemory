@@ -19,6 +19,8 @@ VARIANTS = {"noinline": ORIGINAL,
             "force_inline": "UNIMEMORY_FORCE_INLINE T* Allocator<T>::allocate(std::size_t count)"}
 KIND_HEADER = "include/unimem/detail/allocation.inl"
 KIND_ORIGINAL = "return static_cast<const void*>(this) == detail::global_storage_address();"
+ARRAY_HEADER = "include/unimem/detail/memory.inl"
+ARRAY_ORIGINAL = "UNIMEMORY_FORCE_INLINE T* Memory::create_array(std::size_t count)"
 SCENARIOS = {"raw:" + str(size) for size in (16, 64, 256, 4096, 65536)} | {
     "zeroed", "reallocate", "reallocate_zeroed", "unique", "array", "shared", "vector", "pmr_vector", "owned"}
 
@@ -46,30 +48,57 @@ def source_files(revision):
     return files
 
 
+def variant_changes(files, kind):
+    """Return exact independent patches; the baseline always changes zero files."""
+    if files[HEADER].decode("utf-8").count(ORIGINAL) != 1:
+        raise ValueError("Source must retain the original allocator NOINLINE baseline")
+    variants = {"noinline": {}}
+    if kind == "allocator_inline":
+        original = files[HEADER].decode("utf-8")
+        for name, token in VARIANTS.items():
+            if name != "noinline":
+                variants[name] = {HEADER: original.replace(ORIGINAL, token).encode("utf-8")}
+    elif kind == "kind_global":
+        original = files[KIND_HEADER].decode("utf-8")
+        if original.count(KIND_ORIGINAL) != 1:
+            raise ValueError("Expected exactly one original Global address boundary")
+        variants["kind_global"] = {KIND_HEADER: original.replace(
+            KIND_ORIGINAL, "return kind_ == MemoryKind::Global;").encode("utf-8")}
+    else:
+        original = files[ARRAY_HEADER].decode("utf-8")
+        if original.count(ARRAY_ORIGINAL) != 1:
+            raise ValueError("Expected exactly one original create_array boundary")
+        variants["array_noinline"] = {ARRAY_HEADER: original.replace(
+            ARRAY_ORIGINAL, "UNIMEMORY_NOINLINE inline T* Memory::create_array(std::size_t count)").encode("utf-8")}
+        original = files[KIND_HEADER].decode("utf-8")
+        insertion = "UNIMEMORY_FORCE_INLINE void* global_storage_address() noexcept;"
+        if original.count(insertion) != 1 or original.count("throw std::bad_alloc();") != 3:
+            raise ValueError("Expected the three original guarded allocation bad_alloc sites")
+        # Replace only the throw statements. Existing conditions remain byte-identical.
+        changed = original.replace("throw std::bad_alloc();", "detail::throw_bad_alloc();")
+        helper = "\n[[noreturn]] UNIMEMORY_NOINLINE inline void throw_bad_alloc() {\n  throw std::bad_alloc();\n}\n"
+        variants["cold_badalloc"] = {KIND_HEADER: changed.replace(insertion, insertion + helper).encode("utf-8")}
+    return variants
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-ref", default="fe90b68")
-    parser.add_argument("--experiment-kind", choices=("allocator_inline", "kind_global"), default="allocator_inline")
+    parser.add_argument("--experiment-kind", choices=("allocator_inline", "kind_global", "api_boundaries"), default="allocator_inline")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     revision = subprocess.check_output(["git", "rev-parse", "--verify", args.source_ref + "^{commit}"], cwd=ROOT, text=True).strip()
     files = source_files(revision)
-    header = HEADER if args.experiment_kind == "allocator_inline" else KIND_HEADER
-    original_token = ORIGINAL if args.experiment_kind == "allocator_inline" else KIND_ORIGINAL
-    variants = VARIANTS if args.experiment_kind == "allocator_inline" else {
-        "noinline": KIND_ORIGINAL, "kind_global": "return kind_ == MemoryKind::Global;"}
-    original = files[header].decode("utf-8")
-    if original.count(original_token) != 1:
-        raise ValueError("Expected exactly one original experimental boundary")
-    if files[HEADER].decode("utf-8").count(ORIGINAL) != 1:
-        raise ValueError("Source must retain the original allocator NOINLINE baseline")
+    variants = variant_changes(files, args.experiment_kind)
+    headers = sorted({HEADER, *(name for changes in variants.values() for name in changes)})
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     if any(output.iterdir()):
         raise ValueError("Use a fresh output directory; experiment evidence is never overwritten")
     checkout_headers = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in (ROOT / "include").rglob("*") if path.is_file()}
     manifest = dict(schema=1, preliminary=True, correctness_acceptance=False, source_revision=revision,
-                    experiment_kind=args.experiment_kind, experiment_header=header,
+                    experiment_kind=args.experiment_kind, experiment_headers=headers,
+                    baseline_header_hashes={name: digest(files[name]) for name in headers},
                     workflow_revision=os.environ.get("GITHUB_SHA"), run_id=os.environ.get("GITHUB_RUN_ID"),
                     platform=platform.platform(), source_hashes={name: digest(data) for name, data in files.items()},
                     minimum_ratio=.90, trials=10, target_seconds=.25,
@@ -99,20 +128,21 @@ def main():
         (output / "README.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     save()
-    for variant, replacement in variants.items():
+    for variant, changes in variants.items():
         source = output / "sources" / variant
         for name, data in files.items():
             destination = source / name
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(data)
-        changed = original.replace(original_token, replacement)
-        (source / header).write_bytes(changed.encode("utf-8"))
-        expected_hashes = {name: digest(changed.encode("utf-8") if name == header else data) for name, data in files.items()}
+        for header, changed in changes.items():
+            (source / header).write_bytes(changed)
+        expected_hashes = {name: digest(changes.get(name, data)) for name, data in files.items()}
         for backend in ("standard", "mimalloc", "jemalloc"):
             build = output / "profiles" / (backend + "-" + variant)
             build.mkdir(parents=True)
-            record = dict(backend=backend, variant=variant, header_sha256=digest(changed.encode("utf-8")),
-                          header=header, modified_source_files=[] if variant == "noinline" else [header], completed=False)
+            record = dict(backend=backend, variant=variant,
+                          header_sha256={name: expected_hashes[name] for name in headers},
+                          modified_source_files=sorted(changes), completed=False)
             manifest["profiles"].append(record)
             command = ["cmake", "-S", source, "-B", build, "-DCMAKE_BUILD_TYPE=Release",
                        "-DUNIMEMORY_BACKEND=" + backend, "-DUNIMEMORY_STATISTICS=OFF", "-DUNIMEMORY_CHECKS=AUTO",
