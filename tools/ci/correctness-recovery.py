@@ -93,6 +93,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--baseline-run", type=int)
     parser.add_argument("--verify-fixtures-run", type=int)
+    parser.add_argument("--verify-adapters-run", type=int)
     parser.add_argument("--baseline-sha")
     parser.add_argument("--allow-source-changes", action="store_true")
     parser.add_argument("--analysis-retry", action="store_true")
@@ -100,10 +101,11 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     repository = os.environ["GITHUB_REPOSITORY"]
-    if args.verify_fixtures_run:
-        run = json.loads(command("gh", "api", f"repos/{repository}/actions/runs/{args.verify_fixtures_run}"))
+    if args.verify_fixtures_run or args.verify_adapters_run:
+        selected_run = args.verify_fixtures_run or args.verify_adapters_run
+        run = json.loads(command("gh", "api", f"repos/{repository}/actions/runs/{selected_run}"))
         pages = json.loads(command("gh", "api", "--paginate", "--slurp",
-                                  f"repos/{repository}/actions/runs/{args.verify_fixtures_run}/jobs?filter=latest&per_page=100"))
+                                  f"repos/{repository}/actions/runs/{selected_run}/jobs?filter=latest&per_page=100"))
         jobs = [job for page in pages for job in page["jobs"]]
         if (run["head_repository"]["full_name"] != repository or run["status"] != "completed" or
                 run["event"] != "workflow_dispatch" or run["path"].split("@", 1)[0] != ".github/workflows/performance.yml"):
@@ -113,11 +115,13 @@ def main():
         changes = command("git", "diff", "--name-only", run["head_sha"], head).splitlines()
         if any(not evidence_only(path) or path.startswith("tests/headers/") for path in changes):
             raise RuntimeError("Library or header fixtures changed since their verified run")
-        prefixes = ("recover-correctness / changed header fixtures / ",
-                    "recover-correctness / missing standard analysis and coverage / stats=")
+        prefixes = (("recover-correctness / jemalloc ",) if args.verify_adapters_run else
+                    ("recover-correctness / changed header fixtures / ",
+                     "recover-correctness / missing standard analysis and coverage / stats="))
         matches = [job for job in jobs if job["name"].startswith(prefixes)]
-        if len(matches) != 6 or any(job["status"] != "completed" or job["conclusion"] != "success" for job in matches):
-            raise RuntimeError("Six required header/analysis jobs did not all pass")
+        expected_count = 2 if args.verify_adapters_run else 6
+        if len(matches) != expected_count or any(job["status"] != "completed" or job["conclusion"] != "success" for job in matches):
+            raise RuntimeError("Required inherited jobs did not all pass")
         evidence = {"run_id": run["id"], "source_revision": run["head_sha"], "jobs":
                     [{"id": job["id"], "name": job["name"]} for job in matches]}
         args.output.parent.mkdir(parents=True, exist_ok=True)

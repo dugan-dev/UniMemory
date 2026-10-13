@@ -8,6 +8,9 @@ on:
       baseline_sha:
         type: string
         default: '06dc705'
+      mimalloc_only:
+        type: boolean
+        default: false
       threads_only:
         type: boolean
         default: false
@@ -30,6 +33,9 @@ on:
         description: 'Expected baseline source revision'
         type: string
         default: '06dc705'
+      mimalloc_only:
+        type: boolean
+        default: false
       threads_only:
         type: boolean
         default: false
@@ -58,6 +64,7 @@ jobs:
       requires_regression: ${{ steps.evidence.outputs.requires_regression }}
       inherited_verified: ${{ steps.evidence.outputs.inherited_verified }}
       inherited_fixtures_verified: ${{ steps.fixtures.outputs.verified }}
+      inherited_jemalloc_verified: ${{ steps.jemalloc.outputs.verified }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -82,6 +89,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           python3 tools/ci/correctness-recovery.py --verify-fixtures-run 38334414833 --output build/recovery-fixtures.json
+      - id: jemalloc
+        if: inputs.mimalloc_only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/ci/correctness-recovery.py --verify-adapters-run 38337572031 --output build/recovery-jemalloc.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -89,6 +101,7 @@ jobs:
           path: |
             build/recovery-provenance.json
             build/recovery-fixtures.json
+            build/recovery-jemalloc.json
   report-tests:
     needs: provenance
     if: ${{ !inputs.analysis_retry }}
@@ -240,7 +253,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        backend: [mimalloc, jemalloc]
+        backend: ${{ fromJSON(inputs.mimalloc_only && '["mimalloc"]' || '["mimalloc","jemalloc"]') }}
         statistics: ['OFF', 'ON']
     env:
       CC: clang-18
@@ -254,8 +267,8 @@ jobs:
             timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
             timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y clang-18
           fi
-      - name: Build pinned SDKs without third-party instrumentation or tests
-        run: bash tools/ci/build-backends.sh
+      - name: Build SDKs with allocator synchronization and no third-party tests
+        run: bash tools/ci/build-backends.sh thread
       - name: Entire UniMemory adapter thread sanitizer suite
         run: |
           cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread
@@ -277,10 +290,13 @@ jobs:
     steps:
       - env:
           RESULTS: ${{ toJSON(needs) }}
+          MIMALLOC_ONLY: ${{ inputs.mimalloc_only }}
         run: |
           python3 - <<'PY'
           import json, os
           jobs=json.loads(os.environ['RESULTS'])
+          if os.environ['MIMALLOC_ONLY'] == 'true':
+              assert jobs['provenance']['outputs']['inherited_jemalloc_verified'] == 'true', 'Jemalloc evidence missing'
           inherited=jobs['provenance'].get('outputs',{}).get('inherited_verified') == 'true'
           skip={'report-tests','checks'} if inherited else set()
           if jobs['provenance'].get('outputs',{}).get('inherited_fixtures_verified') == 'true':

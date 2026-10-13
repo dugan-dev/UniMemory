@@ -3,6 +3,10 @@
 set -euo pipefail
 prefix=$(pwd)/build/prefix
 flags=(-DCMAKE_BUILD_TYPE=Release)
+# The compatibility build exposes allocator reuse synchronization to UniMemory's TSan tests.
+if [ "${1:-none}" = thread ]; then
+    flags=(-DCMAKE_BUILD_TYPE=Debug -DMI_USE_CXX=ON -DMI_DEBUG_TSAN=ON)
+fi
 mkdir -p build
 git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
 test "$(git -C build/mimalloc rev-parse HEAD)" = 152fbf2634aeafca3774df791b0a77683035f076

@@ -14,6 +14,9 @@ on:
         description: 'Retry unresolved analysis and TSAN after the first recovery completes'
         type: boolean
         default: false
+      mimalloc_only:
+        type: boolean
+        default: false
       threads_only:
         description: 'Validate adapters with normal third-party SDKs; reuse successful earlier analysis and headers'
         type: boolean
@@ -36,6 +39,7 @@ jobs:
     with:
       analysis_retry: ${{ inputs.analysis_retry }}
       threads_only: ${{ inputs.threads_only }}
+      mimalloc_only: ${{ inputs.mimalloc_only }}
   changes:
     runs-on: windows-2022
     outputs:
