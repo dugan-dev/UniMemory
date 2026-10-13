@@ -139,7 +139,7 @@ class OverviewTests(unittest.TestCase):
             for name in ("README.md", "README.zh-CN.md"):
                 shutil.copyfile(ROOT / name, root / name)
             file = root / "README.md"
-            file.write_text(file.read_text().replace("docs/images/workload-comparison.png", "missing.png"))
+            file.write_text(file.read_text(encoding="utf-8").replace("docs/images/workload-comparison.png", "missing.png"), encoding="utf-8")
             output = root / "plot-input.json"
             with mock.patch.object(overview, "comparison_data", return_value=data):
                 with self.assertRaisesRegex(ValueError, "Chart-only"):
