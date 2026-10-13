@@ -8,6 +8,12 @@ on:
       baseline_sha:
         type: string
         default: '06dc705'
+      analysis_retry:
+        type: boolean
+        default: false
+      previous_recovery_run:
+        type: string
+        default: '38332523441'
       allow_source_changes:
         type: boolean
         default: false
@@ -21,6 +27,14 @@ on:
         description: 'Expected baseline source revision'
         type: string
         default: '06dc705'
+      analysis_retry:
+        description: 'Retry static analysis, changed headers and unresolved TSAN; inherit verified previous checks/tools/coverage'
+        type: boolean
+        default: false
+      previous_recovery_run:
+        description: 'Completed previous recovery run supplying inherited evidence'
+        type: string
+        default: '38332523441'
       allow_source_changes:
         description: 'Run targeted checks after library changes; final acceptance still requires additional regression'
         type: boolean
@@ -36,6 +50,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       requires_regression: ${{ steps.evidence.outputs.requires_regression }}
+      inherited_verified: ${{ steps.evidence.outputs.inherited_verified }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -46,9 +61,13 @@ jobs:
           BASELINE_RUN: ${{ inputs.baseline_run }}
           BASELINE_SHA: ${{ inputs.baseline_sha }}
           ALLOW_SOURCE: ${{ inputs.allow_source_changes }}
+          ANALYSIS_RETRY: ${{ inputs.analysis_retry }}
+          PREVIOUS_RECOVERY: ${{ inputs.previous_recovery_run }}
         run: |
+          python3 -m unittest discover -s tests/tools -p test_correctness_recovery.py -v
           flags=()
           if [ "$ALLOW_SOURCE" = true ]; then flags+=(--allow-source-changes); fi
+          if [ "$ANALYSIS_RETRY" = true ]; then flags+=(--analysis-retry --previous-recovery-run "$PREVIOUS_RECOVERY"); fi
           python3 tools/ci/correctness-recovery.py --baseline-run "$BASELINE_RUN" --baseline-sha "$BASELINE_SHA" --output build/recovery-provenance.json "${flags[@]}"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -57,6 +76,7 @@ jobs:
           path: build/recovery-provenance.json
   report-tests:
     needs: provenance
+    if: ${{ !inputs.analysis_retry }}
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v5
@@ -71,6 +91,7 @@ jobs:
           python3 tools/ci/validate-published.py
   checks:
     needs: provenance
+    if: ${{ !inputs.analysis_retry }}
     name: missing standard Release OFF / ${{ matrix.runner }} / checks=${{ matrix.checks }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 35
@@ -146,7 +167,7 @@ jobs:
           cmake -S . -B build/analysis -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO
           python3 tools/ci/analyze.py build/analysis/compile_commands.json
       - name: Complete project line and branch coverage
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && !inputs.analysis_retry }}
         env:
           CC: gcc-13
           CXX: g++-13
@@ -196,9 +217,14 @@ jobs:
             build/consumer/Testing/Temporary/LastTest.log
   threads:
     needs: provenance
-    name: missing jemalloc OFF thread sanitizer
+    name: jemalloc ${{ matrix.statistics }} thread sanitizer
     runs-on: ubuntu-24.04
     timeout-minutes: 35
+    # ON also regresses the changed SDK instrumentation; prior uninstrumented passes do not cover it.
+    strategy:
+      fail-fast: false
+      matrix:
+        statistics: ['OFF', 'ON']
     env:
       CC: clang-18
       CXX: clang++-18
@@ -217,18 +243,19 @@ jobs:
           curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
           tar -xf build/jemalloc.tar.bz2 -C build
           cd build/jemalloc-5.3.1
-          ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$GITHUB_WORKSPACE/build/prefix"
+          ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-tsan --prefix="$GITHUB_WORKSPACE/build/prefix"
           make -j4
           make install
-      - name: Entire jemalloc OFF thread sanitizer suite
+          nm -D "$GITHUB_WORKSPACE/build/prefix/lib/libjemalloc.so.2" | grep '__tsan_atomic' > /dev/null
+      - name: Entire jemalloc selected-statistics thread sanitizer suite
         run: |
-          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=jemalloc -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread
+          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=jemalloc -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread
           cmake --build build/adapters --parallel 4
           ctest --test-dir build/adapters --parallel 2 --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: recovery-jemalloc-OFF-thread
+          name: recovery-jemalloc-${{ matrix.statistics }}-thread
           path: |
             build/adapters/Testing/Temporary/LastTest.log
             build/adapters/CMakeCache.txt
@@ -244,8 +271,10 @@ jobs:
           python3 - <<'PY'
           import json, os
           jobs=json.loads(os.environ['RESULTS'])
-          assert all(job['result']=='success' for job in jobs.values()), 'A required recovery target failed or did not run'
+          inherited=jobs['provenance'].get('outputs',{}).get('inherited_verified') == 'true'
+          skip={'report-tests','checks'} if inherited else set()
+          assert all(job['result']==('skipped' if name in skip else 'success') for name,job in jobs.items()), 'A required recovery target failed or did not run'
           assert jobs['provenance']['outputs']['requires_regression']=='false', 'Library changed: baseline inheritance forbidden; additional regression required'
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as summary:
-              summary.write('Targeted correctness recovery passed. Passed historical jobs remain evidence for their baseline SHA; only listed recovery targets ran at this SHA. No performance workloads requested.\n')
+              summary.write(('Analysis retry passed with verified earlier checks/tools/coverage; unresolved TSAN reran. ' if inherited else '') + 'Targeted correctness recovery passed. Passed historical jobs remain evidence for their baseline SHA; only listed recovery targets ran at this SHA. No performance workloads requested.\n')
           PY

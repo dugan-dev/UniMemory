@@ -10,7 +10,8 @@ import subprocess
 def evidence_only(path):
     return (path.startswith(("tests/tools/", "tools/", ".github/workflows/", "docs/"))
             or path in {"README.md", "README.zh-CN.md", "AGENTS.md", "tests/allocation_failure.cpp",
-                        "tests/headers/factory_statistics.cpp", "tests/headers/inheritance.cpp"})
+                        "tests/headers/factory_statistics.cpp", "tests/headers/inheritance.cpp",
+                        "tests/headers/memory.cpp"})
 
 
 def correctness_job(name):
@@ -40,8 +41,47 @@ def baseline_evidence(run, jobs, repository, expected_sha, changed):
             "baseline_reuse_eligible": not source_changes,
             "targeted_fixtures": [path for path in changed if path in
                                   {"tests/allocation_failure.cpp", "tests/headers/factory_statistics.cpp",
-                                   "tests/headers/inheritance.cpp"}],
+                                   "tests/headers/inheritance.cpp", "tests/headers/memory.cpp"}],
             "performance": "not requested"}
+
+
+def retry_evidence(run, jobs, repository, changed):
+    if (run["head_repository"]["full_name"] != repository or run["status"] != "completed" or
+            run["event"] != "workflow_dispatch" or
+            run["path"].split("@", 1)[0] != ".github/workflows/performance.yml"):
+        raise RuntimeError("Prior recovery identity or completion mismatch")
+    # Skipped tests are safe only when no fixture they exercise changed again.
+    other_fixtures = {"tests/allocation_failure.cpp", "tests/headers/factory_statistics.cpp",
+                      "tests/headers/inheritance.cpp"}
+    if any(not evidence_only(path) or path in other_fixtures for path in changed):
+        raise RuntimeError("Analysis-only retry cannot inherit checks after other source/fixture changes")
+    suffixes = ["report-tests",
+                "missing standard Release OFF / ubuntu-24.04 / checks=AUTO",
+                "missing standard Release OFF / ubuntu-24.04 / checks=ON",
+                "missing standard Release OFF / ubuntu-24.04 / checks=OFF",
+                "missing standard Release OFF / ubuntu-24.04-arm / checks=AUTO"]
+    inherited = []
+    for suffix in suffixes:
+        matches = [job for job in jobs if (job["name"] == suffix or job["name"].endswith(" / " + suffix))
+                   and job["conclusion"] != "skipped"]
+        if len(matches) != 1 or matches[0]["status"] != "completed" or matches[0]["conclusion"] != "success":
+            raise RuntimeError("Required prior recovery target did not pass: " + suffix)
+        inherited.append({"id": matches[0]["id"], "name": matches[0]["name"], "source_revision": run["head_sha"]})
+    coverage = []
+    for statistics in ("OFF", "ON"):
+        suffix = "missing standard analysis and coverage / stats=" + statistics
+        matches = [job for job in jobs if job["name"] == suffix or job["name"].endswith(" / " + suffix)]
+        if len(matches) != 1:
+            raise RuntimeError("Prior coverage profile missing: " + statistics)
+        steps = [step for step in matches[0].get("steps", [])
+                 if step["name"] == "Complete project line and branch coverage"]
+        if len(steps) != 1 or steps[0]["status"] != "completed" or steps[0]["conclusion"] != "success":
+            raise RuntimeError("Prior complete coverage did not pass: " + statistics)
+        coverage.append({"job_id": matches[0]["id"], "statistics": statistics,
+                         "step": steps[0]["name"], "source_revision": run["head_sha"]})
+    return {"run_id": run["id"], "source_revision": run["head_sha"], "url": run["html_url"],
+            "inherited_jobs": inherited, "inherited_coverage_steps": coverage,
+            "changed_paths": changed}
 
 
 def command(*args):
@@ -53,6 +93,8 @@ def main():
     parser.add_argument("--baseline-run", required=True, type=int)
     parser.add_argument("--baseline-sha", required=True)
     parser.add_argument("--allow-source-changes", action="store_true")
+    parser.add_argument("--analysis-retry", action="store_true")
+    parser.add_argument("--previous-recovery-run", type=int, default=38332523441)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     repository = os.environ["GITHUB_REPOSITORY"]
@@ -77,6 +119,16 @@ def main():
     if evidence["sdk_header_tree_hash"]["baseline"] != evidence["sdk_header_tree_hash"]["current"]:
         evidence["requires_regression"] = True
         evidence["baseline_reuse_eligible"] = False
+    if args.analysis_retry:
+        previous = json.loads(command("gh", "api", f"repos/{repository}/actions/runs/{args.previous_recovery_run}"))
+        pages = json.loads(command("gh", "api", "--paginate", "--slurp",
+                                  f"repos/{repository}/actions/runs/{args.previous_recovery_run}/jobs?filter=latest&per_page=100"))
+        subprocess.run(["git", "merge-base", "--is-ancestor", previous["head_sha"], head], check=True)
+        previous_changes = command("git", "diff", "--name-only", previous["head_sha"], head).splitlines()
+        if command("git", "rev-parse", previous["head_sha"] + ":include") != evidence["sdk_header_tree_hash"]["current"]:
+            raise RuntimeError("SDK headers changed since prior recovery")
+        evidence["previous_recovery"] = retry_evidence(previous, [job for page in pages for job in page["jobs"]],
+                                                       repository, previous_changes)
     evidence.update(source_revision=head, baseline_job_counts=counts, recovery_run_id=os.environ["GITHUB_RUN_ID"],
                     recovery_url=f"https://github.com/{repository}/actions/runs/{os.environ['GITHUB_RUN_ID']}")
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -85,6 +137,7 @@ def main():
         raise RuntimeError("Source changed: explicitly enable targeted recovery; full additional regression remains required")
     with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
         output.write("requires_regression=" + str(evidence["requires_regression"]).lower() + "\n")
+        output.write("inherited_verified=" + str(args.analysis_retry).lower() + "\n")
     print(json.dumps(evidence, indent=2))
 
 

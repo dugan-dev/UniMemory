@@ -3,6 +3,7 @@
 #include <unimem/version.h>
 #include "memory_api_contract.h"
 #include "standalone_types.h"
+#include <memory>
 
 static_assert(UNIMEMORY_VERSION_MAJOR == 0);
 static_assert(UNIMEMORY_VERSION_MINOR == 0);
@@ -29,6 +30,10 @@ struct Point {
   int x;
   int y;
 };
+struct StorageDeleter {
+  unimem::Memory* memory;
+  void operator()(Point* pointer) const noexcept { memory->deallocate_objects(pointer); }
+};
 }  // namespace
 
 bool header_memory() {
@@ -36,20 +41,20 @@ bool header_memory() {
   if (!standalone_allocator(memory)) {
     return false;
   }
-  auto* object = memory.create<StandaloneObject>(17);
-  auto* array = memory.create_array<StandaloneArrayElement>(3);
+  unimem::Unique<StandaloneObject> object(memory.create<StandaloneObject>(17), {&memory});
+  unimem::UniqueArray<StandaloneArrayElement> array(memory.create_array<StandaloneArrayElement>(3), {&memory, 3});
   array[2].value = 23;
-  if (!standalone_smart_ptr(memory, object, array)) {
+  if (!standalone_smart_ptr(memory, object.release(), array.release())) {
     return false;
   }
-  Point* point = memory.create<Point>(3, 4);
+  unimem::Unique<Point> point(memory.create<Point>(3, 4), {&memory});
   bool valid = point->x == 3 && point->y == 4;
-  memory.destroy(point);
-  Point* points = memory.create_array<Point>(3);
+  point.reset();
+  unimem::UniqueArray<Point> points(memory.create_array<Point>(3), {&memory, 3});
   valid = valid && points[2].x == 0 && points[2].y == 0;
-  memory.destroy_array(points, 3);
-  Point* storage = memory.allocate_objects<Point>();
-  memory.deallocate_objects(storage);
+  points.reset();
+  std::unique_ptr<Point, StorageDeleter> storage(memory.allocate_objects<Point>(), StorageDeleter{&memory});
+  storage.reset();
   alignas(64) std::byte buffer[1024];
   unimem::Stack stack = unimem::Memory::stack(buffer);
   unimem::Stack::Mark mark = stack.mark();

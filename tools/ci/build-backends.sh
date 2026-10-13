@@ -3,9 +3,11 @@
 set -euo pipefail
 prefix=$(pwd)/build/prefix
 mode=${1:-none}
+jemalloc_flags=()
 flags=(-DCMAKE_BUILD_TYPE=Release)
 if [ "$mode" = thread ]; then
     flags=(-DCMAKE_BUILD_TYPE=Debug -DMI_USE_CXX=ON -DMI_DEBUG_TSAN=ON)
+    jemalloc_flags=(--enable-tsan)
 fi
 mkdir -p build
 git clone --depth 1 --branch v3.4.3 https://github.com/microsoft/mimalloc.git build/mimalloc
@@ -17,7 +19,7 @@ curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.
 tar -xf build/jemalloc.tar.bz2 -C build
 (
     cd build/jemalloc-5.3.1
-    ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$prefix"
+    ./configure --with-jemalloc-prefix=je_ --disable-cxx --prefix="$prefix" "${jemalloc_flags[@]}"
     make -j4
     make install
 )

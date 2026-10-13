@@ -59,6 +59,51 @@ class RecoveryEvidenceTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             recovery.baseline_evidence(dict(run, event="push"), self.jobs, "example/repo", "a" * 7, [])
 
+    def prior_recovery_jobs(self):
+        names = ["report-tests",
+                 "missing standard Release OFF / ubuntu-24.04 / checks=AUTO",
+                 "missing standard Release OFF / ubuntu-24.04 / checks=ON",
+                 "missing standard Release OFF / ubuntu-24.04 / checks=OFF",
+                 "missing standard Release OFF / ubuntu-24.04-arm / checks=AUTO"]
+        jobs = [{"id": index, "name": "recovery / " + name, "status": "completed", "conclusion": "success"}
+                for index, name in enumerate(names)]
+        jobs += [{"id": 10 + index, "name": "recovery / missing standard analysis and coverage / stats=" + mode,
+                  "status": "completed", "conclusion": "failure", "steps": [
+                      {"name": "Complete project line and branch coverage", "status": "completed", "conclusion": "success"}]}
+                 for index, mode in enumerate(("OFF", "ON"))]
+        return jobs
+
+    def test_analysis_retry_inherits_only_verified_completed_jobs_and_coverage_steps(self):
+        proof = recovery.retry_evidence(self.run, self.prior_recovery_jobs(), "example/repo",
+                                        ["tests/headers/memory.cpp", "tools/ci/correctness-recovery.py"])
+        self.assertEqual(len(proof["inherited_jobs"]), 5)
+        self.assertEqual(len(proof["inherited_coverage_steps"]), 2)
+        self.assertEqual(proof["source_revision"], "a" * 40)
+
+    def test_analysis_retry_rejects_running_failed_missing_or_ambiguous_prior_targets(self):
+        for conclusion in ("failure", "cancelled", "skipped", None):
+            jobs = self.prior_recovery_jobs()
+            jobs[0]["conclusion"] = conclusion
+            with self.subTest(conclusion=conclusion):
+                with self.assertRaises(RuntimeError):
+                    recovery.retry_evidence(self.run, jobs, "example/repo", [])
+        with self.assertRaises(RuntimeError):
+            recovery.retry_evidence(dict(self.run, status="in_progress"), self.prior_recovery_jobs(), "example/repo", [])
+        jobs = self.prior_recovery_jobs()
+        jobs[-1]["steps"][0]["conclusion"] = "failure"
+        with self.assertRaises(RuntimeError):
+            recovery.retry_evidence(self.run, jobs, "example/repo", [])
+        jobs = self.prior_recovery_jobs()
+        jobs.append(jobs[0].copy())
+        with self.assertRaises(RuntimeError):
+            recovery.retry_evidence(self.run, jobs, "example/repo", [])
+
+    def test_analysis_retry_rejects_changed_skipped_fixture_or_library(self):
+        for path in ("tests/allocation_failure.cpp", "tests/headers/inheritance.cpp", "include/unimem/memory.h"):
+            with self.subTest(path=path):
+                with self.assertRaises(RuntimeError):
+                    recovery.retry_evidence(self.run, self.prior_recovery_jobs(), "example/repo", [path])
+
 
 if __name__ == "__main__":
     unittest.main()

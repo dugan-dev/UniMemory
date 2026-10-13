@@ -10,6 +10,10 @@ on:
         description: 'Rerun only failed or missing correctness checks from the audited baseline'
         type: boolean
         default: false
+      analysis_retry:
+        description: 'Retry unresolved analysis and TSAN after the first recovery completes'
+        type: boolean
+        default: false
       validation_only:
         description: 'Validate tools and existing published data without benchmarking'
         type: boolean
@@ -25,6 +29,8 @@ jobs:
   recover-correctness:
     if: ${{ inputs.correctness_recovery == true }}
     uses: ./.github/workflows/correctness-recovery.yml
+    with:
+      analysis_retry: ${{ inputs.analysis_retry }}
   changes:
     runs-on: windows-2022
     outputs:
