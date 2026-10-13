@@ -118,56 +118,76 @@ Standard = 1 within each workload; shorter bars are faster.
 
 ![Windows and Linux workload comparison](images/workload-comparison.png)
 
-## 7 · Current Windows Native/API timings and acceptance
+## 7 · Latest three-platform Native/API comparison
 
-Windows x64 · MSVC 19.44 · C++20 · Release · /O2 /Ob3 · statistics off · 2026-10-13. Recorded profile: Release IPO=ON, diagnostic target IPO=OFF. Ten independent-process trials per scenario, alternating Native/API order; 125 ms calibration target. All samples are retained.
+2026-10-13 · measured source `4f98078` · Actions `38372589028`. Three-platform correctness passed; 106/126 core performance cases passed. Windows and macOS did not meet every threshold.
 
-This measurement uses directly constructed Global contexts, with construction outside timing. Before-migration reference: `69651a1885c3417fa2f0751f04d3e6ecdea6cf25`. Both builds use the same timing kernels, SDKs and compiler settings; this is local evidence, not remote CI validation.
+Global core API, Release, statistics off, ten paired trials. Tables show median ns; lower is faster. FAIL means the paired-median or arithmetic-mean ratio was below 90% of Native. Acceptance is not determined by dividing the displayed medians.
 
-Median durations in ns; lower is better. `std`, `mi`, `je` denote standard, mimalloc, jemalloc Native paths; `-unim` denotes the matching API. Raw pairs use 16-byte alignment and include deallocation; other rows cover complete operations. Vector includes reserve(256), 256 uint64_t push_back calls and destruction.
+### Windows · MSVC 19.44.35229.0
 
 | Scenario | std | std-unim | mi | mi-unim | je | je-unim |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Allocate + free 16 B | 37.32 | 38.21 | 7.83 | 8.66 | 36.77 | 35.55 |
-| Allocate + free 64 B | 38.75 | 38.36 | 8.34 | 9.23 | 34.16 | 33.85 |
-| Allocate + free 256 B | 35.17 | 36.45 | 9.53 | 10.50 | 32.58 | 32.56 |
-| Allocate + free 4 KiB | 36.02 | 36.71 | 28.24 | 29.52 | 41.09 | 39.75 |
-| Allocate + free 64 KiB | 122.42 | 121.44 | 30.84 | 32.68 | 315.83 | 311.45 |
-| Zeroed allocation | 38.59 | 39.53 | 12.29 | 12.60 | 35.84 | 37.13 |
-| Reallocate | 76.01 | 76.82 | 18.42 | 19.12 | 100.69 | 101.53 |
-| Reallocate with zeroed growth | 81.96 | 79.62 | 19.03 | 19.21 | 107.53 | 106.79 |
-| Unique object, 64 B | 38.51 | 37.66 | 7.72 | 7.34 | 34.31 | 33.40 |
-| Object array | 54.86 | 53.76 | 24.24 | 25.03 | 47.75 | 47.68 |
-| Shared object | 69.86 | 71.21 | 37.62 | 37.95 | 69.75 | 69.70 |
-| Vector, 256 64-bit integers | 244.67 | 302.94 | 279.84 | 265.72 | 310.14 | 311.26 |
-| PMR Vector, 256 64-bit integers | 825.68 | 695.57 | 717.26 | 678.86 | 787.95 | 829.45 |
-| OwnedBlock, 64 B | 40.33 | 41.03 | 6.22 | 7.01 | 36.38 | 36.18 |
+| Allocate/free 16 B | 32.89 | 33.40 | 5.15 | 5.22 FAIL | 35.14 | 42.78 FAIL |
+| Allocate/free 64 B | 32.87 | 32.89 | 5.12 | 5.17 | 37.30 | 41.78 FAIL |
+| Allocate/free 256 B | 33.30 | 33.61 | 5.79 | 6.00 | 35.22 | 41.29 FAIL |
+| Allocate/free 4 KiB | 33.36 | 33.61 | 20.68 | 20.94 | 35.44 | 39.90 FAIL |
+| Allocate/free 64 KiB | 104.63 | 106.53 | 22.86 | 23.02 | 218.03 | 221.29 |
+| Zeroed allocation | 35.12 | 35.96 | 10.51 | 11.18 | 38.08 | 45.54 FAIL |
+| Reallocate | 70.01 | 69.97 | 19.31 | 19.22 | 89.56 | 90.34 |
+| Reallocate with zeroed growth | 70.40 | 71.12 | 19.28 | 19.81 | 90.55 | 91.05 |
+| Unique object | 35.81 | 34.95 | 7.72 | 7.31 | 33.77 | 34.00 |
+| Object array | 49.11 | 48.84 | 22.07 | 21.87 | 46.55 | 47.88 |
+| Shared object | 40.86 | 42.82 | 12.62 | 13.69 | 56.13 | 58.42 |
+| Vector | 240.58 | 242.15 | 226.01 | 229.18 | 250.63 | 240.97 |
+| PMR Vector | 866.72 | 868.49 | 848.51 | 849.24 | 868.69 | 873.72 |
+| OwnedBlock | 34.02 | 34.30 | 4.81 | 5.34 | 46.13 | 49.94 |
 
-### Compared with before migration
+36/42 cases passed.
 
-| Backend | Faster / total scenarios | Equal-weight geometric mean speedup |
-| --- | ---: | ---: |
-| standard | 8 / 14 | 2.1% |
-| mimalloc | 13 / 14 | 6.6% |
-| jemalloc | 7 / 14 | -2.9% |
+### Linux · GNU 13.3.0
 
-Actual median durations improve in 28 of 42 scenarios; small differences may be measurement noise.
+| Scenario | std | std-unim | mi | mi-unim | je | je-unim |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Allocate/free 16 B | 11.38 | 11.07 | 7.96 | 7.99 | 15.35 | 15.35 |
+| Allocate/free 64 B | 11.37 | 11.05 | 8.25 | 8.21 | 15.36 | 15.37 |
+| Allocate/free 256 B | 11.37 | 11.07 | 8.83 | 8.83 | 15.60 | 15.60 |
+| Allocate/free 4 KiB | 23.08 | 22.64 | 27.44 | 28.12 | 18.91 | 18.87 |
+| Allocate/free 64 KiB | 25.47 | 25.26 | 29.31 | 29.50 | 319.82 | 320.92 |
+| Zeroed allocation | 12.43 | 12.50 | 11.21 | 10.91 | 19.31 | 18.85 |
+| Reallocate | 24.61 | 25.36 | 20.91 | 21.84 | 46.99 | 47.21 |
+| Reallocate with zeroed growth | 24.21 | 24.59 | 22.50 | 22.23 | 48.10 | 48.09 |
+| Unique object | 27.08 | 11.17 | 20.43 | 7.54 | 26.30 | 13.39 |
+| Object array | 69.87 | 25.18 | 33.54 | 25.59 | 38.61 | 24.36 |
+| Shared object | 15.70 | 16.55 | 11.98 | 12.25 | 21.22 | 21.96 |
+| Vector | 200.51 | 122.71 | 134.42 | 134.37 | 118.84 | 120.72 |
+| PMR Vector | 135.56 | 139.58 | 146.14 | 143.74 | 128.09 | 129.40 |
+| OwnedBlock | 13.46 | 12.11 | 10.44 | 9.51 | 17.82 | 17.57 |
 
-### Remaining cases below the 90% native threshold
+42/42 cases passed.
 
-The gate checks both paired medians and ratios of arithmetic mean durations; 39/42 pass. All failing results are retained and the threshold is unchanged.
+### macOS · AppleClang 17.0.0.17000013
 
-| Backend | Scenario | Paired median | Mean-duration ratio |
-| --- | --- | ---: | ---: |
-| standard | Vector, 256 64-bit integers | 81.18% | 79.94% |
-| mimalloc | Allocate + free 16 B | 88.78% | 89.56% |
-| mimalloc | OwnedBlock, 64 B | 88.23% | 88.55% |
+| Scenario | std | std-unim | mi | mi-unim | je | je-unim |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Allocate/free 16 B | 17.72 | 21.13 FAIL | 5.18 | 5.74 FAIL | 15.75 | 16.24 |
+| Allocate/free 64 B | 22.92 | 26.21 FAIL | 5.43 | 5.99 | 17.31 | 17.76 |
+| Allocate/free 256 B | 22.27 | 23.36 | 7.03 | 7.65 | 17.98 | 19.67 |
+| Allocate/free 4 KiB | 27.86 | 27.34 | 15.95 | 15.13 | 24.00 | 24.83 |
+| Allocate/free 64 KiB | 29.30 | 27.23 | 16.64 | 16.69 | 207.79 | 208.90 |
+| Zeroed allocation | 25.45 | 27.42 | 7.27 | 8.73 FAIL | 21.63 | 25.80 FAIL |
+| Reallocate | 57.81 | 62.08 | 14.18 | 15.84 FAIL | 49.30 | 48.07 |
+| Reallocate with zeroed growth | 56.49 | 61.08 | 16.21 | 16.38 | 49.39 | 53.11 |
+| Unique object | 29.75 | 34.80 FAIL | 6.21 | 7.52 FAIL | 17.08 | 19.57 FAIL |
+| Object array | 69.44 | 80.61 FAIL | 21.11 | 29.88 FAIL | 36.83 | 49.20 FAIL |
+| Shared object | 33.71 | 32.67 | 21.16 | 20.99 | 35.10 | 33.19 |
+| Vector | 145.62 | 161.06 FAIL | 737.06 | 134.92 | 824.46 | 177.12 |
+| PMR Vector | 160.80 | 158.84 | 142.00 | 154.77 | 172.47 | 180.88 |
+| OwnedBlock | 20.78 | 21.99 | 5.31 | 5.70 | 19.34 | 21.82 FAIL |
 
-### Correctness
+28/42 cases passed.
 
-Local migration validation: 5,337 source CTest cases and 54 installed-consumer CTest cases passed.
-
-Source: `docs/results/windows-local-comparison.json`; measured current source is the local working tree on 2026-10-13, with no fixed current commit recorded. Single-CPU affinity; context construction is excluded.
+Data is retained in `docs/results/latest-validation.json`; the overview figure uses `docs/results/latest-overview.json`. Some Linux/macOS object and container results differ by several times; allocator-only conclusions require review of the benchmark and generated code. Historical charts and applications retain their separate provenance.
 
 ## 8 · Linux native applications: elapsed time and peak memory
 

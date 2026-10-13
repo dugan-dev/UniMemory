@@ -1,0 +1,1088 @@
+{
+  "schema": 1,
+  "source_revision": "4f98078e553cabd2e62c2da2235888a84a0035a0",
+  "run_id": "38372589028",
+  "measured_at": "2026-10-13",
+  "scope": "Global core API, Release, statistics OFF, ten paired process trials",
+  "correctness": "passed",
+  "performance": "failed",
+  "platforms": {
+    "windows": {
+      "backends": {
+        "standard": {
+          "summary_sha256": "9147394d730b43ea59962ac39196dc4f1ea4c019dae74b211831e3b9cd28ba21",
+          "executable_sha256": "5511041a26c14011e93828a81708f02aa1fc0b280bebaa36f87c71dfe052dacf",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 32.88683931405,
+              "changed_median": 33.4037470683,
+              "performance_percent": 98.75239214657758,
+              "mean_performance_percent": 98.16807946825512,
+              "passed": true
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 32.8703975053,
+              "changed_median": 32.8903936927,
+              "performance_percent": 100.04209123998127,
+              "mean_performance_percent": 99.3533293072036,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 33.29681372965,
+              "changed_median": 33.6140049635,
+              "performance_percent": 98.92788016660555,
+              "mean_performance_percent": 97.85349051700005,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 33.355490995699995,
+              "changed_median": 33.60856711565,
+              "performance_percent": 99.25476440266632,
+              "mean_performance_percent": 99.3622260289345,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 104.6271221695,
+              "changed_median": 106.52607764300001,
+              "performance_percent": 98.90439525138453,
+              "mean_performance_percent": 98.80266506462601,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 35.12259050167013,
+              "changed_median": 35.96429298337318,
+              "performance_percent": 98.19759001327505,
+              "mean_performance_percent": 98.04084478368405,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 70.00850692814382,
+              "changed_median": 69.96704427865956,
+              "performance_percent": 99.51207620258688,
+              "mean_performance_percent": 99.09784388474237,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 70.39684481293656,
+              "changed_median": 71.1202855044473,
+              "performance_percent": 99.29911778517462,
+              "mean_performance_percent": 99.47703398645227,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 35.80547208404592,
+              "changed_median": 34.94874539569648,
+              "performance_percent": 102.91075914781051,
+              "mean_performance_percent": 102.48529201022114,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 49.1077367233989,
+              "changed_median": 48.842061000377726,
+              "performance_percent": 100.32559482303756,
+              "mean_performance_percent": 100.78457425955798,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 40.861099717174895,
+              "changed_median": 42.817607105266866,
+              "performance_percent": 96.50545295951113,
+              "mean_performance_percent": 96.60588522339972,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 240.57725657152974,
+              "changed_median": 242.15396781699488,
+              "performance_percent": 99.39774971251748,
+              "mean_performance_percent": 98.49083386995203,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 866.7208336125444,
+              "changed_median": 868.4929608353183,
+              "performance_percent": 99.841185313804,
+              "mean_performance_percent": 99.9291838559536,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 34.021652174519716,
+              "changed_median": 34.29606886463583,
+              "performance_percent": 98.54860459475859,
+              "mean_performance_percent": 98.8555253965935,
+              "passed": true
+            }
+          ]
+        },
+        "mimalloc": {
+          "summary_sha256": "a52cc11d2a3bf27b85c0515d1e836e331fa442f811a8a568feeb6ab8fb493208",
+          "executable_sha256": "5b80c9c05a15c26d21c33b349bdaac091cf56bb32a7a6c6b6b606e8dbb0e4f25",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 5.14781013245,
+              "changed_median": 5.219781782255,
+              "performance_percent": 98.15109518531669,
+              "mean_performance_percent": 81.55375336521851,
+              "passed": false
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 5.12458186536,
+              "changed_median": 5.16548687549,
+              "performance_percent": 99.21670069884777,
+              "mean_performance_percent": 99.79290191167294,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 5.788732202565,
+              "changed_median": 6.00091541008,
+              "performance_percent": 96.38511128534452,
+              "mean_performance_percent": 96.60739542605722,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 20.6763050086,
+              "changed_median": 20.9434546258,
+              "performance_percent": 98.47000776562408,
+              "mean_performance_percent": 98.55193794261642,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 22.858067707449997,
+              "changed_median": 23.021029689149998,
+              "performance_percent": 99.27932655692427,
+              "mean_performance_percent": 99.13541144559956,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 10.507987507146428,
+              "changed_median": 11.181631218940526,
+              "performance_percent": 93.91442515881923,
+              "mean_performance_percent": 95.04926852005522,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 19.30500646755835,
+              "changed_median": 19.223807432972563,
+              "performance_percent": 97.9864179305334,
+              "mean_performance_percent": 97.36014784335023,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 19.275519168380015,
+              "changed_median": 19.81311805526358,
+              "performance_percent": 96.78734658090431,
+              "mean_performance_percent": 96.17584619399753,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 7.716569462493129,
+              "changed_median": 7.309247101968759,
+              "performance_percent": 106.6529026973445,
+              "mean_performance_percent": 106.97220134262359,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 22.0683942688573,
+              "changed_median": 21.87325435112278,
+              "performance_percent": 100.98715168211453,
+              "mean_performance_percent": 101.38593299429579,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 12.618733560856256,
+              "changed_median": 13.691871719700295,
+              "performance_percent": 92.25597253987239,
+              "mean_performance_percent": 92.27803693280386,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 226.00533368013743,
+              "changed_median": 229.17788622370276,
+              "performance_percent": 98.55301738245535,
+              "mean_performance_percent": 98.73051319585484,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 848.5102927634385,
+              "changed_median": 849.2352139900381,
+              "performance_percent": 99.87790657516861,
+              "mean_performance_percent": 100.35303350540528,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 4.807653538127239,
+              "changed_median": 5.341668937823179,
+              "performance_percent": 90.06939427239773,
+              "mean_performance_percent": 91.73359501250208,
+              "passed": true
+            }
+          ]
+        },
+        "jemalloc": {
+          "summary_sha256": "918893bdfabe4569c2f8dacbc10e6e38153de1ff9a6ea9c5674f03e3ad9e5f43",
+          "executable_sha256": "14049c17f058ab32327fea8ff550e9dd01fb9c692773db1c4762373a470507a3",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 35.1423379034,
+              "changed_median": 42.78270229815,
+              "performance_percent": 85.36419971540396,
+              "mean_performance_percent": 86.0190135752282,
+              "passed": false
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 37.296146109649996,
+              "changed_median": 41.783810027550004,
+              "performance_percent": 88.75656245262144,
+              "mean_performance_percent": 90.66708902459509,
+              "passed": false
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 35.21591375055,
+              "changed_median": 41.28688364235,
+              "performance_percent": 84.07865067511688,
+              "mean_performance_percent": 85.95640779079955,
+              "passed": false
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 35.43573541245,
+              "changed_median": 39.90440131095,
+              "performance_percent": 87.53888506061335,
+              "mean_performance_percent": 87.20209629766914,
+              "passed": false
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 218.0339795255,
+              "changed_median": 221.289332363,
+              "performance_percent": 97.9246793540536,
+              "mean_performance_percent": 98.83585280309376,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 38.07748939596685,
+              "changed_median": 45.53824365318789,
+              "performance_percent": 82.2363181072527,
+              "mean_performance_percent": 83.86365773360968,
+              "passed": false
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 89.5558435990493,
+              "changed_median": 90.3384358279997,
+              "performance_percent": 99.13368861338687,
+              "mean_performance_percent": 98.14343594279279,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 90.54638876371212,
+              "changed_median": 91.04914772995849,
+              "performance_percent": 99.30409904946526,
+              "mean_performance_percent": 98.85363968539771,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 33.766596384253305,
+              "changed_median": 33.99936617576852,
+              "performance_percent": 99.1852848909077,
+              "mean_performance_percent": 99.36664509728645,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 46.55141280399387,
+              "changed_median": 47.87546692459841,
+              "performance_percent": 97.51960678866179,
+              "mean_performance_percent": 98.6780367647158,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 56.133736584002335,
+              "changed_median": 58.415524945226146,
+              "performance_percent": 95.80788284443541,
+              "mean_performance_percent": 96.13357360370692,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 250.62751335275192,
+              "changed_median": 240.9747487605121,
+              "performance_percent": 104.13685288112788,
+              "mean_performance_percent": 103.30618670129282,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 868.6901107640217,
+              "changed_median": 873.7234423903581,
+              "performance_percent": 99.47583249709302,
+              "mean_performance_percent": 99.34085893841298,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 46.128781592099585,
+              "changed_median": 49.94341980536413,
+              "performance_percent": 92.01412930713398,
+              "mean_performance_percent": 91.29122140627923,
+              "passed": true
+            }
+          ]
+        }
+      },
+      "compiler": "MSVC 19.44.35229.0"
+    },
+    "linux": {
+      "backends": {
+        "standard": {
+          "summary_sha256": "ecdf6dae1e7affc9118d38a88cff16b8d6c8cb7784d690d37a866549efaa28a6",
+          "executable_sha256": "ae11d92c0afa763da41941d61b06b65b4e1c2caf30ce47410296f29655a72487",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 11.3805765191,
+              "changed_median": 11.07243909175,
+              "performance_percent": 102.90235596632989,
+              "mean_performance_percent": 102.93275885763722,
+              "passed": true
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 11.37218208225,
+              "changed_median": 11.05393788305,
+              "performance_percent": 102.91962786052542,
+              "mean_performance_percent": 102.94627356047243,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 11.36609566485,
+              "changed_median": 11.06772203365,
+              "performance_percent": 102.59628846143501,
+              "mean_performance_percent": 102.82201413241192,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 23.0759559671,
+              "changed_median": 22.63550381465,
+              "performance_percent": 101.86492281366517,
+              "mean_performance_percent": 101.91554378314316,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 25.4689959925,
+              "changed_median": 25.25856569125,
+              "performance_percent": 100.90647750200594,
+              "mean_performance_percent": 100.85815484997502,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 12.427907348950368,
+              "changed_median": 12.500673848231862,
+              "performance_percent": 99.47438039211329,
+              "mean_performance_percent": 99.42484625118897,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 24.606461368117657,
+              "changed_median": 25.35754661523667,
+              "performance_percent": 97.03835512249671,
+              "mean_performance_percent": 96.17936402506815,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 24.21032108186757,
+              "changed_median": 24.591505730459748,
+              "performance_percent": 98.40308104301565,
+              "mean_performance_percent": 98.1476563460401,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 27.082036081678527,
+              "changed_median": 11.173745564206646,
+              "performance_percent": 242.3313464594697,
+              "mean_performance_percent": 242.1137125618844,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 69.86845058706739,
+              "changed_median": 25.17923720488875,
+              "performance_percent": 277.28348153714444,
+              "mean_performance_percent": 275.946906504711,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 15.699695642959739,
+              "changed_median": 16.549650954213483,
+              "performance_percent": 95.22695395817118,
+              "mean_performance_percent": 95.15416599326457,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 200.50820465058843,
+              "changed_median": 122.70810542637255,
+              "performance_percent": 163.41560263060626,
+              "mean_performance_percent": 163.34259762582545,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 135.56349351374513,
+              "changed_median": 139.57655399654504,
+              "performance_percent": 97.01698636849804,
+              "mean_performance_percent": 96.91806828613512,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 13.45846048099326,
+              "changed_median": 12.107644238097311,
+              "performance_percent": 111.27644800165417,
+              "mean_performance_percent": 110.82785822364598,
+              "passed": true
+            }
+          ]
+        },
+        "mimalloc": {
+          "summary_sha256": "33aed55429789711e45332726ec5e045d0ffdc666ed7ceb04cd4df626c168920",
+          "executable_sha256": "8fb8172ddf154dfb4dabd4e45b54b11371e733459a757c268d13ef5ede5c014b",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 7.960352250954999,
+              "changed_median": 7.98789398151,
+              "performance_percent": 99.7694344060063,
+              "mean_performance_percent": 99.48457742330145,
+              "passed": true
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 8.246836985355,
+              "changed_median": 8.21324124586,
+              "performance_percent": 100.45329679373083,
+              "mean_performance_percent": 100.34072142786239,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 8.832119702385,
+              "changed_median": 8.834609695485,
+              "performance_percent": 99.4737986520074,
+              "mean_performance_percent": 98.90553876916982,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 27.43545403605,
+              "changed_median": 28.116294877199998,
+              "performance_percent": 97.75930831424128,
+              "mean_performance_percent": 97.4484442235567,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 29.3056929459,
+              "changed_median": 29.49913011175,
+              "performance_percent": 98.32925405554846,
+              "mean_performance_percent": 98.63221975814068,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 11.212077476833528,
+              "changed_median": 10.912972052447765,
+              "performance_percent": 103.07835409744771,
+              "mean_performance_percent": 103.23491920813612,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 20.907614911183977,
+              "changed_median": 21.83928318174754,
+              "performance_percent": 95.81591526877304,
+              "mean_performance_percent": 96.31096536683911,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 22.50167692930533,
+              "changed_median": 22.227458544054798,
+              "performance_percent": 98.38356354978866,
+              "mean_performance_percent": 99.30457065824822,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 20.43363149333355,
+              "changed_median": 7.540717933853026,
+              "performance_percent": 271.5496376038344,
+              "mean_performance_percent": 268.57420865399433,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 33.53514193307911,
+              "changed_median": 25.58855626340337,
+              "performance_percent": 131.04531878496766,
+              "mean_performance_percent": 130.49386271919826,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 11.980985697032343,
+              "changed_median": 12.253304888243296,
+              "performance_percent": 97.97636858696548,
+              "mean_performance_percent": 97.26995681420884,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 134.41702132614648,
+              "changed_median": 134.3666098815093,
+              "performance_percent": 99.89427997576153,
+              "mean_performance_percent": 100.2991012945836,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 146.1401578460449,
+              "changed_median": 143.73935713986577,
+              "performance_percent": 101.42427805843211,
+              "mean_performance_percent": 101.1261698834656,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 10.436057157795181,
+              "changed_median": 9.50801806460333,
+              "performance_percent": 109.98796767560924,
+              "mean_performance_percent": 109.715534065561,
+              "passed": true
+            }
+          ]
+        },
+        "jemalloc": {
+          "summary_sha256": "e19a9ec7303105ba14f0df2e9496aa822ebd00631ccc1a69b19dad8f18c16cb8",
+          "executable_sha256": "80c5377db3f9e122db5520b546c21778197a055410de7b1d04dd2256b5325e43",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 15.345695314250001,
+              "changed_median": 15.35429791815,
+              "performance_percent": 99.9820782444859,
+              "mean_performance_percent": 100.0089542317359,
+              "passed": true
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 15.364779763600001,
+              "changed_median": 15.37416896065,
+              "performance_percent": 100.08265142603085,
+              "mean_performance_percent": 100.10451779443143,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 15.601994406,
+              "changed_median": 15.596820444799999,
+              "performance_percent": 100.15325558920333,
+              "mean_performance_percent": 100.41373787035788,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 18.913959696150002,
+              "changed_median": 18.8695127854,
+              "performance_percent": 100.11239420582739,
+              "mean_performance_percent": 100.30323553798672,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 319.82036343050004,
+              "changed_median": 320.919374348,
+              "performance_percent": 99.67775902004989,
+              "mean_performance_percent": 98.4038638549416,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 19.309346681808744,
+              "changed_median": 18.84537318921618,
+              "performance_percent": 102.43673437767062,
+              "mean_performance_percent": 102.40325889224103,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 46.988611364091106,
+              "changed_median": 47.20811193033511,
+              "performance_percent": 99.58250834980873,
+              "mean_performance_percent": 99.50412880167822,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 48.09751888359621,
+              "changed_median": 48.091596327290475,
+              "performance_percent": 100.11818169831596,
+              "mean_performance_percent": 100.06271107070516,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 26.30405768135286,
+              "changed_median": 13.391364748007073,
+              "performance_percent": 196.6008795674015,
+              "mean_performance_percent": 196.55199214593702,
+              "passed": true
+            },
+            {
+              "factor": "array",
+              "control_median": 38.611581481875234,
+              "changed_median": 24.357187623635355,
+              "performance_percent": 158.0632391382802,
+              "mean_performance_percent": 158.15765474803987,
+              "passed": true
+            },
+            {
+              "factor": "shared",
+              "control_median": 21.217316049957425,
+              "changed_median": 21.964772955957848,
+              "performance_percent": 96.52005201518809,
+              "mean_performance_percent": 96.54248774652785,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 118.84203060709476,
+              "changed_median": 120.72214648254055,
+              "performance_percent": 98.43601238021509,
+              "mean_performance_percent": 98.24865318185697,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 128.0880249399059,
+              "changed_median": 129.39694176424248,
+              "performance_percent": 99.08553469545177,
+              "mean_performance_percent": 99.03299935444481,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 17.816448251724175,
+              "changed_median": 17.57211163482492,
+              "performance_percent": 101.26035600780207,
+              "mean_performance_percent": 101.22528248278748,
+              "passed": true
+            }
+          ]
+        }
+      },
+      "compiler": "GNU 13.3.0"
+    },
+    "macos": {
+      "backends": {
+        "standard": {
+          "summary_sha256": "0d6247ece47fe17a6e961a29ff8bb10bbbb6bdcf1144c23cd9ad6cd872df28ae",
+          "executable_sha256": "6c8dc14d93112b252c992dbdf1ca56c97b171f2c0683234b8ddaa00d9ae7779a",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 17.7216944447,
+              "changed_median": 21.126906268950002,
+              "performance_percent": 88.82711462422552,
+              "mean_performance_percent": 89.07875861807162,
+              "passed": false
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 22.9189906065,
+              "changed_median": 26.210087527349998,
+              "performance_percent": 88.93255360870285,
+              "mean_performance_percent": 90.78019450797,
+              "passed": false
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 22.27300799295,
+              "changed_median": 23.3561731327,
+              "performance_percent": 93.57737122473648,
+              "mean_performance_percent": 94.72952883991458,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 27.857571419750002,
+              "changed_median": 27.33532690775,
+              "performance_percent": 105.18001379939572,
+              "mean_performance_percent": 103.1501613268918,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 29.30398904715,
+              "changed_median": 27.231323664549997,
+              "performance_percent": 102.44238789121813,
+              "mean_performance_percent": 102.5226235487422,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 25.445915022627204,
+              "changed_median": 27.415865300178616,
+              "performance_percent": 92.38092100075053,
+              "mean_performance_percent": 91.66224816110957,
+              "passed": true
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 57.8127907188819,
+              "changed_median": 62.07658727569942,
+              "performance_percent": 93.02851444974652,
+              "mean_performance_percent": 94.8474433030906,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 56.4901471271607,
+              "changed_median": 61.083860894308216,
+              "performance_percent": 91.82599020653208,
+              "mean_performance_percent": 93.78696244153765,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 29.747758082350593,
+              "changed_median": 34.80208907623384,
+              "performance_percent": 83.04097958331502,
+              "mean_performance_percent": 83.92052808664671,
+              "passed": false
+            },
+            {
+              "factor": "array",
+              "control_median": 69.43885621651182,
+              "changed_median": 80.61469911696872,
+              "performance_percent": 86.419074133219,
+              "mean_performance_percent": 85.60227856221158,
+              "passed": false
+            },
+            {
+              "factor": "shared",
+              "control_median": 33.71466358648847,
+              "changed_median": 32.667695475514066,
+              "performance_percent": 109.9623904149152,
+              "mean_performance_percent": 105.52379455473593,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 145.61849877140355,
+              "changed_median": 161.0568794102737,
+              "performance_percent": 93.66933323660857,
+              "mean_performance_percent": 89.14112916195076,
+              "passed": false
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 160.79523028854422,
+              "changed_median": 158.84237229834318,
+              "performance_percent": 98.56936588988214,
+              "mean_performance_percent": 95.31416020402195,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 20.775761148150792,
+              "changed_median": 21.987543026503637,
+              "performance_percent": 95.35362668169712,
+              "mean_performance_percent": 95.01190858623599,
+              "passed": true
+            }
+          ]
+        },
+        "mimalloc": {
+          "summary_sha256": "3e01ee52c36b24711fc73581fd2df4ff780082482022f08f8b19fd079842dcd8",
+          "executable_sha256": "5fc5a198921e79987a40c7889b33419e73a58b3ceede8664ad3b88f7f3c2d6f8",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 5.17807123527,
+              "changed_median": 5.736717084685,
+              "performance_percent": 88.9389692793761,
+              "mean_performance_percent": 89.15052472306924,
+              "passed": false
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 5.42968454339,
+              "changed_median": 5.991739056605001,
+              "performance_percent": 91.61074092501563,
+              "mean_performance_percent": 91.43427942067342,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 7.026576768895,
+              "changed_median": 7.65263030524,
+              "performance_percent": 93.31230387827293,
+              "mean_performance_percent": 91.40765611500676,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 15.947385834850001,
+              "changed_median": 15.12737886865,
+              "performance_percent": 99.82084858176998,
+              "mean_performance_percent": 97.94287088444862,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 16.63803785655,
+              "changed_median": 16.691502727950002,
+              "performance_percent": 96.26362288601246,
+              "mean_performance_percent": 97.08394556139491,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 7.2723856467262,
+              "changed_median": 8.725957896133016,
+              "performance_percent": 84.82493185144111,
+              "mean_performance_percent": 84.42483660228109,
+              "passed": false
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 14.180667990133498,
+              "changed_median": 15.842598720636026,
+              "performance_percent": 89.78250260094909,
+              "mean_performance_percent": 89.92861769345029,
+              "passed": false
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 16.207555910583576,
+              "changed_median": 16.375462792528886,
+              "performance_percent": 97.21246000972803,
+              "mean_performance_percent": 98.34291791459604,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 6.210647598198918,
+              "changed_median": 7.522341175493033,
+              "performance_percent": 83.7735097147752,
+              "mean_performance_percent": 85.44800591472239,
+              "passed": false
+            },
+            {
+              "factor": "array",
+              "control_median": 21.107916046665586,
+              "changed_median": 29.875804324444633,
+              "performance_percent": 70.00598242505691,
+              "mean_performance_percent": 70.49244454749673,
+              "passed": false
+            },
+            {
+              "factor": "shared",
+              "control_median": 21.16223608820325,
+              "changed_median": 20.988705439171337,
+              "performance_percent": 101.43734461489656,
+              "mean_performance_percent": 101.88277126856325,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 737.0641289987619,
+              "changed_median": 134.9236569111568,
+              "performance_percent": 557.7590352182854,
+              "mean_performance_percent": 527.8861404904499,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 141.99748229404193,
+              "changed_median": 154.7740380388954,
+              "performance_percent": 93.48105450200381,
+              "mean_performance_percent": 91.39490894556998,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 5.311376914815413,
+              "changed_median": 5.704582596833985,
+              "performance_percent": 93.41285823858765,
+              "mean_performance_percent": 90.39820215850256,
+              "passed": true
+            }
+          ]
+        },
+        "jemalloc": {
+          "summary_sha256": "efd95255734ae39863a7b812141c0d510fb0581e611b41f2c3f672869c7c6204",
+          "executable_sha256": "a45b167d57ff7f4cb3f13faff08da9e7f998bb6b168dfbb69c9434e8e4de9fc9",
+          "rows": [
+            {
+              "factor": "raw:16",
+              "control_median": 15.753521693,
+              "changed_median": 16.24056369365,
+              "performance_percent": 98.06004268811668,
+              "mean_performance_percent": 95.8984219462577,
+              "passed": true
+            },
+            {
+              "factor": "raw:64",
+              "control_median": 17.3065619997,
+              "changed_median": 17.761959906599998,
+              "performance_percent": 100.46203972805901,
+              "mean_performance_percent": 100.71607915619542,
+              "passed": true
+            },
+            {
+              "factor": "raw:256",
+              "control_median": 17.9774414001,
+              "changed_median": 19.6674886258,
+              "performance_percent": 92.57436153242523,
+              "mean_performance_percent": 92.47871189052155,
+              "passed": true
+            },
+            {
+              "factor": "raw:4096",
+              "control_median": 23.9965937618,
+              "changed_median": 24.832784068800002,
+              "performance_percent": 95.59349837591421,
+              "mean_performance_percent": 94.14577443689952,
+              "passed": true
+            },
+            {
+              "factor": "raw:65536",
+              "control_median": 207.792513799,
+              "changed_median": 208.8973295125,
+              "performance_percent": 99.15241883804748,
+              "mean_performance_percent": 99.06016993922097,
+              "passed": true
+            },
+            {
+              "factor": "zeroed",
+              "control_median": 21.634104419210555,
+              "changed_median": 25.796066529774865,
+              "performance_percent": 89.05789443385943,
+              "mean_performance_percent": 87.18156265677635,
+              "passed": false
+            },
+            {
+              "factor": "reallocate",
+              "control_median": 49.298147672706136,
+              "changed_median": 48.06616507012195,
+              "performance_percent": 99.360533631805,
+              "mean_performance_percent": 101.00792162144549,
+              "passed": true
+            },
+            {
+              "factor": "reallocate_zeroed",
+              "control_median": 49.393388147750926,
+              "changed_median": 53.10520013388426,
+              "performance_percent": 95.2243741723615,
+              "mean_performance_percent": 96.33251181555276,
+              "passed": true
+            },
+            {
+              "factor": "unique",
+              "control_median": 17.082176125707445,
+              "changed_median": 19.57048809853767,
+              "performance_percent": 88.88258475556603,
+              "mean_performance_percent": 88.41631213088158,
+              "passed": false
+            },
+            {
+              "factor": "array",
+              "control_median": 36.82833785732186,
+              "changed_median": 49.20247314490334,
+              "performance_percent": 73.59157548087593,
+              "mean_performance_percent": 75.11569378386909,
+              "passed": false
+            },
+            {
+              "factor": "shared",
+              "control_median": 35.10190470014236,
+              "changed_median": 33.186681598963624,
+              "performance_percent": 105.35308022877864,
+              "mean_performance_percent": 104.4614516809744,
+              "passed": true
+            },
+            {
+              "factor": "vector",
+              "control_median": 824.4556837183385,
+              "changed_median": 177.12080652305008,
+              "performance_percent": 476.52015457383783,
+              "mean_performance_percent": 477.49265804763195,
+              "passed": true
+            },
+            {
+              "factor": "pmr_vector",
+              "control_median": 172.47037920495566,
+              "changed_median": 180.87855821466445,
+              "performance_percent": 96.28030136574853,
+              "mean_performance_percent": 92.68659169208007,
+              "passed": true
+            },
+            {
+              "factor": "owned",
+              "control_median": 19.34380413835271,
+              "changed_median": 21.824189001930154,
+              "performance_percent": 87.86340285961465,
+              "mean_performance_percent": 89.79189741980318,
+              "passed": false
+            }
+          ]
+        }
+      },
+      "compiler": "AppleClang 17.0.0.17000013"
+    }
+  }
+}
