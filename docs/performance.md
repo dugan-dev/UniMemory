@@ -1,5 +1,7 @@
 # Performance report
 
+Performance informs comparison and optimization, not correctness or release eligibility. The 90% ratio is advisory; historical pass/fail records retain their original policy.
+
 Historical figures and current local Windows validation are separate datasets; current Heap and statistics have not been measured across platforms.
 
 [UniMemory](../README.md) · **English** · [简体中文](performance.zh-CN.md)

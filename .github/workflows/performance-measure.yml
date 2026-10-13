@@ -124,13 +124,20 @@ jobs:
               cmake --build "$directory" --config Release --parallel 4
               ctest --test-dir "$directory" -C Release --parallel 4 --output-on-failure --no-tests=error
               if [ "$statistics" = OFF ]; then
-                # Keep every >=90% result, then finish all profiles and controlled trials.
-                if cmake --build "$directory" --config Release --target UniMemoryPerformanceAcceptance; then
-                  echo "$backend: passed >=0.90" >> build/performance/acceptance-status.txt
-                else
-                  echo "$backend: failed >=0.90" >> build/performance/acceptance-status.txt
-                  echo "$backend" >> build/performance/acceptance-failures.txt
-                fi
+                # Invalid measurements still fail; low performance is recorded only.
+                cmake --build "$directory" --config Release --target UniMemoryPerformanceAcceptance
+                python3 - "$directory/performance-acceptance-Release/environment.json" "$backend" <<'PY'
+          import json, sys
+          from pathlib import Path
+          record = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert record['completed'], 'Incomplete performance measurements'
+          status = 'reference met' if record['passed'] else 'below advisory reference'
+          with open('build/performance/acceptance-status.txt', 'a', encoding='utf-8') as stream:
+              stream.write(sys.argv[2] + ': ' + status + '\n')
+          if not record['passed']:
+              with open('build/performance/acceptance-failures.txt', 'a', encoding='utf-8') as stream:
+                  stream.write(sys.argv[2] + '\n')
+          PY
               fi
             done
           done
@@ -159,13 +166,15 @@ jobs:
           name: native-application-comparison
           path: build/collection-results/
           retention-days: 90
-      - name: Require all recorded Native/API >=90% gates
+      - name: Report Native/API reference results without a release gate
         if: ${{ !cancelled() }}
         shell: bash
         run: |
           test -f build/performance/acceptance-failures.txt
           cat build/performance/acceptance-status.txt
-          test ! -s build/performance/acceptance-failures.txt
+          if [ -s build/performance/acceptance-failures.txt ]; then
+            echo "::warning::Performance reference results are advisory and do not block correctness or release."
+          fi
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

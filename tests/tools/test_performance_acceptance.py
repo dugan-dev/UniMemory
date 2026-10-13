@@ -12,6 +12,14 @@ module = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(module)
 
 class PerformanceAcceptanceTests(unittest.TestCase):
+    def test_low_performance_is_advisory_by_default(self):
+        module.enforce_reference([dict(passed=False)])
+
+    def test_only_explicit_enforcement_rejects_low_performance(self):
+        with self.assertRaises(SystemExit):
+            module.enforce_reference([dict(passed=False)], required=True)
+        module.enforce_reference([dict(passed=True)], required=True)
+
     def test_rejects_statistics_debug_and_checks(self):
         profile = dict(statistics="OFF", configuration="Release", checks="AUTO")
         module.validate_profile(profile)

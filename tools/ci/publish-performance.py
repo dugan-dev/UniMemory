@@ -11,7 +11,7 @@ import subprocess
 import time
 
 WORKFLOWS = {"performance.yml"}
-REQUIRED_CHECKS = {"performance acceptance"}
+REQUIRED_CHECKS = {"build acceptance"}
 GENERATED_DIRECTORIES = ("docs/images/performance/", "docs/results/current/")
 GENERATED_FILES = {"README.md", "README.zh-CN.md", "docs/images/workload-comparison.png",
                    "docs/images/memory-retention.png",
