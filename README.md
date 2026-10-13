@@ -27,12 +27,10 @@ A modern, header-only C++20 library for unified memory allocation with Standard,
 - **📦 Standard Container**: Allocator and PMR adapters for existing C++ containers.
 - **🎯 Aligned memory**: Custom alignment, zero initialization and byte-buffer resizing.
 - **🗂️ Heap and Stack**: Independent allocation groups and temporary fixed-buffer storage.
-- **📊 Optional statistics**: Optional allocation counts, live bytes and peak usage.
+- **📊 Optional statistics**: Per-instance allocation counts, live bytes and peak usage.
 - **🌐 Cross-platform**: Supports Windows, Linux and macOS.
 
 ## Quick Start
-
-Construct `Global`, `Heap` and `Stack` directly. Each instance is non-copyable and non-movable and must outlive its Owners, Containers, Allocator/PMR adapters and shared/weak control blocks. Global instances share the native allocator, with separate statistics and PMR resource identities.
 
 ### Basic Usage
 
@@ -40,7 +38,7 @@ Construct `Global`, `Heap` and `Stack` directly. Each instance is non-copyable a
 #include <unimem/all.h>
 
 int main() {
-    // Create a context using the shared native allocator
+    // Create global memory for this build
     unimem::Global memory;
 
     // Allocate and free
@@ -195,15 +193,16 @@ scratch.reset();
 ### Initialization and Statistics
 
 ```cpp
-// Build with UNIMEMORY_STATISTICS=ON; runtime counters default to Disabled
-unimem::Global memory;
-memory.set_statistics(unimem::StatisticsMode::Basic);
+// Build with UNIMEMORY_STATISTICS=ON and enable counters at construction
+unimem::Global memory(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
+
 // Query counts and bytes; all fields are zero when Disabled
 unimem::Statistics stats = memory.statistics();
 std::uint64_t live = stats.live_bytes;
 std::uint64_t peak = stats.peak_live_bytes;
 std::uint64_t calls = stats.allocations;
+
 // Release the block, then reset counters
 block.resize(0);
 memory.reset_statistics();
@@ -243,7 +242,7 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 <!-- performance-overview-source: docs/results/windows-local-comparison.json -->
 
-Windows x64 · MSVC 19.44 · Release · diagnostic IPO off · statistics off · 2026-10-13. Median of 10 trials, **ns/operation; lower is faster**.
+Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-13. Median of 10 trials, **ns/operation; lower is faster**.
 
 | Operation | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -253,7 +252,7 @@ Windows x64 · MSVC 19.44 · Release · diagnostic IPO off · statistics off · 
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-[Local table source](docs/results/windows-local-comparison.json). The chart retains the previously published CI measurements (vector: 32 integers). [Latest Windows comparison](docs/performance-windows.md) · [Full performance report](docs/performance.md)
+[Table data](docs/results/windows-local-comparison.json). The chart uses published Windows / Linux data, with Standard = 1; shorter bars are faster. [Full performance report](docs/performance.md)
 
 ## Build and Install
 

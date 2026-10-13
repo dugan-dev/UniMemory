@@ -27,12 +27,10 @@
 - **📦 标准容器**：通过 Allocator 和 PMR 接入标准库容器。
 - **🎯 对齐内存**：自定义对齐、清零分配与 Buffer 扩容。
 - **🗂️ 独立堆与栈式分配**：独立管理分配组，支持固定缓冲区的临时分配。
-- **📊 可选统计**：可选的分配次数、当前用量和峰值统计。
+- **📊 可选统计**：独立统计分配次数、当前占用和峰值。
 - **🌐 跨平台**：支持 Windows、Linux、macOS。
 
 ## 快速开始
-
-直接构造 `Global`、`Heap`、`Stack`。实例不可复制或移动，须比其 Owner、Container、Allocator/PMR 适配器及共享/弱引用控制块存活更久。Global 实例共用原生分配器，但统计和 PMR 资源身份各自独立。
 
 ### 基本用法
 
@@ -40,7 +38,7 @@
 #include <unimem/all.h>
 
 int main() {
-    // 创建使用共享原生分配器的实例
+    // 创建本次构建所选后端的全局内存
     unimem::Global memory;
 
     // 普通分配与释放
@@ -195,15 +193,16 @@ scratch.reset();
 ### 初始化与统计
 
 ```cpp
-// 构建时设置 UNIMEMORY_STATISTICS=ON；运行时计数默认关闭
-unimem::Global memory;
-memory.set_statistics(unimem::StatisticsMode::Basic);
+// 构建时设置 UNIMEMORY_STATISTICS=ON，创建时开启统计
+unimem::Global memory(unimem::StatisticsMode::Basic);
 unimem::OwnedBlock block = memory.make_block(1024);
+
 // 查询请求次数与字节数；关闭时所有字段为零
 unimem::Statistics stats = memory.statistics();
 std::uint64_t live = stats.live_bytes;
 std::uint64_t peak = stats.peak_live_bytes;
 std::uint64_t calls = stats.allocations;
+
 // 释放内存块后重置计数
 block.resize(0);
 memory.reset_statistics();
@@ -243,7 +242,7 @@ Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 <!-- performance-overview-source: docs/results/windows-local-comparison.json -->
 
-Windows x64 · MSVC 19.44 · Release · 诊断目标 IPO 关闭 · 统计关闭 · 2026-10-13。10 轮耗时中位数，**ns/次，越低越快**。
+Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-13。10 轮耗时中位数，**ns/次，越低越快**。
 
 | 操作 | Standard | mimalloc | jemalloc |
 | --- | ---: | ---: | ---: |
@@ -253,7 +252,7 @@ Windows x64 · MSVC 19.44 · Release · 诊断目标 IPO 关闭 · 统计关闭 
 
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-[本地表格来源](docs/results/windows-local-comparison.json)。图保留此前已发布的 CI 测量（vector：32 个整数）。[最新 Windows 对照](docs/performance-windows.zh-CN.md) · [完整性能报告](docs/performance.zh-CN.md)
+[表格数据](docs/results/windows-local-comparison.json)。图表使用已发布的 Windows / Linux 数据，Standard = 1；柱形越短越快。[完整性能报告](docs/performance.zh-CN.md)
 
 ## 构建与安装
 
