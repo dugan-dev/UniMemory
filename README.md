@@ -275,10 +275,10 @@ Set `-DCMAKE_PREFIX_PATH=<absolute-install-path>` to locate the installation.
 
 ## Documentation
 
-- **Getting started:** [Build and integrate](docs/getting-started.md) · [Examples](examples/README.md)
-- **Allocation:** [Objects and arrays](docs/guides/objects.md) · [Blocks](docs/guides/raw-memory.md)
+- **Getting started:** [Build and integrate](docs/getting-started.md) · [Examples](docs/getting-started.md#examples)
+- **Allocation:** [Storage and objects](docs/guides/objects.md)
 - **Containers:** [Allocator and PMR](docs/guides/containers.md)
-- **Memory types:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md)
+- **Memory types:** [Global, Heap and Stack](docs/guides/heap.md)
 - **Statistics:** [Usage and peaks](docs/guides/statistics.md)
 - **Configuration:** [Platforms and backends](docs/guides/backends.md)
 - **Performance:** [Detailed report](docs/performance.md)

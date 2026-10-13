@@ -1,83 +1,198 @@
-# 构建与安装
+# 构建和集成
 
-[目录](README.zh-CN.md) · [English](getting-started.md) · **简体中文**
+[首页](README.zh-CN.md) · [English](getting-started.md)
 
 ## 获取源码
 
-下载 [dev 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，或克隆仓库：
+需要 CMake 3.25 或更高版本及支持 C++20 的编译器。下载并解压 [dev 源码 ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，或执行：
 
 ```sh
-git clone https://github.com/dugan-dev/UniMemory.git
+git clone --branch dev https://github.com/dugan-dev/UniMemory.git
+cd UniMemory
 ```
 
-在包含 `CMakeLists.txt` 的源码目录执行构建命令。库版本由 `CMakeLists.txt` 声明；头文件、生成配置和 SDK 库须使用匹配的修订。
+以下命令在包含 `CMakeLists.txt` 的目录运行。Standard 后端不需要分配器 SDK，也不需要下载依赖。头文件、生成配置和可选 SDK 库应来自相互匹配的版本。
 
-## 运行示例
+## 构建和运行
 
-按照 [README 构建步骤](../README.zh-CN.md#构建与安装)编译，然后运行基本示例：
-
-| 平台 | 程序 |
-| --- | --- |
-| Windows / Visual Studio | `build/UniMemory-release/Release/UniMemoryExample_basic.exe` |
-| Linux / macOS | `build/UniMemory-release/UniMemoryExample_basic` |
-
-输出：`3, 1024 bytes`。[更多示例](../examples/README.md)
-
-## 接入项目
-
-按照[项目集成示例](../README.zh-CN.md#项目集成)。`UniMemory::UniMemory` 是纯头文件 `INTERFACE` 目标，传递头文件路径、生成配置、C++20 设置与所选 SDK 链接依赖。代码中包含 `<unimem/all.h>` 即可。
-
-## 安装库
-
-编译后，在 UniMemory 仓库目录执行：
+`release` 预设选择 `standard`、统计 `OFF`、检查 `AUTO`。显式启用示例：
 
 ```sh
-cmake --install build/UniMemory-release --config Release --prefix build/installed
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --build --preset release
 ```
 
-在自己的项目目录中，将 CMake 指向该安装目录：
+Windows 使用 Visual Studio 时，在 PowerShell 运行：
+
+```powershell
+./build/UniMemory-release/Release/UniMemoryExample_basic.exe
+./build/UniMemory-release/Release/UniMemoryExample_heap.exe
+./build/UniMemory-release/Release/UniMemoryExample_scratch.exe
+```
+
+Linux/macOS 使用单配置生成器时：
 
 ```sh
-cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
+./build/UniMemory-release/UniMemoryExample_basic
+./build/UniMemory-release/UniMemoryExample_heap
+./build/UniMemory-release/UniMemoryExample_scratch
+```
+
+依次输出 `3, 1024 bytes`、`Heap reset succeeded`、`0 bytes used after rewind`。Debug 使用 `debug` 配置和构建预设，并传入相同选项；Visual Studio 的程序位于 `build/UniMemory-debug/Debug`。
+
+不使用预设时，可执行等效的 Release 构建：
+
+```sh
+cmake -S . -B build/local -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --build build/local --config Release --parallel
+```
+
+## 将源码接入项目
+
+把仓库放在 `MyApp/UniMemory`，创建 `MyApp/CMakeLists.txt`：
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+set(UNIMEMORY_BACKEND standard CACHE STRING "UniMemory backend")
+set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
+set(UNIMEMORY_BUILD_TESTS OFF CACHE BOOL "UniMemory tests")
+add_subdirectory(UniMemory)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE UniMemory::UniMemory)
+```
+
+将下面任一完整程序保存为 `MyApp/main.cpp`，在 `MyApp` 中运行：
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-将占位符换成安装目录的绝对路径。项目的 CMake 文件需使用[安装包目标](../README.zh-CN.md#项目集成)。
+Visual Studio 运行 `./build/Release/my_app.exe`；单配置生成器运行 `./build/my_app`。`UniMemory::UniMemory` 提供 C++20、头文件路径、生成配置、线程库和所选 SDK 的链接依赖。UniMemory 本身仅由头文件组成，应用包含 `<unimem/all.h>`。
 
-README 的 `release` 预设使用 `build/UniMemory-release`。若通过 `cmake -B` 指定其他目录，运行示例及安装时也应使用该目录。
+## 安装并使用包
+
+在 UniMemory 仓库中执行：
+
+```sh
+cmake -S . -B build/package -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF
+cmake --build build/package --config Release
+cmake --install build/package --config Release --prefix build/installed
+```
+
+另建应用目录，包含 `main.cpp` 和以下 `CMakeLists.txt`：
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+find_package(UniMemory CONFIG REQUIRED)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE UniMemory::UniMemory)
+```
+
+在应用目录运行，将占位符替换为绝对安装路径：
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=<absolute-UniMemory-path>/build/installed"
+cmake --build build --config Release
+```
+
+安装内容包括头文件、生成配置和 CMake 包文件，不产生 UniMemory 静态库或动态库，`BUILD_SHARED_LIBS` 不改变这一点。使用可选 mimalloc/jemalloc SDK 时，消费者也必须能找到它；在 `CMAKE_PREFIX_PATH` 中用分号分隔 UniMemory 与 SDK 的安装前缀。动态链接的 SDK 需随应用部署。
+
+## 示例
+
+以下程序均可用于上述 Standard 配置。所有上下文的运行时统计默认为 `Disabled`。
+
+### Global：对象、拥有的字节块与 PMR 容器
+
+```cpp
+#include <unimem/all.h>
+
+#include <iostream>
+#include <memory_resource>
+#include <vector>
+
+struct Point {
+  float x;
+  float y;
+};
+
+int main() {
+  unimem::Global memory;
+  Point* point = memory.create<Point>(1.0f, 2.0f);
+  const Point position = *point;
+  memory.destroy(point);
+
+  unimem::OwnedBlock block = memory.make_block(1024, 64);
+  std::pmr::vector<Point> points(memory.resource());
+  points.push_back(position);
+  std::cout << points.front().x + points.front().y << ", " << block.size() << " bytes\n";
+  return 0;
+}
+```
+
+### Heap：先释放所有者，再重置分组
+
+```cpp
+#include <unimem/all.h>
+
+#include <iostream>
+
+int main() {
+  unimem::Heap heap;
+  {
+    unimem::Unique<int> value = heap.make_unique<int>(42);
+    if (!heap.owns(value.get()) || *value != 42) {
+      return 1;
+    }
+    heap.collect();
+  }
+  heap.reset();
+  std::cout << "Heap reset succeeded\n";
+  return 0;
+}
+```
+
+`collect()` 保持存活分配有效。`reset()` 释放分组中的分配，但不调用对象析构函数；先销毁对象并释放所有者和容器。
+
+### Stack：借用缓冲区并回退检查点
+
+```cpp
+#include <unimem/all.h>
+
+#include <cstddef>
+#include <iostream>
+
+int main() {
+  alignas(64) std::byte buffer[4096];
+  unimem::Stack scratch(buffer, sizeof buffer);
+  unimem::Stack::Mark checkpoint = scratch.mark();
+  std::byte* bytes = static_cast<std::byte*>(scratch.allocate(128, 64));
+  bytes[0] = std::byte{42};
+  scratch.rewind(checkpoint);
+  std::cout << scratch.used() << " bytes used after rewind\n";
+  return scratch.used() == 0 ? 0 : 1;
+}
+```
+
+缓冲区必须比 Stack 及其使用者活得更久。`rewind()` 使标记之后的分配失效，不调用析构函数；回退前先销毁受影响对象并释放所有者。Memory 上下文必须比其对象、所有者、分配器和 PMR 容器活得更久。
 
 ## 构建选项
 
-| 选项 | 默认 | 用途 |
+| 选项 | 默认值 | 含义 |
 | --- | --- | --- |
-| `UNIMEMORY_BACKEND` | 必填，无默认值 | `standard`、`mimalloc`、`jemalloc` 三选一 |
-| `UNIMEMORY_STATISTICS` | 必填，无默认值 | `ON`：允许所有 Memory 模式运行时开启 Basic；`OFF`：拒绝 Basic 配置；默认 Disabled |
-| `UNIMEMORY_CHECKS` | `AUTO` | Debug 开启检查，其他配置省略；可用 `ON`/`OFF` 覆盖策略 |
-| `UNIMEMORY_AGGRESSIVE_INLINING` | ON | MSVC Release 使用 `/Ob3`；OFF 保留使用方自己的内联选项 |
-| `UNIMEMORY_BUILD_EXAMPLES` | OFF | 构建可运行示例 |
+| `UNIMEMORY_BACKEND` | 必填 | 只能选择 `standard`、`mimalloc` 或 `jemalloc` |
+| `UNIMEMORY_STATISTICS` | 必填 | `ON` 允许运行时 `Basic`；`OFF` 拒绝它；两者运行时均默认 `Disabled` |
+| `UNIMEMORY_CHECKS` | `AUTO` | 仅 Debug 启用检查；`ON`/`OFF` 显式覆盖 |
+| `UNIMEMORY_AGGRESSIVE_INLINING` | `ON` | 向 MSVC Release 消费者添加 `/Ob3` |
+| `UNIMEMORY_BUILD_EXAMPLES` | `OFF` | 构建 basic、heap、scratch 示例 |
+| `UNIMEMORY_BUILD_TESTS` | 顶层 CTest 设置 | 仅安装头文件和包时设为 `OFF` |
 
-仅安装头文件与包时设置 `-DUNIMEMORY_BUILD_TESTS=OFF`。UniMemory 不生成静态或动态库，`BUILD_SHARED_LIBS` 不用于选择其库形式。
+整个程序统一使用一套后端、统计和检查策略；不同配置使用独立的构建和安装目录。安装包保留这些设置，并拒绝消费者的冲突请求。不要只复制源码头文件，也不要覆盖生成配置宏。
 
-源码集成时，在添加子目录前设置必填选项：
+需要统计时，以 `-DUNIMEMORY_STATISTICS=ON` 构建，并在构造时显式选择 `unimem::StatisticsMode::Basic`，例如 `unimem::Heap heap(unimem::StatisticsMode::Basic);`。
 
-```cmake
-set(UNIMEMORY_BACKEND standard CACHE STRING "UniMemory backend")
-set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
-add_subdirectory(UniMemory)
-```
+需要保留自己的 MSVC Release 内联选项时，设置 `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF`；安装包消费者也可设置。
 
-安装包固定后端、统计和检查设置，使用方直接继承目标配置；冲突设置会被拒绝。不同配置使用独立的构建和安装目录，同一程序保持同一配置。见[迁移说明](migration.zh-CN.md)。
-
-## 内联与优化
-
-`UNIMEMORY_AGGRESSIVE_INLINING=ON` 默认向 MSVC 的 Release 使用方传递 `/Ob3`；Debug、其他编译器配置不增加该选项。它作用于链接接口目标的整个 C++ 翻译单元，包含其中的非 UniMemory 代码，不是只优化分配函数。代码大小和其他负载也可能变化。
-
-源码构建或配置安装消费者时使用 `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF` 可移除该目标传递的 `/Ob3`，自行选择内联选项。安装包以消费者目标属性控制该选择；它与固定的后端/统计/检查契约不同。项目不会自动开启全局 IPO/LTO。
-
-[测量方法](benchmarking.zh-CN.md)保持 SDK/API 编译选项一致；`/Ob3` 仍是编译器启发式，不保证每个函数都内联或所有负载最快。
-
-## 部署程序
-
-使用安装包时，CMake 仍需找到所选原生 SDK。动态链接 SDK 时将其随程序部署；UniMemory 自身没有运行时库需要部署。见[后端配置](guides/backends.zh-CN.md#动态库部署)。
-
-[对象所有权](guides/objects.zh-CN.md) · [标准容器](guides/containers.zh-CN.md) · [原始内存](guides/raw-memory.zh-CN.md)
+示例遵循仓库 `.clang-format`：两空格缩进、同一行大括号、指针星号靠左、150 列上限。若已安装 clang-format，可从仓库运行 `clang-format -i main.cpp`，让它使用仓库配置。

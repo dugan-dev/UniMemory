@@ -1,83 +1,198 @@
-# Build and install
+# Build and integration
 
-[Index](README.md) · **English** · [简体中文](getting-started.zh-CN.md)
+[Home](README.md) · [简体中文](getting-started.zh-CN.md)
 
 ## Get the source
 
-Download the [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip), or clone the repository:
+Use CMake 3.25 or later and a C++20 compiler. Download the [dev source ZIP](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) and extract it, or run:
 
 ```sh
-git clone https://github.com/dugan-dev/UniMemory.git
+git clone --branch dev https://github.com/dugan-dev/UniMemory.git
+cd UniMemory
 ```
 
-Run the build commands from the directory containing `CMakeLists.txt`. The library version is declared there; use headers, generated configuration and SDK libraries from matching revisions.
+Run the following commands from the directory containing `CMakeLists.txt`. The Standard backend needs no allocator SDK or dependency download. Keep headers, generated configuration and optional SDK libraries from matching revisions.
 
-## Run an example
+## Build and run
 
-Follow the [README build steps](../README.md#build-and-install), then run the basic example:
-
-| Platform | Executable |
-| --- | --- |
-| Windows / Visual Studio | `build/UniMemory-release/Release/UniMemoryExample_basic.exe` |
-| Linux / macOS | `build/UniMemory-release/UniMemoryExample_basic` |
-
-Expected output: `3, 1024 bytes`. [More examples](../examples/README.md)
-
-## Add UniMemory to a project
-
-Follow the [project integration example](../README.md#integration). `UniMemory::UniMemory` is a header-only `INTERFACE` target that provides include paths, generated configuration, C++20 settings and the selected SDK link dependency. Include `<unimem/all.h>` in your code.
-
-## Install the library
-
-Run from the UniMemory checkout after building:
+The `release` preset selects `standard`, statistics `OFF` and checks `AUTO`. Enable examples explicitly:
 
 ```sh
-cmake --install build/UniMemory-release --config Release --prefix build/installed
+cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --build --preset release
 ```
 
-In your own project directory, point CMake to that installation:
+With Visual Studio on Windows, run in PowerShell:
+
+```powershell
+./build/UniMemory-release/Release/UniMemoryExample_basic.exe
+./build/UniMemory-release/Release/UniMemoryExample_heap.exe
+./build/UniMemory-release/Release/UniMemoryExample_scratch.exe
+```
+
+With a single-configuration generator on Linux/macOS:
 
 ```sh
-cmake -S . -B build "-DCMAKE_PREFIX_PATH=<UniMemory-install-prefix>"
+./build/UniMemory-release/UniMemoryExample_basic
+./build/UniMemory-release/UniMemoryExample_heap
+./build/UniMemory-release/UniMemoryExample_scratch
+```
+
+Expected output: `3, 1024 bytes`, `Heap reset succeeded`, and `0 bytes used after rewind`. Use the `debug` configure/build presets with the same options for Debug; Visual Studio then places executables in `build/UniMemory-debug/Debug`.
+
+Without presets, an equivalent Release build is:
+
+```sh
+cmake -S . -B build/local -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
+cmake --build build/local --config Release --parallel
+```
+
+## Add the source to a project
+
+Place the checkout in `MyApp/UniMemory`, and create `MyApp/CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+set(UNIMEMORY_BACKEND standard CACHE STRING "UniMemory backend")
+set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
+set(UNIMEMORY_BUILD_TESTS OFF CACHE BOOL "UniMemory tests")
+add_subdirectory(UniMemory)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE UniMemory::UniMemory)
+```
+
+Save any complete program below as `MyApp/main.cpp`, then run from `MyApp`:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
 ```
 
-Replace the placeholder with the absolute installation path. Your project's CMake file must use the [installed-package target](../README.md#integration).
+Run `./build/Release/my_app.exe` with Visual Studio, or `./build/my_app` with a single-configuration generator. `UniMemory::UniMemory` supplies C++20, include paths, generated configuration, threads and the selected SDK link dependency. The library itself is header-only; include `<unimem/all.h>`.
 
-The README's `release` preset uses `build/UniMemory-release`. If you choose another directory with `cmake -B`, use it consistently for running examples and installation.
+## Install and consume a package
+
+From the UniMemory checkout:
+
+```sh
+cmake -S . -B build/package -DCMAKE_BUILD_TYPE=Release -DUNIMEMORY_BACKEND=standard -DUNIMEMORY_STATISTICS=OFF -DUNIMEMORY_BUILD_TESTS=OFF
+cmake --build build/package --config Release
+cmake --install build/package --config Release --prefix build/installed
+```
+
+Create a separate application directory containing `main.cpp` and this `CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.25)
+project(MyApp LANGUAGES CXX)
+find_package(UniMemory CONFIG REQUIRED)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE UniMemory::UniMemory)
+```
+
+From that application directory, replace the placeholder with the absolute installation path:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=<absolute-UniMemory-path>/build/installed"
+cmake --build build --config Release
+```
+
+The installation contains headers, generated configuration and CMake package files. No UniMemory static/shared binary is produced, and `BUILD_SHARED_LIBS` does not change its form. Optional mimalloc/jemalloc SDKs must also be discoverable by the consumer; include both installation prefixes in `CMAKE_PREFIX_PATH`, separated by a semicolon. Deploy any dynamically linked SDK alongside the application.
+
+## Examples
+
+These programs work with the Standard profile above. All contexts default to runtime statistics `Disabled`.
+
+### Global: an object, owned bytes and a PMR container
+
+```cpp
+#include <unimem/all.h>
+
+#include <iostream>
+#include <memory_resource>
+#include <vector>
+
+struct Point {
+  float x;
+  float y;
+};
+
+int main() {
+  unimem::Global memory;
+  Point* point = memory.create<Point>(1.0f, 2.0f);
+  const Point position = *point;
+  memory.destroy(point);
+
+  unimem::OwnedBlock block = memory.make_block(1024, 64);
+  std::pmr::vector<Point> points(memory.resource());
+  points.push_back(position);
+  std::cout << points.front().x + points.front().y << ", " << block.size() << " bytes\n";
+  return 0;
+}
+```
+
+### Heap: release owners before resetting the group
+
+```cpp
+#include <unimem/all.h>
+
+#include <iostream>
+
+int main() {
+  unimem::Heap heap;
+  {
+    unimem::Unique<int> value = heap.make_unique<int>(42);
+    if (!heap.owns(value.get()) || *value != 42) {
+      return 1;
+    }
+    heap.collect();
+  }
+  heap.reset();
+  std::cout << "Heap reset succeeded\n";
+  return 0;
+}
+```
+
+`collect()` keeps live allocations valid. `reset()` releases the group's allocations without calling object destructors; destroy objects and release owners/containers first.
+
+### Stack: borrow a buffer and rewind a checkpoint
+
+```cpp
+#include <unimem/all.h>
+
+#include <cstddef>
+#include <iostream>
+
+int main() {
+  alignas(64) std::byte buffer[4096];
+  unimem::Stack scratch(buffer, sizeof buffer);
+  unimem::Stack::Mark checkpoint = scratch.mark();
+  std::byte* bytes = static_cast<std::byte*>(scratch.allocate(128, 64));
+  bytes[0] = std::byte{42};
+  scratch.rewind(checkpoint);
+  std::cout << scratch.used() << " bytes used after rewind\n";
+  return scratch.used() == 0 ? 0 : 1;
+}
+```
+
+The buffer must outlive the Stack and its users. `rewind()` invalidates allocations after the mark and does not call destructors. Destroy affected objects and release their owners before rewinding. Keep each Memory context alive until its objects, owners, allocators and PMR containers are finished.
 
 ## Build options
 
-| Option | Default | Purpose |
+| Option | Default | Meaning |
 | --- | --- | --- |
-| `UNIMEMORY_BACKEND` | Required, no default | Exactly one of `standard`, `mimalloc`, `jemalloc` |
-| `UNIMEMORY_STATISTICS` | Required, no default | `ON`: permits runtime Basic for all Memory kinds; `OFF`: rejects Basic configuration; default Disabled |
-| `UNIMEMORY_CHECKS` | `AUTO` | Checks in Debug, omitted in other configurations; `ON`/`OFF` override the policy |
-| `UNIMEMORY_AGGRESSIVE_INLINING` | ON | MSVC Release `/Ob3`; OFF preserves consumer inlining settings |
-| `UNIMEMORY_BUILD_EXAMPLES` | OFF | Build runnable examples |
+| `UNIMEMORY_BACKEND` | Required | Exactly `standard`, `mimalloc` or `jemalloc` |
+| `UNIMEMORY_STATISTICS` | Required | `ON` permits runtime `Basic`; `OFF` rejects it; either way runtime defaults to `Disabled` |
+| `UNIMEMORY_CHECKS` | `AUTO` | Checks enabled for Debug only; `ON`/`OFF` override this |
+| `UNIMEMORY_AGGRESSIVE_INLINING` | `ON` | Adds `/Ob3` to MSVC Release consumers |
+| `UNIMEMORY_BUILD_EXAMPLES` | `OFF` | Builds basic, heap and scratch examples |
+| `UNIMEMORY_BUILD_TESTS` | Top-level CTest setting | Use `OFF` for a headers/package-only installation |
 
-For a headers/package-only installation, set `-DUNIMEMORY_BUILD_TESTS=OFF`. No UniMemory static or shared binary is produced; `BUILD_SHARED_LIBS` does not choose a UniMemory library form.
+Choose one backend/statistics/check-policy profile throughout a program. Use separate build/install directories for different profiles. Installed packages preserve these choices and reject conflicting consumer settings. Do not copy only the source headers or override generated configuration macros.
 
-For source integration, set the mandatory options before adding the subdirectory:
+To gather counters, build with `-DUNIMEMORY_STATISTICS=ON`, then explicitly construct a context with `unimem::StatisticsMode::Basic`, for example `unimem::Heap heap(unimem::StatisticsMode::Basic);`.
 
-```cmake
-set(UNIMEMORY_BACKEND standard CACHE STRING "UniMemory backend")
-set(UNIMEMORY_STATISTICS OFF CACHE BOOL "UniMemory counters")
-add_subdirectory(UniMemory)
-```
+Set `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF` to keep your own MSVC Release inlining settings; installed-package consumers can also set this preference.
 
-An installed package retains its selected backend, statistics and check settings. Consumers inherit them from the target; conflicting settings are rejected. Use separate build/install directories for different profiles and one profile throughout a program. See [migration](migration.md).
-
-## Inlining and optimization
-
-`UNIMEMORY_AGGRESSIVE_INLINING=ON` adds `/Ob3` to MSVC Release consumers by default; it does not add that option to Debug or other compilers. It affects the entire C++ translation unit linking the interface target, including code outside UniMemory. Code size and unrelated workload performance can change.
-
-Set `-DUNIMEMORY_AGGRESSIVE_INLINING=OFF` when configuring either a source build or an installed-package consumer to remove the target's `/Ob3` and choose your own inlining settings. The installed target uses a consumer-controlled property; this preference differs from the fixed backend/statistics/check-policy contract. Global IPO/LTO is not enabled automatically.
-
-[Measurement method](benchmarking.md) keeps SDK/API compiler settings matched. `/Ob3` remains a compiler heuristic, not a promise to inline every function or make every workload fastest.
-
-## Deploy your application
-
-CMake must also find the selected native SDK when using the installed package. Deploy a dynamically linked SDK with your application; UniMemory itself has no runtime library to deploy. See [backend setup](guides/backends.md#deploy-shared-libraries).
-
-[Object ownership](guides/objects.md) · [Containers](guides/containers.md) · [Raw memory](guides/raw-memory.md)
+Sample formatting follows the repository's `.clang-format`: two-space indentation, braces on the same line, left-aligned pointers and a 150-column limit. If clang-format is already installed, format your sample with `clang-format -i main.cpp` from the repository so it uses that configuration.

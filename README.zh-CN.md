@@ -275,10 +275,10 @@ target_link_libraries(app PRIVATE UniMemory::UniMemory)
 
 ## 文档
 
-- **开始使用：** [构建和集成](docs/getting-started.zh-CN.md) · [示例](examples/README.md)
-- **内存分配：** [对象与数组](docs/guides/objects.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
+- **开始使用：** [构建和集成](docs/getting-started.zh-CN.md) · [示例](docs/getting-started.zh-CN.md#示例)
+- **内存分配：** [分配与对象](docs/guides/objects.zh-CN.md)
 - **标准容器：** [Allocator 与 PMR](docs/guides/containers.zh-CN.md)
-- **分配方式：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md)
+- **分配方式：** [Global、Heap 与 Stack](docs/guides/heap.zh-CN.md)
 - **内存统计：** [用量与峰值](docs/guides/statistics.zh-CN.md)
 - **平台配置：** [平台与后端](docs/guides/backends.zh-CN.md)
 - **性能：** [详细报告](docs/performance.zh-CN.md)

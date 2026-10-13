@@ -1,57 +1,15 @@
 # 文档
 
-[UniMemory](../README.zh-CN.md) · [English](README.md) · **简体中文**
+[UniMemory](../README.zh-CN.md) · [English](README.md)
 
-[快速开始](../README.zh-CN.md#快速开始)展示常用 API；下列主题说明配置、用法与使用约定。
-
-```mermaid
-flowchart LR
-    A[接入项目] --> B[分配与对象]
-    B --> C[容器与所有权]
-    C --> D[堆 / 栈 / 统计]
-```
-
-## 1 · 开始使用
+选择需要的主题，每页包含完整说明和示例。
 
 | 主题 | 内容 |
 | --- | --- |
-| [构建与安装](getting-started.zh-CN.md) | CMake 接入与部署 |
-| [配置迁移](migration.zh-CN.md) | 固定后端、统计和检查策略 |
-| [平台与后端](guides/backends.zh-CN.md) | 平台支持、启用可选后端 |
-| [可运行示例](../examples/README.md) | 完整程序 |
-
-## 2 · 日常使用
-
-| 主题 | 内容 |
-| --- | --- |
-| [原始内存](guides/raw-memory.zh-CN.md) | 分配、释放、对齐与扩容 |
-| [对象与数组](guides/objects.zh-CN.md) | 构造、销毁与智能指针 |
-| [内存块](guides/raw-memory.zh-CN.md#调整大小与所有权) | 自动释放、调整大小 |
+| [开始使用](getting-started.zh-CN.md) | 构建、安装、集成与运行示例 |
+| [内存分配](guides/objects.zh-CN.md) | 原始内存、对象、数组与所有权 |
 | [标准容器](guides/containers.zh-CN.md) | Allocator、PMR 与嵌套容器 |
-
-## 3 · 内存管理
-
-| 主题 | 内容 |
-| --- | --- |
-| [堆](guides/heap.zh-CN.md) | 独立管理、整体释放 |
-| [栈](guides/stack.zh-CN.md) | 固定缓冲区、标记与回退 |
-| [统计](guides/statistics.zh-CN.md) | 用量、峰值与统计范围 |
-| [运行时选项](guides/runtime-options.zh-CN.md) | 闲置内存回收延迟 |
-
-## 4 · 查阅
-
-| 主题 | 内容 |
-| --- | --- |
-| [API](api-reference.zh-CN.md) | 函数、参数与返回值 |
-| [生命周期与线程](compatibility.zh-CN.md) | 所有权、并发与动态库 |
-| [性能对比](performance.zh-CN.md) | 耗时与内存占用 |
-| [测试结果](testing.zh-CN.md) | 验证平台与覆盖范围 |
-| [远程验收](remote-validation.md) | 原生编译器矩阵、错误检测与图表自动更新 |
-
-[后端能力对照](allocator-capabilities.zh-CN.md) · [测量方法](benchmarking.zh-CN.md) · [原始数据](results/current/README.md) · [SDK 接入](sdk-integration.md)
-
-## 5 · 验证
-
-Windows、Linux、macOS 持续验证正确性、异常、边界、并发与安装接入。[测试范围](testing.zh-CN.md) · [Actions](https://github.com/dugan-dev/UniMemory/actions?query=branch%3Adev)
-
-[贡献指南](../CONTRIBUTING.md) · [安全政策](../SECURITY.md)
+| [分配方式](guides/heap.zh-CN.md) | Global、Heap、Stack 与使用约定 |
+| [内存统计](guides/statistics.zh-CN.md) | 次数、用量、峰值与统计开关 |
+| [平台配置](guides/backends.zh-CN.md) | 后端选择、SDK 与部署 |
+| [性能](performance.zh-CN.md) | 对比图、实测结果与测量方法 |
