@@ -8,6 +8,9 @@ on:
       baseline_sha:
         type: string
         default: '06dc705'
+      native_probe_only:
+        type: boolean
+        default: false
       analysis_retry:
         type: boolean
         default: false
@@ -27,6 +30,10 @@ on:
         description: 'Expected baseline source revision'
         type: string
         default: '06dc705'
+      native_probe_only:
+        description: 'Run only independent native jemalloc TSAN probes; no UniMemory correctness acceptance'
+        type: boolean
+        default: false
       analysis_retry:
         description: 'Retry static analysis, changed headers and unresolved TSAN; inherit verified previous checks/tools/coverage'
         type: boolean
@@ -43,10 +50,11 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: correctness-recovery-${{ github.ref }}
+  group: correctness-recovery-${{ github.ref }}-${{ inputs.native_probe_only }}
   cancel-in-progress: false
 jobs:
   provenance:
+    if: ${{ !inputs.native_probe_only }}
     runs-on: ubuntu-24.04
     outputs:
       requires_regression: ${{ steps.evidence.outputs.requires_regression }}
@@ -260,10 +268,71 @@ jobs:
             build/adapters/Testing/Temporary/LastTest.log
             build/adapters/CMakeCache.txt
             build/adapters/CMakeFiles/CMakeConfigureLog.yaml
+  native-probe:
+    name: independent native jemalloc TSAN proof
+    if: inputs.native_probe_only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CC: clang-18
+      CXX: clang++-18
+      TSAN_OPTIONS: halt_on_error=1:exitcode=66:allocator_may_return_null=1
+    steps:
+      - uses: actions/checkout@v5
+      - name: Existing Clang18 toolchain
+        run: |
+          if ! command -v clang++-18 >/dev/null; then
+            timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+            timeout 300 sudo apt-get -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y clang-18
+          fi
+      - name: Build the same pinned native SDK with thread instrumentation
+        run: |
+          set -euo pipefail
+          mkdir -p build/native-proof
+          curl --fail --location https://github.com/jemalloc/jemalloc/releases/download/5.3.1/jemalloc-5.3.1.tar.bz2 -o build/jemalloc.tar.bz2
+          tar -xf build/jemalloc.tar.bz2 -C build
+          cd build/jemalloc-5.3.1
+          ./configure --with-jemalloc-prefix=je_ --disable-cxx --enable-tsan --prefix="$GITHUB_WORKSPACE/build/prefix" 2>&1 | tee ../native-proof/sdk-configure.log
+          make -j4 2>&1 | tee ../native-proof/sdk-build.log
+          make install 2>&1 | tee ../native-proof/sdk-install.log
+          nm -D "$GITHUB_WORKSPACE/build/prefix/lib/libjemalloc.so.2" > ../native-proof/sdk-symbols.txt
+          grep '__tsan_atomic' ../native-proof/sdk-symbols.txt > /dev/null
+      - name: Compile a native-only probe without UniMemory headers
+        run: |
+          set -euo pipefail
+          clang++-18 tools/ci/jemalloc-tsan-probe.cpp -std=c++20 -O1 -g -fsanitize=thread -pthread -I"$PWD/build/prefix/include" -L"$PWD/build/prefix/lib" -Wl,-rpath,"$PWD/build/prefix/lib" -ljemalloc -o build/native-proof/jemalloc-tsan-probe 2>&1 | tee build/native-proof/probe-build.log
+          printf 'source_revision=%s\nrun_id=%s\nsdk=jemalloc-5.3.1\nsanitizer=thread\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > build/native-proof/provenance.txt
+      - name: Record both independent native modes even when TSAN rejects one
+        run: |
+          set -euo pipefail
+          : > build/native-proof/failures.txt
+          : > build/native-proof/exit-codes.txt
+          for mode in handoff config; do
+            if timeout 300 build/native-proof/jemalloc-tsan-probe "$mode" > "build/native-proof/$mode.log" 2>&1; then
+              status=0
+            else
+              status=$?
+              echo "$mode" >> build/native-proof/failures.txt
+            fi
+            printf '%s=%s\n' "$mode" "$status" >> build/native-proof/exit-codes.txt
+            cat "build/native-proof/$mode.log"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-jemalloc-tsan-proof
+          path: build/native-proof/
+          retention-days: 14
+      - name: Preserve a failing native TSAN result
+        if: ${{ !cancelled() }}
+        run: |
+          test -f build/native-proof/failures.txt
+          cat build/native-proof/exit-codes.txt
+          test ! -s build/native-proof/failures.txt
   acceptance:
     name: targeted correctness recovery acceptance
     needs: [provenance, report-tests, checks, analysis, headers, threads]
-    if: always()
+    if: ${{ always() && !inputs.native_probe_only }}
     runs-on: ubuntu-24.04
     steps:
       - env:

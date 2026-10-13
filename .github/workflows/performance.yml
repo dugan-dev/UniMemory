@@ -14,6 +14,10 @@ on:
         description: 'Retry unresolved analysis and TSAN after the first recovery completes'
         type: boolean
         default: false
+      native_probe_only:
+        description: 'Diagnose the existing jemalloc SDK without UniMemory calls'
+        type: boolean
+        default: false
       validation_only:
         description: 'Validate tools and existing published data without benchmarking'
         type: boolean
@@ -31,6 +35,7 @@ jobs:
     uses: ./.github/workflows/correctness-recovery.yml
     with:
       analysis_retry: ${{ inputs.analysis_retry }}
+      native_probe_only: ${{ inputs.native_probe_only }}
   changes:
     runs-on: windows-2022
     outputs:
