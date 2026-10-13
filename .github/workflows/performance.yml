@@ -4,6 +4,12 @@ on:
     branches: [main, dev]
     paths: ['include/**', 'tests/**', 'benchmarks/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
   pull_request:
+  workflow_call:
+    inputs:
+      validation_only:
+        description: 'Run complete correctness validation without performance measurement'
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       validation_only:

@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+    branches: [main, dev]
+    paths: ['include/**', 'tests/**', 'tools/**', 'cmake/**', 'CMakeLists.txt', 'CMakePresets.json', 'vcpkg.json', '.github/workflows/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  correctness:
+    uses: ./.github/workflows/performance.yml
+    with:
+      validation_only: true
+  acceptance:
+    name: build acceptance
+    needs: correctness
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require complete three-platform correctness validation
+        env:
+          RESULT: ${{ needs.correctness.result }}
+        run: test "$RESULT" = success
