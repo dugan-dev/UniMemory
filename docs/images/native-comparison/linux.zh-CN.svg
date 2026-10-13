@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img">
+<title>Linux: 原生与 UniMemory</title>
+<desc>原生 std = 1，越低越快；柱上数字为每次操作的耗时中位数（ns）。 Source: fe90b68953b3af88d7ebd3d64131e76673c234ca; 2026-10-13.</desc>
+<rect width="1200" height="470" fill="#ffffff"/>
+<text x="36" y="43" font-size="27" fill="#0f172a" text-anchor="start" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Linux  |  原生与 UniMemory</text>
+<text x="36" y="73" font-size="16" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">原生 std = 1，越低越快；柱上数字为每次操作的耗时中位数（ns）。</text>
+<rect x="42" y="99" width="19" height="13" rx="3" fill="#94a3b8"/>
+<text x="69" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">std</text>
+<rect x="230" y="99" width="19" height="13" rx="3" fill="#334155"/>
+<text x="257" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">std-unim</text>
+<rect x="418" y="99" width="19" height="13" rx="3" fill="#71cdb6"/>
+<text x="445" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">mi</text>
+<rect x="606" y="99" width="19" height="13" rx="3" fill="#087f68"/>
+<text x="633" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">mi-unim</text>
+<rect x="794" y="99" width="19" height="13" rx="3" fill="#b9a3ed"/>
+<text x="821" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">je</text>
+<rect x="982" y="99" width="19" height="13" rx="3" fill="#7047b9"/>
+<text x="1009" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">je-unim</text>
+<line x1="61" y1="344.00" x2="354" y2="344.00" stroke="#e2e8f0"/>
+<text x="53" y="349.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">0</text>
+<line x1="61" y1="284.00" x2="354" y2="284.00" stroke="#e2e8f0"/>
+<text x="53" y="289.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">0.5</text>
+<line x1="61" y1="224.00" x2="354" y2="224.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<text x="53" y="229.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">1</text>
+<line x1="61" y1="164.00" x2="354" y2="164.00" stroke="#e2e8f0"/>
+<text x="53" y="169.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">1.5</text>
+<rect x="70" y="224.00" width="32" height="120.00" rx="3" fill="#94a3b8"><title>std: 24.69 ns</title></rect>
+<text x="86" y="216.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">24.7</text>
+<rect x="116" y="220.68" width="32" height="123.32" rx="3" fill="#334155"><title>std-unim: 25.37 ns</title></rect>
+<text x="132" y="212.6786125450094" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">25.4</text>
+<rect x="162" y="246.77" width="32" height="97.23" rx="3" fill="#71cdb6"><title>mi: 20.01 ns</title></rect>
+<text x="178" y="238.76752331520714" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">20.0</text>
+<rect x="208" y="245.46" width="32" height="98.54" rx="3" fill="#087f68"><title>mi-unim: 20.28 ns</title></rect>
+<text x="224" y="237.45637520048706" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">20.3</text>
+<rect x="254" y="210.26" width="32" height="133.74" rx="3" fill="#b9a3ed"><title>je: 27.52 ns</title></rect>
+<text x="270" y="202.25977000239976" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">27.5</text>
+<rect x="300" y="266.00" width="32" height="78.00" rx="3" fill="#7047b9"><title>je-unim: 16.05 ns</title></rect>
+<text x="316" y="257.9994886758627" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">16.0</text>
+<text x="202" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">对象，64 B</text>
+<line x1="443" y1="344.00" x2="736" y2="344.00" stroke="#e2e8f0"/>
+<line x1="443" y1="284.00" x2="736" y2="284.00" stroke="#e2e8f0"/>
+<line x1="443" y1="224.00" x2="736" y2="224.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<line x1="443" y1="164.00" x2="736" y2="164.00" stroke="#e2e8f0"/>
+<rect x="452" y="224.00" width="32" height="120.00" rx="3" fill="#94a3b8"><title>std: 191.78 ns</title></rect>
+<text x="468" y="216.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">191.8</text>
+<rect x="498" y="265.00" width="32" height="79.00" rx="3" fill="#334155"><title>std-unim: 126.25 ns</title></rect>
+<text x="514" y="257.0019605793724" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">126.3</text>
+<rect x="544" y="267.81" width="32" height="76.19" rx="3" fill="#71cdb6"><title>mi: 121.76 ns</title></rect>
+<text x="560" y="259.81106585503267" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">121.8</text>
+<rect x="590" y="221.50" width="32" height="122.50" rx="3" fill="#087f68"><title>mi-unim: 195.78 ns</title></rect>
+<text x="606" y="213.49814496140112" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">195.8</text>
+<rect x="636" y="270.71" width="32" height="73.29" rx="3" fill="#b9a3ed"><title>je: 117.13 ns</title></rect>
+<text x="652" y="262.7093195057962" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">117.1</text>
+<rect x="682" y="268.50" width="32" height="75.50" rx="3" fill="#7047b9"><title>je-unim: 120.66 ns</title></rect>
+<text x="698" y="260.50226123090727" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">120.7</text>
+<text x="584" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Vector，256 个 uint64_t</text>
+<line x1="825" y1="344.00" x2="1118" y2="344.00" stroke="#e2e8f0"/>
+<line x1="825" y1="284.00" x2="1118" y2="284.00" stroke="#e2e8f0"/>
+<line x1="825" y1="224.00" x2="1118" y2="224.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<line x1="825" y1="164.00" x2="1118" y2="164.00" stroke="#e2e8f0"/>
+<rect x="834" y="224.00" width="32" height="120.00" rx="3" fill="#94a3b8"><title>std: 38.46 ns</title></rect>
+<text x="850" y="216.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">38.5</text>
+<rect x="880" y="294.33" width="32" height="49.67" rx="3" fill="#334155"><title>std-unim: 15.92 ns</title></rect>
+<text x="896" y="286.32519286175574" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">15.9</text>
+<rect x="926" y="237.96" width="32" height="106.04" rx="3" fill="#71cdb6"><title>mi: 33.98 ns</title></rect>
+<text x="942" y="229.95763236969998" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">34.0</text>
+<rect x="972" y="307.69" width="32" height="36.31" rx="3" fill="#087f68"><title>mi-unim: 11.64 ns</title></rect>
+<text x="988" y="299.68735905580695" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">11.6</text>
+<rect x="1018" y="202.94" width="32" height="141.06" rx="3" fill="#b9a3ed"><title>je: 45.21 ns</title></rect>
+<text x="1034" y="194.94068368394744" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">45.2</text>
+<rect x="1064" y="278.52" width="32" height="65.48" rx="3" fill="#7047b9"><title>je-unim: 20.99 ns</title></rect>
+<text x="1080" y="270.5190267686344" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">21.0</text>
+<text x="966" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">内存块，64 B</text>
+<text x="36" y="423" font-size="14" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">GNU 13.3.0  |  2026-10-13  |  fe90b68</text>
+<text x="36" y="449" font-size="14" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">10 轮配对测量，统计关闭；Global 接口调整前的同版本基线</text>
+</svg>

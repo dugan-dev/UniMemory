@@ -142,11 +142,13 @@
       "sdk_binaries": {
         "sdk_binary": {
           "path": "sdk/x64-windows-unimemory/bin/mimalloc.dll",
-          "sha256": "9b9792fbfb48dfee5eadeb2187ea2cb038e0439730c1f9e94380f5eea4d1c91b"
+          "sha256": "9b9792fbfb48dfee5eadeb2187ea2cb038e0439730c1f9e94380f5eea4d1c91b",
+          "filename": "mimalloc.dll"
         },
         "sdk_linker_file": {
           "path": "sdk/x64-windows-unimemory/lib/mimalloc.dll.lib",
-          "sha256": "7ae43c7f4c2e7b8d8891a6b60acde9e87dc523f113ccd98aebd37de496a7631a"
+          "sha256": "7ae43c7f4c2e7b8d8891a6b60acde9e87dc523f113ccd98aebd37de496a7631a",
+          "filename": "mimalloc.dll.lib"
         }
       },
       "runtime_dlls": {},
@@ -233,11 +235,13 @@
       "sdk_binaries": {
         "sdk_binary": {
           "path": "sdk/x64-windows-unimemory/lib/jemalloc.lib",
-          "sha256": "9b275986b177b9db61838d456d282fceadbbdb3d47222c4c8995d25f277313bd"
+          "sha256": "9b275986b177b9db61838d456d282fceadbbdb3d47222c4c8995d25f277313bd",
+          "filename": "jemalloc.lib"
         },
         "sdk_linker_file": {
           "path": "sdk/x64-windows-unimemory/lib/jemalloc.lib",
-          "sha256": "9b275986b177b9db61838d456d282fceadbbdb3d47222c4c8995d25f277313bd"
+          "sha256": "9b275986b177b9db61838d456d282fceadbbdb3d47222c4c8995d25f277313bd",
+          "filename": "jemalloc.lib"
         }
       },
       "runtime_dlls": {},

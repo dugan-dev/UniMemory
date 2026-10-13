@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470" role="img">
+<title>macOS: Native and UniMemory</title>
+<desc>Native std = 1; lower is faster. Labels show median ns/operation. Source: fe90b68953b3af88d7ebd3d64131e76673c234ca; 2026-10-13.</desc>
+<rect width="1200" height="470" fill="#ffffff"/>
+<text x="36" y="43" font-size="27" fill="#0f172a" text-anchor="start" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">macOS  |  Native and UniMemory</text>
+<text x="36" y="73" font-size="16" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Native std = 1; lower is faster. Labels show median ns/operation.</text>
+<rect x="42" y="99" width="19" height="13" rx="3" fill="#94a3b8"/>
+<text x="69" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">std</text>
+<rect x="230" y="99" width="19" height="13" rx="3" fill="#334155"/>
+<text x="257" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">std-unim</text>
+<rect x="418" y="99" width="19" height="13" rx="3" fill="#71cdb6"/>
+<text x="445" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">mi</text>
+<rect x="606" y="99" width="19" height="13" rx="3" fill="#087f68"/>
+<text x="633" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">mi-unim</text>
+<rect x="794" y="99" width="19" height="13" rx="3" fill="#b9a3ed"/>
+<text x="821" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">je</text>
+<rect x="982" y="99" width="19" height="13" rx="3" fill="#7047b9"/>
+<text x="1009" y="112" font-size="16" fill="#334155" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">je-unim</text>
+<line x1="61" y1="344.00" x2="354" y2="344.00" stroke="#e2e8f0"/>
+<text x="53" y="349.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">0</text>
+<line x1="61" y1="329.00" x2="354" y2="329.00" stroke="#e2e8f0"/>
+<text x="53" y="334.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">0.5</text>
+<line x1="61" y1="314.00" x2="354" y2="314.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<text x="53" y="319.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">1</text>
+<line x1="61" y1="299.00" x2="354" y2="299.00" stroke="#e2e8f0"/>
+<text x="53" y="304.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">1.5</text>
+<line x1="61" y1="284.00" x2="354" y2="284.00" stroke="#e2e8f0"/>
+<text x="53" y="289.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">2</text>
+<line x1="61" y1="269.00" x2="354" y2="269.00" stroke="#e2e8f0"/>
+<text x="53" y="274.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">2.5</text>
+<line x1="61" y1="254.00" x2="354" y2="254.00" stroke="#e2e8f0"/>
+<text x="53" y="259.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">3</text>
+<line x1="61" y1="239.00" x2="354" y2="239.00" stroke="#e2e8f0"/>
+<text x="53" y="244.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">3.5</text>
+<line x1="61" y1="224.00" x2="354" y2="224.00" stroke="#e2e8f0"/>
+<text x="53" y="229.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">4</text>
+<line x1="61" y1="209.00" x2="354" y2="209.00" stroke="#e2e8f0"/>
+<text x="53" y="214.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">4.5</text>
+<line x1="61" y1="194.00" x2="354" y2="194.00" stroke="#e2e8f0"/>
+<text x="53" y="199.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">5</text>
+<line x1="61" y1="179.00" x2="354" y2="179.00" stroke="#e2e8f0"/>
+<text x="53" y="184.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">5.5</text>
+<line x1="61" y1="164.00" x2="354" y2="164.00" stroke="#e2e8f0"/>
+<text x="53" y="169.0" font-size="13" fill="#475569" text-anchor="end" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">6</text>
+<rect x="70" y="314.00" width="32" height="30.00" rx="3" fill="#94a3b8"><title>std: 17.89 ns</title></rect>
+<text x="86" y="306.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">17.9</text>
+<rect x="116" y="314.78" width="32" height="29.22" rx="3" fill="#334155"><title>std-unim: 17.42 ns</title></rect>
+<text x="132" y="306.78259334043855" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">17.4</text>
+<rect x="162" y="333.67" width="32" height="10.33" rx="3" fill="#71cdb6"><title>mi: 6.16 ns</title></rect>
+<text x="178" y="325.66803254709856" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">6.2</text>
+<rect x="208" y="333.43" width="32" height="10.57" rx="3" fill="#087f68"><title>mi-unim: 6.30 ns</title></rect>
+<text x="224" y="325.43470531266547" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">6.3</text>
+<rect x="254" y="320.66" width="32" height="23.34" rx="3" fill="#b9a3ed"><title>je: 13.92 ns</title></rect>
+<text x="270" y="312.6609365163354" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">13.9</text>
+<rect x="300" y="320.65" width="32" height="23.35" rx="3" fill="#7047b9"><title>je-unim: 13.92 ns</title></rect>
+<text x="316" y="312.6516694838262" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">13.9</text>
+<text x="202" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Object, 64 B</text>
+<line x1="443" y1="344.00" x2="736" y2="344.00" stroke="#e2e8f0"/>
+<line x1="443" y1="329.00" x2="736" y2="329.00" stroke="#e2e8f0"/>
+<line x1="443" y1="314.00" x2="736" y2="314.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<line x1="443" y1="299.00" x2="736" y2="299.00" stroke="#e2e8f0"/>
+<line x1="443" y1="284.00" x2="736" y2="284.00" stroke="#e2e8f0"/>
+<line x1="443" y1="269.00" x2="736" y2="269.00" stroke="#e2e8f0"/>
+<line x1="443" y1="254.00" x2="736" y2="254.00" stroke="#e2e8f0"/>
+<line x1="443" y1="239.00" x2="736" y2="239.00" stroke="#e2e8f0"/>
+<line x1="443" y1="224.00" x2="736" y2="224.00" stroke="#e2e8f0"/>
+<line x1="443" y1="209.00" x2="736" y2="209.00" stroke="#e2e8f0"/>
+<line x1="443" y1="194.00" x2="736" y2="194.00" stroke="#e2e8f0"/>
+<line x1="443" y1="179.00" x2="736" y2="179.00" stroke="#e2e8f0"/>
+<line x1="443" y1="164.00" x2="736" y2="164.00" stroke="#e2e8f0"/>
+<rect x="452" y="314.00" width="32" height="30.00" rx="3" fill="#94a3b8"><title>std: 120.34 ns</title></rect>
+<text x="468" y="306.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">120.3</text>
+<rect x="498" y="312.01" width="32" height="31.99" rx="3" fill="#334155"><title>std-unim: 128.33 ns</title></rect>
+<text x="514" y="304.0072529930726" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">128.3</text>
+<rect x="544" y="181.42" width="32" height="162.58" rx="3" fill="#71cdb6"><title>mi: 652.12 ns</title></rect>
+<text x="560" y="173.4242372506293" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">652.1</text>
+<rect x="590" y="315.66" width="32" height="28.34" rx="3" fill="#087f68"><title>mi-unim: 113.69 ns</title></rect>
+<text x="606" y="307.6578994991762" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">113.7</text>
+<rect x="636" y="176.94" width="32" height="167.06" rx="3" fill="#b9a3ed"><title>je: 670.11 ns</title></rect>
+<text x="652" y="168.94074968980723" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">670.1</text>
+<rect x="682" y="314.02" width="32" height="29.98" rx="3" fill="#7047b9"><title>je-unim: 120.25 ns</title></rect>
+<text x="698" y="306.02244546119806" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">120.2</text>
+<text x="584" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Vector, 256 uint64_t values</text>
+<line x1="825" y1="344.00" x2="1118" y2="344.00" stroke="#e2e8f0"/>
+<line x1="825" y1="329.00" x2="1118" y2="329.00" stroke="#e2e8f0"/>
+<line x1="825" y1="314.00" x2="1118" y2="314.00" stroke="#94a3b8" stroke-dasharray="4 4"/>
+<line x1="825" y1="299.00" x2="1118" y2="299.00" stroke="#e2e8f0"/>
+<line x1="825" y1="284.00" x2="1118" y2="284.00" stroke="#e2e8f0"/>
+<line x1="825" y1="269.00" x2="1118" y2="269.00" stroke="#e2e8f0"/>
+<line x1="825" y1="254.00" x2="1118" y2="254.00" stroke="#e2e8f0"/>
+<line x1="825" y1="239.00" x2="1118" y2="239.00" stroke="#e2e8f0"/>
+<line x1="825" y1="224.00" x2="1118" y2="224.00" stroke="#e2e8f0"/>
+<line x1="825" y1="209.00" x2="1118" y2="209.00" stroke="#e2e8f0"/>
+<line x1="825" y1="194.00" x2="1118" y2="194.00" stroke="#e2e8f0"/>
+<line x1="825" y1="179.00" x2="1118" y2="179.00" stroke="#e2e8f0"/>
+<line x1="825" y1="164.00" x2="1118" y2="164.00" stroke="#e2e8f0"/>
+<rect x="834" y="314.00" width="32" height="30.00" rx="3" fill="#94a3b8"><title>std: 16.97 ns</title></rect>
+<text x="850" y="306.0" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">17.0</text>
+<rect x="880" y="314.23" width="32" height="29.77" rx="3" fill="#334155"><title>std-unim: 16.84 ns</title></rect>
+<text x="896" y="306.23111177367116" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">16.8</text>
+<rect x="926" y="336.02" width="32" height="7.98" rx="3" fill="#71cdb6"><title>mi: 4.52 ns</title></rect>
+<text x="942" y="328.0172757124988" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">4.5</text>
+<rect x="972" y="335.98" width="32" height="8.02" rx="3" fill="#087f68"><title>mi-unim: 4.53 ns</title></rect>
+<text x="988" y="327.9845115401689" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">4.5</text>
+<rect x="1018" y="318.15" width="32" height="25.85" rx="3" fill="#b9a3ed"><title>je: 14.63 ns</title></rect>
+<text x="1034" y="310.1453649196294" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">14.6</text>
+<rect x="1064" y="318.29" width="32" height="25.71" rx="3" fill="#7047b9"><title>je-unim: 14.54 ns</title></rect>
+<text x="1080" y="310.29298688849343" font-size="13" fill="#334155" text-anchor="middle" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">14.5</text>
+<text x="966" y="379" font-size="17" fill="#0f172a" text-anchor="middle" font-weight="600" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">Block, 64 B</text>
+<text x="36" y="423" font-size="14" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">AppleClang 17.0.0.17000013  |  2026-10-13  |  fe90b68</text>
+<text x="36" y="449" font-size="14" fill="#475569" text-anchor="start" font-weight="normal" font-family="Segoe UI,Microsoft YaHei,Arial,sans-serif">10 paired trials; statistics off; baseline before the Global interface update</text>
+</svg>

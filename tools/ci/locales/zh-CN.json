@@ -45,5 +45,11 @@
   "{trials} legacy fresh-process trials; median shown. See raw data for scope and environment.": "历史 {trials} 轮独立进程，展示中位数；环境与范围见原始数据。",
   "{platform} · {revision} · one controlled host · OFF baselines; ON includes statistics feature cost": "{platform} · {revision} · 同一受控主机；OFF 基线，ON 包含统计功能成本",
   "{platform} · {revision} · Standard = 1 · one controlled host · compare within each workload": "{platform} · {revision} · Standard = 1 · 同一受控主机 · 仅比较同一负载",
-  "{platform} · {revision} · one controlled host · arithmetic mean of fresh-process trials": "{platform} · {revision} · 同一受控主机 · 独立进程测量的算术平均值"
+  "{platform} · {revision} · one controlled host · arithmetic mean of fresh-process trials": "{platform} · {revision} · 同一受控主机 · 独立进程测量的算术平均值",
+  "Native and UniMemory": "原生与 UniMemory",
+  "Native std = 1; lower is faster. Labels show median ns/operation.": "原生 std = 1，越低越快；柱上数字为每次操作的耗时中位数（ns）。",
+  "Object, 64 B": "对象，64 B",
+  "Vector, 256 uint64_t values": "Vector，256 个 uint64_t",
+  "Block, 64 B": "内存块，64 B",
+  "10 paired trials; statistics off; baseline before the Global interface update": "10 轮配对测量，统计关闭；Global 接口调整前的同版本基线"
 }

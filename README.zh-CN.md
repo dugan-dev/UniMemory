@@ -224,7 +224,7 @@ unimem::Memory::config(1000);
 | macOS | ✔ | ✔ | ✔ | Apple Clang |
 | Android / iOS | — | — | — | 尚未设备验证 |
 
-✔ 已支持；— 尚待验证。[平台说明](docs/guides/backends.zh-CN.md)
+✔ 已支持；— 尚待验证。
 
 ## 功能
 
@@ -236,7 +236,7 @@ unimem::Memory::config(1000);
 | 闲置内存释放延迟 | — | ✔ | ✔ |
 | 额外依赖 | 无 | SDK | SDK |
 
-Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。[配置指南](docs/guides/backends.zh-CN.md)
+Standard 无需额外分配器依赖；mimalloc 和 jemalloc 需要对应 SDK。
 
 ## 性能
 
@@ -250,13 +250,21 @@ Windows x64 · MSVC 19.44 · Release · 统计关闭 · 2026-10-13。10 轮耗�
 | vector 预留、填充并销毁，256 个 64 位整数 | 302.9 | 265.7 | 311.3 |
 | 创建并释放块，64 B | 41.0 | 7.0 | 36.2 |
 
+三平台对比采用同版本基线（2026-10-13，`fe90b68`，接口调整前），统计关闭；原生 std = 1，越低越快。
+
+![Windows 原生与 UniMemory 对比](docs/images/native-comparison/windows.zh-CN.svg)
+
+![Linux 原生与 UniMemory 对比](docs/images/native-comparison/linux.zh-CN.svg)
+
+![macOS 原生与 UniMemory 对比](docs/images/native-comparison/macos.zh-CN.svg)
+
 ![Windows 与 Linux 耗时对比](docs/images/workload-comparison.png)
 
-[表格数据](docs/results/windows-local-comparison.json)。图表使用已发布的 Windows / Linux 数据，Standard = 1；柱形越短越快。[完整性能报告](docs/performance.zh-CN.md)
+原图使用已发布的 Windows / Linux 数据，Standard = 1；柱形越短越快。
 
 ## 构建与安装
 
-需要 **C++20** 和 **CMake 3.25+**。下载[源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip)，解压后在源码目录执行：
+需要 **C++20** 和 **CMake 3.25+**。下载源码，解压后在源码目录执行：
 
 ```sh
 cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
@@ -264,7 +272,7 @@ cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-头文件安装到 `build/installed`。release 预设选择 Standard 并关闭统计，可通过[构建选项](docs/getting-started.zh-CN.md#构建选项)调整。
+头文件安装到 `build/installed`。release 预设选择 Standard 并关闭统计。
 
 ## 项目集成
 
@@ -279,14 +287,15 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-配置自己的项目时传入 `-DCMAKE_PREFIX_PATH=<安装目录绝对路径>`。源码集成时，在 `add_subdirectory(UniMemory)` 前设置 `UNIMEMORY_BACKEND` 与 `UNIMEMORY_STATISTICS`。[项目集成指南](docs/getting-started.zh-CN.md)
+配置自己的项目时传入 `-DCMAKE_PREFIX_PATH=<安装目录绝对路径>`。源码集成时，在 `add_subdirectory(UniMemory)` 前设置 `UNIMEMORY_BACKEND` 与 `UNIMEMORY_STATISTICS`。
 
 ## 文档
 
-- **开始使用：** [构建与安装](docs/getting-started.zh-CN.md) · [可运行示例](examples/README.md)
+- **开始使用：** [源码](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [构建选项](docs/getting-started.zh-CN.md#构建选项) · [构建与安装](docs/getting-started.zh-CN.md) · [可运行示例](examples/README.md)
 - **日常使用：** [对象与数组](docs/guides/objects.zh-CN.md) · [标准容器](docs/guides/containers.zh-CN.md) · [内存块](docs/guides/raw-memory.zh-CN.md)
 - **内存管理：** [堆](docs/guides/heap.zh-CN.md) · [栈](docs/guides/stack.zh-CN.md) · [统计](docs/guides/statistics.zh-CN.md)
-- **参考：** [API](docs/api-reference.zh-CN.md) · [后端配置](docs/guides/backends.zh-CN.md) · [完整目录](docs/README.zh-CN.md)
+- **参考：** [API](docs/api-reference.zh-CN.md) · [平台与配置](docs/guides/backends.zh-CN.md) · [项目集成指南](docs/getting-started.zh-CN.md) · [完整目录](docs/README.zh-CN.md)
+- **性能：** [完整性能报告](docs/performance.zh-CN.md) · [表格数据](docs/results/windows-local-comparison.json) · [图表数据](docs/results/native-comparison.json)
 
 ## 许可证
 

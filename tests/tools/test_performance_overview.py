@@ -95,10 +95,13 @@ class OverviewTests(unittest.TestCase):
         content = (ROOT / "README.md").read_text(encoding="utf-8")
         block = content.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
         overview.validate_local_overview(ROOT, block)
+        original = next(line for line in block.splitlines() if line.startswith("| Create and destroy"))
+        cells = original.split("|")
+        cells[2] = f" {float(cells[2]) + 1:.1f} "
         with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
-            overview.validate_local_overview(ROOT, block.replace("30.8", "35.4"))
+            overview.validate_local_overview(ROOT, block.replace(original, "|".join(cells)))
         with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
-            overview.validate_local_overview(ROOT, block.replace("256 integers", "32 integers"))
+            overview.validate_local_overview(ROOT, block.replace("256", "32"))
 
     def test_local_snapshot_retains_all_summaries_and_sanitized_provenance(self):
         snapshot = overview.read_json(ROOT / overview.LOCAL_SOURCE)
@@ -137,7 +140,11 @@ class OverviewTests(unittest.TestCase):
             root = Path(temporary)
             data = self.local_fixture(root)
             file = root / "README.md"
-            file.write_text(file.read_text(encoding="utf-8").replace("30.8", "35.4"), encoding="utf-8")
+            text = file.read_text(encoding="utf-8")
+            original = next(line for line in text.splitlines() if line.startswith("| Create and destroy"))
+            cells = original.split("|")
+            cells[2] = f" {float(cells[2]) + 1:.1f} "
+            file.write_text(text.replace(original, "|".join(cells)), encoding="utf-8")
             output = root / "plot-input.json"
             with mock.patch.object(overview, "comparison_data", return_value=data):
                 with self.assertRaisesRegex(ValueError, "differs from its snapshot"):

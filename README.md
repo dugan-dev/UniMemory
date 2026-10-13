@@ -224,7 +224,7 @@ unimem::Memory::config(1000);
 | macOS | ✔ | ✔ | ✔ | Apple Clang |
 | Android / iOS | — | — | — | Not device-validated |
 
-✔ Supported; — awaiting validation. [Platform details](docs/guides/backends.md)
+✔ Supported; — awaiting validation.
 
 ## Capabilities
 
@@ -236,7 +236,7 @@ unimem::Memory::config(1000);
 | Unused memory release delay | — | ✔ | ✔ |
 | Extra dependency | None | SDK | SDK |
 
-Standard needs no extra allocator dependency; mimalloc and jemalloc require their SDK. [Configuration guide](docs/guides/backends.md)
+Standard needs no extra allocator dependency; mimalloc and jemalloc require their SDK.
 
 ## Performance
 
@@ -250,13 +250,21 @@ Windows x64 · MSVC 19.44 · Release · statistics off · 2026-10-13. Median of 
 | Reserve, fill and destroy a vector, 256 64-bit integers | 302.9 | 265.7 | 311.3 |
 | Create and release a block, 64 B | 41.0 | 7.0 | 36.2 |
 
+Three-platform comparisons use the same baseline revision (2026-10-13, `fe90b68`, before the interface update), with statistics off. Native std = 1; lower is faster.
+
+![Windows native and UniMemory comparison](docs/images/native-comparison/windows.svg)
+
+![Linux native and UniMemory comparison](docs/images/native-comparison/linux.svg)
+
+![macOS native and UniMemory comparison](docs/images/native-comparison/macos.svg)
+
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-[Table data](docs/results/windows-local-comparison.json). The chart uses published Windows / Linux data, with Standard = 1; shorter bars are faster. [Full performance report](docs/performance.md)
+The original chart uses published Windows / Linux data, with Standard = 1; shorter bars are faster.
 
 ## Build and Install
 
-Requires **C++20** and **CMake 3.25+**. Download the [source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip), then run from the extracted source directory:
+Requires **C++20** and **CMake 3.25+**. Download the source, then run from the extracted source directory:
 
 ```sh
 cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
@@ -264,7 +272,7 @@ cmake --build --preset release
 cmake --install build/UniMemory-release --config Release --prefix build/installed
 ```
 
-The headers are installed to `build/installed`. The release preset selects Standard with statistics off; see [build options](docs/getting-started.md#build-options) to change them.
+The headers are installed to `build/installed`. The release preset selects Standard with statistics off.
 
 ## Integration
 
@@ -279,14 +287,15 @@ add_executable(app main.cpp)
 target_link_libraries(app PRIVATE UniMemory::UniMemory)
 ```
 
-Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`. [Integration guide](docs/getting-started.md)
+Configure your project with `-DCMAKE_PREFIX_PATH=<absolute-install-path>`. For source integration, set `UNIMEMORY_BACKEND` and `UNIMEMORY_STATISTICS` before `add_subdirectory(UniMemory)`.
 
 ## Documentation
 
-- **Start:** [Build and install](docs/getting-started.md) · [Runnable examples](examples/README.md)
+- **Start:** [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build options](docs/getting-started.md#build-options) · [Build and install](docs/getting-started.md) · [Runnable examples](examples/README.md)
 - **Everyday use:** [Object / Array](docs/guides/objects.md) · [Container](docs/guides/containers.md) · [Block](docs/guides/raw-memory.md)
 - **Memory management:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
-- **Reference:** [API](docs/api-reference.md) · [Backend setup](docs/guides/backends.md) · [Full index](docs/README.md)
+- **Reference:** [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md) · [Integration guide](docs/getting-started.md) · [Full index](docs/README.md)
+- **Performance:** [Full performance report](docs/performance.md) · [Table data](docs/results/windows-local-comparison.json) · [Chart data](docs/results/native-comparison.json)
 
 ## License
 
