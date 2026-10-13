@@ -6,6 +6,9 @@
 
 bool header_owned_block() {
   unimem::Global& memory = unimem::Memory::global();
+  if (memory.kind() != unimem::MemoryKind::Global) {
+    return false;
+  }
   unimem::OwnedBlock block = memory.make_block(33, 64);
   static_cast<std::byte*>(block.data())[0] = std::byte{42};
   unimem::OwnedBlock moved = std::move(block);

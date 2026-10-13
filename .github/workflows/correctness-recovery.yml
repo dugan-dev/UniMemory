@@ -249,7 +249,7 @@ jobs:
           nm -D "$GITHUB_WORKSPACE/build/prefix/lib/libjemalloc.so.2" | grep '__tsan_atomic' > /dev/null
       - name: Entire jemalloc selected-statistics thread sanitizer suite
         run: |
-          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=jemalloc -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread
+          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=jemalloc -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=thread -DCMAKE_REQUIRED_LINK_OPTIONS=-fsanitize=thread
           cmake --build build/adapters --parallel 4
           ctest --test-dir build/adapters --parallel 2 --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4
@@ -259,6 +259,7 @@ jobs:
           path: |
             build/adapters/Testing/Temporary/LastTest.log
             build/adapters/CMakeCache.txt
+            build/adapters/CMakeFiles/CMakeConfigureLog.yaml
   acceptance:
     name: targeted correctness recovery acceptance
     needs: [provenance, report-tests, checks, analysis, headers, threads]

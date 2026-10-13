@@ -15,7 +15,15 @@ files = sorted({Path(entry["file"]).resolve() for entry in json.loads(args.datab
                 if any(Path(entry["file"]).resolve().is_relative_to(folder) for folder in project_tus)})
 if not files:
     raise SystemExit("No project translation units to analyze")
+failures = []
 for file in files:
-    subprocess.run(["clang-tidy-18", str(file), "-p", str(args.database.parent),
+    print(f"Analyzing {file.relative_to(root)}", flush=True)
+    process = subprocess.run(["clang-tidy-18", str(file), "-p", str(args.database.parent),
                     "--checks=-*,clang-analyzer-*,bugprone-use-after-move",
-                    "--warnings-as-errors=*", "--header-filter=.*[/\\\\]unimem[/\\\\].*"], check=True)
+                    "--warnings-as-errors=*", "--header-filter=.*[/\\\\]unimem[/\\\\].*"], check=False)
+    if process.returncode:
+        failures.append((file.relative_to(root), process.returncode))
+if failures:
+    summary = "\n".join(f"  {file}: exit {code}" for file, code in failures)
+    raise SystemExit(f"Static analysis failed for {len(failures)}/{len(files)} translation units:\n{summary}")
+print(f"Static analysis passed for all {len(files)} translation units", flush=True)

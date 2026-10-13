@@ -37,7 +37,9 @@ jobs:
         run: bash tools/ci/build-backends.sh '${{ matrix.sanitizer }}'
       - name: Build selected instrumented core and run its complete suite
         run: |
-          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }}
+          probe_flags=()
+          if [ '${{ matrix.sanitizer }}' = thread ]; then probe_flags=(-DCMAKE_REQUIRED_LINK_OPTIONS=-fsanitize=thread); fi
+          cmake -S . -B build/adapters -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="$PWD/build/prefix" -DUNIMEMORY_BACKEND=${{ matrix.backend }} -DUNIMEMORY_STATISTICS=${{ matrix.statistics }} -DUNIMEMORY_CHECKS=AUTO -DUNIMEMORY_SANITIZER=${{ matrix.sanitizer }} "${probe_flags[@]}"
           cmake --build build/adapters --parallel 4
           ctest --test-dir build/adapters --parallel 2 --output-on-failure --no-tests=error
       - uses: actions/upload-artifact@v4

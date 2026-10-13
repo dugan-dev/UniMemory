@@ -43,7 +43,7 @@ class RecoveryEvidenceTests(unittest.TestCase):
 
     def test_explicit_fixture_changes_require_targeted_tests_only(self):
         fixtures = ["tests/allocation_failure.cpp", "tests/headers/factory_statistics.cpp",
-                    "tests/headers/inheritance.cpp"]
+                    "tests/headers/inheritance.cpp", "tests/headers/memory.cpp", "tests/headers/owned_block.cpp"]
         result = recovery.baseline_evidence(self.run, self.jobs, "example/repo", "a" * 7, fixtures)
         self.assertFalse(result["requires_regression"])
         self.assertEqual(result["targeted_fixtures"], fixtures)
@@ -75,7 +75,8 @@ class RecoveryEvidenceTests(unittest.TestCase):
 
     def test_analysis_retry_inherits_only_verified_completed_jobs_and_coverage_steps(self):
         proof = recovery.retry_evidence(self.run, self.prior_recovery_jobs(), "example/repo",
-                                        ["tests/headers/memory.cpp", "tools/ci/correctness-recovery.py"])
+                                        ["tests/headers/memory.cpp", "tests/headers/owned_block.cpp",
+                                         "tools/ci/correctness-recovery.py"])
         self.assertEqual(len(proof["inherited_jobs"]), 5)
         self.assertEqual(len(proof["inherited_coverage_steps"]), 2)
         self.assertEqual(proof["source_revision"], "a" * 40)

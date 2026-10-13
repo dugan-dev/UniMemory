@@ -11,7 +11,7 @@ def evidence_only(path):
     return (path.startswith(("tests/tools/", "tools/", ".github/workflows/", "docs/"))
             or path in {"README.md", "README.zh-CN.md", "AGENTS.md", "tests/allocation_failure.cpp",
                         "tests/headers/factory_statistics.cpp", "tests/headers/inheritance.cpp",
-                        "tests/headers/memory.cpp"})
+                        "tests/headers/memory.cpp", "tests/headers/owned_block.cpp"})
 
 
 def correctness_job(name):
@@ -41,7 +41,8 @@ def baseline_evidence(run, jobs, repository, expected_sha, changed):
             "baseline_reuse_eligible": not source_changes,
             "targeted_fixtures": [path for path in changed if path in
                                   {"tests/allocation_failure.cpp", "tests/headers/factory_statistics.cpp",
-                                   "tests/headers/inheritance.cpp", "tests/headers/memory.cpp"}],
+                                   "tests/headers/inheritance.cpp", "tests/headers/memory.cpp",
+                                   "tests/headers/owned_block.cpp"}],
             "performance": "not requested"}
 
 
