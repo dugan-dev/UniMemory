@@ -76,7 +76,8 @@ class OverviewTests(unittest.TestCase):
             self.assertEqual(values, expected)
         for name, heading in (("README.md", "## Performance"), ("README.zh-CN.md", "## \u6027\u80fd")):
             performance = (ROOT / name).read_text(encoding="utf-8").split(heading + "\n", 1)[1].split("\n## ", 1)[0]
-            overview.validate_local_overview(ROOT, performance)
+            self.assertIn(overview.CHART_MARKER, performance)
+            self.assertNotIn("|", performance)
         self.assertEqual(len(data["platforms"]["windows"]["workloads"]), 8)
         self.assertEqual(len(data["platforms"]["windows"]["pressure"]), 30)
 
@@ -85,6 +86,17 @@ class OverviewTests(unittest.TestCase):
             target = root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, target)
+        snapshot = overview.read_json(root / overview.LOCAL_SOURCE)
+        for name, heading in (("README.md", "## Performance"), ("README.zh-CN.md", "## \u6027\u80fd")):
+            file = root / name
+            content = file.read_text(encoding="utf-8")
+            begin = content.index(heading + "\n")
+            finish = content.index("\n## ", begin + len(heading))
+            block = heading + "\n\n" + overview.LOCAL_MARKER + "\n\n| Operation | Standard | mimalloc | jemalloc |\n| --- | ---: | ---: | ---: |\n"
+            for factor, label in (("unique", "Create and destroy"), ("vector", "Vector, 256 integers"), ("owned", "Create block")):
+                values = [next(row for row in snapshot["summary"] if row["backend"] == backend and row["build"] == "current" and row["factor"] == factor)["changed_median"] for backend in overview.BACKENDS]
+                block += "| " + label + " | " + " | ".join(f"{float(value):.1f}" for value in values) + " |\n"
+            file.write_text(content[:begin] + block + content[finish:], encoding="utf-8")
         return {"source_revision": "a" * 40, "trials": 10, "measurement_schema": 3,
                 "platforms": {"windows": {"overview": {backend: [100., 200., 300., 400.] for backend in overview.BACKENDS},
                                           "profiles": {backend: {"sweep_environment": {"measured_at_utc": "2026-10-13T00:00:00Z"},
@@ -92,16 +104,47 @@ class OverviewTests(unittest.TestCase):
                                                        for backend in overview.BACKENDS}}}}
 
     def test_local_table_wrong_value_rejected_against_local_snapshot(self):
-        content = (ROOT / "README.md").read_text(encoding="utf-8")
-        block = content.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
-        overview.validate_local_overview(ROOT, block)
-        original = next(line for line in block.splitlines() if line.startswith("| Create and destroy"))
-        cells = original.split("|")
-        cells[2] = f" {float(cells[2]) + 1:.1f} "
-        with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
-            overview.validate_local_overview(ROOT, block.replace(original, "|".join(cells)))
-        with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
-            overview.validate_local_overview(ROOT, block.replace("256", "32"))
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.local_fixture(root)
+            content = (root / "README.md").read_text(encoding="utf-8")
+            block = content.split("## Performance\n", 1)[1].split("\n## ", 1)[0]
+            overview.validate_local_overview(root, block)
+            original = next(line for line in block.splitlines() if line.startswith("| Create and destroy"))
+            cells = original.split("|")
+            cells[2] = f" {float(cells[2]) + 1:.1f} "
+            with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
+                overview.validate_local_overview(root, block.replace(original, "|".join(cells)))
+            with self.assertRaisesRegex(ValueError, "differs from its snapshot"):
+                overview.validate_local_overview(root, block.replace("256", "32"))
+
+    def test_chart_only_refresh_preserves_both_readmes_without_inserting_table(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = self.local_fixture(root)
+            before = {}
+            for name in ("README.md", "README.zh-CN.md"):
+                shutil.copyfile(ROOT / name, root / name)
+                before[name] = (root / name).read_bytes()
+            with mock.patch.object(overview, "comparison_data", return_value=data):
+                overview.refresh_overview(root, root / "plot-input.json")
+            for name, content in before.items():
+                self.assertEqual((root / name).read_bytes(), content)
+            self.assertEqual(json.loads((root / "plot-input.json").read_text()), data)
+
+    def test_invalid_chart_only_view_prevents_any_write(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            data = self.local_fixture(root)
+            for name in ("README.md", "README.zh-CN.md"):
+                shutil.copyfile(ROOT / name, root / name)
+            file = root / "README.md"
+            file.write_text(file.read_text().replace("docs/images/workload-comparison.png", "missing.png"))
+            output = root / "plot-input.json"
+            with mock.patch.object(overview, "comparison_data", return_value=data):
+                with self.assertRaisesRegex(ValueError, "Chart-only"):
+                    overview.refresh_overview(root, output)
+            self.assertFalse(output.exists())
 
     def test_local_snapshot_retains_all_summaries_and_sanitized_provenance(self):
         snapshot = overview.read_json(ROOT / overview.LOCAL_SOURCE)

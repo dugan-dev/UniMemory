@@ -240,19 +240,11 @@ Standard needs no extra allocator dependency; mimalloc and jemalloc require thei
 
 ## Performance
 
-<!-- performance-overview-source: docs/results/windows-local-comparison.json -->
-
-Measured on Windows x64. **ns/operation; lower is faster**.
-
-| Operation | Standard | mimalloc | jemalloc |
-| --- | ---: | ---: | ---: |
-| Create and destroy an object, 64 B | 37.7 | 7.3 | 33.4 |
-| Reserve, fill and destroy a vector, 256 64-bit integers | 302.9 | 265.7 | 311.3 |
-| Create and release a block, 64 B | 41.0 | 7.0 | 36.2 |
+<!-- performance-overview: chart-only -->
 
 ![Windows and Linux workload comparison](docs/images/workload-comparison.png)
 
-Standard = 1 in the chart; shorter bars are faster.
+Relative workload time on Windows and Linux. Standard = 1; shorter bars are faster.
 
 ## Build and Install
 
@@ -283,15 +275,12 @@ Set `-DCMAKE_PREFIX_PATH=<absolute-install-path>` to locate the installation.
 
 ## Documentation
 
-- [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build and install](docs/getting-started.md)
-- [Build options](docs/getting-started.md#build-options) · [Integration](docs/getting-started.md)
-- [Runnable examples](examples/README.md)
-- [Objects and arrays](docs/guides/objects.md) · [Containers](docs/guides/containers.md)
-- [Blocks](docs/guides/raw-memory.md) · [Heap](docs/guides/heap.md)
-- [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
-- [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md)
-- [Performance report](docs/performance.md) · [Table data](docs/results/windows-local-comparison.json)
-- [Full documentation index](docs/README.md)
+- **Start:** [Source](https://github.com/dugan-dev/UniMemory/archive/refs/heads/dev.zip) · [Build and install](docs/getting-started.md) · [Examples](examples/README.md)
+- **Project integration:** [Build options](docs/getting-started.md#build-options) · [Project setup](docs/getting-started.md)
+- **Everyday use:** [Objects and arrays](docs/guides/objects.md) · [Containers](docs/guides/containers.md) · [Blocks](docs/guides/raw-memory.md)
+- **Memory management:** [Heap](docs/guides/heap.md) · [Stack](docs/guides/stack.md) · [Statistics](docs/guides/statistics.md)
+- **Reference:** [API](docs/api-reference.md) · [Platforms and configuration](docs/guides/backends.md) · [Full index](docs/README.md)
+- **Performance:** [Full report](docs/performance.md) · [Measurement data](docs/results/windows-local-comparison.json)
 
 ## License
 

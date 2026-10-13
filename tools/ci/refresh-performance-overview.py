@@ -36,6 +36,7 @@ WORKLOADS = (
 PHASES = ("dense", "sparse", "churn_dense", "churn_sparse", "freed")
 LOCAL_SOURCE = "docs/results/windows-local-comparison.json"
 LOCAL_MARKER = f"<!-- performance-overview-source: {LOCAL_SOURCE} -->"
+CHART_MARKER = "<!-- performance-overview: chart-only -->"
 LOCAL_FACTORS = ("unique", "vector", "owned")
 
 
@@ -225,6 +226,11 @@ def refresh_overview(root, output, expected_revision=None):
         begin = content.index(heading + "\n")
         finish = content.index("\n## ", begin + len(heading))
         block = content[begin:finish]
+        if CHART_MARKER in block:
+            if "docs/images/workload-comparison.png" not in block or any(line.startswith("|") for line in block.splitlines()):
+                raise ValueError("Chart-only overview requires its original figure and no table")
+            prepared.append((path, content))
+            continue
         if LOCAL_MARKER in block:
             validate_local_overview(root, block)
             prepared.append((path, content))
