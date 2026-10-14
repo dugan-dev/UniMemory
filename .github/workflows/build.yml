@@ -18,6 +18,10 @@ concurrency:
 
 jobs:
   correctness:
+    permissions:
+      contents: write
+      actions: write
+      pull-requests: write
     uses: ./.github/workflows/performance.yml
     with:
       validation_only: true
