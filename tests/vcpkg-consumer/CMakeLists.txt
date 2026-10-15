@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.25)
+project(UniMemoryRelocatedConsumer LANGUAGES CXX)
+find_package(UniMemory 0.0.1 EXACT CONFIG REQUIRED)
+add_executable(UniMemoryRelocatedConsumer main.cpp)
+target_link_libraries(UniMemoryRelocatedConsumer PRIVATE UniMemory::UniMemory)
+enable_testing()
+add_test(NAME UniMemory.vcpkg.relocated COMMAND UniMemoryRelocatedConsumer)

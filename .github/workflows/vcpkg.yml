@@ -1,0 +1,73 @@
+name: vcpkg
+
+on:
+  push:
+    branches: [main, dev, codex/vcpkg-validation]
+    paths: ['ports/**', 'tests/consumer/**', 'tests/vcpkg-consumer/**', 'tests/headers/**', 'tools/ci/vcpkg-validation.py', '.github/workflows/vcpkg.yml']
+  pull_request:
+    paths: ['ports/**', 'tests/consumer/**', 'tests/vcpkg-consumer/**', 'tests/headers/**', 'tools/ci/vcpkg-validation.py', '.github/workflows/vcpkg.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vcpkg-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: ${{ matrix.platform.triplet }} / statistics ${{ matrix.statistics }}
+    runs-on: ${{ matrix.platform.runner }}
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        statistics: ['OFF', 'ON']
+        platform:
+          - runner: windows-2022
+            triplet: x64-windows
+          - runner: windows-2022
+            triplet: x64-windows-static
+          - runner: ubuntu-24.04
+            triplet: x64-linux
+          - runner: macos-15-intel
+            triplet: x64-osx
+          - runner: macos-15
+            triplet: arm64-osx
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+        with:
+          repository: microsoft/vcpkg
+          ref: 2273a28f34ce5aac8be50b3b6b44da7fc1722e06
+          path: .ci-vcpkg
+      - name: Bootstrap existing pinned vcpkg
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            .ci-vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          else
+            .ci-vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+      - name: Install port and verify Debug, Release and relocation
+        shell: bash
+        env:
+          VCPKG_DISABLE_METRICS: '1'
+        run: >-
+          python3 tools/ci/vcpkg-validation.py
+          --vcpkg-root "$GITHUB_WORKSPACE/.ci-vcpkg"
+          --work "$RUNNER_TEMP/vcpkg-validation"
+          --triplet "${{ matrix.platform.triplet }}"
+          --statistics "${{ matrix.statistics }}"
+      - name: Preserve package validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-${{ matrix.platform.triplet }}-statistics-${{ matrix.statistics }}
+          path: |
+            ${{ runner.temp }}/vcpkg-validation/*.log
+            ${{ runner.temp }}/vcpkg-validation/result.json
+            ${{ runner.temp }}/vcpkg-validation/buildtrees/**/*.log
+          if-no-files-found: warn
+          retention-days: 14

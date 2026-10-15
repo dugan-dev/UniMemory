@@ -1,0 +1,7 @@
+UniMemory provides CMake targets:
+
+    find_package(UniMemory CONFIG REQUIRED)
+    target_link_libraries(main PRIVATE UniMemory::UniMemory)
+
+Include <unimem/all.h>. Requires C++20. This port selects the Standard backend.
+Enable unimemory[statistics] for optional per-memory statistics.
