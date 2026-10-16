@@ -20,7 +20,8 @@
       "release_flags": "/O2 /Ob2 /DNDEBUG",
       "debug_flags": "/Ob0 /Od /RTC1",
       "ipo": "",
-      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
+      "release_ipo": "ON",
+      "compile_definitions": "UNIMEMORY_BENCH_JEMALLOC;UNIMEMORY_PERFORMANCE_TESTS=1;UNIMEMORY_TARGET_CHECKS=0;UNIMEMORY_CHECKS=0;UNIMEMORY_WITH_JEMALLOC",
       "compile_options": "/Ob3",
       "sdk_target": "unimemory_jemalloc",
       "sdk_binary": "D:/a/UniMemory/UniMemory/build/sdk-installed/x64-windows-unimemory/lib/jemalloc.lib",
@@ -38,30 +39,31 @@
       }
     },
     "runtime_dlls": {
-      "jemalloc.dll": "a61e6ca71b85aa6e8050bbee329ce93d8da3abdbc74c3d3cf43a3965b3e8b428"
+      "jemalloc.dll": "8dac3b5c60c4a1d4a2d1f9c2b1a49d4b5bc8174d3cf6eae0d360ac19ce8fb9d6"
     },
     "sdk_runtime_files": {
-      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "a61e6ca71b85aa6e8050bbee329ce93d8da3abdbc74c3d3cf43a3965b3e8b428",
-      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "93cfa86d31e392c423f05bb94b2c0192a9738cec3c719a70fb90350f1404134c"
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\jemalloc.dll": "8dac3b5c60c4a1d4a2d1f9c2b1a49d4b5bc8174d3cf6eae0d360ac19ce8fb9d6",
+      "D:\\a\\UniMemory\\UniMemory\\build\\sdk-installed\\x64-windows-unimemory\\bin\\mimalloc.dll": "2c9d42b4cec4d95266b6f411f792e4d415409c519752a1e5c1494efe319e2818"
     },
-    "cmake_cache_sha256": "dc4d84a8ac9826dce4a249ecdee640cbc4ce67f7ee3d37e8a21aa76d65ecc706",
+    "cmake_cache_sha256": "6ee237974db92d00e32098710aec6f8c177a462a6f3fea94841a63e26ee5a912",
     "native_api_same_executable": true,
     "native_api_same_sdk_target": true
   },
   "logical_cpus": 4,
-  "source_revision": "8365472eea66997cde5163182aef82d3b94dcc48",
-  "run_id": "38167739252",
-  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38167739252",
+  "source_revision": "c917e8173a8b938fa60119a2b534f827e37e42ec",
+  "run_id": "38415569101",
+  "run_url": "https://github.com/dugan-dev/UniMemory/actions/runs/38415569101",
   "trials": 10,
-  "scenarios_per_trial": 214,
+  "scenarios_per_trial": 212,
+  "scenario_contract": "allocation-v3",
   "affinity_pinned": true,
   "sequential_processes": true,
   "repetitions": 1,
   "measurement_protocol": "native-api-sustained-v4",
-  "operations_file_sha256": "4f47d960caf4b1f5c61d479fd029e558f98920810ff583154d09df1ae12c0cd5",
-  "measured_at_utc": "2026-10-11T22:19:59.693232+00:00",
-  "executable_sha256": "a3d37c7235b4d950fd55e4749a2c0558e2886249bcdd1c3c9f20ac01e21e8b14",
-  "benchmark_source_sha256": "066060aa4298df936f346ad8696776868a7640fdefee4ecd5306b15c370b7e42",
+  "operations_file_sha256": "a190d9444ab528bb609730403598c710b08b3060694cd9e2d459609f32d0f7fe",
+  "measured_at_utc": "2026-10-13T18:15:30.713346+00:00",
+  "executable_sha256": "86f80db36732e7007f59ddda2837da9669818e139f656fdbde4251df5becf369",
+  "benchmark_source_sha256": "a849bd75a48522c6111384b2c8d517a0126f6224aa968bf55a5bf96f8cc7904f",
   "source_hash_line_endings": "LF",
-  "full_calibration_sha256": "205546c148e2158781e4b60569a9f2d5ec6a9399b545d47c333029418e977c18"
+  "full_calibration_sha256": "1cfa9d37c24a2b96b7a4e67e71feb5872018e1827a9d75152da4cbb9a24ff1fc"
 }
