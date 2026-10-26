@@ -258,6 +258,8 @@ cmake --install build/UniMemory-release --config Release --prefix build/installe
 
 头文件安装到 `build/installed`。release 预设选择 Standard 并关闭统计。
 
+预设需要 Ninja，默认并行构建。
+
 ## 项目集成
 
 在项目的 `CMakeLists.txt` 中链接 UniMemory：

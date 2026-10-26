@@ -22,12 +22,14 @@ cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ```
 
-Windows 使用 Visual Studio 时，在 PowerShell 运行：
+预设需要 Ninja，默认并行构建。
+
+Windows 在 PowerShell 运行：
 
 ```powershell
-./build/UniMemory-release/Release/UniMemoryExample_basic.exe
-./build/UniMemory-release/Release/UniMemoryExample_heap.exe
-./build/UniMemory-release/Release/UniMemoryExample_scratch.exe
+./build/UniMemory-release/UniMemoryExample_basic.exe
+./build/UniMemory-release/UniMemoryExample_heap.exe
+./build/UniMemory-release/UniMemoryExample_scratch.exe
 ```
 
 Linux/macOS 使用单配置生成器时：
@@ -38,7 +40,7 @@ Linux/macOS 使用单配置生成器时：
 ./build/UniMemory-release/UniMemoryExample_scratch
 ```
 
-依次输出 `3, 1024 bytes`、`Heap reset succeeded`、`0 bytes used after rewind`。Debug 使用 `debug` 配置和构建预设，并传入相同选项；Visual Studio 的程序位于 `build/UniMemory-debug/Debug`。
+依次输出 `3, 1024 bytes`、`Heap reset succeeded`、`0 bytes used after rewind`。Debug 使用 `debug` 配置和构建预设，并传入相同选项；程序位于 `build/UniMemory-debug`。
 
 不使用预设时，可执行等效的 Release 构建：
 

@@ -22,12 +22,14 @@ cmake --preset release -DUNIMEMORY_BUILD_TESTS=OFF -DUNIMEMORY_BUILD_EXAMPLES=ON
 cmake --build --preset release
 ```
 
-With Visual Studio on Windows, run in PowerShell:
+The presets require Ninja and build in parallel by default.
+
+On Windows, run in PowerShell:
 
 ```powershell
-./build/UniMemory-release/Release/UniMemoryExample_basic.exe
-./build/UniMemory-release/Release/UniMemoryExample_heap.exe
-./build/UniMemory-release/Release/UniMemoryExample_scratch.exe
+./build/UniMemory-release/UniMemoryExample_basic.exe
+./build/UniMemory-release/UniMemoryExample_heap.exe
+./build/UniMemory-release/UniMemoryExample_scratch.exe
 ```
 
 With a single-configuration generator on Linux/macOS:
@@ -38,7 +40,7 @@ With a single-configuration generator on Linux/macOS:
 ./build/UniMemory-release/UniMemoryExample_scratch
 ```
 
-Expected output: `3, 1024 bytes`, `Heap reset succeeded`, and `0 bytes used after rewind`. Use the `debug` configure/build presets with the same options for Debug; Visual Studio then places executables in `build/UniMemory-debug/Debug`.
+Expected output: `3, 1024 bytes`, `Heap reset succeeded`, and `0 bytes used after rewind`. Use the `debug` configure/build presets with the same options for Debug; executables are then placed in `build/UniMemory-debug`.
 
 Without presets, an equivalent Release build is:
 

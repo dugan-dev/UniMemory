@@ -258,6 +258,8 @@ cmake --install build/UniMemory-release --config Release --prefix build/installe
 
 The headers are installed to `build/installed`. The release preset selects Standard with statistics off.
 
+The presets require Ninja and build in parallel by default.
+
 ## Integration
 
 Link UniMemory in your project's `CMakeLists.txt`:

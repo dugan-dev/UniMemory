@@ -8,6 +8,7 @@
   "configurePresets": [
     {
       "name": "debug",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/UniMemory-debug",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
@@ -18,6 +19,7 @@
     },
     {
       "name": "release",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/UniMemory-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",

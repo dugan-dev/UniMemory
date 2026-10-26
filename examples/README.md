@@ -15,10 +15,10 @@ cmake --build --preset release
 
 Run an executable from the repository root:
 
-| Program | Windows / Visual Studio | Linux / macOS |
+| Program | Windows | Linux / macOS |
 | --- | --- | --- |
-| Basic | `build/UniMemory-release/Release/UniMemoryExample_basic.exe` | `build/UniMemory-release/UniMemoryExample_basic` |
-| Heap | `build/UniMemory-release/Release/UniMemoryExample_heap.exe` | `build/UniMemory-release/UniMemoryExample_heap` |
-| Stack | `build/UniMemory-release/Release/UniMemoryExample_scratch.exe` | `build/UniMemory-release/UniMemoryExample_scratch` |
+| Basic | `build/UniMemory-release/UniMemoryExample_basic.exe` | `build/UniMemory-release/UniMemoryExample_basic` |
+| Heap | `build/UniMemory-release/UniMemoryExample_heap.exe` | `build/UniMemory-release/UniMemoryExample_heap` |
+| Stack | `build/UniMemory-release/UniMemoryExample_scratch.exe` | `build/UniMemory-release/UniMemoryExample_scratch` |
 
 Heap uses the selected Standard, mimalloc, or jemalloc backend with an independent allocation group. Examples are optional and are not installed with the library.
